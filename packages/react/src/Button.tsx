@@ -11,14 +11,33 @@ type ButtonProps = DetailedHTMLProps<
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { className, ...props },
+  { className, variant, size = 'md', color = 'tertiary', ...props },
   ref
 ) {
+  const colors = {
+    'btn-primary': color === 'primary',
+    'btn-secondary': color === 'secondary',
+    'btn-tertiary': color === 'tertiary',
+    'btn-danger': color === 'danger',
+    'btn-warning': color === 'warning',
+  };
+
+  const variants = {
+    'btn-solid': variant === 'solid',
+    'btn-outline': variant === 'outline',
+  };
+
+  const sizes = {
+    'btn-sm': size === 'sm',
+    'btn-md': size === 'md',
+    'btn-lg': size === 'lg',
+  };
+
   return (
     <button
       ref={ref}
       {...props}
-      className={classnames('btn btn-primary', className)}
+      className={classnames('btn', colors, variants, sizes, className)}
     />
   );
 });

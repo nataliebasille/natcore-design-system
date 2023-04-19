@@ -1,14 +1,15 @@
-import { tailwind } from '@natcore/design-system-core';
-
-export const mode = 'jit';
+import { plugin } from './wrapper';
 
 /** @type {import('tailwindcss').Config} */
 export const content = [
   './pages/**/*.{js,ts,jsx,tsx}',
   './components/**/*.{js,ts,jsx,tsx}',
   './app/**/*.{js,ts,jsx,tsx}',
+  './wrapper.ts',
   '../packages/react/**/*.{js,ts,jsx,tsx}',
+  '../packages/core/**/*.{js,ts,jsx,tsx}'
 ];
+
 export const theme = {
   extend: {
     backgroundImage: {
@@ -17,4 +18,4 @@ export const theme = {
     },
   },
 };
-export const plugins = [tailwind];
+export const plugins = [plugin];
