@@ -6,7 +6,7 @@ import colors from './colors';
 
 export default plugin(
   ({ theme, addBase, addUtilities, addComponents }) => {
-    addBase(base);
+    addBase(base(theme));
     addUtilities(utilities);
     addComponents(components(theme));
   },

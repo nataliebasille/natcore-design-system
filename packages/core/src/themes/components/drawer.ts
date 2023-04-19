@@ -53,9 +53,9 @@ export default (theme: PluginAPI['theme']) => ({
     },
 
     '> .drawer-content': {
-      'transition-property': 'transform',
-      'transition-timing-function': 'ease-in-out',
-      'transition-duration': '250ms',
+      transitionProperty: 'transform',
+      transitionTimingFunction: 'ease-in-out',
+      transitionDuration: '250ms',
     },
   },
 });

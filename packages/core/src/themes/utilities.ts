@@ -1,16 +1,16 @@
 export default {
   '.bg-primary': {
-    'background-color': 'var(--primary)',
+    backgroundColor: 'var(--primary)',
     color: 'var(--primaryContrast)',
   },
 
   '.bg-secondary': {
-    'background-color': 'var(--secondary)',
+    backgroundColor: 'var(--secondary)',
     color: 'var(--secondaryContrast)',
   },
 
   '.bg-tertiary': {
-    'background-color': 'var(--tertiary)',
+    backgroundColor: 'var(--tertiary)',
     color: 'var(--tertiaryContrast)',
   },
 
@@ -31,18 +31,18 @@ export default {
   },
 
   '.border-primary': {
-    'border-color': 'var(--primary)',
+    borderColor: 'var(--primary)',
   },
 
   '.border-secondary': {
-    'border-color': 'var(--secondary)',
+    borderColor: 'var(--secondary)',
   },
 
   '.border-tertiary': {
-    'border-color': 'var(--tertiary)',
+    borderColor: 'var(--tertiary)',
   },
 
   '.border-accent': {
-    'border-color': 'var(--accent)',
+    borderColor: 'var(--accent)',
   },
 } as const;

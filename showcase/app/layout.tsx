@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body className='page-container bg-gray-100'>
+      <body className='page-container'>
         <Drawer open className='bg-gray-200 w-80 p-5'>
           <Sidebar />
         </Drawer>
