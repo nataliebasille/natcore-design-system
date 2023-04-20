@@ -13,11 +13,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body className='page-container'>
-        <Drawer open className='bg-gray-200 w-80 p-5'>
-          <Sidebar />
-        </Drawer>
-        <main className='content'>{children}</main>
+      <body className='w-screen h-screen'>
+        <div className='layer'>
+          <input type='checkbox' className='layer-drawer-toggle' />
+          <div className='layer-drawer md:layer-drawer-fixed bg-gray-200 w-80 p-5'>
+            <Sidebar />
+          </div>
+          <main className='layer-content p-6'>{children}</main>
+        </div>
       </body>
     </html>
   );

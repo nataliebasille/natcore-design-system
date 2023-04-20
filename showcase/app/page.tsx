@@ -1,9 +1,33 @@
-import Image from 'next/image';
-import { Inter } from 'next/font/google';
-import Link from 'next/link';
-
-const inter = Inter({ subsets: ['latin'] });
+import { List } from '@natcore/design-system-react';
 
 export default function Home() {
-  return <Link href='/button'>Button</Link>;
+  return (
+    <article>
+      <h1>My Design System</h1>
+      <p>
+        Welcome to My Design System! This design system is a comprehensive guide
+        to the visual language, components, and patterns that make up our brand
+        and product experiences. Our goal is to create a consistent and cohesive
+        user experience across all platforms and touchpoints.
+      </p>
+      <h2>Why a Design System?</h2>
+      <p>
+        A design system helps us to:
+        <List.UL>
+          <List.Item>Ensure consistency and coherence in our designs</List.Item>
+          <List.Item>
+            Improve the efficiency of our design and development processes
+          </List.Item>
+          <List.Item>
+            Facilitate collaboration and communication between designers,
+            developers, and other stakeholders
+          </List.Item>
+          <List.Item>
+            Establish a shared vocabulary and understanding of design principles
+          </List.Item>
+          <List.Item>Enable rapid iteration and experimentation</List.Item>
+        </List.UL>
+      </p>
+    </article>
+  );
 }

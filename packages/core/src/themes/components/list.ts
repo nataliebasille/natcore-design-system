@@ -9,19 +9,35 @@ export default (theme: PluginAPI['theme']) => ({
     margin: '0',
     listStyle: 'none',
 
-    '&.list-inline': {
-      flexDirection: 'row',
+    // '&.list-inline': {
+    //   flexDirection: 'row',
+    // },
+
+    '&.list-disc': {
+      '.list-item': {
+        '&::before': {
+          content: '"•"',
+          fontSize: theme('fontSize.3xl')!,
+          paddingRight: theme('spacing.3')!,
+        },
+
+        padding: 0,
+      },
     },
+
+    // '&.list-decimal': {
+    //   listStyleType: 'decimal',
+    // },
 
     '> .list-item': {
       display: 'flex',
       alignItems: 'center',
       padding: theme('spacing.2')!,
       margin: '0',
-      listStyle: 'none',
       cursor: 'pointer',
       width: theme('width.full')!,
       borderRadius: theme('borderRadius.DEFAULT')!,
+      lineHeight: theme('lineHeight.tight')!,
       '&:hover,&:focus': {
         background: theme('colors.gray.100')!,
       },
