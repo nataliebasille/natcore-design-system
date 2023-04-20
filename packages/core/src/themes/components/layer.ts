@@ -28,9 +28,9 @@ export default (theme: PluginAPI['theme']) => ({
 
     '.layer-drawer': {
       position: 'absolute',
-      top: 0,
-      left: 0,
-      bottom: 0,
+      top: '0',
+      left: '0',
+      bottom: '0',
       transition: 'transform 0.3s ease-in-out',
       '& ~ .layer-content': {
         gridColumn: '1 / -1',
@@ -49,9 +49,9 @@ export default (theme: PluginAPI['theme']) => ({
       },
 
       '&.layer-drawer-right': {
-        top: 0,
-        right: 0,
-        bottom: 0,
+        top: '0',
+        right: '0',
+        bottom: '0',
 
         '&.layer-drawer-fixed': {
           gridColumn: '-1 !important',
@@ -65,9 +65,9 @@ export default (theme: PluginAPI['theme']) => ({
       },
 
       '&.layer-drawer-top': {
-        top: 0,
-        right: 0,
-        left: 0,
+        top: '0',
+        right: '0',
+        left: '0',
 
         '&.layer-drawer-fixed': {
           gridColumn: '1 / -1 !important',
@@ -80,9 +80,9 @@ export default (theme: PluginAPI['theme']) => ({
       },
 
       '&.layer-drawer-bottom': {
-        right: 0,
-        bottom: 0,
-        left: 0,
+        right: '0',
+        bottom: '0',
+        left: '0',
 
         '&.layer-drawer-fixed': {
           gridColumn: '1 / -1 !important',

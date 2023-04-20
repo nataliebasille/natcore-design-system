@@ -21,7 +21,7 @@ export default (theme: PluginAPI['theme']) => ({
           paddingRight: theme('spacing.3')!,
         },
 
-        padding: 0,
+        padding: '0',
       },
     },
 

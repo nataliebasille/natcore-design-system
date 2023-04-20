@@ -21,7 +21,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@natcore/design-system-react": ["../packages/design-system-react"],
+      "@natcore/design-system-react": ["../packages/react"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../packages/react/**/*.ts", "../packages/react/**/*.tsx"],
