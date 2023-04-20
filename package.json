@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:showcase": "cd showcase && npm run dev",
-    "postinstall": "(cd ./packages/core && npm install) && (cd ./packages/react && npm install) && (cd ./showcase && npm install)"
+    "start:showcase": "cd showcase && npm run dev"
   },
   "repository": {
     "type": "git",
