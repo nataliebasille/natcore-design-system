@@ -11,23 +11,21 @@ export default function Home() {
         user experience across all platforms and touchpoints.
       </p>
       <h2>Why a Design System?</h2>
-      <p>
-        A design system helps us to:
-        <List.UL>
-          <List.Item>Ensure consistency and coherence in our designs</List.Item>
-          <List.Item>
-            Improve the efficiency of our design and development processes
-          </List.Item>
-          <List.Item>
-            Facilitate collaboration and communication between designers,
-            developers, and other stakeholders
-          </List.Item>
-          <List.Item>
-            Establish a shared vocabulary and understanding of design principles
-          </List.Item>
-          <List.Item>Enable rapid iteration and experimentation</List.Item>
-        </List.UL>
-      </p>
+      <p>A design system helps us to:</p>
+      <List.UL>
+        <List.Item>Ensure consistency and coherence in our designs</List.Item>
+        <List.Item>
+          Improve the efficiency of our design and development processes
+        </List.Item>
+        <List.Item>
+          Facilitate collaboration and communication between designers,
+          developers, and other stakeholders
+        </List.Item>
+        <List.Item>
+          Establish a shared vocabulary and understanding of design principles
+        </List.Item>
+        <List.Item>Enable rapid iteration and experimentation</List.Item>
+      </List.UL>
     </article>
   );
 }

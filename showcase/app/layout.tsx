@@ -1,6 +1,5 @@
 import { Sidebar } from '@/components/sidebar';
 import './globals.css';
-import { Drawer } from '@natcore/design-system-react';
 
 export const metadata = {
   title: 'Natcore Design System',

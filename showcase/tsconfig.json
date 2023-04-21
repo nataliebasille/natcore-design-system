@@ -21,6 +21,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
+      "@natcore/design-system-core": ["../packages/core"],
       "@natcore/design-system-react": ["../packages/react"],
     }
   },
