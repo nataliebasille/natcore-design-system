@@ -1,5 +1,6 @@
 import { Sidebar } from '@/components';
 import './globals.css';
+import { Header } from '@/components/header/Header';
 
 export const metadata = {
   title: 'Natcore Design System',
@@ -18,7 +19,12 @@ export default function RootLayout({
           <div className='layer-drawer md:layer-drawer-fixed bg-gray-200 w-80 p-5'>
             <Sidebar />
           </div>
-          <main className='layer-content p-6'>{children}</main>
+          <div className='layer-content layer'>
+            <header className='layer-drawer layer-drawer-top layer-drawer-fixed px-6 pt-2'>
+              <Header />
+            </header>
+            <main className='layer-content p-6'>{children}</main>
+          </div>
         </div>
       </body>
     </html>
