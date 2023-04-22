@@ -17,11 +17,11 @@ export default (theme: PluginAPI['theme']) => ({
     },
 
     '&:empty::after': {
-      marginLeft: 0,
+      marginLeft: '0',
     },
 
     '&:empty::before': {
-      marginRight: 0,
+      marginRight: '0',
     },
 
     '&::before': {
