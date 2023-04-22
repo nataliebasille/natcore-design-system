@@ -6,14 +6,14 @@ export const Logo = () => {
   const router = useRouter();
   return (
     <div
-      className='inline-flex hover:bg-tertiary-100 cursor-pointer p-3 rounded-md -ml-3'
+      className='-ml-3 inline-flex cursor-pointer rounded-md p-3 hover:bg-tertiary-100'
       onClick={() => router.push('/')}
     >
-      <div className='w-[48px] h-[48px] text-primary font-bold'>
+      <div className='h-[48px] w-[48px] font-bold text-primary'>
         <LogoSVG />
       </div>
-      <span className='ml-1 text-primary text-5xl'>at</span>
-      <span className='text-secondary text-5xl'>Core</span>
+      <span className='ml-1 text-5xl text-primary'>at</span>
+      <span className='text-5xl text-secondary'>Core</span>
     </div>
   );
 };
