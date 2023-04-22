@@ -4,21 +4,18 @@ export default (theme: PluginAPI['theme']) => ({
   '.list': {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'stretch',
+    gap: theme('spacing.2')!,
     padding: '0',
     margin: '0',
     listStyle: 'none',
-
-    // '&.list-inline': {
-    //   flexDirection: 'row',
-    // },
 
     '&.list-disc': {
       '.list-item': {
         '&::before': {
           content: '"•"',
           fontSize: theme('fontSize.3xl')!,
-          paddingRight: theme('spacing.3')!,
+          paddingRight: theme('spacing.2')!,
+          lineHeight: '.65',
         },
 
         padding: '0',
@@ -31,7 +28,7 @@ export default (theme: PluginAPI['theme']) => ({
 
     '> .list-item': {
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       padding: theme('spacing.2')!,
       margin: '0',
       cursor: 'pointer',
