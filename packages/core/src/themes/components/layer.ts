@@ -10,86 +10,120 @@ export default (theme: PluginAPI['theme']) => ({
     height: theme('height.full')!,
     overflow: 'hidden',
 
-    '.layer-drawer-toggle': {
+    '> .layer-overlay': {
+      display: 'none',
+    },
+
+    '> .layer-drawer-toggle': {
       display: 'none',
 
       '& ~ .layer-drawer': {
         transform: 'translateX(-100%)',
-
-        '&.layer-drawer-fixed': {
-          transform: 'translateX(0)',
-        },
       },
 
       '&:checked ~ .layer-drawer': {
         transform: 'translateX(0)',
       },
+
+      '&:checked ~ .layer-overlay': {
+        display: 'block',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        zIndex: theme('zIndex.10')!,
+        backgroundColor: theme('colors.black')!,
+        opacity: '0.5',
+      },
     },
 
-    '.layer-drawer': {
+    '> .layer-drawer': {
       position: 'absolute',
       top: '0',
       left: '0',
       bottom: '0',
+      zIndex: theme('zIndex.20')!,
       transition: 'transform 0.3s ease-in-out',
-      '& ~ .layer-content': {
-        gridColumn: '1 / -1',
-        gridRow: '1 / -1',
-      },
+    },
 
-      '&.layer-drawer-fixed': {
+    '> .layer-content': {
+      gridColumn: '1 / -1',
+      gridRow: '1 / -1',
+    },
+
+    '&.layer-fixed': {
+      '> .layer-drawer': {
+        transform: 'translateX(0)',
         position: 'relative',
         gridColumn: '1',
         gridRow: '1 / -1',
-
-        '& ~ .layer-content': {
-          gridColumn: '2 / -1',
-          gridRow: '1 / -1',
-        },
       },
 
-      '&.layer-drawer-right': {
+      '> .layer-content': {
+        gridColumn: '2 / -1',
+        gridRow: '1 / -1',
+      },
+
+      '> .layer-overlay': {
+        display: 'none !important',
+      },
+    },
+
+    '&.layer-right': {
+      '> .layer-drawer': {
         top: '0',
         right: '0',
         bottom: '0',
+      },
 
-        '&.layer-drawer-fixed': {
+      '&.layer-fixed': {
+        '> .layer-drawer': {
           gridColumn: '-1 !important',
           gridRow: '1 / -1 !important',
         },
 
-        '& ~ .layer-content': {
+        '> .layer-content': {
           gridColumn: '1 / -2 !important',
           gridRow: '1 / -1 !important',
         },
       },
+    },
 
-      '&.layer-drawer-top': {
+    '&.layer-top': {
+      '> .layer-drawer': {
         top: '0',
         right: '0',
         left: '0',
+      },
 
-        '&.layer-drawer-fixed': {
+      '&.layer-fixed': {
+        '> .layer-drawer': {
           gridColumn: '1 / -1 !important',
           gridRow: '1 !important',
         },
-        '& ~ .layer-content': {
+
+        '> .layer-content': {
           gridColumn: '1 / -1 !important',
           gridRow: '2 / -1 !important',
         },
       },
+    },
 
-      '&.layer-drawer-bottom': {
+    '&.layer-bottom': {
+      '> .layer-drawer': {
         right: '0',
         bottom: '0',
         left: '0',
+      },
 
-        '&.layer-drawer-fixed': {
+      '&.layer-fixed': {
+        '> .layer-drawer': {
           gridColumn: '1 / -1 !important',
           gridRow: '-1 !important',
         },
 
-        '& ~ .layer-content': {
+        '> .layer-content': {
           gridColumn: '1 / -1 !important',
           gridRow: '1 / 2 !important',
         },

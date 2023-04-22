@@ -2,12 +2,21 @@
 
 import { useRouter } from 'next/navigation';
 import { logo as LogoSVG } from '@natcore/design-system-core';
+import { useSidebar } from '@/providers/SidebarProvider';
+import { useCallback } from 'react';
+
 export const Logo = () => {
   const router = useRouter();
+  const { toggle } = useSidebar();
+
+  const handleClick = useCallback(() => {
+    router.push('/');
+    toggle();
+  }, [router, toggle]);
   return (
     <div
       className='-ml-3 inline-flex cursor-pointer rounded-md p-3 hover:bg-tertiary-100'
-      onClick={() => router.push('/')}
+      onClick={handleClick}
     >
       <div className='h-[48px] w-[48px] font-bold text-primary'>
         <LogoSVG />

@@ -1,4 +1,5 @@
 import tailwind from './themes/plugin';
-import logo from './logo.svg';
+import logo from './icons/logo.svg';
+import hamburger from './icons/hamburger.svg';
 
-export { tailwind, logo };
+export { tailwind, hamburger, logo };

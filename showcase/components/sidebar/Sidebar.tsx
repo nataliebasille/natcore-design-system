@@ -9,6 +9,9 @@ export const Sidebar = () => {
       <Divider />
       <List.Container color='primary'>
         <SidebarItem href='/button'>Button</SidebarItem>
+        <SidebarItem href='/divider'>Divider</SidebarItem>
+        <SidebarItem href='/layer'>Layer</SidebarItem>
+        <SidebarItem href='/list'>List</SidebarItem>
       </List.Container>
     </>
   );
