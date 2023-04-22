@@ -13,12 +13,21 @@ export default (theme: PluginAPI['theme']) => ({
       '.list-item': {
         '&::before': {
           content: '"•"',
-          fontSize: theme('fontSize.3xl')!,
-          paddingRight: theme('spacing.2')!,
-          lineHeight: '.65',
+          display: 'inline-block',
+          fontSize: '1.875rem',
+          paddingRight: '0.5rem',
+          marginLeft: '-20px',
+          width: '20px',
+          height: '20px',
+          position: 'relative',
+          top: '-12px',
+          verticalAlign: 'top',
         },
 
+        marginLeft: '20px',
         padding: '0',
+        paddingRight: '20px',
+        lineHeight: theme('lineHeight.tight')!,
       },
     },
 
@@ -27,8 +36,7 @@ export default (theme: PluginAPI['theme']) => ({
     // },
 
     '> .list-item': {
-      display: 'flex',
-      alignItems: 'flex-start',
+      display: 'block',
       padding: theme('spacing.2')!,
       margin: '0',
       cursor: 'pointer',

@@ -55,9 +55,20 @@ export default (theme: PluginAPI['theme']) =>
     },
 
     article: {
+      'p, .list-item': {
+        lineHeight: `${theme('lineHeight.relaxed')!} !important`,
+      },
+
+      '> *:first-child': {
+        marginTop: '0 !important',
+      },
+
       p: {
         margin: `${theme('spacing.4')} 0`!,
-        lineHeight: theme('lineHeight.relaxed')!,
+      },
+
+      'h1, h2, h3': {
+        margin: `${theme('spacing.8')} 0 ${theme('spacing.4')} 0`!,
       },
     },
   } as const);
