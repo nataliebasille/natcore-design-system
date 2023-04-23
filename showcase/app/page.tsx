@@ -39,7 +39,27 @@ export default function Home() {
           library.
         </List.Item>
       </List.UL>
-      {/* <h2>Getting Started 🚴‍♂️</h2> */}
+      <h2>Getting Started 🚴‍♂️</h2>
+      <p>To start using NatCore in your project, follow these simple steps:</p>
+      <List.OL>
+        <List.Item>
+          Install the core package from github using
+          <code>
+            npm install
+            https://gitpkg.now.sh/nataliebasille/natcore-design-system/packages/core?main
+            --save
+          </code>
+        </List.Item>
+        <List.Item>
+          Install the required dependencies with npm install or yarn.
+        </List.Item>
+        <List.Item>
+          Import the desired components and styles into your project.
+        </List.Item>
+      </List.OL>
+      <p>
+        <code>Test</code>
+      </p>
     </article>
   );
 }

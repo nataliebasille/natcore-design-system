@@ -6,8 +6,9 @@ const nextConfig = {
   },
 
   webpack(config, { dev }) {
-    if(dev)
-      config.cache = false;
+    // uncomment this when working with icons
+    // if(dev)
+    //   config.cache = false;
     return config;
   }
 };

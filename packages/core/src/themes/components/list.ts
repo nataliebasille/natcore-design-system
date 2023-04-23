@@ -9,7 +9,7 @@ export default (theme: PluginAPI['theme']) => ({
     margin: '0',
     listStyle: 'none',
 
-    '&.list-disc': {
+    '&.list-disc, &.list-decimal': {
       '.list-item': {
         '&::before': {
           content: '"•"',
@@ -31,9 +31,18 @@ export default (theme: PluginAPI['theme']) => ({
       },
     },
 
-    // '&.list-decimal': {
-    //   listStyleType: 'decimal',
-    // },
+    '&.list-decimal': {
+      counterReset: 'list-counter',
+
+      '.list-item': {
+        counterIncrement: 'list-counter',
+        '&::before': {
+          content: 'counter(list-counter) "."',
+          fontSize: '1rem',
+          top: '0px',
+        },
+      },
+    },
 
     '> .list-item': {
       display: 'block',

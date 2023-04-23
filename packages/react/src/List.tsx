@@ -7,39 +7,38 @@ type ListContainerProps = {
   color?: 'primary' | 'secondary' | 'tertiary' | 'warning' | 'danger';
 };
 
-const Container: FC<ListContainerProps> = ({ className, color, children }) => {
-  const colorClass = {
-    'list-primary': color === 'primary',
-    'list-secondary': color === 'secondary',
-    'list-tertiary': color === 'tertiary',
-    'list-warning': color === 'warning',
-    'list-danger': color === 'danger',
-  };
-  return (
-    <ul role='listbox' className={classNames('list', colorClass, className)}>
-      {children}
-    </ul>
-  );
-};
+function createContainerComponent(
+  Component: 'ul' | 'ol' | 'div',
+  displayName: string,
+  additionalClasses?: string
+) {
+  const ContainerComponent: FC<ListContainerProps> = ({
+    className,
+    color,
+    children,
+  }) => {
+    const colorClass = {
+      'list-primary': color === 'primary',
+      'list-secondary': color === 'secondary',
+      'list-tertiary': color === 'tertiary',
+      'list-warning': color === 'warning',
+      'list-danger': color === 'danger',
+    };
 
-const UL: FC<ListContainerProps> = ({ className, color, children }) => {
-  const colorClass = {
-    'list-primary': color === 'primary',
-    'list-secondary': color === 'secondary',
-    'list-tertiary': color === 'tertiary',
-    'list-warning': color === 'warning',
-    'list-danger': color === 'danger',
+    return (
+      <Component
+        role='listbox'
+        className={classNames('list', colorClass, additionalClasses, className)}
+      >
+        {children}
+      </Component>
+    );
   };
 
-  return (
-    <ul
-      role='listbox'
-      className={classNames('list list-disc', colorClass, className)}
-    >
-      {children}
-    </ul>
-  );
-};
+  ContainerComponent.displayName = displayName;
+
+  return ContainerComponent;
+}
 
 type ListItemProps = {
   className?: string;
@@ -62,7 +61,8 @@ const Item: FC<ListItemProps> = ({ className, active, onClick, children }) => {
 };
 
 export const List = {
-  Container,
-  UL,
+  Container: createContainerComponent('ul', 'List.Container'),
+  UL: createContainerComponent('ul', 'List.UL', 'list-disc'),
+  OL: createContainerComponent('ol', 'List.OL', 'list-decimal'),
   Item,
 };
