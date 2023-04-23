@@ -126,5 +126,25 @@ export default (theme: PluginAPI['theme']) => ({
         },
       },
     },
+
+    '&.btn-ghost': {
+      backgroundColor: 'transparent',
+      color: theme('colors.gray.900')!,
+      borderColor: 'transparent',
+      '&:hover': {
+        backgroundColor: theme('colors.gray.300')!,
+      },
+      '&:focus': {
+        boxShadow: `0 0 0 3px ${theme('colors.gray.300')}`,
+      },
+      '&.btn-outline': {
+        backgroundColor: 'transparent',
+        color: theme('colors.gray.600')!,
+        borderColor: theme('colors.gray.600')!,
+        '&:hover': {
+          backgroundColor: theme('colors.gray.100')!,
+        },
+      },
+    },
   },
 });

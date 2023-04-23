@@ -7,7 +7,7 @@ type ButtonProps = DetailedHTMLProps<
 > & {
   variant?: 'solid' | 'outline';
   size?: 'sm' | 'md' | 'lg';
-  color?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'warning';
+  color?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'warning' | 'ghost';
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -20,6 +20,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     'btn-tertiary': color === 'tertiary',
     'btn-danger': color === 'danger',
     'btn-warning': color === 'warning',
+    'btn-ghost': color === 'ghost',
   };
 
   const variants = {

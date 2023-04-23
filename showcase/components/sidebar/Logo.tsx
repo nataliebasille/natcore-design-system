@@ -18,8 +18,8 @@ export const Logo = () => {
       className='-ml-3 inline-flex cursor-pointer rounded-md p-3 hover:bg-tertiary-100'
       onClick={handleClick}
     >
-      <div className='h-[48px] w-[48px] font-bold text-primary'>
-        <LogoSVG />
+      <div className='font-bold text-primary'>
+        <LogoSVG className='h-[3rem] w-[3rem]' />
       </div>
       <span className='ml-1 text-5xl text-primary'>at</span>
       <span className='text-5xl text-secondary'>Core</span>
