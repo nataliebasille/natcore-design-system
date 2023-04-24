@@ -4,13 +4,6 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
-
-  webpack(config, { dev }) {
-    // uncomment this when working with icons
-    // if(dev)
-    //   config.cache = false;
-    return config;
-  }
 };
 
 module.exports = nextConfig;
