@@ -20,7 +20,8 @@ export default (theme: PluginAPI['theme']) =>
     }, {} as Record<string, string>),
 
     body: {
-      backgroundColor: theme('colors.gray.100')!,
+      backgroundColor: 'var(--surface-50)',
+      color: 'var(--surfaceContrast-50)',
     },
 
     h1: {

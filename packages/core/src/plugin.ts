@@ -1,8 +1,8 @@
 import plugin from 'tailwindcss/plugin';
-import base from './base';
-import utilities from './utilities';
-import components from './components';
-import colors from './colors';
+import base from './themes/base';
+import utilities from './themes/utilities';
+import components from './themes/components';
+import colors from './themes/colors';
 
 export default plugin(
   ({ theme, addBase, addUtilities, addComponents }) => {

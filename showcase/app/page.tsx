@@ -43,23 +43,29 @@ export default function Home() {
       <p>To start using NatCore in your project, follow these simple steps:</p>
       <List.OL>
         <List.Item>
-          Install the core package from github using
+          Install the core package from github
           <code>
             npm install
-            https://gitpkg.now.sh/nataliebasille/natcore-design-system/packages/core?main
+            'https://gitpkg.now.sh/nataliebasille/natcore-design-system/packages/core?main'
             --save
           </code>
         </List.Item>
         <List.Item>
-          Install the required dependencies with npm install or yarn.
+          Install the design system plugin into your tailwind config file.
+          <code>
+            {`import natcore from '@natcore/design-system-core/plugin';
+
+export default {
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [natcore],
+}`}
+          </code>
         </List.Item>
-        <List.Item>
-          Import the desired components and styles into your project.
-        </List.Item>
+        <List.Item>Start designing your app!</List.Item>
       </List.OL>
-      <p>
-        <code>Test</code>
-      </p>
     </article>
   );
 }
