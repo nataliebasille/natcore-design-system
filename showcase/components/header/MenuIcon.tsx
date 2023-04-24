@@ -1,7 +1,7 @@
 'use client';
 
 import { useSidebar } from '@/providers/SidebarProvider';
-import { hamburger as MenuSVG } from '@natcore/design-system-core';
+import { HamburgerSVG } from '@natcore/design-system-core';
 import { Button } from '@natcore/design-system-react';
 
 export const MenuIcon: React.FC<{ className?: string }> = ({ className }) => {
@@ -9,7 +9,7 @@ export const MenuIcon: React.FC<{ className?: string }> = ({ className }) => {
 
   return (
     <Button className={className} onClick={toggle} color='ghost'>
-      <MenuSVG className='h-full w-full' />
+      <HamburgerSVG className='h-full w-full' />
     </Button>
   );
 };

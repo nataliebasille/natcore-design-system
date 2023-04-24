@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 import { Button } from '@natcore/design-system-react';
-import { github as GithubSVG } from '@natcore/design-system-core';
+import { GithubSVG } from '@natcore/design-system-core';
 
 export const GithubLogo: FC<{ className: string }> = ({ className }) => {
   const navigateToGithub = () => {

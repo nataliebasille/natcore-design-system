@@ -22,7 +22,7 @@ export default function RootLayout({
             <SidebarToggle />
             <SidebarOverlay />
             <div className='layer-top layer-fixed layer layer-content'>
-              <header className='layer-drawer px-8 pt-2 md:px-12'>
+              <header className='layer-drawer px-4 pt-2 md:px-12'>
                 <Header />
               </header>
               <main className='layer-content p-8 md:p-12'>{children}</main>
