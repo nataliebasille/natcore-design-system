@@ -5,6 +5,8 @@ import code from './code';
 import divider from './divider';
 import list from './list';
 import layer from './layer';
+import radioGroup from './radio-group';
+
 export default (theme: PluginAPI['theme']) => {
   return {
     ...button(theme),
@@ -13,5 +15,6 @@ export default (theme: PluginAPI['theme']) => {
     ...divider(theme),
     ...layer(theme),
     ...list(theme),
+    ...radioGroup(theme),
   } as const;
 };

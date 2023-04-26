@@ -1,48 +1,26 @@
-export default {
-  '.bg-primary': {
-    backgroundColor: 'var(--primary)',
-    color: 'var(--primaryContrast)',
-  },
+import { CSSRuleObject } from 'tailwindcss/types/config';
+import { colors } from './colors';
 
-  '.bg-secondary': {
-    backgroundColor: 'var(--secondary)',
-    color: 'var(--secondaryContrast)',
-  },
+export default Object.entries(colors).reduce(
+  (props, [key, colorDefinition]) => {
+    Object.keys(colorDefinition.shades).forEach((shade) => {
+      const bgStyles = {
+        backgroundColor: `var(--${key}-${shade})`,
+        color: `var(--${key}-contrast-${shade})`,
+      };
+      const textStyles = {
+        color: `var(--${key}-${shade})`,
+      };
 
-  '.bg-tertiary': {
-    backgroundColor: 'var(--tertiary)',
-    color: 'var(--tertiaryContrast)',
-  },
+      props[`.bg-${key}-${shade}`] = bgStyles;
+      props[`.text-${key}-${shade}`] = textStyles;
+      if (shade === colorDefinition.base) {
+        props[`.bg-${key}`] = bgStyles;
+        props[`.text-${key}`] = textStyles;
+      }
+    });
 
-  '.text-primary': {
-    color: 'var(--primary)',
+    return props;
   },
-
-  '.text-secondary': {
-    color: 'var(--secondary)',
-  },
-
-  '.text-tertiary': {
-    color: 'var(--tertiary)',
-  },
-
-  '.text-accent': {
-    color: 'var(--accent)',
-  },
-
-  '.border-primary': {
-    borderColor: 'var(--primary)',
-  },
-
-  '.border-secondary': {
-    borderColor: 'var(--secondary)',
-  },
-
-  '.border-tertiary': {
-    borderColor: 'var(--tertiary)',
-  },
-
-  '.border-accent': {
-    borderColor: 'var(--accent)',
-  },
-} as const;
+  {} as Record<string, CSSRuleObject>
+);

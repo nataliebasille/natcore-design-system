@@ -34,7 +34,7 @@ export default (theme: PluginAPI['theme']) => ({
 
     '&.btn-primary': {
       backgroundColor: theme('colors.primary.600')!,
-      color: theme('colors.primaryContrast.600')!,
+      color: theme('colors.primary.contrast.600')!,
       '&:hover': {
         backgroundColor: theme('colors.primary.700')!,
       },
@@ -53,7 +53,7 @@ export default (theme: PluginAPI['theme']) => ({
 
     '&.btn-secondary': {
       backgroundColor: theme('colors.secondary.600')!,
-      color: theme('colors.secondaryContrast.600')!,
+      color: theme('colors.secondary.contrast.600')!,
       '&:hover': {
         backgroundColor: theme('colors.secondary.700')!,
       },
@@ -72,7 +72,7 @@ export default (theme: PluginAPI['theme']) => ({
 
     '&.btn-tertiary': {
       backgroundColor: theme('colors.accent.600')!,
-      color: theme('colors.accentContrast.600')!,
+      color: theme('colors.accent.contrast.600')!,
       '&:hover': {
         backgroundColor: theme('colors.accent.700')!,
       },

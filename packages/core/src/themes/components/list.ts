@@ -60,35 +60,35 @@ export default (theme: PluginAPI['theme']) => ({
     '&.list-primary': {
       '> .list-item.active': {
         backgroundColor: 'var(--primary)',
-        color: 'var(--primaryContrast)',
+        color: 'var(--primary-contrast)',
       },
     },
 
     '&.list-secondary': {
       '> .list-item.active': {
         backgroundColor: 'var(--secondary)',
-        color: 'var(--secondaryContrast)',
+        color: 'var(--secondary-contrast)',
       },
     },
 
     '&.list-tertiary': {
       '> .list-item.active': {
         backgroundColor: 'var(--tertiary)',
-        color: 'var(--tertiaryContrast)',
+        color: 'var(--tertiary-contrast)',
       },
     },
 
     '&.list-warning': {
       '> .list-item.active': {
         backgroundColor: 'var(--warning)',
-        color: 'var(--warningContrast)',
+        color: 'var(--warning-contrast)',
       },
     },
 
     '&.list-danger': {
       '> .list-item.active': {
         backgroundColor: 'var(--danger)',
-        color: 'var(--dangerContrast)',
+        color: 'var(--danger-contrast)',
       },
     },
   },

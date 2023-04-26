@@ -1,27 +1,25 @@
 import { PluginAPI } from 'tailwindcss/types/config';
-import colors from './colors';
+import { colors } from './colors';
 
 export default (theme: PluginAPI['theme']) =>
   ({
-    ':root': Object.entries(colors).reduce((props, [vari, color]) => {
-      if (typeof color === 'object') {
-        Object.entries(color).forEach(([shade, value]) => {
-          props[`--${vari}-${shade}`] = value;
+    ':root': Object.entries(colors).reduce((props, [key, color]) => {
+      const { shades, contrast } = color;
 
-          if (shade === '500') props[`--${vari}`] = value;
-        });
+      Object.entries(shades).forEach(([shade, value]) => {
+        props[`--${key}-${shade}`] = value;
+      });
 
-        return props;
-      }
-
-      props[`--${vari}`] = color;
+      Object.entries(contrast).forEach(([shade, value]) => {
+        props[`--${key}-contrast-${shade}`] = value;
+      });
 
       return props;
     }, {} as Record<string, string>),
 
     body: {
       backgroundColor: 'var(--surface-50)',
-      color: 'var(--surfaceContrast-50)',
+      color: 'var(--surface-contrast-50)',
     },
 
     h1: {
