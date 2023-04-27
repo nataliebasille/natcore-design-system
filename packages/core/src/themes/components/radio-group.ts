@@ -6,10 +6,11 @@ export default (theme: PluginAPI['theme']) => ({
     display: 'flex',
     gap: theme('spacing.1')!,
     width: 'fit-content',
-    padding: theme('spacing.1')!,
+    padding: '0.125rem',
     ...createVariants('radio-group', { defaultColor: 'surface' }),
 
-    border: '1px solid',
+    borderStyle: 'solid',
+    borderWidth: theme('borderWidth.2')!,
     borderColor: 'var(--radio-group-border)',
     borderRadius: theme('borderRadius.full')!,
 
@@ -22,7 +23,7 @@ export default (theme: PluginAPI['theme']) => ({
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: theme('height.8')!,
-      padding: theme('spacing.2')!,
+      padding: `${theme('spacing.2')!} ${theme('spacing.4')!}`,
       fontSize: theme('fontSize.sm')!,
       transition: 'all 0.2s ease-in-out',
       cursor: 'pointer',
@@ -36,6 +37,16 @@ export default (theme: PluginAPI['theme']) => ({
     'input[type="radio"]:checked + label': {
       backgroundColor: 'var(--radio-group-base)',
       color: 'var(--radio-group-base-contrast)',
+    },
+
+    'input[type="radio"]:active + label': {
+      transform: 'scale(0.8)',
+    },
+
+    'input[type="radio"]:disabled + label': {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+      backgroundColor: 'transparent',
     },
   },
 });

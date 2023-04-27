@@ -17,11 +17,17 @@ export default function RootLayout({
   return (
     <SidebarContextProvider>
       <html lang='en'>
+        <head>
+          <link
+            rel='stylesheet'
+            href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css'
+          />
+        </head>
         <body className='h-screen w-screen'>
-          <div className='md:layer-fixed layer'>
+          <div className='layer md:layer-fixed'>
             <SidebarToggle />
             <SidebarOverlay />
-            <div className='layer-top layer-fixed layer layer-content'>
+            <div className='layer layer-top layer-fixed layer-content'>
               <header className='layer-drawer px-4 pt-2 md:px-12'>
                 <Header />
               </header>

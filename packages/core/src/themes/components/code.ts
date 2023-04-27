@@ -4,7 +4,7 @@ export default (theme: PluginAPI['theme']) => ({
   code: {
     display: 'block',
     whiteSpace: 'pre',
-    backgroundColor: theme('colors.slate.600')!,
+    backgroundColor: theme('colors.slate.800')!,
     color: theme('colors.white')!,
     padding: theme('spacing.4')!,
     borderRadius: theme('borderRadius.DEFAULT')!,

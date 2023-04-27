@@ -12,6 +12,7 @@ export const Sidebar = () => {
         <SidebarItem href='/divider'>Divider</SidebarItem>
         <SidebarItem href='/layer'>Layer</SidebarItem>
         <SidebarItem href='/list'>List</SidebarItem>
+        <SidebarItem href='/radio-group'>Radio Group</SidebarItem>
       </List.Container>
     </>
   );
