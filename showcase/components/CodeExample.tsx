@@ -1,32 +1,27 @@
-import { highlight } from '@/utlls/syntax-highlighter';
-import fs from 'fs';
-import path from 'path';
-
-const SystemToFileTypeMap = {
-  native: 'html',
-  react: 'tsx',
-} as const;
+import { highlight } from "@/utlls/syntax-highlighter";
+import { type System, getSystemFileType } from "@/utlls/systems";
+import fs from "fs";
 
 export const CodeExample = async ({
   component,
   system,
 }: {
   component: string;
-  system: 'native' | 'react';
+  system: System;
 }) => {
-  const filetype = SystemToFileTypeMap[system];
+  const filetype = getSystemFileType(system);
   console.log(import.meta.url);
   const file = await fs.promises.readFile(
     new URL(
       `../app/${component}/examples/${system}.${filetype}`,
-      import.meta.url
+      import.meta.url,
     ),
-    'utf8'
+    "utf8",
   );
 
   return (
     <code
-      dangerouslySetInnerHTML={{ __html: highlight(file, { lang: 'native' }) }}
+      dangerouslySetInnerHTML={{ __html: highlight(file, { lang: "native" }) }}
     />
   );
 };
