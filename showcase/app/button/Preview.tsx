@@ -29,7 +29,7 @@ export function Preview() {
         </button>
         <button className={classnames("btn", btnClasses)}>Button</button>
       </div>
-      <div className="divider">PLAYGROUND</div>
+      <div className="divider -mx-3">PLAYGROUND</div>
       <div className="flex items-center justify-center gap-6">
         <label>
           <span>Variant</span>
