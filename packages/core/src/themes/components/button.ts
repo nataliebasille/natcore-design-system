@@ -2,12 +2,14 @@ import { type PluginAPI } from "tailwindcss/types/config";
 import { createVariants } from "../colors";
 
 export default (theme: PluginAPI["theme"]) => ({
-  ".btn": {
+  ".btn, .btn-icon": {
     ...createVariants("btn"),
 
-    padding: "0.5rem 1rem",
+    padding: "0.75em 1em",
+    fontSize: theme("fontSize.base")!,
     letterSpacing: theme("letterSpacing.wider")!,
-    borderRadius: theme("borderRadius.DEFAULT")!,
+    borderRadius: theme("borderRadius.lg")!,
+    lineHeight: "1",
     borderWidth: "1px",
     borderStyle: "solid",
     transitionProperty:
@@ -22,33 +24,25 @@ export default (theme: PluginAPI["theme"]) => ({
       backgroundColor: "var(--btn-base-hover)",
       color: "var(--btn-base-hover-contrast)",
     },
-    "&:focus": {
-      boxShadow: `0 0 0 3px var(--btn-border)`,
-    },
     "&:active": {
       transform: "scale(0.95)",
     },
     "&.btn-outline": {
       color: "var(--btn-base)",
-      borderColor: "var(--btn-base)"!,
+      borderColor: "var(--btn-base)",
       backgroundColor: "var(--btn-background-color)",
       "&:hover": {
-        backgroundColor: "var(--btn-background-color-hover)"!,
+        backgroundColor: "var(--btn-background-color-hover)",
       },
     },
 
     "&.btn-sm": {
-      padding: "0.25rem 0.5rem",
+      padding: "0.5em 0.75em",
       fontSize: theme("fontSize.sm")!,
     },
 
-    "&.btn-md": {
-      padding: "0.5rem 1rem",
-      fontSize: theme("fontSize.base")!,
-    },
-
     "&.btn-lg": {
-      padding: "0.75rem 1.5rem",
+      padding: "1em 2em",
       fontSize: theme("fontSize.lg")!,
     },
 
@@ -70,6 +64,20 @@ export default (theme: PluginAPI["theme"]) => ({
           backgroundColor: theme("colors.gray.100")!,
         },
       },
+    },
+  },
+
+  ".btn-icon": {
+    borderRadius: theme("borderRadius.full")!,
+    aspectRatio: "1 / 1",
+    padding: ".75em",
+
+    "&.btn-sm": {
+      padding: ".5em",
+    },
+
+    "&.btn-lg": {
+      padding: "1em",
     },
   },
 });

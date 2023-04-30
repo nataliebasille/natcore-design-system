@@ -41,6 +41,7 @@ const config = {
     // For educational purposes we format our comments/jsdoc nicely
     "isaacscript/complete-sentences-jsdoc": "warn",
     "isaacscript/format-jsdoc-comments": "warn",
+    
   },
 };
 

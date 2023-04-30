@@ -1,5 +1,5 @@
-import { CSSRuleObject } from 'tailwindcss/types/config';
-import { colors } from './colors';
+import { type CSSRuleObject } from "tailwindcss/types/config";
+import { colors } from "./colors";
 
 export default Object.entries(colors).reduce(
   (props, [key, colorDefinition]) => {
@@ -22,5 +22,5 @@ export default Object.entries(colors).reduce(
 
     return props;
   },
-  {} as Record<string, CSSRuleObject>
+  {} as Record<string, CSSRuleObject>,
 );

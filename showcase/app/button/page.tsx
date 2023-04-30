@@ -1,55 +1,25 @@
-import { Button } from '@natcore/design-system-react';
+import {
+  SelectorContainer,
+  SelectorContent,
+} from "@/components/ContentSelector";
+import { Preview } from "./Preview";
 
 export default function ButtonPage() {
   return (
-    <>
-      <div className='grid grid-cols-5 gap-x-3 gap-y-10'>
-        <Button variant='solid' color='primary'>
-          Button
-        </Button>
-        <Button variant='solid' color='secondary'>
-          Button
-        </Button>
-        <Button variant='solid' color='tertiary'>
-          Button
-        </Button>
-        <Button variant='solid' color='warning'>
-          Button
-        </Button>
-        <Button variant='solid' color='danger'>
-          Button
-        </Button>
+    <article>
+      <h1>Button</h1>
 
-        <Button variant='outline' color='primary'>
-          Button
-        </Button>
-        <Button variant='outline' color='secondary'>
-          Button
-        </Button>
-        <Button variant='outline' color='tertiary'>
-          Button
-        </Button>
-        <Button variant='outline' color='warning'>
-          Button
-        </Button>
-        <Button variant='outline' color='danger'>
-          Button
-        </Button>
-      </div>
+      <p className="mb-7 tracking-wider text-gray-600">
+        A customizable button component that comes with different variants,
+        sizes, and styles.
+      </p>
 
-      <div>
-        <Button variant='outline' color='primary' size='sm'>
-          Button
-        </Button>
-        <Button variant='outline' color='secondary' size='md'>
-          Button
-        </Button>
-        <Button variant='outline' color='tertiary' size='lg'>
-          Button
-        </Button>
-      </div>
-
-      <div className='card'>TEST</div>
-    </>
+      <h2>Usage</h2>
+      <SelectorContainer>
+        <SelectorContent selector="Preview">
+          <Preview />
+        </SelectorContent>
+      </SelectorContainer>
+    </article>
   );
 }
