@@ -12,6 +12,7 @@ let uuid = 0;
 export const SelectorContainer: React.FC<{
   children?: ReactElement<ContentProps> | ReactElement<ContentProps>[];
 }> = ({ children }) => {
+  const containerName = `container-${uuid++}`;
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   const handleChange = useCallback((index: number) => {
@@ -21,7 +22,7 @@ export const SelectorContainer: React.FC<{
   const array = Children.toArray(children) as ReactElement<ContentProps>[];
   const selectedChild = array[selectedIndex];
   return (
-    <div className="border-primary-shades-300 rounded-lg border p-3">
+    <div className="border-surface-shades-500 rounded-lg border p-3">
       <div className="radio-group-primary radio-group">
         {array.map((element, itemIndex) => {
           const { selector } = element.props;
@@ -31,7 +32,7 @@ export const SelectorContainer: React.FC<{
               <input
                 id={id}
                 type="radio"
-                name="content"
+                name={containerName}
                 checked={selectedIndex === itemIndex}
                 onChange={() => handleChange(itemIndex)}
               />
@@ -40,7 +41,7 @@ export const SelectorContainer: React.FC<{
           );
         })}
       </div>
-      <div className="divider -mx-3" />
+      <div className="divider bg-surface-shades-300 -mx-3" />
       <div>{selectedChild?.props.children}</div>
     </div>
   );
