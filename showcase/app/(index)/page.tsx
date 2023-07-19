@@ -1,4 +1,5 @@
 import { CopyContainer } from "@/components/CopyContainer";
+import { Highlight } from "@/components/Highlight";
 import { List } from "@natcore/design-system-react";
 
 export default function Home() {
@@ -47,16 +48,20 @@ export default function Home() {
           Install the core package from github
           <code>
             <CopyContainer>
-              npm install
+              <Highlight
+                content="npm install
               'https://gitpkg.now.sh/nataliebasille/natcore-design-system/packages/core?main'
-              --save
+              --save"
+                language="bash"
+              />
             </CopyContainer>
           </code>
         </List.Item>
         <List.Item>
           Install the design system plugin into your tailwind config file.
           <code>
-            {`import natcore from '@natcore/design-system-core/plugin';
+            <Highlight
+              content={`import natcore from '@natcore/design-system-core/plugin';
 
 export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
@@ -65,6 +70,8 @@ export default {
   },
   plugins: [natcore],
 }`}
+              language="typescript"
+            />
           </code>
         </List.Item>
         <List.Item>Start designing your app!</List.Item>
