@@ -29,6 +29,7 @@ export default (theme: PluginAPI["theme"]) => ({
       width: theme("width.full")!,
       borderRadius: theme("borderRadius.DEFAULT")!,
       lineHeight: theme("lineHeight.tight")!,
+
       "&:hover,&:focus": {
         background: "var(--list-background-color-hover)",
         color: "var(--list-background-color-hover-contrast)",
@@ -54,6 +55,12 @@ export default (theme: PluginAPI["theme"]) => ({
         padding: "0",
         paddingRight: "20px",
         lineHeight: theme("lineHeight.tight")!,
+        cursor: "inherit",
+
+        "&:hover,&:focus": {
+          background: "inherit",
+          color: "inherit",
+        },
       },
     },
 

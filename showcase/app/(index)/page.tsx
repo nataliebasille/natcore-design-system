@@ -1,3 +1,4 @@
+import { CopyContainer } from "@/components/CopyContainer";
 import { List } from "@natcore/design-system-react";
 
 export default function Home() {
@@ -45,9 +46,11 @@ export default function Home() {
         <List.Item>
           Install the core package from github
           <code>
-            npm install
-            'https://gitpkg.now.sh/nataliebasille/natcore-design-system/packages/core?main'
-            --save
+            <CopyContainer>
+              npm install
+              'https://gitpkg.now.sh/nataliebasille/natcore-design-system/packages/core?main'
+              --save
+            </CopyContainer>
           </code>
         </List.Item>
         <List.Item>
