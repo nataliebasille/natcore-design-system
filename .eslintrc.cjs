@@ -12,9 +12,7 @@ const config = {
     ecmaVersion: "latest",
     sourceType: "module",
     tsconfigRootDir: __dirname,
-    project: [
-      "./tsconfig.json",
-    ],
+    project: ["./tsconfig.json"],
   },
   rules: {
     "@typescript-eslint/restrict-template-expressions": "off",
@@ -41,7 +39,14 @@ const config = {
     // For educational purposes we format our comments/jsdoc nicely
     "isaacscript/complete-sentences-jsdoc": "warn",
     "isaacscript/format-jsdoc-comments": "warn",
-    
+    "@typescript-eslint/no-misused-promises": [
+      2,
+      {
+        checksVoidReturn: {
+          attributes: false,
+        },
+      },
+    ],
   },
 };
 

@@ -60,8 +60,9 @@ export default function Home() {
         <List.Item>
           Install the design system plugin into your tailwind config file.
           <code>
-            <Highlight
-              content={`import natcore from '@natcore/design-system-core/plugin';
+            <CopyContainer>
+              <Highlight
+                content={`import natcore from '@natcore/design-system-core/plugin';
 
 export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
@@ -70,8 +71,9 @@ export default {
   },
   plugins: [natcore],
 }`}
-              language="typescript"
-            />
+                language="typescript"
+              />
+            </CopyContainer>
           </code>
         </List.Item>
         <List.Item>Start designing your app!</List.Item>
