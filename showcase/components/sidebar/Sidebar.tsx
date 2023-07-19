@@ -7,7 +7,7 @@ export const Sidebar = () => {
     <>
       <Logo />
       <Divider />
-      <div className="text-secondary-500 mb-4 font-bold uppercase tracking-wider">
+      <div className="text-secondary-800 mb-4 font-bold uppercase tracking-wider">
         Components
       </div>
       <List.Container color="primary">
