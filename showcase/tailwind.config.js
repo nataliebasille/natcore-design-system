@@ -9,7 +9,6 @@ export const content = [
   "../packages/react/**/*.{js,ts,jsx,tsx}",
   "../packages/core/**/*.{js,ts,jsx,tsx}",
 ];
-
 export const theme = {
   extend: {
     backgroundImage: {
@@ -19,4 +18,5 @@ export const theme = {
     },
   },
 };
+
 export const plugins = [plugin];
