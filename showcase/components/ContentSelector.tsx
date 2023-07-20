@@ -22,8 +22,8 @@ export const SelectorContainer: React.FC<{
   const array = Children.toArray(children) as ReactElement<ContentProps>[];
   const selectedChild = array[selectedIndex];
   return (
-    <div className="border-surface-shades-500 rounded-lg border p-3">
-      <div className="radio-group-primary radio-group">
+    <>
+      <div className="radio-group-primary radio-group mb-3">
         {array.map((element, itemIndex) => {
           const { selector } = element.props;
           const id = `content-${uuid++}`;
@@ -41,9 +41,8 @@ export const SelectorContainer: React.FC<{
           );
         })}
       </div>
-      <div className="divider bg-surface-shades-300 -mx-3" />
       <div>{selectedChild?.props.children}</div>
-    </div>
+    </>
   );
 };
 

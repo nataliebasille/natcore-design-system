@@ -22,8 +22,8 @@ export function Preview() {
     ["btn-lg"]: size === "lg",
   });
   return (
-    <>
-      <div className="flex h-32 items-center justify-center gap-6">
+    <div className="border-surface-shades-500 rounded-lg border p-3 lg:min-w-max lg:max-w-2xl">
+      <div className="flex items-center justify-center gap-6 pt-3">
         <button className={classnames("btn-icon", btnClasses)}>
           <LogoSVG />
         </button>
@@ -57,6 +57,6 @@ export function Preview() {
           </select>
         </label>
       </div>
-    </>
+    </div>
   );
 }

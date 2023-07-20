@@ -7,7 +7,9 @@ hljs.registerLanguage("native", xml);
 hljs.registerLanguage("bash", bash);
 hljs.registerLanguage("typescript", tsLang);
 
-export type SupportedLanguages = "native" | "bash" | "typescript";
-export const highlight = (code: string, opts: { lang: SupportedLanguages }) => {
-  return hljs.highlight(code, { language: opts.lang }).value;
-};
+export type SupportedLanguages = "html" | "native" | "bash" | "typescript";
+export function highlight(code: string, opts: { lang: SupportedLanguages }) {
+  return hljs.highlight(code, {
+    language: opts.lang === "html" ? "native" : opts.lang,
+  }).value;
+}

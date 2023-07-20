@@ -30,9 +30,10 @@ export default (theme: PluginAPI["theme"]) => ({
     "&.btn-outline": {
       color: "var(--btn-base)",
       borderColor: "var(--btn-base)",
-      backgroundColor: "var(--btn-background-color)",
+      backgroundColor: "transparent",
       "&:hover": {
-        backgroundColor: "var(--btn-background-color-hover)",
+        backgroundColor: "var(--btn-background-color)",
+        color: "var(--btn-background-color-contrast)",
       },
     },
 
