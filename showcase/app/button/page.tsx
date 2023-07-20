@@ -151,16 +151,12 @@ export default function ButtonPage() {
       <div className="border-primary-shades-500 rounded-lg border p-3">
         <Highlight
           component="code"
-          content={`<button className="btn btn-icon btn-primary">{...icon}</button>
-<button className="btn btn-icon btn-secondary">{...icon}</button>
-<button className="btn btn-icon btn-tertiary">{...icon}</button>
-<button className="btn btn-icon btn-accent">{...icon}</button>
-<button className="btn btn-icon btn-ghost">{...icon}</button>
-<button className="btn btn-icon btn-outline btn-primary">{...icon}</button>
-<button className="btn btn-icon btn-outline btn-secondary">{...icon}</button>
-<button className="btn btn-icon btn-outline btn-tertiary">{...icon}</button>
-<button className="btn btn-icon btn-outline btn-accent">{...icon}</button>
-<button className="btn btn-icon btn-outline btn-ghost">{...icon}</button>`}
+          content={`<button className="btn btn-icon btn-sm">{...icon}</button>
+<button className="btn btn-icon btn-sm btn-outline">{...icon}</button>
+<button className="btn btn-icon">{...icon}</button>
+<button className="btn btn-icon btn-outline">{...icon}</button>
+<button className="btn btn-icon btn-lg">{...icon}</button>
+<button className="btn btn-icon btn-lg btn-outline">{...icon}</button>`}
           language="html"
         />
         <div className="divider mb-2">Output</div>
@@ -171,34 +167,22 @@ export default function ButtonPage() {
             gridTemplateColumns: "repeat(auto-fit, minmax(115px, 1fr))",
           }}
         >
-          <button className="btn btn-icon btn-primary">
+          <button className="btn btn-icon btn-sm">
             <LogoSVG />
           </button>
-          <button className="btn btn-icon btn-secondary">
+          <button className="btn btn-icon btn-sm btn-outline">
             <LogoSVG />
           </button>
-          <button className="btn btn-icon btn-tertiary">
+          <button className="btn btn-icon">
             <LogoSVG />
           </button>
-          <button className="btn btn-icon btn-accent">
+          <button className="btn btn-icon btn-outline">
             <LogoSVG />
           </button>
-          <button className="btn btn-icon btn-ghost">
+          <button className="btn btn-icon btn-lg">
             <LogoSVG />
           </button>
-          <button className="btn btn-icon btn-outline btn-primary">
-            <LogoSVG />
-          </button>
-          <button className="btn btn-icon btn-outline btn-secondary">
-            <LogoSVG />
-          </button>
-          <button className="btn btn-icon btn-outline btn-tertiary">
-            <LogoSVG />
-          </button>
-          <button className="btn btn-icon btn-outline btn-accent">
-            <LogoSVG />
-          </button>
-          <button className="btn btn-icon btn-outline btn-ghost">
+          <button className="btn btn-icon btn-lg btn-outline">
             <LogoSVG />
           </button>
         </div>
