@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { ReactNode, useCallback } from 'react';
-import { List } from '@natcore/design-system-react';
-import { usePathname, useRouter } from 'next/navigation';
-import classnames from 'classnames';
-import { useSidebar } from '@/providers/SidebarProvider';
+import { type ReactNode, useCallback } from "react";
+import { List } from "@natcore/design-system-react";
+import { usePathname, useRouter } from "next/navigation";
+import classnames from "classnames";
+import { useSidebar } from "@/providers/SidebarProvider";
 
 type SidebarItemProps = {
   href: string;

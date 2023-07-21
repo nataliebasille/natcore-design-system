@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useSidebar } from '@/providers/SidebarProvider';
+import { useSidebar } from "@/providers/SidebarProvider";
 
 export const SidebarOverlay = () => {
   const { toggle } = useSidebar();
 
-  return <div className='layer-overlay' onClick={toggle} />;
+  return <div className="layer-overlay" onClick={toggle} />;
 };
