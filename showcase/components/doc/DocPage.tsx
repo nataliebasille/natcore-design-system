@@ -70,7 +70,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
 
         {childrenWithLevel}
       </article>
-      <div className="sticky top-0 mt-6 hidden min-w-max flex-initial lg:block">
+      <div className="sticky top-0 mt-6 hidden min-w-fit flex-initial lg:block">
         <OnThisPage tree={sectionsTree} />
       </div>
     </div>

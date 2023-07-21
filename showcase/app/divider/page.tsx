@@ -25,14 +25,58 @@ export default function DividerPage() {
         >
           <ExampleContainer
             gridColumns={1}
-            html={`<div class="divider"></div>`}
+            html={`<div class="flex flex-col items-center justify-center">
+    <div class="text-2xl">top</div>
+    <div class="divider"></div>
+    <div class="text-2xl">bottom</div>
+</div>`}
           />
         </DocSection>
 
         <DocSection title="Horizontal divider with text">
           <ExampleContainer
             gridColumns={1}
-            html={`<div class="divider">My text</div>`}
+            html={`<div class="flex flex-col items-center justify-center">
+    <div class="text-2xl">top</div>
+    <div class="divider">OR</div>
+    <div class="text-2xl">bottom</div>
+</div>`}
+          />
+        </DocSection>
+
+        <DocSection
+          title="Vertical divider"
+          description={
+            <>
+              A vertical divider is created using the{" "}
+              <code
+                className="text-primary inline-block bg-transparent p-0 font-bold"
+                style={{ padding: "0 !important" }}
+              >
+                .divider-v
+              </code>{" "}
+              class.
+            </>
+          }
+        >
+          <ExampleContainer
+            gridColumns={1}
+            html={`<div class="flex items-center justify-center">
+    <div class="text-2xl">left</div>
+    <div class="divider-v h-24"></div>
+    <div class="text-2xl">right</div>
+</div>`}
+          />
+        </DocSection>
+
+        <DocSection title="Vertical divider with text">
+          <ExampleContainer
+            gridColumns={1}
+            html={`<div class="flex items-center justify-center">
+    <div class="text-2xl">left</div>
+    <div class="divider-v h-24">OR</div>
+    <div class="text-2xl">right</div>
+</div>`}
           />
         </DocSection>
       </DocSection>
