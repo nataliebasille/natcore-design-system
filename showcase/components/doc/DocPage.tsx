@@ -3,21 +3,22 @@ import {
   Children,
   cloneElement,
   isValidElement,
+  type ReactNode,
   type ReactElement,
 } from "react";
 import { OnThisPage } from "./OnThisPage";
 
 type DocPageProps = {
   title: string;
-  description?: React.ReactNode;
-  children?: React.ReactNode;
+  description?: ReactNode;
+  children?: ReactNode;
 };
 
 const MutedText = ({
   children,
   className,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }) => {
   return (
@@ -33,7 +34,7 @@ type SectionTree = {
 };
 
 export const DocPage = ({ children, title, description }: DocPageProps) => {
-  children = Children.map(children, (child) => {
+  const childrenWithLevel = Children.map(children, (child) => {
     if (isValidElement(child) && child.type === DocSection) {
       return cloneElement(child as ReactElement<DocSectionProps>, {
         level: 2 as const,
@@ -67,7 +68,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
 
         {description && <MutedText className="mb-7">{description}</MutedText>}
 
-        {children}
+        {childrenWithLevel}
       </article>
       <div className="sticky top-0 mt-6 hidden min-w-max flex-initial lg:block">
         <OnThisPage tree={sectionsTree} />

@@ -1,15 +1,15 @@
 "use client";
 
-import { type ReactNode, useCallback } from "react";
+import { useCallback, type PropsWithChildren } from "react";
 import { List } from "@natcore/design-system-react";
 import { usePathname, useRouter } from "next/navigation";
 import classnames from "classnames";
 import { useSidebar } from "@/providers/SidebarProvider";
 
-type SidebarItemProps = {
+type SidebarItemProps = PropsWithChildren<{
   href: string;
-  children: ReactNode;
-};
+}>;
+
 export const SidebarItem = ({ href, children }: SidebarItemProps) => {
   const pathname = usePathname();
   const router = useRouter();

@@ -1,16 +1,15 @@
-import classNames from 'classnames';
-import { FC, ReactNode } from 'react';
+import classNames from "classnames";
+import { type PropsWithChildren, type FC } from "react";
 
-type ListContainerProps = {
+type ListContainerProps = PropsWithChildren<{
   className?: string;
-  children?: ReactNode;
-  color?: 'primary' | 'secondary' | 'tertiary' | 'warning' | 'danger';
-};
+  color?: "primary" | "secondary" | "tertiary" | "warning" | "danger";
+}>;
 
 function createContainerComponent(
-  Component: 'ul' | 'ol' | 'div',
+  Component: "ul" | "ol" | "div",
   displayName: string,
-  additionalClasses?: string
+  additionalClasses?: string,
 ) {
   const ContainerComponent: FC<ListContainerProps> = ({
     className,
@@ -18,17 +17,17 @@ function createContainerComponent(
     children,
   }) => {
     const colorClass = {
-      'list-primary': color === 'primary',
-      'list-secondary': color === 'secondary',
-      'list-tertiary': color === 'tertiary',
-      'list-warning': color === 'warning',
-      'list-danger': color === 'danger',
+      "list-primary": color === "primary",
+      "list-secondary": color === "secondary",
+      "list-tertiary": color === "tertiary",
+      "list-warning": color === "warning",
+      "list-danger": color === "danger",
     };
 
     return (
       <Component
-        role='listbox'
-        className={classNames('list', colorClass, additionalClasses, className)}
+        role="listbox"
+        className={classNames("list", colorClass, additionalClasses, className)}
       >
         {children}
       </Component>
@@ -40,19 +39,18 @@ function createContainerComponent(
   return ContainerComponent;
 }
 
-type ListItemProps = {
+type ListItemProps = PropsWithChildren<{
   className?: string;
   active?: boolean;
   onClick?: () => void;
-  children?: ReactNode;
-};
+}>;
 
 const Item: FC<ListItemProps> = ({ className, active, onClick, children }) => {
   return (
     <li
-      role='listitem'
+      role="listitem"
       tabIndex={0}
-      className={classNames('list-item', { active: active }, className)}
+      className={classNames("list-item", { active: active }, className)}
       onClick={onClick}
     >
       {children}
@@ -61,8 +59,8 @@ const Item: FC<ListItemProps> = ({ className, active, onClick, children }) => {
 };
 
 export const List = {
-  Container: createContainerComponent('ul', 'List.Container'),
-  UL: createContainerComponent('ul', 'List.UL', 'list-disc'),
-  OL: createContainerComponent('ol', 'List.OL', 'list-decimal'),
+  Container: createContainerComponent("ul", "List.Container"),
+  UL: createContainerComponent("ul", "List.UL", "list-disc"),
+  OL: createContainerComponent("ol", "List.OL", "list-decimal"),
   Item,
 };
