@@ -31,7 +31,7 @@ export default function RootLayout({
               <header className="layer-drawer px-4 pt-2 md:px-12">
                 <Header />
               </header>
-              <main className="layer-content scroll-smooth p-8 md:p-12">
+              <main className="layer-content scroll-smooth p-4 sm:p-8 md:p-12">
                 {children}
               </main>
             </div>

@@ -63,7 +63,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
 
   return (
     <div className="flex items-start gap-8 scroll-smooth">
-      <article className="flex-1">
+      <article className="w-full flex-1">
         <h1 id={title}>{title}</h1>
 
         {description && <MutedText className="mb-7">{description}</MutedText>}

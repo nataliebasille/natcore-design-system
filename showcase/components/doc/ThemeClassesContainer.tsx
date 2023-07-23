@@ -21,7 +21,7 @@ export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
           >
             {value.type}
           </div>
-          <div className="col-span-2 text-slate-600 sm:col-span-1">
+          <div className="col-span-2 -mt-2 text-sm text-slate-600 sm:col-span-1 sm:mt-0 sm:text-base">
             {value.description}
           </div>
         </Fragment>

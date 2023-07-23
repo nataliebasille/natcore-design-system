@@ -20,6 +20,26 @@ export default (theme: PluginAPI["theme"]) => ({
     backgroundColor: "var(--btn-base)",
     color: "var(--btn-base-contrast)",
 
+    "&.btn-ghost": {
+      backgroundColor: "transparent",
+      color: theme("colors.gray.900")!,
+      borderColor: "transparent",
+      "&:hover": {
+        backgroundColor: theme("colors.gray.300")!,
+      },
+      "&:focus": {
+        boxShadow: `0 0 0 3px ${theme("colors.gray.300")}`,
+      },
+      "&.btn-outline": {
+        backgroundColor: "transparent",
+        color: theme("colors.gray.600")!,
+        borderColor: theme("colors.gray.600")!,
+        "&:hover": {
+          backgroundColor: theme("colors.gray.100")!,
+        },
+      },
+    },
+
     "&:hover": {
       backgroundColor: "var(--btn-base-hover)",
       color: "var(--btn-base-hover-contrast)",
@@ -45,26 +65,6 @@ export default (theme: PluginAPI["theme"]) => ({
     "&.btn-lg": {
       padding: "1em 2em",
       fontSize: theme("fontSize.lg")!,
-    },
-
-    "&.btn-ghost": {
-      backgroundColor: "transparent",
-      color: theme("colors.gray.900")!,
-      borderColor: "transparent",
-      "&:hover": {
-        backgroundColor: theme("colors.gray.300")!,
-      },
-      "&:focus": {
-        boxShadow: `0 0 0 3px ${theme("colors.gray.300")}`,
-      },
-      "&.btn-outline": {
-        backgroundColor: "transparent",
-        color: theme("colors.gray.600")!,
-        borderColor: theme("colors.gray.600")!,
-        "&:hover": {
-          backgroundColor: theme("colors.gray.100")!,
-        },
-      },
     },
   },
 
