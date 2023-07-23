@@ -1,7 +1,24 @@
 import { Highlight } from "@/components/Highlight";
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import { LogoSVG } from "@natcore/design-system-core";
+import buttonTheme from "../../../packages/core/src/themes/components/button";
+import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
+
+const btnThemeInfo = generateThemeInfo(buttonTheme, {
+  btn: "Button with default styling",
+  "btn-outline": "Transparent button with colored borders",
+  "btn-icon": "Button designed specifically to contain an icon",
+  "btn-primary": "Uses the primary button styles",
+  "btn-secondary": "Uses the secondary button styles",
+  "btn-tertiary": "Uses the tertiary button styles",
+  "btn-accent": "Uses the accent button styles",
+  "btn-surface": "Uses the surface button styles",
+  "btn-ghost": "Uses the ghost button styles",
+  "btn-sm": "Small-sized button",
+  "btn-lg": "Large-sized button",
+});
 
 export default function ButtonPage() {
   return (
@@ -10,6 +27,9 @@ export default function ButtonPage() {
       description="A customizable button component that comes with different variants,
   sizes, and styles."
     >
+      <DocSection title="Classes">
+        <ThemeClassesContainer theme={btnThemeInfo} />
+      </DocSection>
       <DocSection title="Usage">
         <DocSection
           title="Basic button"

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 import {
-  FC,
-  PropsWithChildren,
+  type FC,
+  type PropsWithChildren,
   createContext,
   useCallback,
   useContext,
   useState,
-} from 'react';
+} from "react";
 
 const SidebarContext = createContext({
   isOpened: false,

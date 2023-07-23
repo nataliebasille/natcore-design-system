@@ -1,5 +1,6 @@
 import { Highlight } from "../Highlight";
 import classnames from "classnames";
+import { BasicContainer } from "./BasicContainer";
 
 type ExampleContainerProps = {
   html: string;
@@ -13,7 +14,7 @@ export const ExampleContainer = ({
   gridColumns = "auto-fit",
 }: ExampleContainerProps) => {
   return (
-    <div className="border-primary-shades-500 rounded-lg border p-3">
+    <BasicContainer>
       <Highlight component="code" content={html} language="html" />
       <div className="divider mb-2">Output</div>
       <div
@@ -26,6 +27,6 @@ export const ExampleContainer = ({
         }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
-    </div>
+    </BasicContainer>
   );
 };

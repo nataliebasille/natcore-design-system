@@ -7,6 +7,7 @@ export default function DividerPage() {
       title="Divider"
       description="Create a horizontal or vertical dividers with optional text. It helps to visually separate sections or content within your user interface."
     >
+      <DocSection title="Classes"></DocSection>
       <DocSection title="Usage">
         <DocSection
           title="Horizontal divider"

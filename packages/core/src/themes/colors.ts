@@ -187,7 +187,9 @@ export { colors };
 export const createVariants = <Id extends string>(
   identifier: Id,
   opts: { defaultColor: Color } = { defaultColor: "primary" },
-) => {
+): {
+  [key in (typeof COLOR_KEYS)[number] as `&.${Id}-${key}`]: object;
+} => {
   const { defaultColor } = opts;
   const createVariable = <
     TColor extends Color,
@@ -196,7 +198,7 @@ export const createVariants = <Id extends string>(
     color: TColor,
     variableKey: TVarKey,
   ) => {
-    const shade = colors[color][variableKey] satisfies `${number}`;
+    const shade = colors[color][variableKey] as `${number}`;
     return {
       [`--${identifier}-${variableKey}`]: `var(--${color}-${shade})`,
       [`--${identifier}-${variableKey}-contrast`]: `var(--${color}-contrast-${shade})`,
@@ -222,5 +224,5 @@ export const createVariants = <Id extends string>(
         ? variables
         : { [`&.${className}`]: variables }),
     };
-  }, {});
+  }, {}) as any;
 };
