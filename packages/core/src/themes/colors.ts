@@ -188,7 +188,7 @@ export const createVariants = <Id extends string>(
   identifier: Id,
   opts: { defaultColor: Color } = { defaultColor: "primary" },
 ): {
-  [key in (typeof COLOR_KEYS)[number] as `&.${Id}-${key}`]: object;
+  [key in (typeof COLOR_KEYS)[number] as `&.${Id}-${key}`]: any;
 } => {
   const { defaultColor } = opts;
   const createVariable = <
