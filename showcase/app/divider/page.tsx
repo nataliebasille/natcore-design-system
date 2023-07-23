@@ -1,5 +1,13 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
+import dividerTheme from "../../../packages/core/src/themes/components/divider";
+import { generateThemeInfo } from "@/utlls/generate-theme-info";
+
+const dividerThemeInfo = generateThemeInfo(dividerTheme, {
+  divider: "Horizontal line to divide content.",
+  "divider-v": "Vertical line to divide content",
+});
 
 export default function DividerPage() {
   return (
@@ -7,7 +15,9 @@ export default function DividerPage() {
       title="Divider"
       description="Create a horizontal or vertical dividers with optional text. It helps to visually separate sections or content within your user interface."
     >
-      <DocSection title="Classes"></DocSection>
+      <DocSection title="Classes">
+        <ThemeClassesContainer theme={dividerThemeInfo} />
+      </DocSection>
       <DocSection title="Usage">
         <DocSection
           title="Horizontal divider"
