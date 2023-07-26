@@ -11,16 +11,6 @@ export default (theme: PluginAPI["theme"]) => ({
     margin: "0",
     listStyle: "none",
 
-    "> .list-item.active": {
-      backgroundColor: "var(--list-base)",
-      color: "var(--list-base-contrast)",
-
-      "&:hover,&:focus": {
-        backgroundColor: "var(--list-base)",
-        color: "var(--list-base-contrast)",
-      },
-    },
-
     "> .list-item": {
       display: "block",
       padding: theme("spacing.2")!,
@@ -33,6 +23,16 @@ export default (theme: PluginAPI["theme"]) => ({
       "&:hover,&:focus": {
         background: "var(--list-background-color-hover)",
         color: "var(--list-background-color-hover-contrast)",
+      },
+
+      "&.active": {
+        backgroundColor: "var(--list-base)",
+        color: "var(--list-base-contrast)",
+
+        "&:hover,&:focus": {
+          backgroundColor: "var(--list-base)",
+          color: "var(--list-base-contrast)",
+        },
       },
     },
 

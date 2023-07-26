@@ -6,7 +6,7 @@ export type ThemeFactory = (
 
 type RelevantClassKeys<ObjectType extends object> = {
   [Key in keyof ObjectType & (string | number)]: Key extends
-    | `.${string}`
+    | `${string}.${string}`
     | `&.${string}`
     ? ObjectType[Key] extends object
       ? Key | RelevantClassKeys<ObjectType[Key]>
@@ -55,13 +55,11 @@ export const generateThemeInfo = <T extends ThemeFactory>(
       const potentialThemeClass = key.split(",").map((k) => k.trim());
 
       for (const c of potentialThemeClass) {
-        if (
-          !themeClasses.has(c) &&
-          ((c.length > 0 && c[0] === ".") ||
-            (c.length > 1 && c[0] === "&" && c[1] === "."))
-        ) {
-          const type = c[0] === "." ? "component" : "modifier";
-          const className = c.slice(type === "component" ? 1 : 2);
+        if (!themeClasses.has(c) && c.indexOf(".") >= 0) {
+          const type = c[0] === "&" ? "modifier" : "component";
+          const className = c.slice(
+            type === "component" ? c.indexOf(".") + 1 : 2,
+          );
           themeClasses.set(className, {
             className,
             description: descriptions[className as InferThemeClasses<T>],
