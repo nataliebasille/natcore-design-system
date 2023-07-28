@@ -24,7 +24,7 @@ type InferClassesFromKey<K extends string> = K extends `&.${infer C}`
   ? C extends `${infer Head},${infer Rest}`
     ? Head | InferClassesFromKey<Rest>
     : C
-  : K extends `.${infer C}`
+  : K extends `.${infer C}` | `> .${infer C}`
   ? C extends `${infer Head},${infer Rest}`
     ? Head | InferClassesFromKey<Rest>
     : C
@@ -52,7 +52,7 @@ export const generateThemeInfo = <T extends ThemeFactory>(
 
   function gatherThemeClassKeys(obj: object) {
     for (const key in obj) {
-      const potentialThemeClass = key.split(",").map((k) => k.trim());
+      const potentialThemeClass = key.split(/[\+,]+/).map((k) => k.trim());
 
       for (const c of potentialThemeClass) {
         if (!themeClasses.has(c) && c.indexOf(".") >= 0) {

@@ -3,10 +3,11 @@ import button from "./button";
 import card from "./card";
 import code from "./code";
 import divider from "./divider";
-import list from "./list";
-import layer from "./layer";
-import radioGroup from "./radio-group";
 import forms from "./forms";
+import layer from "./layer";
+import list from "./list";
+import radioGroup from "./radio-group";
+import tabs from "./tabs";
 
 export default (theme: PluginAPI["theme"]) => {
   return {
@@ -18,5 +19,6 @@ export default (theme: PluginAPI["theme"]) => {
     ...layer(theme),
     ...list(theme),
     ...radioGroup(theme),
+    ...tabs(theme),
   } as const;
 };

@@ -16,6 +16,7 @@ export const Sidebar = () => {
         <SidebarItem href="/layer">Layer</SidebarItem>
         <SidebarItem href="/list">List</SidebarItem>
         <SidebarItem href="/radio-group">Radio Group</SidebarItem>
+        <SidebarItem href="/tabs">Tabs</SidebarItem>
       </List.Container>
     </>
   );
