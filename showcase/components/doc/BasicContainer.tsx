@@ -10,7 +10,7 @@ export const BasicContainer = ({
   return (
     <div
       className={classnames(
-        "border-primary-shades-500 rounded-lg border p-3",
+        " border-surface-shades-500 bg-surface-shades-200 rounded-lg border p-3",
         className,
       )}
     >

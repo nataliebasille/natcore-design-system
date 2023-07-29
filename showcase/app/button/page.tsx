@@ -37,7 +37,7 @@ export default function ButtonPage() {
             <>
               Button styles are applied using the{" "}
               <code
-                className="text-primary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn`
@@ -63,7 +63,7 @@ export default function ButtonPage() {
               A button with a transparent background with a visible border.
               Styles are applied using the{" "}
               <code
-                className="text-primary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn-outline`
@@ -88,14 +88,14 @@ export default function ButtonPage() {
             <>
               Button sizes are applied using the{" "}
               <code
-                className="text-primary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn-sm`
               </code>{" "}
               (small) or{" "}
               <code
-                className="text-primary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn-lg`
@@ -120,7 +120,7 @@ export default function ButtonPage() {
             <>
               To create a icon friendly button, use the{" "}
               <code
-                className="text-primary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn-icon`

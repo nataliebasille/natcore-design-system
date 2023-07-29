@@ -13,8 +13,8 @@ export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
             className={classnames(
               "flex items-center justify-center rounded-full px-2 text-sm",
               {
-                "bg-secondary": value.type === "component",
-                "text-secondary-shades-700 border-secondary-shades-700 border":
+                "bg-primary": value.type === "component",
+                "text-primary-shades-700 border-primary-shades-700 border":
                   value.type === "modifier",
               },
             )}

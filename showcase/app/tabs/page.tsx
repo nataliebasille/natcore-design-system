@@ -33,7 +33,7 @@ export default function TabsPage() {
             <>
               Use the{" "}
               <code
-                className="text-primary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.tabs`
@@ -41,14 +41,14 @@ export default function TabsPage() {
               class to create a basic tabs container. To structure the tab
               content, use a radio button, followed by a label with the
               <code
-                className="text-primary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.tab`
               </code>{" "}
               class, followed by a content with the
               <code
-                className="text-primary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.tab-content`
