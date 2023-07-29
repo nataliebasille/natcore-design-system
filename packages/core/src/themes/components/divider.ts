@@ -1,20 +1,23 @@
 import { type PluginAPI } from "tailwindcss/types/config";
+import { createVariants } from "../colors";
 
+const dividerVarients = createVariants("divider", { defaultColor: "surface" });
 export default (theme: PluginAPI["theme"]) => ({
   ".divider": {
+    ...dividerVarients,
     display: "flex",
     alignItems: "center",
     alignSelf: "stretch",
     margin: `${theme("spacing.4")!} 0`,
     letterSpacing: theme("letterSpacing.wide")!,
-    color: theme("colors.slate.500")!,
+    color: "var(--divider-base)",
     fontWeight: theme("fontWeight.bold")!,
 
     "&::before, &::after": {
       content: '""',
       flex: "1",
       height: "1px",
-      backgroundColor: theme("colors.gray.400")!,
+      backgroundColor: "var(--divider-base)",
     },
 
     "&:empty::after": {
@@ -35,19 +38,20 @@ export default (theme: PluginAPI["theme"]) => ({
   },
 
   ".divider-v": {
+    ...dividerVarients,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     margin: `0 ${theme("spacing.4")!}`,
     letterSpacing: theme("letterSpacing.wide")!,
-    color: theme("colors.slate.500")!,
+    color: "var(--divider-base)",
     fontWeight: theme("fontWeight.bold")!,
 
     "&::before, &::after": {
       content: '""',
       flex: "1",
       width: "1px",
-      backgroundColor: theme("colors.gray.400")!,
+      backgroundColor: "var(--divider-base)",
     },
 
     "&:empty::after": {
