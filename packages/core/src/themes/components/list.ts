@@ -17,7 +17,7 @@ export default (theme: PluginAPI["theme"]) => ({
       margin: "0",
       cursor: "pointer",
       width: theme("width.full")!,
-      borderRadius: theme("borderRadius.DEFAULT")!,
+      borderRadius: theme("borderRadius.lg")!,
       lineHeight: theme("lineHeight.tight")!,
 
       "&:hover,&:focus": {

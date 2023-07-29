@@ -5,7 +5,7 @@ import { Fragment } from "react";
 
 export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
   return (
-    <BasicContainer className="grid grid-cols-[1fr_max-content] gap-3 sm:grid-cols-[max-content_max-content_1fr] md:w-fit">
+    <BasicContainer className="grid grid-cols-[1fr_max-content] items-center gap-3 sm:grid-cols-[max-content_max-content_1fr] md:w-fit">
       {Object.entries(theme).map(([key, value]) => (
         <Fragment key={key}>
           <div className="font-bold">.{value.className}</div>
