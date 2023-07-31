@@ -24,7 +24,7 @@ export const Sidebar = () => {
       </div>
 
       <List.Container color="primary">
-        <SidebarItem href="/forms/input">Input</SidebarItem>
+        <SidebarItem href="/form/fields">Fields</SidebarItem>
       </List.Container>
     </>
   );

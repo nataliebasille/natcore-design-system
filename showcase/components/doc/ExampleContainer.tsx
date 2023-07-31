@@ -5,16 +5,18 @@ import { BasicContainer } from "./BasicContainer";
 type ExampleContainerProps = {
   html: string;
   gridColumns?: number | "auto-fit";
+  className?: string;
   outputClassName?: string;
 };
 
 export const ExampleContainer = ({
   html,
+  className,
   outputClassName,
   gridColumns = "auto-fit",
 }: ExampleContainerProps) => {
   return (
-    <BasicContainer>
+    <BasicContainer className={className}>
       <Highlight component="code" content={html} language="html" />
       <div className="divider mb-2">Output</div>
       <div

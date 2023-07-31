@@ -20,8 +20,6 @@ export default (theme: PluginAPI["theme"]) => ({
 
     appearance: "none",
     backgroundColor: "var(--forms-background-color)",
-    backgroundImage:
-      'url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /%3E%3C/svg%3E\')',
     color: "var(--forms-background-color-contrast)",
     borderColor: "var(--forms-border)",
     borderStyle: "solid",
@@ -31,5 +29,10 @@ export default (theme: PluginAPI["theme"]) => ({
     backgroundPosition: "right 0.5em center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "1em 1em",
+  },
+
+  select: {
+    backgroundImage:
+      'url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /%3E%3C/svg%3E\')',
   },
 });
