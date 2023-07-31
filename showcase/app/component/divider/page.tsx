@@ -1,7 +1,7 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { ExampleContainer } from "@/components/doc/ExampleContainer";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
-import dividerTheme from "../../../packages/core/src/themes/components/divider";
+import dividerTheme from "../../../../packages/core/src/themes/components/divider";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 
 const dividerThemeInfo = generateThemeInfo(dividerTheme, {

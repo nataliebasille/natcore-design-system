@@ -3,7 +3,7 @@ import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { ExampleContainer } from "@/components/doc/ExampleContainer";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import { LogoSVG } from "@natcore/design-system-core";
-import buttonTheme from "../../../packages/core/src/themes/components/button";
+import buttonTheme from "../../../../packages/core/src/themes/components/button";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 
 const btnThemeInfo = generateThemeInfo(buttonTheme, {

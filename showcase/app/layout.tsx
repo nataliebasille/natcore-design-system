@@ -1,8 +1,8 @@
 import { Sidebar } from "@/components";
 import "./globals.css";
-import { Header } from "@/components/header/Header";
-import { SidebarOverlay } from "@/components/sidebar/SidebarOverlay";
-import { SidebarToggle } from "@/components/sidebar/SidebarToggle";
+import { Header } from "@/app/+header/Header";
+import { SidebarOverlay } from "@/app/+sidebar/SidebarOverlay";
+import { SidebarToggle } from "@/app/+sidebar/SidebarToggle";
 import { SidebarContextProvider } from "@/providers/SidebarProvider";
 
 export const metadata = {

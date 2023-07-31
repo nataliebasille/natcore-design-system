@@ -1,3 +1,3 @@
-export * from "./header/Header";
-export * from "./sidebar/Sidebar";
-export * from "./header/GithubLogo";
+export * from "../app/+header/Header";
+export * from "../app/+sidebar/Sidebar";
+export * from "../app/+header/GithubLogo";

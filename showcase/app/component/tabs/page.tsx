@@ -1,5 +1,5 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import tabsTheme from "../../../packages/core/src/themes/components/tabs";
+import tabsTheme from "../../../../packages/core/src/themes/components/tabs";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { ExampleContainer } from "@/components/doc/ExampleContainer";
