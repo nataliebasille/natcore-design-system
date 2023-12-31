@@ -13,7 +13,7 @@ export const CodeExample = async ({
   console.log(import.meta.url);
   const file = await fs.promises.readFile(
     new URL(
-      `../app/${component}/examples/${system}.${filetype}`,
+      `../app/component/${component}/examples/${system}.${filetype}`,
       import.meta.url,
     ),
     "utf8",
