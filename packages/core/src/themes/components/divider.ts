@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
 import { createVariants } from "../colors";
 

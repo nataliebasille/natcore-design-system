@@ -55,7 +55,11 @@ export const generateThemeInfo = <T extends ThemeFactory>(
       const potentialThemeClass = key.split(/[\+,]+/).map((k) => k.trim());
 
       for (const c of potentialThemeClass) {
-        if (!themeClasses.has(c) && c.indexOf(".") >= 0) {
+        if (
+          !themeClasses.has(c) &&
+          c.indexOf(".") >= 0 &&
+          c.indexOf(":has") < 0
+        ) {
           const type = c[0] === "&" ? "modifier" : "component";
           const className = c.slice(
             type === "component" ? c.indexOf(".") + 1 : 2,
