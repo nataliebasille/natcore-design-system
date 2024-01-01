@@ -7,6 +7,16 @@ import { fetchFile } from "@/components/fetch-file";
 
 const formControlThemeInfo = generateThemeInfo(formControlTheme, {
   "form-control": "",
+  "form-control-label": "",
+  "form-control-hint": "",
+  "form-control-error": "",
+  "form-control-prefix": "",
+  "form-control-suffix": "",
+  "form-control-primary": "",
+  "form-control-secondary": "",
+  "form-control-tertiary": "",
+  "form-control-accent": "",
+  "form-control-surface": "",
 });
 
 export default async function FormControlPage() {
