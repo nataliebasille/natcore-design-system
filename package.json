@@ -30,7 +30,7 @@
     "npm": "^9.6.5",
     "prettier": "^2.8.7",
     "prettier-plugin-tailwindcss": "^0.2.7",
-    "typescript": "^5.0.4"
+    "typescript": "^5.3.3"
   },
   "workspaces": [
     "./packages/*",
