@@ -13,7 +13,6 @@ export default function RadioGroupPage() {
       </p>
       <SystemSelectorContainer initialSystem="native">
         <SystemSelectorContent system="native">
-          {/* @ts-expect-error Async Server Component */}
           <CodeExample component="radio-group" system="native" />
         </SystemSelectorContent>
       </SystemSelectorContainer>

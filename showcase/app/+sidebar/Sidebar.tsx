@@ -25,6 +25,7 @@ export const Sidebar = () => {
 
       <List.Container color="primary">
         <SidebarItem href="/form/fields">Fields</SidebarItem>
+        <SidebarItem href="/form/form-controls">Form controls</SidebarItem>
       </List.Container>
     </>
   );

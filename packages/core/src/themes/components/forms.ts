@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
 import { createVariants } from "../colors";
 
@@ -35,4 +36,34 @@ export default (theme: PluginAPI["theme"]) => ({
     backgroundImage:
       'url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /%3E%3C/svg%3E\')',
   },
+
+  //   ".form-control": {
+  //     ...variants,
+
+  //     display: "flex",
+  //     flexDirection: "column",
+  //     position: "relative",
+
+  //     "> .form-control-title, > .form-control-hint": {
+  //       fontSize: ".75rem",
+  //       fontWeight: theme("fontWeight.medium")!,
+  //       color: theme("colors.gray.500")!,
+  //       left: "1em",
+  //     },
+
+  //     "> .form-control-title": {
+  //       position: "absolute",
+  //       paddingTop: ".375em",
+  //       paddingLeft: ".25em",
+  //     },
+
+  //     "> .form-control-hint": {
+  //       paddingLeft: "1em",
+  //     },
+
+  //     "> .form-control-title + input, > .form-control-title + select, > .form-control-title + textarea":
+  //       {
+  //         paddingTop: "1.5rem",
+  //       },
+  //   },
 });

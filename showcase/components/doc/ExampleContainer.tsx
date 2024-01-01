@@ -17,8 +17,6 @@ export const ExampleContainer = ({
 }: ExampleContainerProps) => {
   return (
     <BasicContainer className={className}>
-      <Highlight component="code" content={html} language="html" />
-      <div className="divider mb-2">Output</div>
       <div
         className={classnames(
           "grid items-center justify-center gap-3",
@@ -29,6 +27,8 @@ export const ExampleContainer = ({
         }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
+      <div className="divider mb-2">Source</div>
+      <Highlight component="code" content={html} language="html" />
     </BasicContainer>
   );
 };

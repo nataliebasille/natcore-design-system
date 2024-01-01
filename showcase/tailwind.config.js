@@ -4,7 +4,7 @@ import { plugin } from "./wrapper";
 export const content = [
   "./pages/**/*.{js,ts,jsx,tsx}",
   "./components/**/*.{js,ts,jsx,tsx}",
-  "./app/**/*.{js,ts,jsx,tsx}",
+  "./app/**/*.{js,ts,jsx,tsx,html}",
   "./wrapper.ts",
   "../packages/react/**/*.{js,ts,jsx,tsx}",
   "../packages/core/**/*.{js,ts,jsx,tsx}",
