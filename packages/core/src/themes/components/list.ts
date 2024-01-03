@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
 import { createVariants } from "../colors";
 
+const listVariants = createVariants("list");
 export default (theme: PluginAPI["theme"]) => ({
   ".list": {
-    ...createVariants("list"),
+    ...listVariants,
     display: "flex",
     flexDirection: "column",
     gap: theme("spacing.2")!,
@@ -21,17 +23,17 @@ export default (theme: PluginAPI["theme"]) => ({
       lineHeight: theme("lineHeight.tight")!,
 
       "&:hover,&:focus": {
-        background: "var(--list-background-color-hover)",
-        color: "var(--list-background-color-hover-contrast)",
+        background: listVariants("background-color-hover"),
+        color: listVariants("background-color-hover-text"),
       },
 
       "&.active": {
-        backgroundColor: "var(--list-base)",
-        color: "var(--list-base-contrast)",
+        backgroundColor: listVariants("base"),
+        color: listVariants("base-text"),
 
         "&:hover,&:focus": {
-          backgroundColor: "var(--list-base)",
-          color: "var(--list-base-contrast)",
+          backgroundColor: listVariants("base"),
+          color: listVariants("base-text"),
         },
       },
     },

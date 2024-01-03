@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
 import { createVariants } from "../colors";
 
+const btnVariants = createVariants("btn");
 export default (theme: PluginAPI["theme"]) => ({
   ".btn, .btn-icon": {
-    ...createVariants("btn"),
+    ...btnVariants,
 
     padding: "0.75em 1em",
     fontSize: theme("fontSize.base")!,
@@ -17,8 +19,8 @@ export default (theme: PluginAPI["theme"]) => ({
     transitionTimingFunction: "ease-in-out",
     transitionDuration: "250ms",
 
-    backgroundColor: "var(--btn-base)",
-    color: "var(--btn-base-contrast)",
+    backgroundColor: btnVariants("base"),
+    color: btnVariants("base-text"),
 
     "&.btn-ghost": {
       backgroundColor: "transparent",
@@ -41,19 +43,17 @@ export default (theme: PluginAPI["theme"]) => ({
     },
 
     "&:hover": {
-      backgroundColor: "var(--btn-base-hover)",
-      color: "var(--btn-base-hover-contrast)",
+      backgroundColor: btnVariants("base-hover"),
     },
     "&:active": {
       transform: "scale(0.95)",
     },
     "&.btn-outline": {
-      color: "var(--btn-base)",
-      borderColor: "var(--btn-base)",
+      color: btnVariants("base"),
+      borderColor: btnVariants("base"),
       backgroundColor: "transparent",
       "&:hover": {
-        backgroundColor: "var(--btn-background-color)",
-        color: "var(--btn-background-color-contrast)",
+        backgroundColor: btnVariants("background-color"),
       },
     },
 

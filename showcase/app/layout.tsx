@@ -23,7 +23,7 @@ export default function RootLayout({
             href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"
           />
         </head>
-        <body className="bg-surface-shades-50 h-screen w-screen">
+        <body className="h-screen w-screen">
           <div className="layer md:layer-fixed">
             <SidebarToggle />
             <SidebarOverlay />

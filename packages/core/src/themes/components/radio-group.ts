@@ -1,17 +1,21 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
 import { createVariants } from "../colors";
 
+const radioGroupVariants = createVariants("radio-group", {
+  defaultColor: "surface",
+});
 export default (theme: PluginAPI["theme"]) => ({
   ".radio-group": {
+    ...radioGroupVariants,
     display: "flex",
     gap: theme("spacing.1")!,
     width: "fit-content",
     padding: "0.125rem",
-    ...createVariants("radio-group", { defaultColor: "surface" }),
 
     borderStyle: "solid",
     borderWidth: theme("borderWidth.2")!,
-    borderColor: "var(--radio-group-border)",
+    borderColor: radioGroupVariants("border")!,
     borderRadius: theme("borderRadius.full")!,
 
     'input[type="radio"]': {
@@ -30,13 +34,13 @@ export default (theme: PluginAPI["theme"]) => ({
       borderRadius: theme("borderRadius.full")!,
 
       "&:hover": {
-        backgroundColor: "var(--radio-group-backgroud-color-hover)",
+        backgroundColor: radioGroupVariants("background-color-hover"),
       },
     },
 
     'input[type="radio"]:checked + label': {
-      backgroundColor: "var(--radio-group-base)",
-      color: "var(--radio-group-base-contrast)",
+      backgroundColor: radioGroupVariants("base"),
+      color: radioGroupVariants("base-text"),
     },
 
     'input[type="radio"]:active + label': {

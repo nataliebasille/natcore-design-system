@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
 import { createVariants } from "../colors";
 
+const tabVariants = createVariants("tabs", { defaultColor: "surface" });
 export default (theme: PluginAPI["theme"]) => ({
   ".tabs": {
-    ...createVariants("tabs", { defaultColor: "surface" }),
+    ...tabVariants,
 
     // display: "grid",
     // gridTemplateColumns: "repeat(auto-fill, minmax(max-content, 1px))",
@@ -37,8 +39,8 @@ export default (theme: PluginAPI["theme"]) => ({
       opacity: "1",
       fontWeight: theme("fontWeight.medium")!,
       borderBottomWidth: theme("borderWidth.2")!,
-      borderBottomColor: "var(--tabs-active)",
-      color: "var(--tabs-active)",
+      borderBottomColor: tabVariants("active"),
+      color: tabVariants("active"),
     },
 
     "> input[type=radio]:disabled + .tab": {

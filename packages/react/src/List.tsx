@@ -11,11 +11,11 @@ function createContainerComponent(
   displayName: string,
   additionalClasses?: string,
 ) {
-  const ContainerComponent: FC<ListContainerProps> = ({
+  const ContainerComponent = ({
     className,
     color,
     children,
-  }) => {
+  }: ListContainerProps) => {
     const colorClass = {
       "list-primary": color === "primary",
       "list-secondary": color === "secondary",

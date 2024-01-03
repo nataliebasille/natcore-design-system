@@ -1,25 +1,30 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
 import { colors } from "./colors";
+import {
+  type Color,
+  formatColorForCssVariable,
+  getContrastingTextColor,
+} from "../utils";
 
 export default (theme: PluginAPI["theme"]) =>
   ({
     ":root": Object.entries(colors).reduce((props, [key, color]) => {
-      const { shades, contrast } = color;
+      const { shades } = color;
 
-      Object.entries(shades).forEach(([shade, value]) => {
-        props[`--${key}-${shade}`] = value;
-      });
-
-      Object.entries(contrast).forEach(([shade, value]) => {
-        props[`--${key}-contrast-${shade}`] = value;
-      });
+      Object.entries(shades).forEach(
+        ([shade, value]: [shade: string, value: Color]) => {
+          props[`--${key}-${shade}`] = formatColorForCssVariable(value);
+          props[`--${key}-text-${shade}`] = getContrastingTextColor(value);
+        },
+      );
 
       return props;
     }, {} as Record<string, string>),
 
     body: {
-      backgroundColor: "var(--surface-50)",
-      color: "var(--surface-contrast-50)",
+      backgroundColor: "rgb(var(--surface-50))",
+      color: "rgb(var(--surface-text-50))",
     },
 
     h1: {

@@ -2,13 +2,15 @@
 import { type PluginAPI } from "tailwindcss/types/config";
 import { createVariants } from "../colors";
 
-const variants = createVariants("form-control", { defaultColor: "surface" });
+const formControlVariants = createVariants("form-control", {
+  defaultColor: "surface",
+});
 const ALL_SIBLING_INPUTS_SELECTOR = "~ input, ~ select, ~ textarea" as const;
 const ALL_CHILD_INPUTS_SELECTOR = "> input, > select, > textarea" as const;
 
 export default (theme: PluginAPI["theme"]) => ({
   ".form-control": {
-    ...variants,
+    ...formControlVariants,
     display: "grid",
     gridTemplateAreas: `
         "label label label"
@@ -22,8 +24,8 @@ export default (theme: PluginAPI["theme"]) => ({
 
     "> .form-control-label, > label, > .form-control-prefix, > .form-control-suffix":
       {
-        backgroundColor: "var(--form-control-background-color)",
-        borderColor: "var(--form-control-border)",
+        backgroundColor: formControlVariants("background-color"),
+        borderColor: formControlVariants("border"),
         fontWeight: theme("fontWeight.medium")!,
         color: theme("colors.gray.500")!,
       },
@@ -32,8 +34,8 @@ export default (theme: PluginAPI["theme"]) => ({
       gridArea: "label",
       paddingLeft: "1.33333em",
       paddingRight: "2em",
-      backgroundColor: "var(--form-control-background-color)",
-      borderColor: "var(--form-control-border)",
+      backgroundColor: formControlVariants("background-color"),
+      borderColor: formControlVariants("border"),
       borderStyle: "solid",
       borderWidth: "1px",
       borderBottom: "none",

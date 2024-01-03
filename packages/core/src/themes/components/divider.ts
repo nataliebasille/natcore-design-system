@@ -11,14 +11,14 @@ export default (theme: PluginAPI["theme"]) => ({
     alignSelf: "stretch",
     margin: `${theme("spacing.4")!} 0`,
     letterSpacing: theme("letterSpacing.wide")!,
-    color: "var(--divider-base)",
+    color: dividerVarients("base"),
     fontWeight: theme("fontWeight.bold")!,
 
     "&::before, &::after": {
       content: '""',
       flex: "1",
       height: "1px",
-      backgroundColor: "var(--divider-base)",
+      backgroundColor: dividerVarients("base"),
     },
 
     "&:empty::after": {
@@ -45,14 +45,14 @@ export default (theme: PluginAPI["theme"]) => ({
     alignItems: "center",
     margin: `0 ${theme("spacing.4")!}`,
     letterSpacing: theme("letterSpacing.wide")!,
-    color: "var(--divider-base)",
+    color: dividerVarients("base"),
     fontWeight: theme("fontWeight.bold")!,
 
     "&::before, &::after": {
       content: '""',
       flex: "1",
       width: "1px",
-      backgroundColor: "var(--divider-base)",
+      backgroundColor: dividerVarients("base"),
     },
 
     "&:empty::after": {

@@ -13,7 +13,7 @@ export const Sidebar = () => {
       <List.Container color="primary">
         <SidebarItem href="/component/button">Button</SidebarItem>
         <SidebarItem href="/component/divider">Divider</SidebarItem>
-        <SidebarItem href="/component/layer">Layer</SidebarItem>
+        {/* <SidebarItem href="/component/layer">Layer</SidebarItem> */}
         <SidebarItem href="/component/list">List</SidebarItem>
         <SidebarItem href="/component/radio-group">Radio Group</SidebarItem>
         <SidebarItem href="/component/tabs">Tabs</SidebarItem>

@@ -11,7 +11,6 @@ const listThemeInfo = generateThemeInfo(listTheme, {
   "list-primary": "This class applies the primary color to the list items.",
   "list-secondary": "This class applies the secondary color to the list items.",
   "list-tertiary": "This class applies the tertiary color to the list items.",
-  "list-accent": "This class applies the accent color to the list items.",
   "list-surface": "This class applies the surface color to the list items.",
   "list-item": "This class represents the individual list items.",
   active: "Use this class to style the active list item.",

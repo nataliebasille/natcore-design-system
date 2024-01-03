@@ -5,11 +5,11 @@ export default Object.entries(colors).reduce(
   (props, [key, colorDefinition]) => {
     Object.keys(colorDefinition.shades).forEach((shade) => {
       const bgStyles = {
-        backgroundColor: `var(--${key}-${shade})`,
-        color: `var(--${key}-contrast-${shade})`,
+        backgroundColor: `rgb(var(--${key}-${shade}))`,
+        color: `rgb(var(--${key}-text-${shade}))`,
       };
       const textStyles = {
-        color: `var(--${key}-${shade})`,
+        color: `rgb(var(--${key}-${shade}))`,
       };
 
       props[`.bg-${key}-${shade}`] = bgStyles;

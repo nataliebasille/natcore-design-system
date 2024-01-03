@@ -1,5 +1,5 @@
-import { type FC, type PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 
-export const Divider: FC<PropsWithChildren> = ({ children }) => {
+export const Divider = ({ children }: PropsWithChildren) => {
   return <div className="divider">{children}</div>;
 };

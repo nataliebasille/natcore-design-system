@@ -1,28 +1,29 @@
-import { PluginAPI } from 'tailwindcss/types/config';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { type PluginAPI } from "tailwindcss/types/config";
 
-export default (theme: PluginAPI['theme']) => ({
-  '.page-container': {
-    width: theme('width.screen')!,
-    height: theme('height.screen')!,
-    overflow: 'hidden',
-    background: theme('colors.gray.100')!,
+export default (theme: PluginAPI["theme"]) => ({
+  ".page-container": {
+    width: theme("width.screen")!,
+    height: theme("height.screen")!,
+    overflow: "hidden",
+    background: theme("colors.gray.100")!,
 
-    '.sidebar': {
-      position: 'fixed',
+    ".sidebar": {
+      position: "fixed",
       top: 0,
       bottom: 0,
       left: 0,
-      width: theme('width.1/3')!,
+      width: theme("width.1/3")!,
 
-      '+ .content': {
-        position: 'fixed',
+      "+ .content": {
+        position: "fixed",
         top: 0,
         bottom: 0,
         right: 0,
-        width: theme('width.2/3')!,
+        width: theme("width.2/3")!,
       },
     },
 
-    [`@media(min-width: ${theme('screens.md')})`]: {},
+    [`@media(min-width: ${theme("screens.md")})`]: {},
   },
 });

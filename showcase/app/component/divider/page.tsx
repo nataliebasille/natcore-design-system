@@ -10,7 +10,6 @@ const dividerThemeInfo = generateThemeInfo(dividerTheme, {
   "divider-primary": "Class to apply the primary color to the divider",
   "divider-secondary": "Class to apply the secondary color to the divider",
   "divider-tertiary": "Class to apply the tertiary color to the divider",
-  "divider-accent": "Class to apply the accent color to the divider",
   "divider-surface": "Class to apply the surface color to the divider",
 });
 

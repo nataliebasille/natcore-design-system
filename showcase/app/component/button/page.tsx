@@ -13,7 +13,6 @@ const btnThemeInfo = generateThemeInfo(buttonTheme, {
   "btn-primary": "Uses the primary button styles",
   "btn-secondary": "Uses the secondary button styles",
   "btn-tertiary": "Uses the tertiary button styles",
-  "btn-accent": "Uses the accent button styles",
   "btn-surface": "Uses the surface button styles",
   "btn-ghost": "Uses the ghost button styles",
   "btn-sm": "Small-sized button",
@@ -50,7 +49,6 @@ export default function ButtonPage() {
             html={`<button class="btn btn-primary">Primary</button>
 <button class="btn btn-secondary">Secondary</button>
 <button class="btn btn-tertiary">Tertiary</button>
-<button class="btn btn-accent">Accent</button>
 <button class="btn btn-surface">Surface</button>
 <button class="btn btn-ghost">Ghost</button>`}
           />
@@ -76,7 +74,6 @@ export default function ButtonPage() {
             html={`<button class="btn btn-primary btn-outline">Primary</button>
 <button class="btn btn-secondary btn-outline">Secondary</button>
 <button class="btn btn-tertiary btn-outline">Tertiary</button>
-<button class="btn btn-accent btn-outline">Accent</button>
 <button class="btn btn-surface btn-outline">Surface</button>
 <button class="btn btn-ghost btn-outline">Ghost</button>`}
           />
