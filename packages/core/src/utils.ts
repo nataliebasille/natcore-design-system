@@ -9,6 +9,12 @@ const BLUE_FACTOR = 0.0722;
 
 const GAMMA = 2.4;
 
+export function toHex([red, green, blue]: Color) {
+  return `#${red.toString(16).padStart(2, "0")}${green
+    .toString(16)
+    .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
+}
+
 export function luminance(r: number, g: number, b: number) {
   const a = [r, g, b].map((v) => {
     v /= 255;

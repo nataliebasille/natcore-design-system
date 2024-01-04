@@ -60,7 +60,7 @@ const colors = {
     "background-color-hover": "100",
     active: "700",
     disable: "200",
-    border: "200",
+    border: "500",
   },
   surface: {
     shades: {

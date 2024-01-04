@@ -16,7 +16,12 @@ export const ExampleContainer = ({
   gridColumns = "auto-fit",
 }: ExampleContainerProps) => {
   return (
-    <BasicContainer className={className}>
+    <BasicContainer
+      className={classnames(
+        "from-tertiary-300 to-secondary-200 bg-gradient-to-r ",
+        className,
+      )}
+    >
       <div
         className={classnames(
           "grid items-center justify-center gap-3",
@@ -27,7 +32,7 @@ export const ExampleContainer = ({
         }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
-      <div className="divider mb-2">Source</div>
+      <div className="divider divider-secondary mb-2">Source</div>
       <Highlight component="code" content={html} language="html" />
     </BasicContainer>
   );
