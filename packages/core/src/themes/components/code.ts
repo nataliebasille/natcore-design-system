@@ -14,7 +14,7 @@ export default (theme: PluginAPI["theme"]) => ({
     overflowX: "auto",
     fontFamily:
       "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace",
-
+    textWrap: "balance",
     "&.inline, &.inline-block, &.inline-flex, &.inline-grid": {
       width: "auto",
       padding: `0 ${theme("spacing.2")}`,

@@ -1,10 +1,10 @@
-import { Highlight } from "@/components/Highlight";
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { ExampleContainer } from "@/components/doc/ExampleContainer";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
-import { LogoSVG } from "@natcore/design-system-core";
 import buttonTheme from "../../../../packages/core/src/themes/components/button";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
+import { BasicButtonExample } from "./BasicButtonExample";
+import { fetchFile } from "@/components/fetch-file";
 
 const btnThemeInfo = generateThemeInfo(buttonTheme, {
   btn: "Button with default styling",
@@ -19,7 +19,7 @@ const btnThemeInfo = generateThemeInfo(buttonTheme, {
   "btn-lg": "Large-sized button",
 });
 
-export default function ButtonPage() {
+export default async function ButtonPage() {
   return (
     <DocPage
       title="Button"
@@ -45,37 +45,10 @@ export default function ButtonPage() {
             </>
           }
         >
-          <ExampleContainer
-            html={`<button class="btn btn-primary">Primary</button>
-<button class="btn btn-secondary">Secondary</button>
-<button class="btn btn-tertiary">Tertiary</button>
-<button class="btn btn-surface">Surface</button>
-<button class="btn btn-ghost">Ghost</button>`}
-          />
-        </DocSection>
-
-        <DocSection
-          title="Outlined button"
-          description={
-            <>
-              A button with a transparent background with a visible border.
-              Styles are applied using the{" "}
-              <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
-                style={{ padding: "0 !important" }}
-              >
-                `.btn-outline`
-              </code>{" "}
-              class.
-            </>
-          }
-        >
-          <ExampleContainer
-            html={`<button class="btn btn-primary btn-outline">Primary</button>
-<button class="btn btn-secondary btn-outline">Secondary</button>
-<button class="btn btn-tertiary btn-outline">Tertiary</button>
-<button class="btn btn-surface btn-outline">Surface</button>
-<button class="btn btn-ghost btn-outline">Ghost</button>`}
+          <BasicButtonExample
+            html={await fetchFile(
+              "component/button/examples/basic-button.html",
+            )}
           />
         </DocSection>
 
@@ -102,14 +75,12 @@ export default function ButtonPage() {
           }
         >
           <ExampleContainer
-            html={`<button class="btn btn-sm">Small</button>
-<button class="btn">Standard</button>
-<button class="btn btn-lg">Large</button>
-<button class="btn btn-sm btn-outline">Small</button>
-<button class="btn btn-outline">Standard</button>
-<button class="btn btn-lg btn-outline">Large</button>`}
+            html={await fetchFile("component/button/examples/sizes.html")}
           />
         </DocSection>
+
+        {/* 
+        
 
         <DocSection
           title="Icon buttons"
@@ -165,7 +136,7 @@ export default function ButtonPage() {
               </button>
             </div>
           </div>
-        </DocSection>
+        </DocSection> */}
       </DocSection>
     </DocPage>
   );

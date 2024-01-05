@@ -23,11 +23,14 @@ export default (theme: PluginAPI["theme"]) => ({
     color: btnVariants("base-text"),
 
     "&.btn-ghost": {
-      backgroundColor: "transparent",
-      color: theme("colors.gray.900")!,
-      borderColor: "transparent",
+      backgroundColor: btnVariants("base", 0.2),
+      color: btnVariants("active"),
+      borderColor: btnVariants("base", 0.8),
+
       "&:hover": {
-        backgroundColor: theme("colors.gray.300")!,
+        backgroundColor: btnVariants("base", 0.4),
+        color: btnVariants("active"),
+        borderColor: btnVariants("base"),
       },
       "&:focus": {
         boxShadow: `0 0 0 3px ${theme("colors.gray.300")}`,
