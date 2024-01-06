@@ -12,17 +12,15 @@ export default (theme: PluginAPI["theme"]) => ({
     borderRadius: theme("borderRadius.lg")!,
     border: `1px solid ${cardVariants("border")}`,
 
+    "> .card-header, > .card-content, > .card-footer": {
+      padding: theme("spacing.4"),
+    },
+
     "> .card-header": {
-      padding: theme("spacing.4")!,
       borderBottom: `1px solid ${cardVariants("border")}`,
     },
 
-    "> .card-content": {
-      padding: theme("spacing.4")!,
-    },
-
     "> .card-footer": {
-      padding: theme("spacing.4")!,
       borderTop: `1px solid ${cardVariants("border")}`,
     },
 
@@ -46,9 +44,8 @@ export default (theme: PluginAPI["theme"]) => ({
       borderRadius: theme("borderRadius.lg")!,
       border: `1px solid ${cardVariants("border")}`,
 
-      "> .card-footer": {
-        padding: theme("spacing.4")!,
-        borderTop: `1px solid ${cardVariants("border")}`,
+      "> .card-header, > .card-footer": {
+        borderColor: cardVariants("border"),
       },
 
       "&.card-hover": {
@@ -63,9 +60,9 @@ export default (theme: PluginAPI["theme"]) => ({
       backgroundColor: cardVariants("base"),
       color: cardVariants("base-text"),
 
-      "> .card-footer": {
+      "> .card-header, > .card-footer": {
         padding: theme("spacing.4")!,
-        borderTop: `1px solid ${cardVariants("base-text", 0.25)}`,
+        borderColor: cardVariants("base-text", 0.25),
       },
 
       "&.card-hover": {
@@ -81,12 +78,8 @@ export default (theme: PluginAPI["theme"]) => ({
       color: cardVariants("active"),
       borderColor: cardVariants("base", 0.8),
 
-      "> .card-header": {
-        borderBottom: `1px solid ${cardVariants("base", 0.25)}`,
-      },
-
-      "> .card-footer": {
-        borderTop: `1px solid ${cardVariants("base", 0.25)}`,
+      "> .card-header, > .card-footer": {
+        borderColor: cardVariants("base", 0.25),
       },
 
       "&.card-hover": {
