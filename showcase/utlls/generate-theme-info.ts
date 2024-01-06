@@ -40,7 +40,7 @@ export const generateThemeInfo = <T extends ThemeFactory>(
   themeFactory: T,
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  descriptions: Record<InferThemeClasses<T>, string>,
+  descriptions: Partial<Record<InferThemeClasses<T>, string>>,
 ): ThemeClass[] => {
   const theme = themeFactory((() => "") as PluginAPI["theme"]);
 
