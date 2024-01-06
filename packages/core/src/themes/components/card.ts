@@ -12,14 +12,18 @@ export default (theme: PluginAPI["theme"]) => ({
     borderRadius: theme("borderRadius.lg")!,
     border: `1px solid ${cardVariants("border")}`,
 
-    "> .card-footer": {
-      padding: theme("spacing.4")!,
-      borderTop: `1px solid ${cardVariants("border")}`,
-    },
-
     "> .card-header": {
       padding: theme("spacing.4")!,
       borderBottom: `1px solid ${cardVariants("border")}`,
+    },
+
+    "> .card-content": {
+      padding: theme("spacing.4")!,
+    },
+
+    "> .card-footer": {
+      padding: theme("spacing.4")!,
+      borderTop: `1px solid ${cardVariants("border")}`,
     },
 
     "&.card-hover": {
