@@ -17,6 +17,11 @@ export default (theme: PluginAPI["theme"]) => ({
       borderTop: `1px solid ${cardVariants("border")}`,
     },
 
+    "> .card-header": {
+      padding: theme("spacing.4")!,
+      borderBottom: `1px solid ${cardVariants("border")}`,
+    },
+
     "&.card-hover": {
       transitionProperty:
         "background-color, border-color, color, fill, stroke, opacity, box-shadow, transform",
@@ -72,9 +77,12 @@ export default (theme: PluginAPI["theme"]) => ({
       color: cardVariants("active"),
       borderColor: cardVariants("base", 0.8),
 
+      "> .card-header": {
+        borderBottom: `1px solid ${cardVariants("base", 0.25)}`,
+      },
+
       "> .card-footer": {
-        padding: theme("spacing.4")!,
-        borderTop: `1px solid ${cardVariants("base-text", 0.2)}`,
+        borderTop: `1px solid ${cardVariants("base", 0.25)}`,
       },
 
       "&.card-hover": {
