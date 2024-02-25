@@ -17,6 +17,7 @@ export const Sidebar = () => {
         {/* <SidebarItem href="/component/layer">Layer</SidebarItem> */}
         <SidebarItem href="/component/list">List</SidebarItem>
         <SidebarItem href="/component/radio-group">Radio Group</SidebarItem>
+        <SidebarItem href="/component/switch">Toggle</SidebarItem>
         <SidebarItem href="/component/tabs">Tabs</SidebarItem>
       </List.Container>
 
