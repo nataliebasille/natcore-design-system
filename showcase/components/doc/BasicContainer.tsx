@@ -10,7 +10,7 @@ export const BasicContainer = ({
   return (
     <div
       className={classnames(
-        "border-primary-border  rounded-lg border p-3",
+        "border-primary-border card card-ghost rounded-lg border p-3",
         className,
       )}
     >

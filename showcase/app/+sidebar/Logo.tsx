@@ -23,7 +23,7 @@ export const Logo = () => {
         <LogoSVG className="h-[3rem] w-[3rem]" />
       </div>
       <span className="text-primary ml-1 text-5xl">at</span>
-      <span className="text-secondary text-5xl">Core</span>
+      <span className="text-secondary-800 text-5xl">Core</span>
     </div>
   );
 };

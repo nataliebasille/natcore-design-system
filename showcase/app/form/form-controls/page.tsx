@@ -34,14 +34,14 @@ export default async function FormControlPage() {
             <>
               Use either the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `label`
               </code>{" "}
               element or the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.form-control-label`
@@ -61,7 +61,7 @@ export default async function FormControlPage() {
             <>
               Use the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.form-control-hint`
@@ -81,14 +81,14 @@ export default async function FormControlPage() {
             <>
               Invalid field can be styled using the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.form-control-error`
               </code>{" "}
               class. Use this in conjunction with the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.form-control-hint`
@@ -110,14 +110,14 @@ export default async function FormControlPage() {
             <>
               Prefix or suffix a field with additional content using the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.form-control-prefix`
               </code>{" "}
               and
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.form-control-suffix`

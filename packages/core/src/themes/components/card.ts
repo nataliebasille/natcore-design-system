@@ -13,7 +13,7 @@ export default (theme: PluginAPI["theme"]) => ({
     border: `1px solid ${cardVariants("border")}`,
 
     "> .card-header, > .card-content, > .card-footer": {
-      padding: theme("spacing.4"),
+      padding: theme("spacing.4")!,
     },
 
     "> .card-header": {

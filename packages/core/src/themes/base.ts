@@ -1,26 +1,26 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
-import { colors } from "./colors";
-import {
-  type Color,
-  formatColorForCssVariable,
-  getContrastingTextColor,
-} from "../utils";
+import { formatColorForCssVariable, VARIABLES_TO_SHADES } from "../utils";
+import { normalizedColorSchema } from "../normalized";
 
+const VARIABLE_KEYS = new Set(Object.keys(VARIABLES_TO_SHADES));
 export default (theme: PluginAPI["theme"]) =>
   ({
-    ":root": Object.entries(colors).reduce((props, [key, color]) => {
-      const { shades } = color;
+    ":root": Object.entries(normalizedColorSchema).reduce(
+      (props, [key, schema]) => {
+        Object.entries(schema).forEach(
+          ([shade, value]: [shade: string, value: any]) => {
+            if (VARIABLE_KEYS.has(shade)) return;
+            if (shade === "contrast") return;
+            props[`--${key}-${shade}`] = formatColorForCssVariable(value);
+            props[`--${key}-text-${shade}`] = (schema as any).contrast[shade];
+          },
+        );
 
-      Object.entries(shades).forEach(
-        ([shade, value]: [shade: string, value: Color]) => {
-          props[`--${key}-${shade}`] = formatColorForCssVariable(value);
-          props[`--${key}-text-${shade}`] = getContrastingTextColor(value);
-        },
-      );
-
-      return props;
-    }, {} as Record<string, string>),
+        return props;
+      },
+      {} as Record<string, string>,
+    ),
 
     body: {
       backgroundColor: "rgb(var(--surface-50))",

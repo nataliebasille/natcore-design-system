@@ -27,14 +27,14 @@ export default async function CardPage() {
           <>
             A card can be divided into sections using{" "}
             <code
-              className="text-secondary inline-block bg-transparent p-0 font-bold"
+              className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
               style={{ padding: "0 !important" }}
             >
               `.card-header`
             </code>{" "}
             and{" "}
             <code
-              className="text-secondary inline-block bg-transparent p-0 font-bold"
+              className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
               style={{ padding: "0 !important" }}
             >
               `.card-footer`

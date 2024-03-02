@@ -29,7 +29,7 @@ export default function DividerPage() {
             <>
               A horizontal divider is created using the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 .divider
@@ -65,7 +65,7 @@ export default function DividerPage() {
             <>
               A vertical divider is created using the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 .divider-v

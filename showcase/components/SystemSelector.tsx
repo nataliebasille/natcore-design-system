@@ -31,7 +31,7 @@ export const SystemSelectorContainer: React.FC<{
   const element = array.find((child) => child.props.system === system);
 
   return (
-    <div className="border-primary-shades-300 rounded-lg border p-3">
+    <div className="border-primary-300 rounded-lg border p-3">
       <div className="radio-group-primary radio-group">
         {SYSTEMS.map(({ name, value, disabled }) => {
           const id = `system-${value}-${uuid++}`;

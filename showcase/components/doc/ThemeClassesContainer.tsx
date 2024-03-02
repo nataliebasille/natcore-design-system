@@ -5,7 +5,7 @@ import { Fragment } from "react";
 
 export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
   return (
-    <BasicContainer className="grid grid-cols-[1fr_max-content] items-center gap-3 sm:grid-cols-[max-content_max-content_1fr] md:w-fit">
+    <BasicContainer className="grid w-full max-w-2xl grid-cols-[1fr_max-content] items-center gap-3 sm:grid-cols-[max-content_max-content_1fr]">
       {Object.entries(theme).map(([key, value]) => (
         <Fragment key={key}>
           <div className="font-bold">.{value.className}</div>
@@ -13,8 +13,9 @@ export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
             className={classnames(
               "flex items-center justify-center rounded-full px-2 text-sm",
               {
-                "bg-primary": value.type === "component",
-                "text-primary-shades-700 border-primary-shades-700 border":
+                "bg-primary-500 text-primary-contrast-500":
+                  value.type === "component",
+                "text-primary-700 border-primary-700 border":
                   value.type === "modifier",
               },
             )}

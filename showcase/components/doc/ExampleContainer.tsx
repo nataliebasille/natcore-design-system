@@ -16,12 +16,7 @@ export const ExampleContainer = ({
   gridColumns = "auto-fit",
 }: ExampleContainerProps) => {
   return (
-    <BasicContainer
-      className={classnames(
-        "from-tertiary-300 to-secondary-200 bg-gradient-to-r ",
-        className,
-      )}
-    >
+    <BasicContainer className={classnames("card-ghost", className)}>
       <div
         className={classnames(
           "grid items-center justify-center gap-3",

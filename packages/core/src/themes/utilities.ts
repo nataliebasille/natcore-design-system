@@ -1,9 +1,9 @@
 import { type CSSRuleObject } from "tailwindcss/types/config";
-import { colors } from "./colors";
+import { normalizedColorSchema } from "../normalized";
 
-export default Object.entries(colors).reduce(
+export default Object.entries(normalizedColorSchema).reduce(
   (props, [key, colorDefinition]) => {
-    Object.keys(colorDefinition.shades).forEach((shade) => {
+    Object.keys(colorDefinition).forEach((shade) => {
       const bgStyles = {
         backgroundColor: `rgb(var(--${key}-${shade}))`,
         color: `rgb(var(--${key}-text-${shade}))`,
@@ -14,10 +14,6 @@ export default Object.entries(colors).reduce(
 
       props[`.bg-${key}-${shade}`] = bgStyles;
       props[`.text-${key}-${shade}`] = textStyles;
-      if (shade === colorDefinition.base) {
-        props[`.bg-${key}`] = bgStyles;
-        props[`.text-${key}`] = textStyles;
-      }
     });
 
     return props;

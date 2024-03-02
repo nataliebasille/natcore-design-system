@@ -1,5 +1,38 @@
 export type Color = readonly [red: number, green: number, blue: number];
+export type Hex = `#${string}`;
+export type ColorConfig =
+  | Color
+  | {
+      color: Color;
+      shade: (typeof shades)[number];
+    };
 
+export type ColorSchema = Record<string, ColorConfig>;
+export type NormalizedColorSchema = Record<
+  string,
+  Record<
+    `${(typeof shades)[number]}` | keyof typeof VARIABLES_TO_SHADES,
+    Color
+  > & {
+    contrast: Record<
+      `${(typeof shades)[number]}` | keyof typeof VARIABLES_TO_SHADES,
+      Color
+    >;
+  }
+>;
+export const VARIABLES_TO_SHADES = {
+  base: "500",
+  "base-hover": "900",
+  "background-color": "50",
+  "background-color-hover": "100",
+  active: "800",
+  disable: "200",
+  border: "200",
+} as const;
+
+export const shades = [
+  50, 100, 200, 300, 400, 500, 600, 700, 800, 900,
+] as const;
 export const WHITE = [255, 255, 255] as const;
 export const BLACK = [0, 0, 0] as const;
 
@@ -13,6 +46,31 @@ export function toHex([red, green, blue]: Color) {
   return `#${red.toString(16).padStart(2, "0")}${green
     .toString(16)
     .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
+}
+
+export function toRgb(hex: Hex): Color {
+  const [, r, g, b] = /^#(..)(..)(..)$/.exec(hex) || [];
+
+  if (!r || !g || !b) {
+    throw new Error(`Invalid hex color: ${hex}`);
+  }
+
+  return [parseInt(r, 16), parseInt(g, 16), parseInt(b, 16)] as Color;
+}
+
+export function lighten(color: Color, factor: number) {
+  return color.map((c) => {
+    const value = Math.round(c + (255 - c) * factor);
+    return value > 255 ? 255 : value;
+  }) as unknown as Color;
+}
+
+export function darken(color: Color, factor: number) {
+  return color.map((c) => {
+    const value = Math.round(c * (1 - factor));
+
+    return value < 0 ? 0 : value > 255 ? 255 : value;
+  }) as unknown as Color;
 }
 
 export function luminance(r: number, g: number, b: number) {

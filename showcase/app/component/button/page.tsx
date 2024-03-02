@@ -36,7 +36,7 @@ export default async function ButtonPage() {
             <>
               Button styles are applied using the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn`
@@ -58,14 +58,14 @@ export default async function ButtonPage() {
             <>
               Button sizes are applied using the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn-sm`
               </code>{" "}
               (small) or{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn-lg`
@@ -88,7 +88,7 @@ export default async function ButtonPage() {
             <>
               To create a icon friendly button, use the{" "}
               <code
-                className="text-secondary inline-block bg-transparent p-0 font-bold"
+                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
                 style={{ padding: "0 !important" }}
               >
                 `.btn-icon`
@@ -97,7 +97,7 @@ export default async function ButtonPage() {
             </>
           }
         >
-          <div className="border-primary-shades-500 rounded-lg border p-3">
+          <div className="border-primary-500 rounded-lg border p-3">
             <Highlight
               component="code"
               content={`<button class="btn btn-icon btn-sm">{...icon}</button>

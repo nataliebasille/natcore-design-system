@@ -23,7 +23,7 @@ export default function RootLayout({
             href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"
           />
         </head>
-        <body className="h-screen w-screen">
+        <body className="from-primary-100/30 to-surface-200 h-screen w-screen bg-gradient-to-br from-10% via-30%">
           <div className="layer md:layer-fixed">
             <SidebarToggle />
             <SidebarOverlay />
@@ -36,7 +36,7 @@ export default function RootLayout({
               </main>
             </div>
 
-            <div className="layer-drawer border-surface-shades-700 w-72 border-r p-5">
+            <div className="layer-drawer bg-surface-200 border-surface-700 w-72 border-r p-5">
               <Sidebar />
             </div>
           </div>
