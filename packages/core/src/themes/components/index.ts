@@ -9,6 +9,7 @@ import layer from "./layer";
 import list from "./list";
 import radioGroup from "./radio-group";
 import tabs from "./tabs";
+import toggle from "./toggle";
 
 export default (theme: PluginAPI["theme"]) => {
   return {
@@ -22,5 +23,6 @@ export default (theme: PluginAPI["theme"]) => {
     ...list(theme),
     ...radioGroup(theme),
     ...tabs(theme),
+    ...toggle(theme),
   } as const;
 };
