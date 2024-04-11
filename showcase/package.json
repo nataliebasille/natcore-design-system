@@ -23,6 +23,6 @@
     "react-dom": "^18.2.0",
     "react-svg-loader": "^3.0.3",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   }
 }
