@@ -37,7 +37,7 @@ export default function RootLayout({
               </main>
             </div>
 
-            <div className="layer-drawer border-surface-700 w-72 border-r bg-[rgb(var(--surface-background-color))] p-5">
+            <div className="layer-drawer border-surface-700 bg-surface-background-color w-72 border-r p-5">
               <Sidebar />
             </div>
           </div>

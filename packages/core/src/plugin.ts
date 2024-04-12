@@ -75,19 +75,31 @@ export default function (
             shade,
             `rgb(var(--${key}-${shade}))`,
           ]),
+          ...Object.entries(normalizedColorSchema.themes.light.variables).map(
+            ([variable, shade]) => {
+              return [variable, `rgb(var(--${key}-${shade}))`];
+            },
+          ),
           [
             "contrast",
-            Object.fromEntries(
-              Object.entries(palette).map(([shade]) => [
+            Object.fromEntries([
+              ...Object.entries(palette).map(([shade]) => [
                 shade,
                 `rgb(var(--${key}-text-${shade}))`,
               ]),
-            ),
+              ...Object.entries(
+                normalizedColorSchema.themes.light.variables,
+              ).map(([variable, shade]) => {
+                return [variable, `rgb(var(--${key}-text-${shade}))`];
+              }),
+            ]),
           ],
         ]),
       ],
     ),
   );
+
+  console.log(colors);
 
   return plugin(
     ({ theme, addBase, addComponents }) => {
