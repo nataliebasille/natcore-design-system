@@ -69,7 +69,7 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [natcore],
+  plugins: [natcore()],
 }`}
                 language="typescript"
               />
