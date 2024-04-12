@@ -1,36 +1,38 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
 import {
-  formatColorForCssVariable,
   type NormalizedColorSchema,
-  VARIABLES_TO_SHADES,
+  formatColorForCssVariable,
+  type ColorSchema,
 } from "../utils";
 
-const VARIABLE_KEYS = new Set(Object.keys(VARIABLES_TO_SHADES));
 export default (
   theme: PluginAPI["theme"],
-  normalizedColorSchema: NormalizedColorSchema,
+  normalizedColorSchema: NormalizedColorSchema<ColorSchema>,
 ) =>
   ({
-    ":root": Object.entries(normalizedColorSchema).reduce(
-      (props, [key, schema]) => {
-        Object.entries(schema).forEach(
-          ([shade, value]: [shade: string, value: any]) => {
-            if (VARIABLE_KEYS.has(shade)) return;
-            if (shade === "contrast") return;
-            props[`--${key}-${shade}`] = formatColorForCssVariable(value);
-            props[`--${key}-text-${shade}`] = (schema as any).contrast[shade];
-          },
-        );
+    ":root": Object.entries(normalizedColorSchema.themes.light.variants).reduce(
+      (props, [key, palette]) => {
+        Object.entries(palette).forEach(([shade, [color, contrast]]) => {
+          props[`--${key}-${shade}`] = formatColorForCssVariable(color);
+          props[`--${key}-text-${shade}`] = formatColorForCssVariable(contrast);
+        });
 
-        return props;
+        return Object.entries(
+          normalizedColorSchema.themes.light.variables,
+        ).reduce((props, [variable, shade]) => {
+          props[`--${key}-${variable}`] = `var(--${key}-${shade})`;
+          props[`--${key}-${variable}-text`] = `var(--${key}-text-${shade})`;
+
+          return props;
+        }, props);
       },
       {} as Record<string, string>,
     ),
 
     body: {
-      backgroundColor: "rgb(var(--surface-50))",
-      color: "rgb(var(--surface-text-50))",
+      backgroundColor: "rgb(var(--surface-background-color))",
+      color: "rgb(var(--surface-background-color-text))",
     },
 
     h1: {

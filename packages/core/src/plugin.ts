@@ -9,77 +9,93 @@ import {
   lighten,
   getContrastingTextColor,
   VARIABLES_TO_SHADES,
+  type NormalizedThemePalette,
 } from "./utils";
 import { colors as natcoreColors } from "./themes/colors";
 
 export default function (
-  colorSchema: ColorSchema = natcoreColors,
+  colorScheme: ColorSchema = natcoreColors,
 ): ReturnType<typeof plugin> {
-  const normalizedColorSchema: NormalizedColorSchema = Object.entries(
-    colorSchema,
-  ).reduce((props, [key, colorDefinition]) => {
-    colorDefinition =
-      colorDefinition && colorDefinition instanceof Array
-        ? { color: colorDefinition, shade: 500 }
-        : colorDefinition;
+  const normalizedColorSchema: NormalizedColorSchema<typeof colorScheme> =
+    Object.entries(colorScheme).reduce(
+      (schema, [key, colorDefinition]) => {
+        colorDefinition =
+          colorDefinition && colorDefinition instanceof Array
+            ? { color: colorDefinition, shade: 500 }
+            : colorDefinition;
 
-    const { color: baseColor, shade: baseShade } = colorDefinition;
-    const shadeColors = shades.map((s) => {
-      const factor = Math.abs(s - baseShade) / 1000;
+        const { color: baseColor, shade: baseShade } = colorDefinition;
+        const shadeColors = shades.map((s) => {
+          const factor = Math.abs(s - baseShade) / 1000;
 
-      return s === baseShade
-        ? baseColor
-        : s > baseShade
-        ? darken(baseColor, factor)
-        : lighten(baseColor, factor);
-    });
+          return s === baseShade
+            ? baseColor
+            : s > baseShade
+            ? darken(baseColor, factor)
+            : lighten(baseColor, factor);
+        });
 
-    props[key] = {
-      contrast: {},
-    };
+        schema.themes.light.variants[key] = {} as NormalizedThemePalette;
 
-    shadeColors.forEach((color, index) => {
-      props[key][shades[index]] = color;
-      props[key].contrast[shades[index]] = getContrastingTextColor(color);
-    });
+        shadeColors.forEach((color, index) => {
+          schema.themes.light.variants[key][shades[index]] = [
+            color,
+            getContrastingTextColor(color),
+          ];
+        });
 
-    Object.entries(VARIABLES_TO_SHADES).forEach(([prop, shade]) => {
-      props[key][prop] = props[key][shade];
-      props[key].contrast[prop] = props[key].contrast[shade];
-    });
+        Object.entries(VARIABLES_TO_SHADES).forEach(([prop, shade]) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (schema.themes.light.variables as any)[prop] = shade;
+        });
 
-    return props;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }, {} as any);
+        return schema;
+      },
+      {
+        themes: {
+          light: {
+            variants: {},
+            variables: {},
+          },
+
+          dark: {
+            variants: {},
+            variables: {},
+          },
+        },
+      } as unknown as NormalizedColorSchema<typeof colorScheme>,
+    );
 
   const colors = Object.fromEntries(
-    Object.entries(normalizedColorSchema).map(([key, value]) => [
-      key,
-      Object.fromEntries([
-        ...Object.entries(value).map(([shade]) => [
-          shade,
-          `rgb(var(--${key}-${shade}))`,
+    Object.entries(normalizedColorSchema.themes.light.variants).map(
+      ([key, palette]) => [
+        key,
+        Object.fromEntries([
+          ...Object.entries(palette).map(([shade]) => [
+            shade,
+            `rgb(var(--${key}-${shade}))`,
+          ]),
+          [
+            "contrast",
+            Object.fromEntries(
+              Object.entries(palette).map(([shade]) => [
+                shade,
+                `rgb(var(--${key}-text-${shade}))`,
+              ]),
+            ),
+          ],
         ]),
-        [
-          "contrast",
-          Object.fromEntries(
-            Object.entries(value).map(([shade]) => [
-              shade,
-              `rgb(var(--${key}-text-${shade}))`,
-            ]),
-          ),
-        ],
-      ]),
-    ]),
+      ],
+    ),
   );
 
   return plugin(
     ({ theme, addBase, addComponents }) => {
       addBase(base(theme, normalizedColorSchema));
-      //addUtilities(utilities);
       addComponents(components(theme));
     },
     {
+      darkMode: ["selector", '[data-theme="dark"]'],
       theme: {
         extend: {
           colors,
@@ -88,13 +104,3 @@ export default function (
     },
   );
 }
-// export default plugin.withOptions<ColorSchema>(
-//   function () {
-//     return;
-//   },
-//   function (colorSchema) {
-//
-
-//     return;
-//   },
-// );

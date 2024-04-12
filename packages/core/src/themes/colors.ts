@@ -1,4 +1,4 @@
-import { type ColorSchema, toRgb, VARIABLES_TO_SHADES } from "../utils";
+import { type ColorSchema, toRgb, type VARIABLES_TO_SHADES } from "../utils";
 
 const colors: ColorSchema = {
   primary: toRgb("#230288"),
@@ -35,11 +35,9 @@ export const createVariants = <Id extends string>(
     color: TColor,
     variableKey: TVarKey,
   ) => {
-    const shade = VARIABLES_TO_SHADES[variableKey];
-
     return {
-      [`--${identifier}-${variableKey}`]: `var(--${color}-${shade})`,
-      [`--${identifier}-${variableKey}-text`]: `var(--${color}-text-${shade})`,
+      [`--${identifier}-${variableKey}`]: `var(--${color}-${variableKey})`,
+      [`--${identifier}-${variableKey}-text`]: `var(--${color}-${variableKey}-text)`,
     } as const;
   };
 

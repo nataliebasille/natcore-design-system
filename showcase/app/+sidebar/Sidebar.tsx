@@ -7,7 +7,7 @@ export const Sidebar = () => {
     <>
       <Logo />
       <Divider />
-      <div className="text-secondary-800 mb-2 font-bold uppercase tracking-wider">
+      <div className="text-secondary-800 dark:text-secondary-300 mb-2 font-bold uppercase tracking-wider">
         Components
       </div>
       <List.Container color="primary">
@@ -21,7 +21,7 @@ export const Sidebar = () => {
         <SidebarItem href="/component/tabs">Tabs</SidebarItem>
       </List.Container>
 
-      <div className="text-secondary-800 mb-2 mt-8 font-bold uppercase tracking-wider">
+      <div className="text-secondary-800 dark:text-secondary-300 mb-2 mt-8 font-bold uppercase tracking-wider">
         Forms
       </div>
 

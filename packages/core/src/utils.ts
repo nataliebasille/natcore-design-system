@@ -8,18 +8,24 @@ export type ColorConfig =
     };
 
 export type ColorSchema = Record<string, ColorConfig>;
-export type NormalizedColorSchema = Record<
-  string,
-  Record<
-    `${(typeof shades)[number]}` | keyof typeof VARIABLES_TO_SHADES,
-    Color
-  > & {
-    contrast: Record<
-      `${(typeof shades)[number]}` | keyof typeof VARIABLES_TO_SHADES,
-      Color
-    >;
-  }
+export type NormalizedThemeColor = [color: Color, contrast: Color];
+export type NormalizedThemePalette = Record<
+  `${(typeof shades)[number]}`,
+  NormalizedThemeColor
 >;
+export type NormalizedColorSchema<TFrom extends ColorSchema> = {
+  themes: {
+    light: {
+      variants: {
+        [K in keyof TFrom]: NormalizedThemePalette;
+      };
+      variables: {
+        [K in keyof typeof VARIABLES_TO_SHADES]: (typeof shades)[number];
+      };
+    };
+  };
+};
+
 export const VARIABLES_TO_SHADES = {
   base: "500",
   "base-hover": "900",
@@ -93,11 +99,6 @@ export function formatColorForCssVariable(color: Color) {
   return color.join(" ");
 }
 
-const WHITE_FORMATTED = formatColorForCssVariable(WHITE);
-const BLACK_FORMATTED = formatColorForCssVariable(BLACK);
-
 export function getContrastingTextColor(color: Color) {
-  return contrast(color, WHITE) > contrast(color, BLACK)
-    ? WHITE_FORMATTED
-    : BLACK_FORMATTED;
+  return contrast(color, WHITE) > contrast(color, BLACK) ? WHITE : BLACK;
 }

@@ -64,7 +64,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   return (
     <div className="flex items-start gap-8 scroll-smooth">
       <article className="w-full flex-1">
-        <h1 id={title} className="text-primary-800">
+        <h1 id={title} className="text-primary-800 dark:text-primary-50">
           {title}
         </h1>
 
@@ -100,7 +100,7 @@ export const DocSection = ({
 
   return (
     <>
-      <Heading id={title} className="text-primary-800">
+      <Heading id={title} className="text-primary-800 dark:text-primary-50">
         {title}
       </Heading>
       {description && <MutedText>{description}</MutedText>}
