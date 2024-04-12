@@ -1,3 +1,3 @@
-import plugin from "../packages/core/src/plugin";
+import natcorePlugin from "../packages/core/src/plugin";
 
-export { plugin };
+export const plugin = natcorePlugin();

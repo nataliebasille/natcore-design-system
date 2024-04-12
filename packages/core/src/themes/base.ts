@@ -1,10 +1,16 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type PluginAPI } from "tailwindcss/types/config";
-import { formatColorForCssVariable, VARIABLES_TO_SHADES } from "../utils";
-import { normalizedColorSchema } from "../normalized";
+import {
+  formatColorForCssVariable,
+  type NormalizedColorSchema,
+  VARIABLES_TO_SHADES,
+} from "../utils";
 
 const VARIABLE_KEYS = new Set(Object.keys(VARIABLES_TO_SHADES));
-export default (theme: PluginAPI["theme"]) =>
+export default (
+  theme: PluginAPI["theme"],
+  normalizedColorSchema: NormalizedColorSchema,
+) =>
   ({
     ":root": Object.entries(normalizedColorSchema).reduce(
       (props, [key, schema]) => {
