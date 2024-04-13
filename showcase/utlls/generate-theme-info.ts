@@ -66,7 +66,10 @@ export const generateThemeInfo = <T extends ThemeFactory>(
           );
           themeClasses.set(className, {
             className,
-            description: descriptions[className as InferThemeClasses<T>],
+            // temporarily ignore until we figure out the excessively deep and possibly infinite issue
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            description: descriptions[className as InferThemeClasses<T>] || "",
             type,
           });
         }
