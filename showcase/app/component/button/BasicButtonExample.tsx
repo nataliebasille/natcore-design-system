@@ -8,7 +8,6 @@ const classes = {
   variants: {
     primary: "btn-primary",
     secondary: "btn-secondary",
-    tertiary: "btn-tertiary",
     surface: "btn-surface",
   },
   appearances: {
@@ -19,7 +18,7 @@ const classes = {
 };
 export const BasicButtonExample = ({ html }: { html: string }) => {
   const [value, setValue] = useState<{
-    variant?: "primary" | "secondary" | "tertiary" | "surface";
+    variant?: "primary" | "secondary" | "surface";
     appearance?: "filled" | "outlined" | "ghost";
   }>({
     variant: undefined,
@@ -56,7 +55,6 @@ export const BasicButtonExample = ({ html }: { html: string }) => {
             <option value="">default</option>
             <option value="primary">btn-primary</option>
             <option value="secondary">btn-secondary</option>
-            <option value="tertiary">btn-tertiary</option>
             <option value="surface">btn-surface</option>
           </select>
         </div>

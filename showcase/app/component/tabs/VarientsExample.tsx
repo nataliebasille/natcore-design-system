@@ -6,13 +6,12 @@ import { useState } from "react";
 import classnames from "classnames";
 export const VarientsExample = () => {
   const [tabVarient, setTabVarient] = useState<
-    "primary" | "secondary" | "tertiary" | "accent" | "surface"
+    "primary" | "secondary" | "accent" | "surface"
   >("surface");
 
   const tabsClassnames = classnames("tabs", {
     "tabs-primary": tabVarient === "primary",
     "tabs-secondary": tabVarient === "secondary",
-    "tabs-tertiary": tabVarient === "tertiary",
     "tabs-accent": tabVarient === "accent",
     "tabs-surface": tabVarient === "surface",
   });
@@ -48,9 +47,6 @@ export const VarientsExample = () => {
             </option>
             <option value="secondary" selected={tabVarient === "secondary"}>
               secondary
-            </option>
-            <option value="tertiary" selected={tabVarient === "tertiary"}>
-              tertiary
             </option>
             <option value="accent" selected={tabVarient === "accent"}>
               accent

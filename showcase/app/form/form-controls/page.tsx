@@ -14,7 +14,6 @@ const formControlThemeInfo = generateThemeInfo(formControlTheme, {
   "form-control-suffix": "",
   "form-control-primary": "",
   "form-control-secondary": "",
-  "form-control-tertiary": "",
   "form-control-surface": "",
 });
 

@@ -9,7 +9,6 @@ const classes = {
     default: false,
     primary: "card-primary",
     secondary: "card-secondary",
-    tertiary: "card-tertiary",
     surface: "card-surface",
   },
   appearances: {
@@ -25,7 +24,7 @@ const classes = {
 };
 export function BasicCardExample({ html }: { html: string }) {
   const [variant, setVariant] = useState<
-    "default" | "primary" | "secondary" | "tertiary" | "surface"
+    "default" | "primary" | "secondary" | "surface"
   >("default");
 
   const [appearance, setAppearance] = useState<
@@ -57,7 +56,6 @@ export function BasicCardExample({ html }: { html: string }) {
             <option value="default">default</option>
             <option value="primary">card-primary</option>
             <option value="secondary">card-secondary</option>
-            <option value="tertiary">card-tertiary</option>
             <option value="surface">card-surface</option>
           </select>
         </div>

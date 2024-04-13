@@ -11,7 +11,6 @@ const tabsThemeInfo = generateThemeInfo(tabsTheme, {
   "tab-content": "Class to declare content as the content for a tab",
   "tabs-primary": "Class to apply the primary color to the tabs",
   "tabs-secondary": "Class to apply the secondary color to the tabs",
-  "tabs-tertiary": "Class to apply the tertiary color to the tabs",
   "tabs-surface": "Class to apply the surface color to the tabs",
 });
 

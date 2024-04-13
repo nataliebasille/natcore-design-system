@@ -16,7 +16,7 @@ export const Logo = () => {
 
   return (
     <div
-      className="hover:bg-tertiary-100 flex cursor-pointer items-center justify-center rounded-md p-3 "
+      className="hover:bg-accent-100 flex cursor-pointer items-center justify-center rounded-md p-3 "
       onClick={handleClick}
     >
       <div className="text-primary-800 font-bold">

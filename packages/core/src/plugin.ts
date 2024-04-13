@@ -99,8 +99,6 @@ export default function (
     ),
   );
 
-  console.log(colors);
-
   return plugin(
     ({ theme, addBase, addComponents }) => {
       addBase(base(theme, normalizedColorSchema));

@@ -1,6 +1,6 @@
 import { type ColorSchema, toRgb, type VARIABLES_TO_SHADES } from "../utils";
 
-const colors: ColorSchema = {
+const colors = {
   primary: toRgb("#230288"),
   secondary: toRgb("#f44efd"),
   accent: toRgb("#b88eae"),
@@ -8,7 +8,7 @@ const colors: ColorSchema = {
     color: toRgb("#ebe0ff"),
     shade: 200,
   },
-};
+} satisfies ColorSchema;
 
 const COLOR_KEYS = Object.keys(colors) as (keyof typeof colors)[];
 type Color = (typeof COLOR_KEYS)[number];

@@ -12,7 +12,6 @@ const btnThemeInfo = generateThemeInfo(buttonTheme, {
   "btn-icon": "Button designed specifically to contain an icon",
   "btn-primary": "Uses the primary button styles",
   "btn-secondary": "Uses the secondary button styles",
-  "btn-tertiary": "Uses the tertiary button styles",
   "btn-surface": "Uses the surface button styles",
   "btn-ghost": "Uses the ghost button styles",
   "btn-sm": "Small-sized button",
