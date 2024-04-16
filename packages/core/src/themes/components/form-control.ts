@@ -63,6 +63,10 @@ export default (theme: PluginAPI["theme"]) => ({
       gridArea: "input",
       outline: "none",
       transition: "all 0.2s ease-in-out",
+      backgroundColor: formControlVariants("background-color"),
+      color: formControlVariants("background-color-text"),
+      borderColor: formControlVariants("border"),
+
       "&:has(~ .form-control-suffix)": {
         borderTopRightRadius: "0",
         borderBottomRightRadius: "0",
