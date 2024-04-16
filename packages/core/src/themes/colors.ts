@@ -7,6 +7,9 @@ const colors = {
   surface: {
     color: toRgb("#ebe0ff"),
     shade: 200,
+    variables: {
+      border: "300",
+    },
   },
 } satisfies ColorSchema;
 

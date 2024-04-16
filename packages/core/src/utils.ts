@@ -5,6 +5,9 @@ export type ColorConfig =
   | {
       color: Color;
       shade: (typeof shades)[number];
+      variables?: Partial<
+        Record<keyof typeof VARIABLES_TO_SHADES, `${number}`>
+      >;
     };
 
 export type ColorSchema = Record<string, ColorConfig>;

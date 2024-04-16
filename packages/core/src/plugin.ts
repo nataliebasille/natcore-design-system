@@ -24,7 +24,11 @@ export default function (
             ? { color: colorDefinition, shade: 500 }
             : colorDefinition;
 
-        const { color: baseColor, shade: baseShade } = colorDefinition;
+        const {
+          color: baseColor,
+          shade: baseShade,
+          variables: customVariables = {},
+        } = colorDefinition;
         const shadeColors = shades.map((s) => {
           const factor = Math.abs(s - baseShade) / 1000;
 
@@ -44,7 +48,10 @@ export default function (
           ];
         });
 
-        Object.entries(VARIABLES_TO_SHADES).forEach(([prop, shade]) => {
+        Object.entries({
+          ...VARIABLES_TO_SHADES,
+          ...customVariables,
+        }).forEach(([prop, shade]) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (schema.themes.light.variables as any)[prop] = shade;
         });
