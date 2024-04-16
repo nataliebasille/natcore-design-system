@@ -11,6 +11,8 @@ const ALL_CHILD_INPUTS_SELECTOR = "> input, > select, > textarea" as const;
 export default (theme: PluginAPI["theme"]) => ({
   ".form-control": {
     ...formControlVariants,
+
+    transition: "all 0.2s ease-in-out",
     display: "grid",
     gridTemplateAreas: `
         "label label label"
@@ -18,24 +20,24 @@ export default (theme: PluginAPI["theme"]) => ({
         "hint hint hint"
     `,
     gridTemplateColumns: "max-content 1fr max-content",
+
     "> .form-control-label, > label, > .form-control-hint": {
       fontSize: ".75rem",
     },
 
     "> .form-control-label, > label, > .form-control-prefix, > .form-control-suffix":
       {
+        transition: "all 0.2s ease-in-out",
         backgroundColor: formControlVariants("background-color"),
         borderColor: formControlVariants("border"),
         fontWeight: theme("fontWeight.medium")!,
-        color: theme("colors.gray.500")!,
+        color: formControlVariants("background-color-text", 0.5),
       },
 
     "> .form-control-label, > label": {
       gridArea: "label",
       paddingLeft: "1.33333em",
       paddingRight: "2em",
-      backgroundColor: formControlVariants("background-color"),
-      borderColor: formControlVariants("border"),
       borderStyle: "solid",
       borderWidth: "1px",
       borderBottom: "none",
@@ -59,7 +61,8 @@ export default (theme: PluginAPI["theme"]) => ({
 
     [ALL_CHILD_INPUTS_SELECTOR]: {
       gridArea: "input",
-
+      outline: "none",
+      transition: "all 0.2s ease-in-out",
       "&:has(~ .form-control-suffix)": {
         borderTopRightRadius: "0",
         borderBottomRightRadius: "0",
@@ -117,6 +120,18 @@ export default (theme: PluginAPI["theme"]) => ({
       borderTopRightRadius: theme("borderRadius.md")!,
       borderBottomRightRadius: theme("borderRadius.md")!,
       paddingRight: ".25em",
+    },
+
+    "&:focus-within": {
+      [ALL_CHILD_INPUTS_SELECTOR]: {
+        borderColor: formControlVariants("active"),
+      },
+
+      "> .form-control-label, > label, > .form-control-prefix, > .form-control-suffix":
+        {
+          borderColor: formControlVariants("active"),
+          color: formControlVariants("background-color-text", 0.7),
+        },
     },
   },
 });
