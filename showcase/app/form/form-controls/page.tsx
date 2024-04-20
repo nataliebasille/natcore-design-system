@@ -5,6 +5,8 @@ import formControlTheme from "../../../../packages/core/src/themes/components/fo
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { fetchFile } from "@/components/fetch-file";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const formControlThemeInfo = generateThemeInfo(formControlTheme, {
   "form-control": "",
   "form-control-label": "",
