@@ -81,13 +81,15 @@ export default (theme: PluginAPI["theme"]) => ({
     },
 
     "&.form-control-error": {
-      "> .form-control-label, > label, > input, > select, > textarea": {
-        borderColor: theme("colors.red.600")!,
-      },
+      "> .form-control-label, > label, > input, > select, > textarea, > .form-control-prefix, > .form-control-suffix":
+        {
+          borderColor: theme("colors.red.600")!,
+        },
 
-      "> .form-control-label, > label, > .form-control-hint": {
-        color: theme("colors.red.600")!,
-      },
+      "> .form-control-label, > label, > .form-control-hint, > .form-control-prefix, > .form-control-suffix":
+        {
+          color: theme("colors.red.600")!,
+        },
     },
 
     "> .form-control-prefix": {
