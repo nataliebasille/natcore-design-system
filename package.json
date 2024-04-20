@@ -35,5 +35,8 @@
   "workspaces": [
     "./packages/*",
     "./showcase"
-  ]
+  ],
+  "dependencies": {
+    "tailwind-merge": "^2.2.2"
+  }
 }
