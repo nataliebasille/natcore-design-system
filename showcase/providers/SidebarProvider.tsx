@@ -1,6 +1,6 @@
 "use client";
 
-import {
+import React, {
   type FC,
   type PropsWithChildren,
   createContext,
@@ -25,7 +25,9 @@ export const SidebarContextProvider: FC<PropsWithChildren> = ({ children }) => {
   }, []);
 
   return (
-    <SidebarContext.Provider value={{ isOpened, toggle }}>
+    <SidebarContext.Provider
+      value={React.useMemo(() => ({ isOpened, toggle }), [isOpened, toggle])}
+    >
       {children}
     </SidebarContext.Provider>
   );
