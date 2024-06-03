@@ -18,7 +18,6 @@ const getDirectories = async (source: string) =>
     .map((dirent) => dirent.name);
 
 export const Sidebar = async () => {
-  console.log(import.meta.url);
   const [components, forms] = await Promise.all([
     getDirectories("component").then((all) =>
       createSidebarItems("component", all),
