@@ -4,37 +4,21 @@ import { Highlight } from "@/components/Highlight";
 import { BasicContainer } from "@/components/doc/BasicContainer";
 import { useState } from "react";
 import classnames from "classnames";
-export const VarientsExample = () => {
+export const VarientsExample = ({ html }: { html: string }) => {
   const [tabVarient, setTabVarient] = useState<
     "primary" | "secondary" | "accent" | "surface"
   >("surface");
 
-  const tabsClassnames = classnames("tabs", {
+  const tabsClassnames = classnames({
     "tabs-primary": tabVarient === "primary",
     "tabs-secondary": tabVarient === "secondary",
     "tabs-accent": tabVarient === "accent",
     "tabs-surface": tabVarient === "surface",
   });
 
-  const html = `<div class="${tabsClassnames}">
-    <input type="radio" name="tab" id="tab-1" checked />
-    <label class="tab" for="tab-1">Tab 1</label>
-    <div class="tab-content">
-        <p>Tab 1 content</p>
-    </div>
-
-    <input type="radio" name="tab" id="tab-2" />
-    <label class="tab" for="tab-2">Tab 2</label>
-    <div class="tab-content">
-        <p>Tab 2 content</p>
-    </div>
-
-    <input type="radio" name="tab" id="tab-3" />
-    <label class="tab" for="tab-3">Tab 3</label>
-    <div class="tab-content">
-        <p>Tab 3 content</p>
-    </div>
-</div>`;
+  const htmlToRender = !tabsClassnames
+    ? html
+    : html.replace('class="tabs"', `class="tabs ${tabsClassnames}"`);
 
   return (
     <BasicContainer>
@@ -58,11 +42,11 @@ export const VarientsExample = () => {
         </div>
       </div>
 
-      <Highlight component="code" content={html} language="html" />
+      <Highlight component="code" content={htmlToRender} language="html" />
 
       <div className="divider mb-2">Output</div>
 
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <div dangerouslySetInnerHTML={{ __html: htmlToRender }} />
     </BasicContainer>
   );
 };
