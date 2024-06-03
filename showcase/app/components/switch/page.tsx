@@ -18,7 +18,7 @@ export default async function SwitchPage() {
       </DocSection>
       <DocSection title="Basic toggle">
         <BasicToggleExample
-          html={await fetchFile("component/switch/examples/basic-switch.html")}
+          html={await fetchFile("components/switch/examples/basic-switch.html")}
         />
       </DocSection>
     </DocPage>

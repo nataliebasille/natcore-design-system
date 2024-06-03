@@ -17,7 +17,7 @@ export default async function CardPage() {
 
       <DocSection title="Basic card">
         <BasicCardExample
-          html={await fetchFile("component/card/examples/basic-card.html")}
+          html={await fetchFile("components/card/examples/basic-card.html")}
         />
       </DocSection>
 
@@ -45,7 +45,7 @@ export default async function CardPage() {
       >
         <ExampleContainer
           outputClassName="justify-items-center"
-          html={await fetchFile("component/card/examples/sections.html")}
+          html={await fetchFile("components/card/examples/sections.html")}
         />
       </DocSection>
     </DocPage>

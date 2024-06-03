@@ -46,7 +46,7 @@ export default async function ButtonPage() {
         >
           <BasicButtonExample
             html={await fetchFile(
-              "component/button/examples/basic-button.html",
+              "components/button/examples/basic-button.html",
             )}
           />
         </DocSection>
@@ -74,7 +74,7 @@ export default async function ButtonPage() {
           }
         >
           <ExampleContainer
-            html={await fetchFile("component/button/examples/sizes.html")}
+            html={await fetchFile("components/button/examples/sizes.html")}
           />
         </DocSection>
 

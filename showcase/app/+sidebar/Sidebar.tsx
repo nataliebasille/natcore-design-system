@@ -19,10 +19,8 @@ const getDirectories = async (source: string) =>
 
 export const Sidebar = async () => {
   const [components, forms] = await Promise.all([
-    getDirectories("component").then((all) =>
-      createSidebarItems("component", all),
-    ),
-    getDirectories("form").then((all) => createSidebarItems("form", all)),
+    createSidebarItems("components"),
+    createSidebarItems("forms"),
   ]);
 
   return (
@@ -54,7 +52,9 @@ function dashesToSpace(s: string) {
   return s.replace(/-/g, " ");
 }
 
-function createSidebarItems(type: "component" | "form", dirs: string[]) {
+async function createSidebarItems(type: "components" | "forms") {
+  const dirs = await getDirectories(type);
+
   return dirs.map((dir) => (
     <SidebarItem key={dir} href={`/${type}/${dir}`}>
       {capitalizeEachWord(dashesToSpace(dir))}
