@@ -1,8 +1,31 @@
+import { readdir } from "fs/promises";
+import path from "path";
+
 import { List, Divider } from "@natcore/design-system-react";
 import { SidebarItem } from "./SidebarItem";
 import { Logo } from "./Logo";
 
-export const Sidebar = () => {
+const getDirectories = async (source: string) =>
+  (
+    await readdir(
+      path.resolve(import.meta.url.slice("file://".length), "../../", source),
+      {
+        withFileTypes: true,
+      },
+    )
+  )
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name);
+
+export const Sidebar = async () => {
+  console.log(import.meta.url);
+  const [components, forms] = await Promise.all([
+    getDirectories("component").then((all) =>
+      createSidebarItems("component", all),
+    ),
+    getDirectories("form").then((all) => createSidebarItems("form", all)),
+  ]);
+
   return (
     <>
       <Logo />
@@ -10,28 +33,32 @@ export const Sidebar = () => {
       <div className="text-secondary-800 dark:text-secondary-300 mb-2 font-bold uppercase tracking-wider">
         Components
       </div>
-      <List.Container color="primary">
-        <SidebarItem href="/component/button">Button</SidebarItem>
-        <SidebarItem href="/component/card">Card</SidebarItem>
-        <SidebarItem href="/component/divider">Divider</SidebarItem>
-        {/* <SidebarItem href="/component/layer">Layer</SidebarItem> */}
-        <SidebarItem href="/component/list">List</SidebarItem>
-        <SidebarItem href="/component/radial-progress">
-          Radial Progress
-        </SidebarItem>
-        <SidebarItem href="/component/radio-group">Radio Group</SidebarItem>
-        <SidebarItem href="/component/switch">Toggle</SidebarItem>
-        <SidebarItem href="/component/tabs">Tabs</SidebarItem>
-      </List.Container>
+      <List.Container color="primary">{components}</List.Container>
 
       <div className="text-secondary-800 dark:text-secondary-300 mb-2 mt-8 font-bold uppercase tracking-wider">
         Forms
       </div>
 
-      <List.Container color="primary">
-        <SidebarItem href="/form/fields">Fields</SidebarItem>
-        <SidebarItem href="/form/form-controls">Form controls</SidebarItem>
-      </List.Container>
+      <List.Container color="primary">{forms}</List.Container>
     </>
   );
 };
+
+function capitalizeEachWord(s: string) {
+  return s
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function dashesToSpace(s: string) {
+  return s.replace(/-/g, " ");
+}
+
+function createSidebarItems(type: "component" | "form", dirs: string[]) {
+  return dirs.map((dir) => (
+    <SidebarItem key={dir} href={`/${type}/${dir}`}>
+      {capitalizeEachWord(dashesToSpace(dir))}
+    </SidebarItem>
+  ));
+}
