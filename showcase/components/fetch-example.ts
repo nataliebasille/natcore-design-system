@@ -6,7 +6,7 @@ export function fetchExample({
   component,
   system,
 }: {
-  category: "form" | "component";
+  category: "forms" | "components";
   component: string;
   system: System;
 }) {

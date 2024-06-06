@@ -52,7 +52,7 @@ export default async function FormControlPage() {
           }
         >
           <ExampleContainer
-            html={await fetchFile("form/form-controls/examples/labelled.html")}
+            html={await fetchFile("forms/form-controls/examples/labelled.html")}
           />
         </DocSection>
 
@@ -72,7 +72,7 @@ export default async function FormControlPage() {
           }
         >
           <ExampleContainer
-            html={await fetchFile("form/form-controls/examples/hints.html")}
+            html={await fetchFile("forms/form-controls/examples/hints.html")}
           />
         </DocSection>
 
@@ -100,7 +100,7 @@ export default async function FormControlPage() {
         >
           <ExampleContainer
             html={await fetchFile(
-              "form/form-controls/examples/validation.html",
+              "forms/form-controls/examples/validation.html",
             )}
           />
         </DocSection>
@@ -128,7 +128,7 @@ export default async function FormControlPage() {
           }
         >
           <ExampleContainer
-            html={await fetchFile("form/form-controls/examples/fixins.html")}
+            html={await fetchFile("forms/form-controls/examples/fixins.html")}
           />
         </DocSection>
       </DocSection>

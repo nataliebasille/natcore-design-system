@@ -5,9 +5,9 @@ import { fetchExample } from "./fetch-example";
 export const CodeExample = async ({
   component,
   system,
-  category = "component",
+  category = "components",
 }: {
-  category?: "form" | "component";
+  category?: "forms" | "components";
   component: string;
   system: System;
 }) => {
