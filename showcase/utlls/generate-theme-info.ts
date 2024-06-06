@@ -5,19 +5,17 @@ export type ThemeFactory = (
 ) => Readonly<Record<string, any>>;
 
 type RelevantClassKeys<ObjectType extends object> = {
-  [Key in keyof ObjectType & (string | number)]: Key extends
+  [Key in keyof ObjectType & string]: Key extends
     | `${string}.${string}`
     | `&.${string}`
     ? ObjectType[Key] extends object
       ? Key | RelevantClassKeys<ObjectType[Key]>
       : Key
     : never;
-}[keyof ObjectType & (string | number)];
+}[keyof ObjectType & string];
 
-//eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
 type InferThemeClasses<T extends ThemeFactory> = InferClassesFromKey<
-  Extract<RelevantClassKeys<ReturnType<T>>, string>
+  RelevantClassKeys<ReturnType<T>>
 >;
 
 type InferClassesFromKey<K extends string> = K extends `&.${infer C}`
