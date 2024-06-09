@@ -1,11 +1,11 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 
 export default function FieldsPage() {
   return (
     <DocPage title="Fields">
       <DocSection title="Demo">
-        <ExampleContainer
+        <DeprecatedExampleContainer
           html={`<div class="flex flex-col gap-4">
     <input type="text" placeholder="Input" />
 

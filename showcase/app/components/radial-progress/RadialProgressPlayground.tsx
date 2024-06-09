@@ -1,6 +1,6 @@
 "use client";
 
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -137,7 +137,7 @@ export const RadialProgressPlayground = () => {
         </div>
       </div>
 
-      <ExampleContainer
+      <DeprecatedExampleContainer
         outputClassName="justify-items-center"
         html={<div className={classes} style={variables}></div>}
       />

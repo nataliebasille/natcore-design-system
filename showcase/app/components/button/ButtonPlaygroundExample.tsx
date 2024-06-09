@@ -2,7 +2,7 @@
 
 import { type ChangeEvent, useState } from "react";
 import classnames from "classnames";
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { Example } from "@/components/doc/Example";
 
 const classes = {
   variants: {
@@ -16,7 +16,7 @@ const classes = {
     ghost: "btn-ghost",
   },
 };
-export const BasicButtonExample = ({ html }: { html: string }) => {
+export const ButtonPlaygroundExample = ({ html }: { html: string }) => {
   const [value, setValue] = useState<{
     variant?: "primary" | "secondary" | "surface";
     appearance?: "filled" | "outlined" | "ghost";
@@ -44,7 +44,9 @@ export const BasicButtonExample = ({ html }: { html: string }) => {
 
   return (
     <>
-      <div className="mb-3 flex gap-2">
+      <Example html={htmlToRender} />
+      <div className="divider" />
+      <div className="flex justify-center gap-2">
         <div className="form-control">
           <label>Variant</label>
           <select
@@ -72,10 +74,6 @@ export const BasicButtonExample = ({ html }: { html: string }) => {
           </select>
         </div>
       </div>
-      <ExampleContainer
-        html={htmlToRender}
-        outputClassName="justify-items-center"
-      />
     </>
   );
 };

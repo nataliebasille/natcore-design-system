@@ -7,19 +7,19 @@ import { type ReactElement, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { flushSync } from "react-dom";
 
-type ExampleContainerProps = {
+type DeprecatedExampleContainerProps = {
   html: string | ReactElement;
   gridColumns?: number | "auto-fit";
   className?: string;
   outputClassName?: string;
 };
 
-export const ExampleContainer = ({
+export const DeprecatedExampleContainer = ({
   html,
   className,
   outputClassName,
   gridColumns = "auto-fit",
-}: ExampleContainerProps) => {
+}: DeprecatedExampleContainerProps) => {
   const [htmlToDisplay, setHtmlToDisplay] = useState(
     typeof html === "string" ? html : "",
   );

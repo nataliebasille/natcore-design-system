@@ -1,5 +1,5 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import dividerTheme from "../../../../packages/core/src/themes/components/divider";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
@@ -37,7 +37,7 @@ export default function DividerPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             gridColumns={1}
             html={`<div class="flex flex-col items-center justify-center">
     <div class="text-2xl">top</div>
@@ -48,7 +48,7 @@ export default function DividerPage() {
         </DocSection>
 
         <DocSection title="Horizontal divider with text">
-          <ExampleContainer
+          <DeprecatedExampleContainer
             gridColumns={1}
             html={`<div class="flex flex-col items-center justify-center">
     <div class="text-2xl">top</div>
@@ -73,7 +73,7 @@ export default function DividerPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             gridColumns={1}
             html={`<div class="flex items-center justify-center">
     <div class="text-2xl">left</div>
@@ -84,7 +84,7 @@ export default function DividerPage() {
         </DocSection>
 
         <DocSection title="Vertical divider with text">
-          <ExampleContainer
+          <DeprecatedExampleContainer
             gridColumns={1}
             html={`<div class="flex items-center justify-center">
     <div class="text-2xl">left</div>

@@ -2,7 +2,7 @@ import { DocPage, DocSection } from "@/components/doc/DocPage";
 import tabsTheme from "../../../../packages/core/src/themes/components/tabs";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { VarientsExample } from "./VarientsExample";
 import { fetchFile } from "@/components/fetch-file";
 
@@ -56,7 +56,7 @@ export default async function TabsPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             html={await fetchFile("components/tabs/examples/basic.html")}
           />
         </DocSection>

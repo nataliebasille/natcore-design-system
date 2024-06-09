@@ -1,5 +1,5 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import formControlTheme from "../../../../packages/core/src/themes/components/form-control";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
@@ -51,7 +51,7 @@ export default async function FormControlPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             html={await fetchFile("forms/form-controls/examples/labelled.html")}
           />
         </DocSection>
@@ -71,7 +71,7 @@ export default async function FormControlPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             html={await fetchFile("forms/form-controls/examples/hints.html")}
           />
         </DocSection>
@@ -98,7 +98,7 @@ export default async function FormControlPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             html={await fetchFile(
               "forms/form-controls/examples/validation.html",
             )}
@@ -127,7 +127,7 @@ export default async function FormControlPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             html={await fetchFile("forms/form-controls/examples/fixins.html")}
           />
         </DocSection>

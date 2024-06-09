@@ -1,10 +1,13 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import buttonTheme from "../../../../packages/core/src/themes/components/button";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
-import { BasicButtonExample } from "./BasicButtonExample";
+import { ButtonPlaygroundExample } from "./ButtonPlaygroundExample";
 import { fetchFile } from "@/components/fetch-file";
+import { InlineClass } from "@/components/InlineClass";
+import { BasicContainer } from "@/components/doc/BasicContainer";
+import { List } from "../../../../packages/react/src/List";
+import { Example } from "@/components/doc/Example";
 
 const btnThemeInfo = generateThemeInfo(buttonTheme, {
   btn: "Button with default styling",
@@ -25,117 +28,127 @@ export default async function ButtonPage() {
       description="A customizable button component that comes with different variants,
   sizes, and styles."
     >
+      <DocSection
+        title="Playground"
+        description={
+          <>
+            Button styles are applied using the either the{" "}
+            <InlineClass className="btn" /> or the{" "}
+            <InlineClass className="btn-icon" /> class.
+          </>
+        }
+      >
+        <BasicContainer>
+          <ButtonPlaygroundExample
+            html={await fetchFile("components/button/examples/playground.html")}
+          />
+        </BasicContainer>
+      </DocSection>
       <DocSection title="Classes">
         <ThemeClassesContainer theme={btnThemeInfo} />
       </DocSection>
       <DocSection title="Usage">
         <DocSection
-          title="Basic button"
+          title="Variants"
           description={
             <>
-              Button styles are applied using the{" "}
-              <code
-                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
-                style={{ padding: "0 !important" }}
-              >
-                `.btn`
-              </code>{" "}
-              prefix.
+              Bultin button themes are applied using one of the following
+              classes:
+              <List.UL className="my-2 ml-3">
+                <List.Item>
+                  <InlineClass className="btn-primary" />
+                </List.Item>
+                <List.Item>
+                  <InlineClass className="btn-secondary" />
+                </List.Item>
+                <List.Item>
+                  <InlineClass className="btn-surface" />
+                </List.Item>
+                <List.Item>
+                  <InlineClass className="btn-accent" />
+                </List.Item>
+              </List.UL>
+              The default theme is <InlineClass className="btn-primary" />.
             </>
           }
         >
-          <BasicButtonExample
-            html={await fetchFile(
-              "components/button/examples/basic-button.html",
-            )}
-          />
+          <BasicContainer>
+            <Example
+              html={await fetchFile("components/button/examples/theme.html")}
+            />
+          </BasicContainer>
+        </DocSection>
+
+        <DocSection
+          title="Appearance"
+          description={
+            <>
+              Button appearance can be changed using one of the following
+              classes:
+              <List.UL className="my-2 ml-3">
+                <List.Item>
+                  <InlineClass className="btn-filled" />
+                </List.Item>
+                <List.Item>
+                  <InlineClass className="btn-outline" />
+                </List.Item>
+                <List.Item>
+                  <InlineClass className="btn-ghost" />
+                </List.Item>
+              </List.UL>
+              The default appearance is <InlineClass className="btn-filled" />.
+            </>
+          }
+        >
+          <BasicContainer>
+            <Example
+              html={await fetchFile(
+                "components/button/examples/appearance.html",
+              )}
+            />
+          </BasicContainer>
         </DocSection>
 
         <DocSection
           title="Sizes"
           description={
             <>
-              Button sizes are applied using the{" "}
-              <code
-                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
-                style={{ padding: "0 !important" }}
-              >
-                `.btn-sm`
-              </code>{" "}
-              (small) or{" "}
-              <code
-                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
-                style={{ padding: "0 !important" }}
-              >
-                `.btn-lg`
-              </code>{" "}
-              (large) classes.
+              You can change the size of a button using one of the following:
+              <List.UL className="ml-3 mt-2">
+                <List.Item>
+                  <InlineClass className="btn-sm" /> for a smaller button
+                </List.Item>
+                <List.Item>
+                  <InlineClass className="btn-lg" /> for a larger button
+                </List.Item>
+              </List.UL>
             </>
           }
         >
-          <ExampleContainer
-            html={await fetchFile("components/button/examples/sizes.html")}
-          />
+          <BasicContainer>
+            <Example
+              html={await fetchFile("components/button/examples/sizes.html")}
+            />
+          </BasicContainer>
         </DocSection>
-
-        {/* 
-        
 
         <DocSection
           title="Icon buttons"
           description={
             <>
               To create a icon friendly button, use the{" "}
-              <code
-                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
-                style={{ padding: "0 !important" }}
-              >
-                `.btn-icon`
-              </code>{" "}
-              class.
+              <InlineClass className="btn-icon" /> class.
             </>
           }
         >
-          <div className="border-primary-500 rounded-lg border p-3">
-            <Highlight
-              component="code"
-              content={`<button class="btn btn-icon btn-sm">{...icon}</button>
-<button class="btn btn-icon btn-sm btn-outline">{...icon}</button>
-<button class="btn btn-icon">{...icon}</button>
-<button class="btn btn-icon btn-outline">{...icon}</button>
-<button class="btn btn-icon btn-lg">{...icon}</button>
-<button class="btn btn-icon btn-lg btn-outline">{...icon}</button>`}
-              language="html"
+          <BasicContainer>
+            <Example
+              html={await fetchFile(
+                "components/button/examples/icon-button.html",
+              )}
             />
-            <div className="divider mb-2">Output</div>
-
-            <div
-              className="grid items-center justify-items-center gap-3"
-              style={{
-                gridTemplateColumns: "repeat(auto-fit, minmax(115px, 1fr))",
-              }}
-            >
-              <button className="btn btn-icon btn-sm">
-                <LogoSVG />
-              </button>
-              <button className="btn btn-icon btn-sm btn-outline">
-                <LogoSVG />
-              </button>
-              <button className="btn btn-icon">
-                <LogoSVG />
-              </button>
-              <button className="btn btn-icon btn-outline">
-                <LogoSVG />
-              </button>
-              <button className="btn btn-icon btn-lg">
-                <LogoSVG />
-              </button>
-              <button className="btn btn-icon btn-lg btn-outline">
-                <LogoSVG />
-              </button>
-            </div>
-          </div>
-        </DocSection> */}
+          </BasicContainer>
+        </DocSection>
       </DocSection>
     </DocPage>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { useState } from "react";
 import classnames from "classnames";
 
@@ -72,7 +72,7 @@ export function BasicToggleExample({ html }: { html: string }) {
         </div>
       </div>
 
-      <ExampleContainer
+      <DeprecatedExampleContainer
         outputClassName="justify-items-center"
         html={htmlToRender}
       />

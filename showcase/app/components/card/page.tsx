@@ -4,7 +4,7 @@ import { fetchFile } from "@/components/fetch-file";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import cardTheme from "../../../../packages/core/src/themes/components/card";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 
 const cardThemeInfo = generateThemeInfo(cardTheme, {});
 
@@ -43,7 +43,7 @@ export default async function CardPage() {
           </>
         }
       >
-        <ExampleContainer
+        <DeprecatedExampleContainer
           outputClassName="justify-items-center"
           html={await fetchFile("components/card/examples/sections.html")}
         />

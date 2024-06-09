@@ -1,5 +1,5 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import { ExampleContainer } from "@/components/doc/ExampleContainer";
+import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import listTheme from "../../../../packages/core/src/themes/components/list";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
@@ -40,7 +40,7 @@ export default function ListPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             html={`<ul class="list">
     <li class="list-item">Item 1</li>
     <li class="list-item">Item 2</li>
@@ -64,7 +64,7 @@ export default function ListPage() {
             </>
           }
         >
-          <ExampleContainer
+          <DeprecatedExampleContainer
             html={`<ul class="list">
     <li class="list-item">Item 1</li>
     <li class="list-item active">Item 2</li>

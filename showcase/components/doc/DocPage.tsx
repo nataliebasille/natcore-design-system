@@ -7,6 +7,7 @@ import {
   type ReactElement,
 } from "react";
 import { OnThisPage } from "./OnThisPage";
+import { CopySectionUrl } from "./CopySectionUrl";
 
 type DocPageProps = {
   title: string;
@@ -22,9 +23,14 @@ const MutedText = ({
   className?: string;
 }) => {
   return (
-    <p className={classnames("tracking-wider text-gray-600", className)}>
+    <span
+      className={classnames(
+        "my-4 block tracking-wider text-gray-600",
+        className,
+      )}
+    >
       {children}
-    </p>
+    </span>
   );
 };
 
@@ -100,9 +106,16 @@ export const DocSection = ({
 
   return (
     <>
-      <Heading id={title} className="text-primary-800 dark:text-primary-50">
-        {title}
-      </Heading>
+      <div className="relative my-4">
+        <CopySectionUrl sectionId={title} />
+
+        <Heading
+          id={title}
+          className="text-primary-800 dark:text-primary-50 tracking-wider"
+        >
+          {title}
+        </Heading>
+      </div>
       {description && <MutedText>{description}</MutedText>}
       {children}
     </>
