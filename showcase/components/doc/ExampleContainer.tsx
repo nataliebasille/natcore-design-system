@@ -20,7 +20,9 @@ export const ExampleContainer = ({
   outputClassName,
   gridColumns = "auto-fit",
 }: ExampleContainerProps) => {
-  const [htmlToDisplay, setHtmlToDisplay] = useState("");
+  const [htmlToDisplay, setHtmlToDisplay] = useState(
+    typeof html === "string" ? html : "",
+  );
 
   useEffect(() => {
     if (typeof html === "string") {
