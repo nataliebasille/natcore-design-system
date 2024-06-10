@@ -1,8 +1,9 @@
 "use client";
 
-import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
+import { Example } from "@/components/doc/Example";
 import { useState } from "react";
 import classnames from "classnames";
+import { BasicContainer } from "@/components/doc/BasicContainer";
 
 const classes = {
   variants: {
@@ -10,6 +11,7 @@ const classes = {
     primary: "card-primary",
     secondary: "card-secondary",
     surface: "card-surface",
+    accent: "card-accent",
   },
   appearances: {
     default: false,
@@ -22,9 +24,9 @@ const classes = {
     true: "card-hover",
   },
 };
-export function BasicCardExample({ html }: { html: string }) {
+export function CardPlayground({ html }: { html: string }) {
   const [variant, setVariant] = useState<
-    "default" | "primary" | "secondary" | "surface"
+    "default" | "primary" | "secondary" | "surface" | "accent"
   >("default");
 
   const [appearance, setAppearance] = useState<
@@ -43,8 +45,10 @@ export function BasicCardExample({ html }: { html: string }) {
     : html.replace('<div class="card', `<div class="card ${classesToAdd}`);
 
   return (
-    <>
-      <div className="mb-3 flex gap-2">
+    <BasicContainer>
+      <Example html={htmlToRender} />
+      <div className="divider" />
+      <div className="mb-3 flex justify-center gap-2">
         <div className="form-control">
           <label>Variant</label>
           <select
@@ -57,6 +61,7 @@ export function BasicCardExample({ html }: { html: string }) {
             <option value="primary">card-primary</option>
             <option value="secondary">card-secondary</option>
             <option value="surface">card-surface</option>
+            <option value="accent">card-accent</option>
           </select>
         </div>
 
@@ -86,11 +91,6 @@ export function BasicCardExample({ html }: { html: string }) {
           </select>
         </div>
       </div>
-
-      <DeprecatedExampleContainer
-        outputClassName="justify-items-center"
-        html={htmlToRender}
-      />
-    </>
+    </BasicContainer>
   );
 }
