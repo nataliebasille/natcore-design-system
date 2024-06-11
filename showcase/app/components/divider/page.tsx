@@ -1,8 +1,11 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import dividerTheme from "../../../../packages/core/src/themes/components/divider";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
+import { DividerPlayground } from "./DividerPlayground";
+import { InlineClass } from "@/components/InlineClass";
+import { Example } from "@/components/doc/Example";
+import { BasicContainer } from "@/components/doc/BasicContainer";
 
 const dividerThemeInfo = generateThemeInfo(dividerTheme, {
   divider: "Horizontal line to divide content.",
@@ -18,6 +21,9 @@ export default function DividerPage() {
       title="Divider"
       description="Create a horizontal or vertical dividers with optional text. It helps to visually separate sections or content within your user interface."
     >
+      <DocSection title="Playground">
+        <DividerPlayground />
+      </DocSection>
       <DocSection title="Classes">
         <ThemeClassesContainer theme={dividerThemeInfo} />
       </DocSection>
@@ -27,35 +33,35 @@ export default function DividerPage() {
           description={
             <>
               A horizontal divider is created using the{" "}
-              <code
-                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
-                style={{ padding: "0 !important" }}
-              >
-                .divider
-              </code>{" "}
-              class.
+              <InlineClass className="divider" /> class.
             </>
           }
         >
-          <DeprecatedExampleContainer
-            gridColumns={1}
-            html={`<div class="flex flex-col items-center justify-center">
-    <div class="text-2xl">top</div>
-    <div class="divider"></div>
-    <div class="text-2xl">bottom</div>
-</div>`}
-          />
+          <BasicContainer>
+            <Example
+              html={
+                <div className="flex flex-col items-center justify-center">
+                  <div className="text-2xl">top</div>
+                  <div className="divider"></div>
+                  <div className="text-2xl">bottom</div>
+                </div>
+              }
+            />
+          </BasicContainer>
         </DocSection>
 
         <DocSection title="Horizontal divider with text">
-          <DeprecatedExampleContainer
-            gridColumns={1}
-            html={`<div class="flex flex-col items-center justify-center">
-    <div class="text-2xl">top</div>
-    <div class="divider">OR</div>
-    <div class="text-2xl">bottom</div>
-</div>`}
-          />
+          <BasicContainer>
+            <Example
+              html={
+                <div className="flex flex-col items-center justify-center">
+                  <div className="text-2xl">top</div>
+                  <div className="divider">OR</div>
+                  <div className="text-2xl">bottom</div>
+                </div>
+              }
+            />
+          </BasicContainer>
         </DocSection>
 
         <DocSection
@@ -73,25 +79,31 @@ export default function DividerPage() {
             </>
           }
         >
-          <DeprecatedExampleContainer
-            gridColumns={1}
-            html={`<div class="flex items-center justify-center">
-    <div class="text-2xl">left</div>
-    <div class="divider-v h-24"></div>
-    <div class="text-2xl">right</div>
-</div>`}
-          />
+          <BasicContainer>
+            <Example
+              html={
+                <div className="flex items-center justify-center">
+                  <div className="text-2xl">left</div>
+                  <div className="divider-v h-24"></div>
+                  <div className="text-2xl">right</div>
+                </div>
+              }
+            />
+          </BasicContainer>
         </DocSection>
 
         <DocSection title="Vertical divider with text">
-          <DeprecatedExampleContainer
-            gridColumns={1}
-            html={`<div class="flex items-center justify-center">
-    <div class="text-2xl">left</div>
-    <div class="divider-v h-24">OR</div>
-    <div class="text-2xl">right</div>
-</div>`}
-          />
+          <BasicContainer>
+            <Example
+              html={
+                <div className="flex items-center justify-center">
+                  <div className="text-2xl">left</div>
+                  <div className="divider-v h-24">OR</div>
+                  <div className="text-2xl">right</div>
+                </div>
+              }
+            />
+          </BasicContainer>
         </DocSection>
       </DocSection>
     </DocPage>

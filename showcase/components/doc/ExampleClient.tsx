@@ -2,6 +2,7 @@ import { useId, useLayoutEffect, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { Highlight } from "../Highlight";
+import { formatHTML } from "@/utlls/format-html";
 
 type ExampleProps = {
   html: string | ReactNode;
@@ -24,7 +25,7 @@ export const ExampleClient = ({ html }: ExampleProps) => {
         flushSync(() => {
           root.render(html);
         });
-        setHtmlToDisplay(div.innerHTML);
+        setHtmlToDisplay(formatHTML(div.innerHTML));
       }, 0);
     }
   }, [html]);
