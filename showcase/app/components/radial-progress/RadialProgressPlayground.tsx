@@ -1,6 +1,7 @@
 "use client";
 
-import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
+import { BasicContainer } from "@/components/doc/BasicContainer";
+import { Example } from "@/components/doc/Example";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -56,7 +57,15 @@ export const RadialProgressPlayground = () => {
   }
 
   return (
-    <>
+    <BasicContainer>
+      <Example
+        html={
+          <div className="flex justify-center">
+            <div className={classes} style={variables} />
+          </div>
+        }
+      />
+      <div className="divider" />
       <div className="mb-3 flex gap-2">
         <div className="form-control">
           <label>Color</label>
@@ -136,11 +145,6 @@ export const RadialProgressPlayground = () => {
           />
         </div>
       </div>
-
-      <DeprecatedExampleContainer
-        outputClassName="justify-items-center"
-        html={<div className={classes} style={variables}></div>}
-      />
-    </>
+    </BasicContainer>
   );
 };

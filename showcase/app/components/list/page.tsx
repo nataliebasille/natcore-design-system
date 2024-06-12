@@ -1,5 +1,4 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import listTheme from "../../../../packages/core/src/themes/components/list";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
