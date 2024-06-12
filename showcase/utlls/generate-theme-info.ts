@@ -56,7 +56,8 @@ export const generateThemeInfo = <T extends ThemeFactory>(
         if (
           !themeClasses.has(c) &&
           c.indexOf(".") >= 0 &&
-          c.indexOf(":has") < 0
+          c.indexOf(":has") < 0 &&
+          c.indexOf(":not") < 0
         ) {
           const type = c[0] === "&" ? "modifier" : "component";
           const className = c.slice(

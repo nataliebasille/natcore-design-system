@@ -21,19 +21,23 @@ export default (theme: PluginAPI["theme"]) => ({
       width: theme("width.full")!,
       borderRadius: theme("borderRadius.lg")!,
       lineHeight: theme("lineHeight.tight")!,
+    },
 
-      "&:hover,&:focus": {
-        background: listVariants("background-color-hover"),
-        color: listVariants("background-color-hover-text"),
-      },
-
-      "&.active": {
-        backgroundColor: listVariants("base"),
-        color: listVariants("base-text"),
-
+    "&:not(.list-disc):not(.list-decimal)": {
+      "> .list-item": {
         "&:hover,&:focus": {
+          background: listVariants("background-color-hover"),
+          color: listVariants("background-color-hover-text"),
+        },
+
+        "&.active": {
           backgroundColor: listVariants("base"),
           color: listVariants("base-text"),
+
+          "&:hover,&:focus": {
+            backgroundColor: listVariants("base"),
+            color: listVariants("base-text"),
+          },
         },
       },
     },

@@ -65,7 +65,7 @@ export const DividerPlayground = () => {
         </div>
 
         <div>
-          <div className="radio-group radio-group-secondary">
+          <div className="radio-group radio-group-surface">
             <input
               type="radio"
               name="direction"

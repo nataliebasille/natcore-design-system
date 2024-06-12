@@ -3,6 +3,10 @@ import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleCo
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import listTheme from "../../../../packages/core/src/themes/components/list";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
+import { ListPlayground } from "./ListPlayground";
+import { InlineClass } from "@/components/InlineClass";
+import { Example } from "@/components/doc/Example";
+import { BasicContainer } from "@/components/doc/BasicContainer";
 
 const listThemeInfo = generateThemeInfo(listTheme, {
   list: "This class sets up the basic list layout and style.",
@@ -21,6 +25,9 @@ export default function ListPage() {
       title="List"
       description="The list component is a flexible and customizable component that allows you to create lists with various styles and formats. "
     >
+      <DocSection title="Playground">
+        <ListPlayground />
+      </DocSection>
       <DocSection title="Classes">
         <ThemeClassesContainer theme={listThemeInfo} />
       </DocSection>
@@ -29,24 +36,22 @@ export default function ListPage() {
           title="Basic list"
           description={
             <>
-              Use the{" "}
-              <code
-                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
-                style={{ padding: "0 !important" }}
-              >
-                `.list`
-              </code>{" "}
-              class to create a basic list with default styling
+              Use the <InlineClass className="list" /> class to create a basic
+              list with default styling
             </>
           }
         >
-          <DeprecatedExampleContainer
-            html={`<ul class="list">
-    <li class="list-item">Item 1</li>
-    <li class="list-item">Item 2</li>
-    <li class="list-item">Item 3</li>
-</ul>`}
-          />
+          <BasicContainer>
+            <Example
+              html={
+                <ul className="list">
+                  <li className="list-item">Item 1</li>
+                  <li className="list-item">Item 2</li>
+                  <li className="list-item">Item 3</li>
+                </ul>
+              }
+            />
+          </BasicContainer>
         </DocSection>
 
         <DocSection
@@ -54,23 +59,21 @@ export default function ListPage() {
           description={
             <>
               List item can appear selected using the{" "}
-              <code
-                className="text-secondary-800 inline-block bg-transparent p-0 font-bold"
-                style={{ padding: "0 !important" }}
-              >
-                .active
-              </code>{" "}
-              class.
+              <InlineClass className="list-item" /> class.
             </>
           }
         >
-          <DeprecatedExampleContainer
-            html={`<ul class="list">
-    <li class="list-item">Item 1</li>
-    <li class="list-item active">Item 2</li>
-    <li class="list-item">Item 3</li>
-</ul>`}
-          />
+          <BasicContainer>
+            <Example
+              html={
+                <ul className="list">
+                  <li className="list-item">Item 1</li>
+                  <li className="active list-item">Item 2</li>
+                  <li className="list-item">Item 3</li>
+                </ul>
+              }
+            />
+          </BasicContainer>
         </DocSection>
       </DocSection>
     </DocPage>
