@@ -86,7 +86,7 @@ export function luminance(r: number, g: number, b: number) {
   const a = [r, g, b].map((v) => {
     v /= 255;
     return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, GAMMA);
-  });
+  }) as [number, number, number];
   return a[0] * RED_FACTOR + a[1] * GREEN_FACTOR + a[2] * BLUE_FACTOR;
 }
 
