@@ -42,10 +42,12 @@ export default function (
         schema.themes.light.variants[key] = {} as NormalizedThemePalette;
 
         shadeColors.forEach((color, index) => {
-          schema.themes.light.variants[key][shades[index]] = [
-            color,
-            getContrastingTextColor(color),
-          ];
+          if (shades[index] && schema.themes.light.variants[key]) {
+            schema.themes.light.variants[key][shades[index]] = [
+              color,
+              getContrastingTextColor(color),
+            ];
+          }
         });
 
         Object.entries({
