@@ -20,4 +20,5 @@ export default defineConfig({
   treeshake: true,
   minify: true,
   splitting: false,
+  external: ["tailwindcss", "tailwindcss/plugin"],
 });
