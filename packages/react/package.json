@@ -13,8 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsup --config tsup.config.ts",
-    "clean": "rimraf dist"
+    "build": "tsup --config tsup.config.ts"
   },
   "author": "Natalie Basille",
   "license": "ISC",

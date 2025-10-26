@@ -2,13 +2,10 @@ import { plugin } from "./wrapper";
 
 /** @type {import('tailwindcss').Config} */
 export const content = [
-  "./pages/**/*.{js,ts,jsx,tsx}",
-  "./components/**/*.{js,ts,jsx,tsx}",
-  "./app/**/*.{js,ts,jsx,tsx,html}",
-  "./wrapper.ts",
-  "../packages/react/**/*.{js,ts,jsx,tsx}",
-  "../packages/core/**/*.{js,ts,jsx,tsx}",
+  "./app/**/*.{ts,tsx,mdx}",
+  "./components/**/*.{ts,tsx}",
 ];
+
 export const theme = {
   extend: {
     backgroundImage: {
