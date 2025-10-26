@@ -1,6 +1,6 @@
 import plugin from "tailwindcss/plugin";
-import base from "./themes/base";
-import components from "./themes/components";
+import base from "./themes/base.ts";
+import components from "./themes/components/index.ts";
 import {
   type NormalizedColorSchema,
   type ColorSchema,
@@ -10,8 +10,8 @@ import {
   getContrastingTextColor,
   VARIABLES_TO_SHADES,
   type NormalizedThemePalette,
-} from "./utils";
-import { colors as natcoreColors } from "./themes/colors";
+} from "./utils.ts";
+import { colors as natcoreColors } from "./themes/colors.ts";
 
 export default function (
   colorScheme: ColorSchema = natcoreColors,

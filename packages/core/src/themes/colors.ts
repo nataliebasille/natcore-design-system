@@ -1,4 +1,4 @@
-import { type ColorSchema, toRgb, type VARIABLES_TO_SHADES } from "../utils";
+import { type ColorSchema, toRgb, type VARIABLES_TO_SHADES } from "../utils.ts";
 
 const colors = {
   primary: toRgb("#230288"),

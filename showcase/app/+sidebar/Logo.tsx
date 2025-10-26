@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogoSVG } from "@natcore/design-system-core";
+import { LogoSVG } from "@natcore/icons/logo";
 import { useSidebar } from "@/providers/SidebarProvider";
 import { useCallback } from "react";
 

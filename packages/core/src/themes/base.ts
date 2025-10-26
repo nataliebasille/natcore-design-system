@@ -4,7 +4,7 @@ import {
   type NormalizedColorSchema,
   formatColorForCssVariable,
   type ColorSchema,
-} from "../utils";
+} from "../utils.ts";
 
 export default (
   theme: PluginAPI["theme"],

@@ -1,21 +1,15 @@
-import { readdir } from "fs/promises";
+import { readdir } from "node:fs/promises";
 import path from "path";
 
-import { List, Divider } from "@natcore/design-system-react";
-import { SidebarItem } from "./SidebarItem";
+import { Divider, List } from "@natcore/design-system-react";
 import { Logo } from "./Logo";
+import { SidebarItem } from "./SidebarItem";
 
-const getDirectories = async (source: string) =>
-  (
-    await readdir(
-      path.resolve(import.meta.url.slice("file://".length), "../../", source),
-      {
-        withFileTypes: true,
-      },
-    )
-  )
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
+export const getDirectories = async (source: string) => {
+  const dir = path.resolve(process.cwd(), `app`, source);
+  const entries = await readdir(dir, { withFileTypes: true });
+  return entries.filter(e => e.isDirectory()).map(e => e.name);
+};
 
 export const Sidebar = async () => {
   const [components, forms] = await Promise.all([

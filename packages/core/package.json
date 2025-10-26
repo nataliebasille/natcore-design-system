@@ -2,9 +2,30 @@
   "name": "@natcore/design-system-core",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
+  "files": ["dist", "src"],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./plugin": {
+      "types": "./dist/plugin.d.ts",
+      "import": "./dist/plugin.mjs",
+      "require": "./dist/plugin.cjs"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.mjs",
+      "require": "./dist/utils.cjs"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup",
+    "clean": "rimraf dist"
   },
   "author": "Natalie Basille",
   "license": "ISC",
@@ -13,6 +34,7 @@
     "typescript": "^5.5.3"
   },
   "devDependencies": {
-    "@types/react": "^18.0.38"
+    "@types/react": "^18.0.38",
+    "tsup": "^8.5.0"
   }
 }
