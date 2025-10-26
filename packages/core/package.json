@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -42,5 +44,8 @@
   "devDependencies": {
     "@types/react": "^18.0.38",
     "tsup": "^8.5.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
