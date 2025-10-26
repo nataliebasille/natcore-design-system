@@ -1,4 +1,4 @@
-import { type PluginAPI } from "tailwindcss/types/config";
+import type {  PluginAPI } from "@natcore/design-system-core";
 
 export type ThemeFactory = (
   theme: PluginAPI["theme"],

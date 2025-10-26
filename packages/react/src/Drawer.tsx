@@ -1,4 +1,4 @@
-import { type FC, type ReactNode } from "react";
+import { type FC, type ReactNode, type JSX } from "react";
 import classnames from "classnames";
 
 type DrawerProps = {

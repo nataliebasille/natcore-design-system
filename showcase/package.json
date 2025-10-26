@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prebuild": "pnpm -w -r --filter @natcore/* build",
+    "prebuild": "pnpm --filter \"@natcore/design-system-core\" --filter \"@natcore/design-system-icons\" --filter \"@natcore/design-system-react\" run build",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

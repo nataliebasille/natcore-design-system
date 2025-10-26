@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@types/react': 19.x
+  '@types/react-dom': 19.x
+
 importers:
 
   .:
@@ -11,6 +15,12 @@ importers:
       '@changesets/cli':
         specifier: ^2.27.8
         version: 2.29.7(@types/node@18.15.11)
+      '@types/react':
+        specifier: 19.x
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: 19.x
+        version: 19.2.2(@types/react@19.2.2)
       eslint:
         specifier: ^9.12.0
         version: 9.38.0(jiti@1.21.7)
@@ -34,8 +44,8 @@ importers:
         version: 5.9.3
     devDependencies:
       '@types/react':
-        specifier: ^18.0.38
-        version: 18.3.26
+        specifier: 19.x
+        version: 19.2.2
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)
@@ -43,11 +53,11 @@ importers:
   packages/icons:
     devDependencies:
       '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.26
+        specifier: 19.x
+        version: 19.2.2
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.0
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -65,11 +75,11 @@ importers:
         version: 2.5.1
     devDependencies:
       '@types/react':
-        specifier: ^18.2.15
-        version: 18.3.26
+        specifier: 19.x
+        version: 19.2.2
       react:
-        specifier: ^18.2.0
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.0
       tsup:
         specifier: ^8.2.4
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)
@@ -92,10 +102,10 @@ importers:
         specifier: 18.15.11
         version: 18.15.11
       '@types/react':
-        specifier: 19.2.2
+        specifier: 19.x
         version: 19.2.2
       '@types/react-dom':
-        specifier: 19.2.2
+        specifier: 19.x
         version: 19.2.2(@types/react@19.2.2)
       autoprefixer:
         specifier: ^10.4.14
@@ -912,19 +922,13 @@ packages:
   '@types/node@18.15.11':
     resolution: {integrity: sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==}
 
-  '@types/prop-types@15.7.15':
-    resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
-
   '@types/q@1.5.8':
     resolution: {integrity: sha512-hroOstUScF6zhIi+5+x0dzqrHA1EJi+Irri6b1fxolMTqqHIV/Cg77EtnQcZqZCu8hR3mX2BzIxN4/GzI68Kfw==}
 
   '@types/react-dom@19.2.2':
     resolution: {integrity: sha512-9KQPoO6mZCi7jcIStSnlOWn2nEF3mNmyr3rIAsGnAbQKYbRLyqmeSc39EVgtxXVia+LMT8j3knZLAZAh+xLmrw==}
     peerDependencies:
-      '@types/react': ^19.2.0
-
-  '@types/react@18.3.26':
-    resolution: {integrity: sha512-RFA/bURkcKzx/X9oumPG9Vp3D3JUgus/d0b67KB0t5S/raciymilkOa66olh78MUI92QLbEJevO7rvqU/kjwKA==}
+      '@types/react': 19.x
 
   '@types/react@19.2.2':
     resolution: {integrity: sha512-6mDvHUFSjyT2B2yeNx2nUgMxh9LtOWvkhIU3uePn2I2oyNymUAX1NIsdgviM4CH+JSrp2D2hsMvJOkxY+0wNRA==}
@@ -2523,10 +2527,6 @@ packages:
     resolution: {integrity: sha512-V1KnIUtvWVvc4xCig34n+f+/74ylMMugB2FbuAF/yq+QRi+WLi2hUYp9Ze3VylhA1D7ZgRygBh3Ojj8S3TPhJA==}
     engines: {node: '>=8'}
 
-  react@18.3.1:
-    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
-    engines: {node: '>=0.10.0'}
-
   react@19.2.0:
     resolution: {integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==}
     engines: {node: '>=0.10.0'}
@@ -3747,18 +3747,11 @@ snapshots:
 
   '@types/node@18.15.11': {}
 
-  '@types/prop-types@15.7.15': {}
-
   '@types/q@1.5.8': {}
 
   '@types/react-dom@19.2.2(@types/react@19.2.2)':
     dependencies:
       '@types/react': 19.2.2
-
-  '@types/react@18.3.26':
-    dependencies:
-      '@types/prop-types': 15.7.15
-      csstype: 3.1.3
 
   '@types/react@19.2.2':
     dependencies:
@@ -5512,10 +5505,6 @@ snapshots:
       react-svg-core: 3.0.3
     transitivePeerDependencies:
       - supports-color
-
-  react@18.3.1:
-    dependencies:
-      loose-envify: 1.4.0
 
   react@19.2.0: {}
 

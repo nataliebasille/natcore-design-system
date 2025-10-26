@@ -17,5 +17,7 @@
     "allowJs": false,
     "noUncheckedIndexedAccess": true,
     "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "importsNotUsedAsValues": "remove"
   }
 }

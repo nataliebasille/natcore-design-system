@@ -1,6 +1,6 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { fetchFile } from "@/components/fetch-file";
-import toggleTheme from "../../../../packages/core/src/themes/components/toggle";
+import { toggle as toggleTheme } from "@natcore/design-system-core";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { BasicToggleExample } from "./BasicToggleExample";

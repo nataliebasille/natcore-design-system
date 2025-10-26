@@ -1,3 +1,5 @@
+import { type JSX } from 'react';
+
 export const HamburgerSVG = (props: JSX.IntrinsicElements["svg"]) => (
   <svg
     version="1.0"

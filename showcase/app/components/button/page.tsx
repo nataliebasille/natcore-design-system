@@ -1,12 +1,12 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
-import buttonTheme from "../../../../packages/core/src/themes/components/button";
+import { button as buttonTheme } from "@natcore/design-system-core";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { ButtonPlaygroundExample } from "./ButtonPlaygroundExample";
 import { fetchFile } from "@/components/fetch-file";
 import { InlineClass } from "@/components/InlineClass";
 import { BasicContainer } from "@/components/doc/BasicContainer";
-import { List } from "../../../../packages/react/src/List";
+import { List } from "@natcore/design-system-react";
 import { Example } from "@/components/doc/Example";
 
 const btnThemeInfo = generateThemeInfo(buttonTheme, {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { type PluginAPI } from "tailwindcss/types/config";
+import type {  PluginAPI } from "../helpers.ts";
 import { createVariants } from "../colors.ts";
 
 const formVariants = createVariants("forms", { defaultColor: "surface" });

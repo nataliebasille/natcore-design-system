@@ -1,3 +1,5 @@
+import { type JSX } from 'react';
+
 export const LinkSVG = (props: JSX.IntrinsicElements["svg"]) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

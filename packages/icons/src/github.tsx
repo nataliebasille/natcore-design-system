@@ -1,3 +1,5 @@
+import { type JSX } from 'react';
+
 export const GithubSVG = (props: JSX.IntrinsicElements["svg"]) => {
   return (
     <svg

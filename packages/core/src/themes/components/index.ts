@@ -1,4 +1,4 @@
-import { type PluginAPI } from "tailwindcss/types/config";
+import type {  PluginAPI } from "../helpers.ts";
 import button from "./button.ts";
 import card from "./card.ts";
 import code from "./code.ts";
@@ -11,6 +11,21 @@ import progress from "./progress.ts";
 import radioGroup from "./radio-group.ts";
 import tabs from "./tabs.ts";
 import toggle from "./toggle.ts";
+
+export {
+  button,
+  card,
+  code,
+  divider,
+  formControl,
+  forms,
+  layer,
+  list,
+  progress,
+  radioGroup,
+  tabs,
+  toggle,
+}
 
 export default (theme: PluginAPI["theme"]) => {
   return {

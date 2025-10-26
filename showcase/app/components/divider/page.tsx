@@ -1,6 +1,6 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
-import dividerTheme from "../../../../packages/core/src/themes/components/divider";
+import { divider as dividerTheme } from "@natcore/design-system-core";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import { DividerPlayground } from "./DividerPlayground";
 import { InlineClass } from "@/components/InlineClass";

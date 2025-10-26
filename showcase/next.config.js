@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {},
+  // Force Turbopack to resolve to compiled output (not TS sources)
+  turbopack: {
+  },
   webpack: (config) => {
     config.module.rules.push({
       test: /examples\/(?:native\.html)/,

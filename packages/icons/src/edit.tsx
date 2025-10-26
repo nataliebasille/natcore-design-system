@@ -1,4 +1,6 @@
-export const EditSVG = (props: JSX.IntrinsicElements["svg"]) => {
+import { type JSX } from 'react';
+
+export const EditSVG = (props: JSX.IntrinsicElements["svg"]) => { 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

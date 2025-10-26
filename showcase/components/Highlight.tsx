@@ -1,17 +1,20 @@
 import { type SupportedLanguages, highlight } from "@/utlls/syntax-highlighter";
-import { type ForwardedRef, forwardRef } from "react";
+import {
+  type FC,
+  type ForwardedRef,
+  forwardRef,
+  type PropsWithChildren,
+} from "react";
+
+export type HighlightProps = PropsWithChildren<{
+  content: string;
+  language: SupportedLanguages;
+  component?: "div" | "code";
+}>;
 
 export const Highlight = forwardRef(
   (
-    {
-      content,
-      language,
-      component: Component = "div",
-    }: {
-      content: string;
-      language: SupportedLanguages;
-      component?: "div" | "code";
-    },
+    { content, language, component: Component = "div" }: HighlightProps,
     ref,
   ) => {
     return (

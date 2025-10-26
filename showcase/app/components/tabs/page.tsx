@@ -1,5 +1,5 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
-import tabsTheme from "../../../../packages/core/src/themes/components/tabs";
+import { tabs as tabsTheme} from "@natcore/design-system-core";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";

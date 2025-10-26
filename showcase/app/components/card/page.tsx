@@ -2,7 +2,7 @@ import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { CardPlayground } from "./CardPlayground";
 import { fetchFile } from "@/components/fetch-file";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
-import cardTheme from "../../../../packages/core/src/themes/components/card";
+import { card as cardTheme } from "@natcore/design-system-core";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { Example } from "@/components/doc/Example";
 import { InlineClass } from "@/components/InlineClass";

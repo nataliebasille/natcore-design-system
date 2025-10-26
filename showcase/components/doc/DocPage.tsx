@@ -5,15 +5,16 @@ import {
   isValidElement,
   type ReactNode,
   type ReactElement,
+  type JSX,
+  type PropsWithChildren,
 } from "react";
 import { OnThisPage } from "./OnThisPage";
 import { CopySectionUrl } from "./CopySectionUrl";
 
-type DocPageProps = {
+type DocPageProps = PropsWithChildren<{
   title: string;
   description?: ReactNode;
-  children?: ReactNode;
-};
+}>;
 
 const MutedText = ({
   children,
@@ -55,8 +56,8 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
       if (isValidElement(child) && child.type === DocSection) {
         return [
           {
-            title: child.props.title as string,
-            children: Children.toArray(child.props.children).flatMap(
+            title: (child.props as any).title as string,
+            children: Children.toArray((child.props as any).children).flatMap(
               createSectionTree,
             ),
           },

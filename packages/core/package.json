@@ -1,9 +1,9 @@
 {
   "name": "@natcore/design-system-core",
   "version": "1.0.0",
-  "description": "",
+  "type": "module",
   "sideEffects": false,
-  "files": ["dist"],
+  "files": ["dist/**/*"],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -11,17 +11,20 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
     },
     "./plugin": {
       "types": "./dist/plugin.d.ts",
       "import": "./dist/plugin.mjs",
-      "require": "./dist/plugin.cjs"
+      "require": "./dist/plugin.cjs",
+      "default": "./dist/plugin.mjs"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
       "import": "./dist/utils.mjs",
-      "require": "./dist/utils.cjs"
+      "require": "./dist/utils.cjs",
+      "default": "./dist/utils.mjs"
     }
   },
   "scripts": {
