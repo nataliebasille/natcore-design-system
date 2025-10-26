@@ -1,6 +1,6 @@
 {
   "name": "@natcore/icons",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Natcore icon components",
   "license": "MIT",
   "sideEffects": false,
