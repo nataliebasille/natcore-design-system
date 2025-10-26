@@ -21,4 +21,5 @@ export default defineConfig({
   treeshake: true,
   minify: true,
   splitting: false,
+  external: ["react", "react-dom"],
 });
