@@ -1,11 +1,9 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: {
-    index: "src/index.ts",
-    plugin: "src/plugin.ts",
-    utils: "src/utils.ts",
-  },
+  entry: [
+    "src/index.ts",
+  ],
   format: ["esm", "cjs"],
   dts: true,           // emits .d.ts for each entry
   sourcemap: true,

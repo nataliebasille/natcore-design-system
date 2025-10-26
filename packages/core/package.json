@@ -24,7 +24,7 @@
     }
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup --config tsup.config.ts",
     "clean": "rimraf dist"
   },
   "author": "Natalie Basille",

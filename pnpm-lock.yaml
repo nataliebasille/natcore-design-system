@@ -70,8 +70,11 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
+      tsup:
+        specifier: ^8.2.4
+        version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)
       typescript:
-        specifier: ^5.0.4
+        specifier: ^5.6.3
         version: 5.9.3
 
   showcase:

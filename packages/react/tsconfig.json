@@ -1,18 +1,24 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "es5", 
-    "esModuleInterop": true, 
-    "forceConsistentCasingInFileNames": true,
-    "strict": true, 
-    "skipLibCheck": true,
-    "jsx": "react-jsx", 
-    "module": "ESNext",  
-    "declaration": true,
-    "declarationDir": "types",
-    "sourceMap": true,
+    "target": "ES2020",
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+
+    "rootDir": "src",
     "outDir": "dist",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "emitDeclarationOnly": true,
-  }
+
+    // ✅ enable the automatic React JSX runtime + its types
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "types": ["react"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    "strict": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["src"]
 }

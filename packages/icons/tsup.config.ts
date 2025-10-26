@@ -8,17 +8,17 @@ export default defineConfig({
     "src/*.tsx"
   ],
   format: ["esm", "cjs"],
-  dts: true,
+  dts: true,           // emits .d.ts for each entry
   sourcemap: true,
   clean: true,
+  outDir: "dist",
+  // Ensure .mjs for ESM and .cjs for CJS
+  outExtension: ({ format }) => ({
+    js: format === "esm" ? ".mjs" : ".cjs",
+  }),
+  // Let you import with .ts in source; bundler handles it
+  tsconfig: "tsconfig.json",
   treeshake: true,
-  // Don’t bundle React; consumers provide it.
-  external: ["react"],
-  // Emit .mjs/.cjs so subpath exports map cleanly
-  // (tsup sets extensions automatically for esm/cjs)
-  outExtension({ format }) {
-    return {
-      js: format === "cjs" ? ".cjs" : ".mjs",
-    };
-  },
+  minify: true,
+  splitting: false,
 });

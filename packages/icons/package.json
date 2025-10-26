@@ -37,6 +37,7 @@
   "peerDependencies": {
     "react": ">=17 || ^18 || ^19"
   },
+  
   "devDependencies": {
     "@types/react": "^18.3.3",
     "react": "^18.3.1",
