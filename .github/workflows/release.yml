@@ -6,8 +6,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  packages: write
+  contents: write # push tags & branches
+  pull-requests: write # create/update the Changesets PR
+  packages: write # publish packages
 
 jobs:
   release:
@@ -38,5 +39,5 @@ jobs:
         with:
           publish: pnpm release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
