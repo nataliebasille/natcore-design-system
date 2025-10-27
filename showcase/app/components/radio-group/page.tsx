@@ -1,7 +1,7 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { RadioGroupPlayground } from "./RadioGroupPlayground";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
-import { radioGroup as radioGroupTheme } from "@natcore/design-system-core";
+import { radioGroup as radioGroupTheme } from "@nataliebasille/natcore-design-system";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 
 const radioGroupThemeInfo = generateThemeInfo(radioGroupTheme, {});

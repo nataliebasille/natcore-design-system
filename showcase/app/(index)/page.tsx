@@ -1,6 +1,6 @@
 import { CopyContainer } from "@/components/CopyContainer";
 import { Highlight } from "@/components/Highlight";
-import { List } from "@natcore/design-system-react";
+import { List } from "@nataliebasille/natcore-design-system-react";
 
 export default function Home() {
   return (
@@ -62,7 +62,7 @@ export default function Home() {
           <code>
             <CopyContainer>
               <Highlight
-                content={`import natcore from '@natcore/design-system-core/plugin';
+                content={`import natcore from '@nataliebasille/natcore-design-system/plugin';
 
 export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],

@@ -8,9 +8,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@natcore/design-system-core": "workspace:*",
-    "@natcore/design-system-react": "workspace:*",
-    "@natcore/icons": "workspace:*",
+    "@nataliebasille/natcore-design-system": "workspace:*",
+    "@nataliebasille/natcore-design-system-react": "workspace:*",
+    "@nataliebasille/natcore-icons": "workspace:*",
     "@types/node": "18.15.11",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",

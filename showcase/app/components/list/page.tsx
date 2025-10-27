@@ -1,6 +1,6 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
-import { list as listTheme } from "@natcore/design-system-core";
+import { list as listTheme } from "@nataliebasille/natcore-design-system";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { ListPlayground } from "./ListPlayground";
 import { InlineClass } from "@/components/InlineClass";

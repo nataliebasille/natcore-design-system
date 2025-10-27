@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, type PropsWithChildren } from "react";
-import { List } from "@natcore/design-system-react";
+import { List } from "@nataliebasille/natcore-design-system-react";
 import { usePathname, useRouter } from "next/navigation";
 import classnames from "classnames";
 import { useSidebar } from "@/providers/SidebarProvider";

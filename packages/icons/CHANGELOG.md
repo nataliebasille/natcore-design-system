@@ -1,4 +1,4 @@
-# @natcore/icons
+# @nataliebasille/natcore-icons
 
 ## 1.0.0
 

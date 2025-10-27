@@ -4,7 +4,7 @@ export default defineConfig({
   entry: [
     // Barrel; re-export common icons here
     "src/index.ts",
-    // Build each icon as its own module to allow `@natcore/icons/<name>`
+    // Build each icon as its own module to allow `@nataliebasille/natcore-icons/<name>`
     "src/*.tsx"
   ],
   format: ["esm", "cjs"],

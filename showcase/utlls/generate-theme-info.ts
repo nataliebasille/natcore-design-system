@@ -1,4 +1,4 @@
-import type {  PluginAPI } from "@natcore/design-system-core";
+import type {  PluginAPI } from "@nataliebasille/natcore-design-system";
 
 export type ThemeFactory = (
   theme: PluginAPI["theme"],

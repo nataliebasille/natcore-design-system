@@ -2,12 +2,12 @@ import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { CardPlayground } from "./CardPlayground";
 import { fetchFile } from "@/components/fetch-file";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
-import { card as cardTheme } from "@natcore/design-system-core";
+import { card as cardTheme } from "@nataliebasille/natcore-design-system";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { Example } from "@/components/doc/Example";
 import { InlineClass } from "@/components/InlineClass";
 import { BasicContainer } from "@/components/doc/BasicContainer";
-import { List } from "@natcore/design-system-react";
+import { List } from "@nataliebasille/natcore-design-system-react";
 
 const cardThemeInfo = generateThemeInfo(cardTheme, {
   card: "Apply the card layout and style to the card cotainer.",

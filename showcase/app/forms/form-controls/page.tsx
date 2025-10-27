@@ -1,7 +1,7 @@
 import { DocPage, DocSection } from "@/components/doc/DocPage";
 import { DeprecatedExampleContainer } from "@/components/doc/DeprecatedExampleContainer";
 import { generateThemeInfo } from "@/utlls/generate-theme-info";
-import { formControl as formControlTheme } from "@natcore/design-system-core";
+import { formControl as formControlTheme } from "@nataliebasille/natcore-design-system";
 import { ThemeClassesContainer } from "@/components/doc/ThemeClassesContainer";
 import { fetchFile } from "@/components/fetch-file";
 

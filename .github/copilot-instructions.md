@@ -5,7 +5,7 @@
 This is a **monorepo design system** with three main packages and a Next.js showcase app:
 
 - `packages/core`: Tailwind CSS plugin with themes, colors, and component styles
-- `packages/react`: React components using design system classes 
+- `packages/react`: React components using design system classes
 - `packages/icons`: SVG icon components
 - `showcase`: Next.js documentation site demonstrating components
 
@@ -14,6 +14,7 @@ This is a **monorepo design system** with three main packages and a Next.js show
 ## Development Workflow
 
 ### Building & Running
+
 ```bash
 # Build all packages
 pnpm build
@@ -28,14 +29,17 @@ pnpm clean
 **Critical**: Always run `pnpm build` after modifying core packages before testing in showcase, as it uses workspace dependencies.
 
 ### Package Structure
+
 - Each package has its own `tsup.config.ts` for building multiple entry points
 - Core package exports: `index`, `plugin`, and `utils` as separate modules
-- React components import from `@natcore/design-system-core` and use `classnames` for conditional classes
+- React components import from `@nataliebasille/natcore-design-system` and use `classnames` for conditional classes
 
 ## Design System Patterns
 
 ### Color System Architecture
+
 Colors are defined in `packages/core/src/themes/colors.ts` as:
+
 ```typescript
 primary: toRgb("#230288"),
 surface: {
@@ -48,20 +52,26 @@ surface: {
 The plugin auto-generates 10 shades (50-900) plus contrast text colors, creating CSS variables like `--primary-500`, `--primary-500-text`.
 
 ### Component Theme Pattern
+
 All component styles follow this pattern in `packages/core/src/themes/components/`:
+
 1. Import `createVariants` helper
 2. Define component-specific CSS variables using color variants
 3. Export function that takes Tailwind theme and returns style object
 
 ### React Component Pattern
+
 React components in `packages/react/src/` follow:
+
 1. Use `forwardRef` for proper ref handling
 2. Define props extending HTML element props
 3. Use `classnames` for conditional CSS classes
 4. Map props to design system class names (e.g., `btn-primary`, `btn-lg`)
 
 ### Showcase Documentation Pattern
+
 Each component page in `showcase/app/components/[component]/` includes:
+
 - `page.tsx`: Main documentation with playground
 - `ButtonPlaygroundExample.tsx`: Interactive component demo
 - `examples/`: Static HTML examples
@@ -76,16 +86,20 @@ Each component page in `showcase/app/components/[component]/` includes:
 ## Key Integration Points
 
 ### Tailwind Configuration
+
 `showcase/wrapper.ts` imports and configures the core plugin:
+
 ```typescript
 import natcorePlugin from "../packages/core/src/plugin";
 export const plugin = natcorePlugin();
 ```
 
 ### Workspace Dependencies
+
 `showcase/package.json` uses `workspace:*` for local packages, allowing development without publishing.
 
 ### Build System
+
 - Core uses `tsup` to output `.mjs` (ESM) and `.cjs` (CommonJS) with TypeScript declarations
 - Builds are required before showcase can use updated packages
 - No hot-reloading between packages - requires rebuild

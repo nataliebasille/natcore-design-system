@@ -1,4 +1,4 @@
-# @natcore/design-system-react
+# @nataliebasille/natcore-design-system-react
 
 ## 1.0.1
 

@@ -1,3 +1,3 @@
-import natcorePlugin from "@natcore/design-system-core/plugin";
+import natcorePlugin from "@nataliebasille/natcore-design-system/plugin";
 
 export const plugin = natcorePlugin();

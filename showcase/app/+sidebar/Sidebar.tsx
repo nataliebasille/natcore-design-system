@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import path from "path";
 
-import { Divider, List } from "@natcore/design-system-react";
+import { Divider, List } from "@nataliebasille/natcore-design-system-react";
 import { Logo } from "./Logo";
 import { SidebarItem } from "./SidebarItem";
 

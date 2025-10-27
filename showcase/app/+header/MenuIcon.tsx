@@ -1,8 +1,8 @@
 "use client";
 
 import { useSidebar } from "@/providers/SidebarProvider";
-import { HamburgerSVG } from "@natcore/icons/hamburger";
-import { Button } from "@natcore/design-system-react";
+import { HamburgerSVG } from "@nataliebasille/natcore-icons/hamburger";
+import { Button } from "@nataliebasille/natcore-design-system-react";
 
 export const MenuIcon: React.FC<{ className?: string }> = ({ className }) => {
   const { toggle } = useSidebar();

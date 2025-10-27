@@ -103,13 +103,13 @@ importers:
 
   showcase:
     dependencies:
-      '@natcore/design-system-core':
+      '@nataliebasille/natcore-design-system':
         specifier: workspace:*
         version: link:../packages/core
-      '@natcore/design-system-react':
+      '@nataliebasille/natcore-design-system-react':
         specifier: workspace:*
         version: link:../packages/react
-      '@natcore/icons':
+      '@nataliebasille/natcore-icons':
         specifier: workspace:*
         version: link:../packages/icons
       '@types/node':

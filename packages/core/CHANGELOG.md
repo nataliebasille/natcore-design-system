@@ -1,4 +1,4 @@
-# @natcore/design-system-core
+# @nataliebasille/natcore-design-system
 
 ## 1.0.1
 

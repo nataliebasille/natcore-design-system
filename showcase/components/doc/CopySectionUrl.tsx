@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { LinkSVG } from "@natcore/icons/link";
+import { LinkSVG } from "@nataliebasille/natcore-icons/link";
 
 export const CopySectionUrl = ({ sectionId }: { sectionId: string }) => {
   const copy = useCallback(async () => {
