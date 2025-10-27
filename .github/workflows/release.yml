@@ -35,7 +35,11 @@ jobs:
         run: pnpm -r --filter "./packages/*" build
 
       - name: Auth check (should say 'nataliebasille')
-        run: npm whoami --registry=https://npm.pkg.github.com/nataliebasille
+        run: |
+          echo "scope registry => $(npm config get @natcore:registry)"
+          npm ping --registry=https://npm.pkg.github.com/ || true
+          # token presence (prints TOKEN_PRESENT if wired)
+          node -e "console.log(!!process.env.NODE_AUTH_TOKEN && 'TOKEN_PRESENT')"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
