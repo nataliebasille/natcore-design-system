@@ -34,10 +34,15 @@ jobs:
       - name: Build Packages
         run: pnpm -r --filter "./packages/*" build
 
+      - name: Auth check (should say 'nataliebasille')
+        run: npm whoami --registry=https://npm.pkg.github.com/nataliebasille
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release PR or Publish
         uses: changesets/action@v1
         with:
           publish: pnpm release
         env:
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
