@@ -1,0 +1,48 @@
+@utility heading-1 {
+  @apply text-5xl tracking-wide leading-tight
+}
+
+@utility heading-2 {
+  @apply text-3xl tracking-wide leading-tight
+}
+
+@utility heading-3 {
+  @apply text-xl tracking-wide leading-tight
+}
+
+@utility heading-4 {
+  @apply text-lg tracking-wide leading-tight
+}
+
+@utility heading-5 {
+  @apply text-base tracking-wide leading-tight
+}
+
+@utility heading-6 {
+  @apply text-sm tracking-wide leading-tight
+}
+
+h1 {
+  @apply heading-1
+}
+
+h2 {
+  @apply heading-2
+}
+
+h3 {
+  @apply heading-3
+}
+
+h4 {
+  @apply heading-4
+}
+
+h5 {
+  @apply heading-5
+}
+
+h6 {
+  @apply heading-6
+}
+

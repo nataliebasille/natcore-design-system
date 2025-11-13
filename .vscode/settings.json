@@ -1,7 +1,10 @@
 {
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
-    },
-    "prettier.singleQuote": true,
-    "prettier.jsxSingleQuote": true
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "prettier.singleQuote": true,
+  "prettier.jsxSingleQuote": true,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }

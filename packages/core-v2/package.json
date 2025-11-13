@@ -1,0 +1,59 @@
+{
+  "name": "@nataliebasille/natcore-design-system-v2",
+  "version": "2.0.0",
+  "description": "Natcore Design System v2 - Core package for Tailwind CSS 4.0",
+  "type": "module",
+  "main": "./dist/natcore.css",
+  "module": "./dist/natcore.css",
+  "exports": {
+    ".": {
+      "style": "./dist/natcore.css"
+    },
+    "./plugin": {
+      "types": "./dist/plugin.d.ts",
+      "import": "./dist/plugin.js",
+      "require": "./dist/plugin.cjs"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rimraf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "design-system",
+    "tailwindcss",
+    "css",
+    "components",
+    "react",
+    "typescript"
+  ],
+  "author": "Natalie Basille",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.16",
+    "@types/node": "^22.19.0",
+    "chokidar": "^4.0.3",
+    "esbuild": "^0.27.0",
+    "globby": "^15.0.0",
+    "rimraf": "^6.1.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^4.1.16"
+  },
+  "dependencies": {
+    "classnames": "^2.5.1"
+  }
+}

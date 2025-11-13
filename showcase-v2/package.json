@@ -1,0 +1,43 @@
+{
+  "name": "showcase-v2",
+  "version": "0.1.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter @nataliebasille/natcore-* build && next build",
+    "dev": "concurrently \"cd ../packages/core-v2 && pnpm dev\" \"next dev\"",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@nataliebasille/natcore-design-system": "workspace:*",
+    "@nataliebasille/natcore-design-system-react": "workspace:*",
+    "@nataliebasille/natcore-design-system-v2": "workspace:*",
+    "@nataliebasille/natcore-icons": "workspace:*",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/node": "^22.19.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "autoprefixer": "^10.4.14",
+    "classnames": "^2.5.1",
+    "eslint-config-next": "16.0.0",
+    "highlight.js": "^11.9.0",
+    "next": "16.0.0",
+    "next-react-svg": "^1.2.0",
+    "postcss": "^8.4.26",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-svg-loader": "^3.0.3",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.7.1"
+  }
+}

@@ -1,0 +1,68 @@
+@theme {
+  --tray-position-left: absolute;
+  --tray-inset-inline-start-left: 0;
+  --tray-inset-block-left: 0;
+  --tray-closed-transform-left: translateX(-100%);
+  --tray-height-left: 100%;
+  --tray-z-index-left: 200;
+
+  --tray-position-right: absolute;
+  --tray-inset-inline-end-right: 0;
+  --tray-inset-block-right: 0;
+  --tray-closed-transform-right: translateX(100%);
+  --tray-height-right: 100%;
+  --tray-z-index-right: 200;
+
+  --tray-position-top: absolute;
+  --tray-inset-block-start-top: 0;
+  --tray-inset-inline-top: 0;
+  --tray-closed-transform-top: translateY(-100%);
+  --tray-width-top: 100%;
+  --tray-z-index-top: 200;
+
+  --tray-position-bottom: absolute;
+  --tray-inset-block-end-bottom: 0;
+  --tray-inset-inline-bottom: 0;
+  --tray-closed-transform-bottom: translateY(100%);
+  --tray-width-bottom: 100%;
+  --tray-z-index-bottom: 200;
+
+  --tray-position-inline: static;
+  --tray-inset-inline: auto;
+  --tray-z-index-inline: auto;
+}
+
+@utility tray-* {
+  --tray-direction: --value("top", "left", "bottom", "right", "inline");
+
+  position: --value(--tray-position-*);
+  z-index: --value(--tray-z-index-*);
+  transition: transform 300ms ease-in-out;
+
+  inset-inline-start: --value(--tray-inset-inline-start-*);
+  inset-inline-end: --value(--tray-inset-inline-end-*);
+  inset-block-start: --value(--tray-inset-block-start-*);
+  inset-block-end: --value(--tray-inset-block-end-*);
+  inset-inline: --value(--tray-inset-*);
+  inset-block: --value(--tray-inset-block-*);
+  transform: --value(--tray-closed-transform-*);
+  width: --value(--tray-width-*);
+  height: --value(--tray-height-*);
+
+  &.tray-open,
+  &[open] {
+    transform: translate(0, 0) !important;
+  }
+
+  @custom-variant when-tray-open {
+    :where(.tray-open, [open]) {
+      @slot;
+    }
+  }
+
+  @custom-variant when-tray-closed {
+    :where(:not(.tray-open):not([open])) {
+      @slot;
+    }
+  }
+}
