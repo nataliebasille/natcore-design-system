@@ -20,23 +20,21 @@ export const Sidebar = async () => {
   // ]);
 
   return (
-    <>
+    <div className="tray-inline max-md:tray-left border-surface-700 bg-surface-50 h-full w-72 border-r p-5">
       <SidebarToggle />
-      <div className="tray-inline max-md:tray-left border-surface-700 bg-surface-background-color h-full w-72 border-r p-5">
-        <Logo />
-        <Divider />
-        <div className="text-secondary-800 dark:text-secondary-300 mb-2 font-bold uppercase tracking-wider">
-          Components
-        </div>
-        {/* <List.Container color="primary">{components}</List.Container> */}
-
-        <div className="text-secondary-800 dark:text-secondary-300 mb-2 mt-8 font-bold uppercase tracking-wider">
-          Forms
-        </div>
-
-        {/* <List.Container color="primary">{forms}</List.Container> */}
+      <Logo />
+      <Divider />
+      <div className="text-secondary-800 dark:text-secondary-300 mb-2 font-bold uppercase tracking-wider">
+        Components
       </div>
-    </>
+      {/* <List.Container color="primary">{components}</List.Container> */}
+
+      <div className="text-secondary-800 dark:text-secondary-300 mb-2 mt-8 font-bold uppercase tracking-wider">
+        Forms
+      </div>
+
+      {/* <List.Container color="primary">{forms}</List.Container> */}
+    </div>
   )
 }
 

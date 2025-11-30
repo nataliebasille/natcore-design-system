@@ -1,0 +1,269 @@
+/**
+ * Default Natcore color theme
+ * Colors are generated using OKLCH for perceptually uniform shades
+ */
+
+@theme {
+  /* Primary color shades */
+  --color-base-primary: #210124;
+  --color-base-shade-primary: 500;
+
+  --color-50-primary: oklch(from var(--color-base-primary) calc(l + 0.42) c h);
+  --color-50-text-primary: oklch(
+    from var(--color-50-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-100-primary: oklch(from var(--color-base-primary) calc(l + 0.38) c h);
+  --color-100-text-primary: oklch(
+    from var(--color-100-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-200-primary: oklch(from var(--color-base-primary) calc(l + 0.3) c h);
+  --color-200-text-primary: oklch(
+    from var(--color-200-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-300-primary: oklch(from var(--color-base-primary) calc(l + 0.2) c h);
+  --color-300-text-primary: oklch(
+    from var(--color-300-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-400-primary: oklch(from var(--color-base-primary) calc(l + 0.1) c h);
+  --color-400-text-primary: oklch(
+    from var(--color-400-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-500-primary: oklch(from var(--color-base-primary) l c h);
+  --color-500-text-primary: oklch(
+    from var(--color-500-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-600-primary: oklch(from var(--color-base-primary) calc(l - 0.1) c h);
+  --color-600-text-primary: oklch(
+    from var(--color-600-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-700-primary: oklch(from var(--color-base-primary) calc(l - 0.2) c h);
+  --color-700-text-primary: oklch(
+    from var(--color-700-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-800-primary: oklch(from var(--color-base-primary) calc(l - 0.3) c h);
+  --color-800-text-primary: oklch(
+    from var(--color-800-primary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-900-primary: oklch(from var(--color-base-primary) calc(l - 0.4) c h);
+  --color-900-text-primary: oklch(
+    from var(--color-900-primary) calc((l - 0.6) * -100) 0 h
+  );
+
+  /* Secondary color shades */
+  --color-base-secondary: #0094c6;
+  --color-base-shade-secondary: 500;
+
+  --color-50-secondary: oklch(
+    from var(--color-base-secondary) calc(l + 0.42) c h
+  );
+  --color-50-text-secondary: oklch(
+    from var(--color-50-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-100-secondary: oklch(
+    from var(--color-base-secondary) calc(l + 0.38) c h
+  );
+  --color-100-text-secondary: oklch(
+    from var(--color-100-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-200-secondary: oklch(
+    from var(--color-base-secondary) calc(l + 0.3) c h
+  );
+  --color-200-text-secondary: oklch(
+    from var(--color-200-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-300-secondary: oklch(
+    from var(--color-base-secondary) calc(l + 0.2) c h
+  );
+  --color-300-text-secondary: oklch(
+    from var(--color-300-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-400-secondary: oklch(
+    from var(--color-base-secondary) calc(l + 0.1) c h
+  );
+  --color-400-text-secondary: oklch(
+    from var(--color-400-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-500-secondary: oklch(from var(--color-base-secondary) l c h);
+  --color-500-text-secondary: oklch(
+    from var(--color-500-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-600-secondary: oklch(
+    from var(--color-base-secondary) calc(l - 0.1) c h
+  );
+  --color-600-text-secondary: oklch(
+    from var(--color-600-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-700-secondary: oklch(
+    from var(--color-base-secondary) calc(l - 0.2) c h
+  );
+  --color-700-text-secondary: oklch(
+    from var(--color-700-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-800-secondary: oklch(
+    from var(--color-base-secondary) calc(l - 0.3) c h
+  );
+  --color-800-text-secondary: oklch(
+    from var(--color-800-secondary) calc((l - 0.6) * -100) 0 h
+  );
+  --color-900-secondary: oklch(
+    from var(--color-base-secondary) calc(l - 0.4) c h
+  );
+  --color-900-text-secondary: oklch(
+    from var(--color-900-secondary) calc((l - 0.6) * -100) 0 h
+  );
+
+  /* Accent color shades */
+  --color-base-accent: #e85d75;
+  --color-base-shade-accent: 500;
+
+  --color-50-accent: oklch(from var(--color-base-accent) calc(l + 0.42) c h);
+  --color-50-text-accent: oklch(
+    from var(--color-50-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-100-accent: oklch(from var(--color-base-accent) calc(l + 0.38) c h);
+  --color-100-text-accent: oklch(
+    from var(--color-100-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-200-accent: oklch(from var(--color-base-accent) calc(l + 0.3) c h);
+  --color-200-text-accent: oklch(
+    from var(--color-200-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-300-accent: oklch(from var(--color-base-accent) calc(l + 0.2) c h);
+  --color-300-text-accent: oklch(
+    from var(--color-300-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-400-accent: oklch(from var(--color-base-accent) calc(l + 0.1) c h);
+  --color-400-text-accent: oklch(
+    from var(--color-400-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-500-accent: oklch(from var(--color-base-accent) l c h);
+  --color-500-text-accent: oklch(
+    from var(--color-500-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-600-accent: oklch(from var(--color-base-accent) calc(l - 0.1) c h);
+  --color-600-text-accent: oklch(
+    from var(--color-600-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-700-accent: oklch(from var(--color-base-accent) calc(l - 0.2) c h);
+  --color-700-text-accent: oklch(
+    from var(--color-700-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-800-accent: oklch(from var(--color-base-accent) calc(l - 0.3) c h);
+  --color-800-text-accent: oklch(
+    from var(--color-800-accent) calc((l - 0.6) * -100) 0 h
+  );
+  --color-900-accent: oklch(from var(--color-base-accent) calc(l - 0.4) c h);
+  --color-900-text-accent: oklch(
+    from var(--color-900-accent) calc((l - 0.6) * -100) 0 h
+  );
+
+  /* Surface color shades (base shade: 200) */
+  --color-base-surface: #e5fcf5;
+  --color-base-shade-surface: 200;
+
+  --color-50-surface: oklch(from var(--color-base-surface) calc(l + 0.12) c h);
+  --color-50-text-surface: oklch(
+    from var(--color-50-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-100-surface: oklch(from var(--color-base-surface) calc(l + 0.08) c h);
+  --color-100-text-surface: oklch(
+    from var(--color-100-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-200-surface: oklch(from var(--color-base-surface) l c h);
+  --color-200-text-surface: oklch(
+    from var(--color-200-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-300-surface: oklch(from var(--color-base-surface) calc(l - 0.1) c h);
+  --color-300-text-surface: oklch(
+    from var(--color-300-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-400-surface: oklch(from var(--color-base-surface) calc(l - 0.2) c h);
+  --color-400-text-surface: oklch(
+    from var(--color-400-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-500-surface: oklch(from var(--color-base-surface) calc(l - 0.3) c h);
+  --color-500-text-surface: oklch(
+    from var(--color-500-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-600-surface: oklch(from var(--color-base-surface) calc(l - 0.4) c h);
+  --color-600-text-surface: oklch(
+    from var(--color-600-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-700-surface: oklch(from var(--color-base-surface) calc(l - 0.5) c h);
+  --color-700-text-surface: oklch(
+    from var(--color-700-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-800-surface: oklch(from var(--color-base-surface) calc(l - 0.6) c h);
+  --color-800-text-surface: oklch(
+    from var(--color-800-surface) calc((l - 0.6) * -100) 0 h
+  );
+  --color-900-surface: oklch(from var(--color-base-surface) calc(l - 0.7) c h);
+  --color-900-text-surface: oklch(
+    from var(--color-900-surface) calc((l - 0.6) * -100) 0 h
+  );
+
+  /* Semantic variable mappings */
+  --primary-base: var(--color-500-primary);
+  --primary-base-text: var(--color-500-text-primary);
+  --primary-base-hoverhead: var(--color-600-primary);
+  --primary-base-hover-text: var(--color-600-text-primary);
+  --primary-background-color: var(--color-100-primary);
+  --primary-background-color-text: var(--color-100-text-primary);
+  --primary-background-color-hover: var(--color-200-primary);
+  --primary-background-color-hover-text: var(--color-200-text-primary);
+  --primary-active: var(--color-700-primary);
+  --primary-active-text: var(--color-700-text-primary);
+  --primary-disable: var(--color-200-primary);
+  --primary-disable-text: var(--color-200-text-primary);
+  --primary-border: var(--color-300-primary);
+  --primary-border-text: var(--color-300-text-primary);
+
+  --secondary-base: var(--color-500-secondary);
+  --secondary-base-text: var(--color-500-text-secondary);
+  --secondary-base-hover: var(--color-600-secondary);
+  --secondary-base-hover-text: var(--color-600-text-secondary);
+  --secondary-background-color: var(--color-100-secondary);
+  --secondary-background-color-text: var(--color-100-text-secondary);
+  --secondary-background-color-hover: var(--color-200-secondary);
+  --secondary-background-color-hover-text: var(--color-200-text-secondary);
+  --secondary-active: var(--color-700-secondary);
+  --secondary-active-text: var(--color-700-text-secondary);
+  --secondary-disable: var(--color-200-secondary);
+  --secondary-disable-text: var(--color-200-text-secondary);
+  --secondary-border: var(--color-300-secondary);
+  --secondary-border-text: var(--color-300-text-secondary);
+
+  --accent-base: var(--color-500-accent);
+  --accent-base-text: var(--color-500-text-accent);
+  --accent-base-hover: var(--color-600-accent);
+  --accent-base-hover-text: var(--color-600-text-accent);
+  --accent-background-color: var(--color-100-accent);
+  --accent-background-color-text: var(--color-100-text-accent);
+  --accent-background-color-hover: var(--color-200-accent);
+  --accent-background-color-hover-text: var(--color-200-text-accent);
+  --accent-active: var(--color-700-accent);
+  --accent-active-text: var(--color-700-text-accent);
+  --accent-disable: var(--color-200-accent);
+  --accent-disable-text: var(--color-200-text-accent);
+  --accent-border: var(--color-300-accent);
+  --accent-border-text: var(--color-300-text-accent);
+
+  --surface-base: var(--color-500-surface);
+  --surface-base-text: var(--color-500-text-surface);
+  --surface-base-hover: var(--color-600-surface);
+  --surface-base-hover-text: var(--color-600-text-surface);
+  --surface-background-color: var(--color-100-surface);
+  --surface-background-color-text: var(--color-100-text-surface);
+  --surface-background-color-hover: var(--color-200-surface);
+  --surface-background-color-hover-text: var(--color-200-text-surface);
+  --surface-active: var(--color-700-surface);
+  --surface-active-text: var(--color-700-text-surface);
+  --surface-disable: var(--color-200-surface);
+  --surface-disable-text: var(--color-200-text-surface);
+  --surface-border: var(--color-300-surface);
+  --surface-border-text: var(--color-300-text-surface);
+}
+
+@utility secondary {
+  --bg: var(--secondary-base);
+}

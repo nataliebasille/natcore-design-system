@@ -2,6 +2,6 @@
 
 @import '@nataliebasille/natcore-design-system-v2';
 
-@plugin '@nataliebasille/natcore-design-system-v2/plugin' {
-  /* You can pass options here if needed for plugin.withOptions */
+body {
+  @apply bg-surface-50;
 }

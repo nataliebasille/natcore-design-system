@@ -1,11 +1,15 @@
 /* Natcore Design System */
 @import "tailwindcss";
 
+/* Plugin with default colors */
+@plugin "@nataliebasille/natcore-design-system-v2/plugin";
+
+@import "./themes/colors.css";
+
+/* Utilities */
 @import "./utilities/article.css";
 @import "./utilities/headings.css";
 
+/* Components */
+@import "./components/button.css";
 @import "./components/tray.css";
-
-/* Theme Variables */
-@theme {
-}
