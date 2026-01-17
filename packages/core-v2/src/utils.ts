@@ -1,38 +1,44 @@
 // Natcore Design System v2 - Utility functions
 // Utilities for working with Tailwind CSS 4.0
 
-import classNames from 'classnames'
+import classNames from "classnames";
 
 // Re-export classnames for convenience
-export { default as cn } from 'classnames'
-export { default as classNames } from 'classnames'
+export { default as cn } from "classnames";
+export { default as classNames } from "classnames";
 
 /**
  * Utility function to conditionally join class names
  * This is a re-export of the popular classnames library
  */
 export function clsx(...args: Parameters<typeof classNames>): string {
-  return classNames(...args)
+  return classNames(...args);
 }
 
 /**
  * Type for CSS class values
  */
-export type ClassValue = string | number | boolean | undefined | null | ClassValue[]
+export type ClassValue =
+  | string
+  | number
+  | boolean
+  | undefined
+  | null
+  | ClassValue[];
 
 /**
  * Utility to merge class names with proper handling of conflicting classes
  * This will be enhanced in the future to handle Tailwind CSS conflicts intelligently
  */
 export function mergeClasses(...classes: ClassValue[]): string {
-  return classNames(...classes)
+  return classNames(...classes);
 }
 
 /**
  * Version utilities
  */
-export const DESIGN_SYSTEM_VERSION = '2.0.0'
-export const TAILWIND_COMPAT_VERSION = '4.0'
+export const DESIGN_SYSTEM_VERSION = "2.0.0";
+export const TAILWIND_COMPAT_VERSION = "4.0";
 
 /**
  * Theme utilities - placeholder for future theme system
@@ -46,4 +52,14 @@ export interface ThemeConfig {
  */
 export interface VariantConfig {
   // Will be defined when implementing the variant system
+}
+
+/**
+ * Combines non-null/non-empty parts into a single string with a separator
+ * @param parts - Array of string or null values to combine
+ * @param separator - Separator to use between parts
+ * @returns Combined string with only truthy values
+ */
+export function combine(parts: (string | null)[], separator: string): string {
+  return parts.filter(Boolean).join(separator);
 }

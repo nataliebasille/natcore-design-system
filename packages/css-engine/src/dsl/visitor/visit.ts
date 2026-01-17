@@ -37,14 +37,14 @@ type VisitorObject<T> = {
   apply?:
     | VisitorFunction<
         T,
-        StyleProperties["@apply"] | StyleProperties,
-        StyleProperties["@apply"],
+        Exclude<StyleProperties["@apply"], undefined> | StyleProperties,
+        Exclude<StyleProperties["@apply"], undefined>,
         StyleProperties
       >
     | VisitorEventFunctions<
         T,
-        StyleProperties["@apply"] | StyleProperties,
-        StyleProperties["@apply"],
+        Exclude<StyleProperties["@apply"], undefined> | StyleProperties,
+        Exclude<StyleProperties["@apply"], undefined>,
         StyleProperties
       >;
   color?:

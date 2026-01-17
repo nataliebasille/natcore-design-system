@@ -22,14 +22,13 @@ export function component<
   const V extends Record<string, unknown>,
   const F extends ComponentFactoryOptions<keyof V & string>,
 >(name: T, { vars, base, variants }: F & { vars: V }) {
-  return null as unknown as ComponentAst<keyof V & string, V>;
-  // return {
-  //   type: "component",
-  //   name,
-  //   vars,
-  //   base,
-  //   variants,
-  // } as const satisfies ComponentAst<keyof V & string, V>;
+  return {
+    type: "component",
+    name,
+    vars,
+    base,
+    variants,
+  } satisfies ComponentAst<keyof V & string, V>;
 }
 
 // Example usage showing typed cssvar autocomplete
