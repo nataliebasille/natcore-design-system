@@ -1,4 +1,4 @@
-import type {  PluginAPI } from "../helpers.ts";
+import type { PluginAPI } from "../helpers.ts";
 import button from "./button.ts";
 import card from "./card.ts";
 import code from "./code.ts";
@@ -25,7 +25,7 @@ export {
   radioGroup,
   tabs,
   toggle,
-}
+};
 
 export default (theme: PluginAPI["theme"]) => {
   return {

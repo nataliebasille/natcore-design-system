@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm --filter @nataliebasille/natcore-* build && next build",
-    "dev": "concurrently \"cd ../packages/core-v2 && pnpm dev\" \"next dev\"",
+    "dev": "concurrently \"cd ../packages/core-v2 && pnpm dev\" \"next dev\" \"chokidar '../packages/core-v2/src/**/*' -c 'echo Core-v2 changed'\"",
     "start": "next start",
     "lint": "next lint"
   },
@@ -36,6 +36,7 @@
     "@types/react-dom": "19.2.2"
   },
   "devDependencies": {
+    "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.1",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1"

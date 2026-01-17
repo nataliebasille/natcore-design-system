@@ -48,8 +48,8 @@ export const createVariants = <Id extends string>(
     variable: VALID_VARIABLE_KEYS | `${VALID_VARIABLE_KEYS}-text`,
     opacity?: number,
   ) => {
-    return opacity
-      ? `rgb(var(--${identifier}-${variable}) / ${opacity})`
+    return opacity ?
+        `rgb(var(--${identifier}-${variable}) / ${opacity})`
       : `rgb(var(--${identifier}-${variable}))`;
   };
 

@@ -19,5 +19,15 @@
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
     "importsNotUsedAsValues": "remove"
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "dist",
+    "**/dist",
+    ".next",
+    "**/.next",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }

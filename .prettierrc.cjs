@@ -7,6 +7,8 @@ const config = {
   semi: true,
   trailingComma: "all",
   tabWidth: 2,
+  embeddedLanguageFormatting: "off",
+  experimentalTernaries: true,
 };
 
 module.exports = config;
