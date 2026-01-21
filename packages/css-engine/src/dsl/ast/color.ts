@@ -9,11 +9,11 @@ type ColorValueBg =
   | "700"
   | "800"
   | "900";
-type ColorValue = ColorValueBg | `${ColorValueBg}-text`;
+export type ColorValue = ColorValueBg | `${ColorValueBg}-text`;
 
 export type ColorAst<
   V extends ColorValue = ColorValue,
-  O extends number | undefined = undefined,
+  O extends number | undefined = number | undefined,
 > =
   O extends undefined ?
     {

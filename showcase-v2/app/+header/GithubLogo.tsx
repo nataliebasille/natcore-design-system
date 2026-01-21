@@ -3,6 +3,7 @@
 import { type FC } from "react";
 import { Button } from "@nataliebasille/natcore-design-system-react";
 import { GithubSVG } from "@nataliebasille/natcore-icons/github";
+import { twMerge } from "tailwind-merge";
 
 export const GithubLogo: FC<{ className: string }> = ({ className }) => {
   const navigateToGithub = () => {
@@ -13,8 +14,11 @@ export const GithubLogo: FC<{ className: string }> = ({ className }) => {
   };
 
   return (
-    <Button color="ghost" className={className} onClick={navigateToGithub}>
+    <button
+      className={twMerge("btn-outline/secondary", className)}
+      onClick={navigateToGithub}
+    >
       <GithubSVG className="h-full w-full" />
-    </Button>
+    </button>
   );
 };

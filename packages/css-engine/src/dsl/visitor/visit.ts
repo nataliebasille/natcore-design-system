@@ -1,27 +1,19 @@
+import type { css } from "../../css";
 import {
+  styleRule,
+  type ApplyValue,
   type ColorAst,
   type ComponentAst,
   type CssVarAst,
   type DesignSystemAst,
   type Selector,
+  type StyleList,
   type StyleProperties,
   type StyleRuleAst,
   type ThemeAst,
-  type ThemeProperties,
 } from "../ast";
-import type {
-  ExtendsNever,
-  SelectWherePropOrArrayElementIs,
-} from "../../utils/types";
 import type { CssValueAst } from "../ast/cssvalue";
-import type { css } from "../../css";
-import type { Style } from "util";
-
-export type ParentVisitorNode<N, T> =
-  | (N extends T ? undefined : never)
-  | (ExtendsNever<SelectWherePropOrArrayElementIs<T, N>> extends true ?
-      undefined
-    : SelectWherePropOrArrayElementIs<T, N>);
+import type { ParentVisitorNode, VisitorObject } from "./visitor-object";
 
 type VisitorFunction<T, R, N = R, P = ParentVisitorNode<N, T>> = (
   node: N,
@@ -33,54 +25,11 @@ type VisitorEventFunctions<T, R, N = R, P = ParentVisitorNode<N, T>> = {
   exit?: VisitorFunction<T, R, N, P>;
 };
 
-type VisitorObject<T> = {
-  apply?:
-    | VisitorFunction<
-        T,
-        Exclude<StyleProperties["@apply"], undefined> | StyleProperties,
-        Exclude<StyleProperties["@apply"], undefined>,
-        StyleProperties
-      >
-    | VisitorEventFunctions<
-        T,
-        Exclude<StyleProperties["@apply"], undefined> | StyleProperties,
-        Exclude<StyleProperties["@apply"], undefined>,
-        StyleProperties
-      >;
-  color?:
-    | VisitorFunction<T, ColorAst | string, ColorAst>
-    | VisitorEventFunctions<T, ColorAst | string, ColorAst>;
-  component?:
-    | VisitorFunction<T, ComponentAst>
-    | VisitorEventFunctions<T, ComponentAst>;
-  "css-value"?:
-    | VisitorFunction<T, CssValueAst | string, CssValueAst>
-    | VisitorEventFunctions<T, CssValueAst | string, CssValueAst>;
-  "css-var"?:
-    | VisitorFunction<T, CssVarAst | string, CssVarAst>
-    | VisitorEventFunctions<T, CssVarAst | string, CssVarAst>;
-  selector?: VisitorFunction<T, Selector> | VisitorEventFunctions<T, Selector>;
-  "style-rule"?:
-    | VisitorFunction<T, StyleRuleAst>
-    | VisitorEventFunctions<T, StyleRuleAst>;
-  styles?:
-    | VisitorFunction<T, StyleProperties>
-    | {
-        [K in keyof css.StyleProperties]: VisitorFunction<
-          T,
-          StyleProperties[K],
-          StyleProperties
-        >;
-      };
-  theme?:
-    | VisitorFunction<T, ThemeAst>
-    | {
-        [K: css.ThemeProperty]: VisitorFunction<
-          T,
-          ThemeProperties[keyof ThemeProperties],
-          ThemeProperties
-        >;
-      };
+export type {
+  ParentVisitorNode,
+  VisitorEventFunctions,
+  VisitorFunction,
+  VisitorObject,
 };
 
 export function visit<T extends DesignSystemAst>(
@@ -198,7 +147,9 @@ function visitCssVar(
 function visitStyleRule(
   visitors: VisitorObject<DesignSystemAst>,
   node: StyleRuleAst,
-  parentNode: ParentVisitorNode<StyleRuleAst, DesignSystemAst>,
+  parentNode:
+    | ParentVisitorNode<StyleRuleAst, DesignSystemAst>
+    | StyleProperties,
 ) {
   return runVisitor(visitors?.["style-rule"], node, parentNode, (node) => {
     node.selector = runVisitor(visitors.selector, node.selector, node);
@@ -212,47 +163,79 @@ function visitStyles(
   node: StyleProperties,
   parentNode: ParentVisitorNode<StyleProperties, DesignSystemAst>,
 ) {
-  if (typeof visitors.styles === "function") {
-    const result = visitors.styles(node, parentNode);
-    if (result) {
-      return result;
+  const { $: nestedStyles, "@apply": applyStyles, ...styleList } = node;
+  const newStyles: StyleProperties = {};
+
+  if (applyStyles) {
+    const newValue = runVisitor(
+      visitors?.apply,
+      applyStyles,
+      node,
+      (applyValues) =>
+        applyValues.map((v) => {
+          return typeof v === "object" ? visitCssValue(visitors, v, node) : v;
+        }),
+    );
+
+    if (newValue instanceof Array) {
+      newStyles["@apply"] = newValue;
+    } else {
+      Object.assign(newStyles, newValue);
     }
   }
 
-  const newStyles: StyleProperties = {};
-  for (const [key, value] of Object.entries(node)) {
-    if (key === "@apply") {
-      const newValue = runVisitor(visitors?.apply, value as string[], node);
+  Object.assign(
+    newStyles,
+    runVisitor(visitors.styles, styleList, parentNode, (styles) => {
+      const expandedStyles: StyleList = {};
 
-      if (newValue instanceof Array) {
-        newStyles["@apply"] = newValue;
-      } else {
-        Object.assign(newStyles, newValue);
+      for (const key of Object.keys(styles)) {
+        Object.assign(
+          expandedStyles,
+          visitStyleProperty(visitors, key as keyof StyleList, styles),
+        );
       }
-    } else if (key === "$") {
-      const nestedStyles: Record<string, StyleProperties> = {};
-      for (const [selector, styles] of Object.entries(
-        value as Record<string, StyleProperties>,
-      )) {
-        nestedStyles[selector] = visitStyles(visitors, styles, node);
-      }
-      newStyles["$"] = nestedStyles;
-    } else if (!(value instanceof Array)) {
-      const propertyVisitor = (visitors.styles as any)?.[key];
-      const newValue =
-        typeof propertyVisitor === "function" ?
-          (propertyVisitor(value, node) ?? value)
-        : typeof value === "string" || typeof value === "number" || !value ?
-          value
-        : value.type === "color" ? visitColor(visitors, value, node)
-        : value.type === "css-value" ? visitCssValue(visitors, value, node)
-        : value.type === "css-var" ? visitCssVar(visitors, value, node)
-        : value;
-      newStyles[key as any] = newValue ?? value;
+
+      return expandedStyles;
+    }),
+  );
+
+  if (nestedStyles) {
+    for (const [selector, styles] of Object.entries(
+      nestedStyles as Record<string, StyleProperties>,
+    )) {
+      nestedStyles[selector] = visitStyleRule(
+        visitors,
+        styleRule(selector as Selector, styles),
+        node,
+      ).body;
     }
+    newStyles["$"] = nestedStyles;
   }
 
   return newStyles;
+}
+
+function visitStyleProperty(
+  visitors: VisitorObject<DesignSystemAst>,
+  property: keyof StyleList,
+  styles: StyleList,
+) {
+  const value = styles[property];
+  const propertyVisitor =
+    typeof visitors.styles !== "function" && visitors.styles?.[property];
+  const newValue =
+    typeof propertyVisitor === "function" ?
+      (propertyVisitor(value as any, styles) ?? value)
+    : typeof value === "string" || typeof value === "number" || !value ? value
+    : value.type === "color" ? visitColor(visitors, value, styles)
+    : value.type === "css-value" ? visitCssValue(visitors, value, styles)
+    : value.type === "css-var" ? visitCssVar(visitors, value, styles)
+    : exhaustive(value);
+
+  return typeof newValue === "object" && !("type" in newValue) ?
+      newValue
+    : { [property]: newValue };
 }
 
 function visitComponent(
@@ -302,14 +285,18 @@ function runVisitor<T, R, N, P>(
     result = action(result as N);
   }
 
-  if (!modifiedDuringEnter && exit) {
+  if (exit) {
     // Only run exit if enter didn't modify the node
     // because otherwise the exit might be working on a different node
-    const exitResult = exit(node, parentNode);
+    const exitResult = exit(result as N, parentNode);
     if (exitResult) {
       result = exitResult;
     }
   }
 
   return result;
+}
+
+function exhaustive(value: never): never {
+  throw new Error(`Unhandled case: ${value}`);
 }

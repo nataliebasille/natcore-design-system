@@ -1,3 +1,4 @@
+import type { CssVarAst } from "./cssvar";
 import type { StyleProperties } from "./styleRule";
 
 type ComponentFactoryOptions<VarKeys extends string = string> = {
@@ -6,20 +7,21 @@ type ComponentFactoryOptions<VarKeys extends string = string> = {
   variants?: Record<string, StyleProperties<VarKeys>>;
 };
 
+export type ComponentVars = Record<string, string | number | CssVarAst>;
+
 export type ComponentAst<
-  VarKeys extends string = string,
-  V extends Readonly<Record<string, unknown>> | undefined = undefined,
+  Vars extends Readonly<ComponentVars> | undefined = Readonly<ComponentVars>,
 > = {
   type: "component";
   name: string;
-  vars?: V;
-  base?: StyleProperties<VarKeys>;
-  variants?: Record<string, StyleProperties<VarKeys>>;
+  vars?: Vars;
+  base?: StyleProperties<keyof Vars & string>;
+  variants?: Record<string, StyleProperties<keyof Vars & string>>;
 };
 
 export function component<
   const T extends string,
-  const V extends Record<string, unknown>,
+  const V extends ComponentVars,
   const F extends ComponentFactoryOptions<keyof V & string>,
 >(name: T, { vars, base, variants }: F & { vars: V }) {
   return {
@@ -28,7 +30,7 @@ export function component<
     vars,
     base,
     variants,
-  } satisfies ComponentAst<keyof V & string, V>;
+  } satisfies ComponentAst<V>;
 }
 
 // Example usage showing typed cssvar autocomplete

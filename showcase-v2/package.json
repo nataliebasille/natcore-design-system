@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm --filter @nataliebasille/natcore-* build && next build",
-    "dev": "concurrently \"cd ../packages/core-v2 && pnpm dev\" \"next dev\" \"chokidar '../packages/core-v2/src/**/*' -c 'echo Core-v2 changed'\"",
+    "dev": "concurrently  \"next dev\" \"chokidar '../packages/core-v2/src/**/*' -c 'echo Core-v2 changed'\"",
     "start": "next start",
     "lint": "next lint"
   },

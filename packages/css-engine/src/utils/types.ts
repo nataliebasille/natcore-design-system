@@ -1,3 +1,5 @@
+import type { ColorAst, CssValueAst, CssVarAst, StyleProperties } from "../dsl";
+
 export type ExtendsNever<T> = [T] extends [never] ? true : false;
 
 // element type of arrays (supports readonly arrays too)
@@ -28,3 +30,19 @@ export type SelectWherePropOrArrayElementIs<Hay, Needle> =
       Hay
     : never
   : never;
+
+// recursively replace From with To in T's properties (handles nested objects and arrays)
+export type ReplaceType<T, From, To> =
+  T extends From ? To
+  : T extends readonly (infer E)[] ? readonly ReplaceType<E, From, To>[]
+  : T extends (infer E)[] ? ReplaceType<E, From, To>[]
+  : T extends Record<string, unknown> ?
+    { [K in keyof T]: ReplaceType<T[K], From, To> }
+  : T;
+
+export type SetPropertiesWhere<T, From, To> =
+  T extends Record<string, unknown> ?
+    {
+      [K in keyof T]: ReplaceType<T[K], From, To>;
+    }
+  : T;

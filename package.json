@@ -6,7 +6,7 @@
     "changeset": "changeset",
     "build": "pnpm --filter @nataliebasille/natcore-design-system build && pnpm --filter showcase build",
     "dev": "concurrently \"pnpm --filter @nataliebasille/natcore-design-system dev\" \"pnpm --filter showcase dev\"",
-    "dev:v2": "concurrently \"pnpm --filter @nataliebasille/natcore-design-system-v2 dev\" \"pnpm --filter showcase-v2 dev\"",
+    "dev:v2": "concurrently \"pnpm --filter showcase-v2 dev\"",
     "clean": "pnpm -r clean",
     "release": "pnpm -r --filter \"./packages/*\" build && changeset publish"
   },

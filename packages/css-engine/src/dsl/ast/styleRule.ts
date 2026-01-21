@@ -8,9 +8,11 @@ import type { CssValueAst } from "./cssvalue";
 import type { CssVarAst } from "./cssvar";
 import type { Selector } from "./selector";
 
-type StyleList<VarKeys extends string = string> = {
-  "@apply"?: readonly (CssValueAst<VarKeys> | string)[];
-} & {
+export type ApplyValue<VarKeys extends string = string> =
+  | CssValueAst<VarKeys>
+  | string;
+
+export type StyleList<VarKeys extends string = string> = {
   [K in keyof css.StyleProperties]?:
     | css.StyleProperties[K]
     | ColorAst
@@ -20,6 +22,7 @@ type StyleList<VarKeys extends string = string> = {
 
 export type StyleProperties<VarKeys extends string = string> =
   StyleList<VarKeys> & {
+    "@apply"?: ApplyValue<VarKeys>[];
     $?: Record<string, StyleProperties<VarKeys>>;
   };
 

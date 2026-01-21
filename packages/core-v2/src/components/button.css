@@ -1,0 +1,75 @@
+@theme inline {
+  /* solid button */
+  --btn-bg-solid: var(--btn-tone-500);
+  --btn-text-solid: var(--btn-tone-text-500);
+  --btn-bg-hover-solid: var(--btn-tone-900);
+
+  /* outline button */
+  --btn-bg-outline: transparent;
+  --btn-text-outline: var(--btn-tone-500);
+  --btn-border-color-outline: var(--btn-tone-500);
+  --btn-bg-hover-outline: var(--btn-tone-50);
+
+  /* ghost button */
+  --btn-bg-ghost: color-mix(in srgb, var(--btn-tone-500), transparent 80%);
+  --btn-bg-hover-ghost: color-mix(
+    in srgb,
+    var(--btn-tone-500),
+    transparent 60%
+  );
+  --btn-text-ghost: var(--btn-tone-800);
+  --btn-text-hover-ghost: var(--btn-tone-800);
+  --btn-border-color-ghost: color-mix(
+    in srgb,
+    var(--btn-tone-500),
+    transparent 20%
+  );
+  --btn-border-color-hover-ghost: var(--btn-tone-500);
+  --btn-box-shadow-focus-ghost: 0 0 0 3px var(--color-gray-300);
+
+  /* ghost outline button */
+  --btn-bg-ghost-outline: transparent;
+  --btn-text-ghost-outline: var(--color-gray-600);
+  --btn-border-color-ghost-outline: var(--color-gray-300);
+  --btn-bg-hover-ghost-outline: var(--color-gray-100);
+}
+
+@utility btn-* {
+  --variant: --modifier("solid", "outline", "ghost", "ghost-outline");
+
+  /* modifier overrides */
+  --btn-tone-500: var(--color-500-primary);
+  --btn-tone-500: --modifier(--color-500-*);
+  --btn-tone-text-500: var(--color-500-text-primary);
+  --btn-tone-text-500: --modifier(--color-500-text-*);
+  --btn-tone-800: var(--color-800-primary);
+  --btn-tone-800: --modifier(--color-800-*);
+  --btn-tone-900: var(--color-900-primary);
+  --btn-tone-900: --modifier(--color-900-*);
+
+  @apply cursor-pointer px-[1em] py-[.75em] border transition-all ease-in-out duration-250 rounded-lg;
+
+  background-color: --value(--btn-bg-*);
+  border-color: --value(--btn-border-color-*);
+  color: --value(--btn-text-*);
+
+  &:hover {
+    background-color: --value(--btn-bg-hover-*);
+    color: --value(--btn-text-hover-*);
+    border-color: --value(--btn-border-color-hover-*);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: --value(--btn-box-shadow-focus-*);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@utility btn-size-* {
+  font-size: --value(--btn-size-*);
+  line-height: --value(--btn-size-line-height-*);
+}

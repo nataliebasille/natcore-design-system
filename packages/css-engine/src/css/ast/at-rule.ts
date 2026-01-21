@@ -1,9 +1,7 @@
 import type { StyleBlockAst } from "./style-block";
 import type { StyleListAst } from "./style-list";
 
-export type AtRuleBody = ReadonlyArray<
-  StyleListAst | StyleBlockAst | AtRuleAst
->;
+export type AtRuleBody = Array<StyleListAst | StyleBlockAst | AtRuleAst>;
 
 export type AtRuleAst = {
   type: "at-rule";
