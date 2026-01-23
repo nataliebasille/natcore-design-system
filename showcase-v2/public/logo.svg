@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-500 -500 1000 1000">
+  <defs>
+    <linearGradient id="natcoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#805990"/>
+      <stop offset="100%" stop-color="#472255"/>
+    </linearGradient>
+
+    <mask id="n-cutout">
+      <rect x="-500" y="-500" width="1000" height="1000" fill="white" />
+
+      <!-- Flowing N cutout, still touching the concave junction points -->
+      <path
+        d="
+          M -175 150
+          C -190 60 -190 -60 -175 -150
+          C -120 -120 40 40 175 150
+          C 190 60 190 -60 175 -150
+        "
+        fill="none"
+        stroke="black"
+        stroke-width="80"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </mask>
+  </defs>
+
+  <!-- Pointier petals:
+       - Top control pulled inward: (150,-500) -> (60,-500)
+       - Right control pulled toward center: (500,-150) -> (500,-60)
+       (mirrored for other quadrants) -->
+  <path
+    d="
+      M 0 0
+      L 0 -500
+      Q 60 -500 175 -150
+      Q 500 -60 500 0
+      L 0 0 Z
+
+      M 0 0
+      L 500 0
+      Q 500 60 175 150
+      Q 60 500 0 500
+      L 0 0 Z
+
+      M 0 0
+      L 0 500
+      Q -60 500 -175 150
+      Q -500 60 -500 0
+      L 0 0 Z
+
+      M 0 0
+      L -500 0
+      Q -500 -60 -175 -150
+      Q -60 -500 0 -500
+      L 0 0 Z
+    "
+    fill="url(#natcoreGradient)"
+    fill-rule="evenodd"
+    mask="url(#n-cutout)"
+  />
+</svg>

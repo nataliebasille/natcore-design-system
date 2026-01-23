@@ -4,20 +4,20 @@
     "composite": false,
     "incremental": false,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2022",
-    "lib": ["ES2022", "DOM"],
+    "lib": ["ES2024", "DOM"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "scripts/**/*"],
   "exclude": ["dist", "node_modules"]
 }

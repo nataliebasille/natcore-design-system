@@ -4,10 +4,15 @@
   "private": true,
   "scripts": {
     "build": "pnpm --filter @nataliebasille/natcore-* build && next build",
-    "dev": "concurrently  \"next dev\" \"chokidar '../packages/core-v2/src/**/*' -c 'echo Core-v2 changed'\"",
+    "dev": "concurrently  \"next dev\" \"pnpm --filter @nataliebasille/natcore-design-system-v2 dev\"",
     "start": "next start",
     "lint": "next lint"
   },
+  "browserslist": [
+    "Chrome >= 111",
+    "Firefox >= 128",
+    "Safari >= 16.4"
+  ],
   "dependencies": {
     "@nataliebasille/natcore-design-system": "workspace:*",
     "@nataliebasille/natcore-design-system-react": "workspace:*",

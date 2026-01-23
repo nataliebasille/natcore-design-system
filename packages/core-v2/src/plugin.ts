@@ -96,10 +96,6 @@ export const natcorePlugin: ReturnType<
             `oklch(from var(--color-${shade}-bg-${name}) calc((l - 0.6) * -100) 0 h)`;
         });
       });
-
-      addBase({
-        ":root": colorVariables,
-      });
     };
   },
   (options = {}) => {
