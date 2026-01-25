@@ -1,7 +1,9 @@
-import { Header } from "./+components/header";
-import { Sidebar, SidebarGroup, SidebarLink } from "./+components/sidebar";
+import { Header } from "./_ui/header";
+import { Sidebar, SidebarGroup, SidebarLink } from "./_ui/sidebar";
 import "./globals.css";
-import Image from "next/image";
+import { Roboto } from "next/font/google";
+
+const roboto = Roboto({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Natcore Design System",
@@ -13,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={roboto.className}>
       <head>
         <link
           rel="stylesheet"
@@ -26,10 +28,18 @@ export default function RootLayout({
           <SidebarGroup header="Getting Started">
             <SidebarLink href="/">Introduction</SidebarLink>
             <SidebarLink href="/installation">Installation</SidebarLink>
-            <SidebarLink href="/somethingelse"></SidebarLink>
+          </SidebarGroup>
+
+          <SidebarGroup header="Core"></SidebarGroup>
+
+          <SidebarGroup header="Components">
+            <SidebarLink href="/button">Button</SidebarLink>
+            <SidebarLink href="/card">Card</SidebarLink>
+            <SidebarLink href="/modal">Modal</SidebarLink>
+            <SidebarLink href="/tabs">Tabs</SidebarLink>
           </SidebarGroup>
         </Sidebar>
-        <main className="p-6 bg-50-surface">{children}</main>
+        <main className="p-6 bg-50-surface overflow-auto">{children}</main>
       </body>
     </html>
   );

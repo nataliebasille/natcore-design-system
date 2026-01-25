@@ -1,0 +1,84 @@
+@theme {
+  --list-style-disc: '"•"';
+}
+
+@utility list {
+  --tone-100: var(--color-100-primary);
+  --tone-100-text: var(--color-text-100-primary);
+  --tone-200: var(--color-200-primary);
+  --tone-200-text: var(--color-text-200-primary);
+  --tone-500: var(--color-500-primary);
+  --tone-500-text: var(--color-text-500-primary);
+
+  @apply flex flex-col p-0 m-0;
+
+  list-style: none;
+
+  &.interactive {
+    @apply cursor-pointer;
+  }
+
+  > li,
+  > .list-item {
+    @apply block p-2 m-0 w-full rounded-lg leading-tight;
+  }
+
+  &.interactive {
+    > li,
+    > .list-item {
+      &:hover,
+      &:focus {
+        background-color: color-mix(in srgb, var(--tone-100) 10%, transparent);
+        color: inherit;
+      }
+
+      &.active {
+        background-color: var(--tone-500);
+        color: var(--tone-500-text);
+
+        &:hover,
+        &:focus {
+          background-color: var(--tone-500);
+          color: var(--tone-500-text);
+        }
+      }
+    }
+  }
+}
+
+@utility list/primary {
+  @apply list;
+}
+
+@utility list/secondary {
+  @apply list;
+
+  --tone-100: var(--color-100-secondary);
+  --tone-100-text: var(--color-100-text-secondary);
+  --tone-200: var(--color-200-secondary);
+  --tone-200-text: var(--color-200-text-secondary);
+  --tone-500: var(--color-500-secondary);
+  --tone-500-text: var(--color-500-text-secondary);
+}
+
+@utility list/accent {
+  @apply list;
+
+  --tone-100: var(--color-100-accent);
+  --tone-100-text: var(--color-100-text-accent);
+  --tone-200: var(--color-200-accent);
+  --tone-200-text: var(--color-200-text-accent);
+  --tone-500: var(--color-500-accent);
+  --tone-500-text: var(--color-500-text-accent);
+}
+
+@utility list/surface {
+  @apply list;
+
+  --tone-100: var(--color-100-surface);
+  --tone-100-text: var(--color-100-text-surface);
+  --tone-200: var(--color-200-surface);
+  --tone-200-text: var(--color-200-text-surface);
+  --tone-500: var(--color-500-surface);
+  --tone-500-text: var(--color-500-text-surface);
+}

@@ -23,7 +23,7 @@ const roles: RoleInput[] = [
   // so you control how close to white the light end is.
   {
     name: "surface",
-    anchors: { c50: "#f5faf9", c500: "#DDFFF7", c950: "#0B1C17" },
+    anchors: { c50: "#DBFBF2", c500: "#35E9B6", c950: "#02120E" },
   },
 ];
 

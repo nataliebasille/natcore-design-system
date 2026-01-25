@@ -1,0 +1,1 @@
+@custom-variant active (&:where(.active, .active *));

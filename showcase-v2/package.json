@@ -20,25 +20,25 @@
     "@nataliebasille/natcore-icons": "workspace:*",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/node": "^22.19.0",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/react": "19.2.9",
+    "@types/react-dom": "19.2.3",
     "autoprefixer": "^10.4.14",
     "classnames": "^2.5.1",
-    "eslint-config-next": "16.0.0",
+    "eslint-config-next": "16.1.4",
     "highlight.js": "^11.9.0",
-    "next": "16.0.0",
+    "next": "16.1.4",
     "next-react-svg": "^1.2.0",
     "postcss": "^8.4.26",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-svg-loader": "^3.0.3",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2"
+    "@types/react": "19.2.9",
+    "@types/react-dom": "19.2.3"
   },
   "devDependencies": {
     "chokidar-cli": "^3.0.0",

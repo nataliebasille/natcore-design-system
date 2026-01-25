@@ -26,7 +26,7 @@ const MutedText = ({
   return (
     <span
       className={classnames(
-        "my-4 block tracking-wider text-gray-600",
+        "my-4 block tracking-wider text-950-surface/60",
         className,
       )}
     >
@@ -69,13 +69,15 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   );
 
   return (
-    <div className="flex items-start gap-8 scroll-smooth">
-      <article className="w-full flex-1">
-        <h1 id={title} className="text-primary-800 dark:text-primary-50">
-          {title}
-        </h1>
+    <div className="grid grid-cols-[minmax(0,1fr)_280px] *:not-first:pl-4 *:not-last:pr-4 items-start scroll-smooth divide-x divide-600-surface/30">
+      <article className="w-full flex-1 **:tracking-tight!">
+        <h1 id={title}>{title}</h1>
 
-        {description && <MutedText className="mb-7">{description}</MutedText>}
+        {description && (
+          <p className="text-xl">
+            <MutedText>{description}</MutedText>
+          </p>
+        )}
 
         {childrenWithLevel}
       </article>

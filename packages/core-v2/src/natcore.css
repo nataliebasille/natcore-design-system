@@ -6,10 +6,16 @@
 
 @import "./themes/colors.css";
 
+/* Variants */
+@import "./variants/active.css";
+@import "./variants/interactive.css";
+
 /* Utilities */
 @import "./utilities/article.css";
 @import "./utilities/headings.css";
 
 /* Components */
 @import "./components/button.css";
+@import "./components/card.css";
+@import "./components/list.css";
 @import "./components/tray.css";
