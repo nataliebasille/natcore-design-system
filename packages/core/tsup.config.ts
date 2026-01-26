@@ -16,7 +16,7 @@ export default defineConfig({
     js: format === "esm" ? ".mjs" : ".cjs",
   }),
   // Let you import with .ts in source; bundler handles it
-  tsconfig: "tsconfig.json",
+  tsconfig: "tsconfig.build.json",
   treeshake: true,
   minify: true,
   splitting: false,
