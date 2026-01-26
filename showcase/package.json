@@ -18,7 +18,7 @@
     "classnames": "^2.3.2",
     "eslint-config-next": "16.0.0",
     "highlight.js": "^11.9.0",
-    "next": "16.0.0",
+    "next": "16.0.10",
     "next-react-svg": "^1.2.0",
     "postcss": "^8.4.26",
     "react": "19.2.0",
