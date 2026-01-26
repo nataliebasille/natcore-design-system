@@ -9,7 +9,7 @@ type CopyContainerProps = {
 
 export const CopyContainer = ({ children }: CopyContainerProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const copiedPromiseRef = useRef<NodeJS.Timer | null>(null);
+  const copiedPromiseRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef<boolean>(true);
   const [copiedText, setCopiedText] = useState<"copy" | "copied!">("copy");
   const handleClick = useCallback(async () => {
