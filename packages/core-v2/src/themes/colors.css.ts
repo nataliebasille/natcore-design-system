@@ -83,13 +83,32 @@ function bestContrastText(bg: string): string {
 }
 
 function roleToCssVars(name: string, ramp: Record<Shade, string>) {
-  return SHADES.map((shade) => {
-    const bg = ramp[shade];
-    const fg = bestContrastText(bg);
+  const colors: css.StyleProperties = {};
 
-    return css.styleList({
-      [`--color-${name}-${shade}`]: bg,
-      [`--color-on-${name}-${shade}`]: fg,
-    });
-  });
+  for (let i = 0; i < SHADES.length / 2; i++) {
+    const lightShade = SHADES[i]!;
+    const darkShade = (1000 - lightShade) as Shade;
+    const scaleShade = lightShade;
+
+    const lightBg = ramp[lightShade];
+    const lightFg = bestContrastText(lightBg);
+    const darkBg = ramp[darkShade];
+    const darkFg = bestContrastText(darkBg);
+
+    colors[`--color-${name}-${lightShade}`] = lightBg;
+    colors[`--color-on-${name}-${lightShade}`] = lightFg;
+    colors[`--color-${name}-${darkShade}`] = darkBg;
+    colors[`--color-on-${name}-${darkShade}`] = darkFg;
+
+    colors[`--color-${name}-scale-${scaleShade}`] =
+      `light-dark(var(--color-${name}-${scaleShade}), var(--color-${name}-${1000 - scaleShade}))`;
+    colors[`--color-on-${name}-scale-${scaleShade}`] =
+      `light-dark(var(--color-on-${name}-${scaleShade}), var(--color-on-${name}-${1000 - scaleShade}))`;
+    colors[`--color-on-${name}-scale-${1000 - scaleShade}`] =
+      `light-dark(var(--color-on-${name}-${1000 - scaleShade}), var(--color-on-${name}-${scaleShade}))`;
+    colors[`--color-${name}-scale-${1000 - scaleShade}`] =
+      `light-dark(var(--color-${name}-${1000 - scaleShade}), var(--color-${name}-${scaleShade}))`;
+  }
+
+  return css.styleList(colors);
 }

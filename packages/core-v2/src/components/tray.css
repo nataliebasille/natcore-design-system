@@ -54,7 +54,6 @@
   }
 
   &:has(.tray-toggle:checked),
-  &.tray-open,
   &[open] {
     transform: translate(0, 0) !important;
   }
@@ -70,4 +69,8 @@
       @slot;
     }
   } */
+}
+
+@utility tray-open {
+  transform: translate(0, 0) !important;
 }

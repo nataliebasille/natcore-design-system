@@ -26,7 +26,7 @@ const MutedText = ({
   return (
     <span
       className={classnames(
-        "text-surface-950/60 my-4 block tracking-wider",
+        "text-surface-scale-950/60 my-4 block tracking-wider",
         className,
       )}
     >
@@ -69,7 +69,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   );
 
   return (
-    <div className="divide-surface-600/30 grid grid-cols-[minmax(0,1fr)_280px] items-start divide-x scroll-smooth *:not-first:pl-4 *:not-last:pr-4">
+    <div className="divide-surface-scale-600/30 grid grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth md:divide-x md:*:not-first:pl-4 md:*:not-last:pr-4">
       <article className="w-full flex-1 **:tracking-tight!">
         <h1 id={title}>{title}</h1>
 
@@ -81,7 +81,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
 
         {childrenWithLevel}
       </article>
-      <div className="sticky top-0 mt-6 hidden min-w-fit flex-initial lg:block">
+      <div className="sticky top-0 mt-6 min-w-fit flex-initial max-md:hidden lg:w-[280px]">
         <OnThisPage tree={sectionsTree} />
       </div>
     </div>

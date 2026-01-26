@@ -19,10 +19,12 @@ export type SidebarGroupProps = PropsWithChildren<{
 export function SidebarGroup({ header, children }: SidebarGroupProps) {
   return (
     <div className="flex flex-col">
-      <div className="text-surface-800 mb-2 border-l-2 border-transparent p-4 pb-0 pl-2 text-xs tracking-wider uppercase">
+      <div className="text-surface-scale-800 border-l-scale-2 mb-2 border-transparent p-4 pb-0 pl-2 text-xs tracking-wider uppercase">
         {header}
       </div>
-      <ul className="list interactive text-primary-500">{children}</ul>
+      <ul className="list interactive text-primary-scale-500 dark:text-primary-scale-900">
+        {children}
+      </ul>
     </div>
   );
 }
@@ -36,7 +38,7 @@ export function SidebarLink({ href, children }: SidebarLinkProps) {
     <NavLink
       href={href}
       component="li"
-      className="active:border-l-accent-500! active:bg-primary-100/10! active:text-accent-500! rounded-none! border-l-4 border-transparent text-sm font-bold tracking-wide"
+      className="active:border-l-accent-scale-500! active:bg-primary-scale-100/10! active:text-accent-scale-500! border-l-scale-4 rounded-none! border-transparent text-sm font-bold tracking-wide"
     >
       {children}
     </NavLink>
