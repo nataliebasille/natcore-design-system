@@ -5,10 +5,10 @@ export default defineConfig({
     // Barrel; re-export common icons here
     "src/index.ts",
     // Build each icon as its own module to allow `@nataliebasille/natcore-icons/<name>`
-    "src/*.tsx"
+    "src/*.tsx",
   ],
   format: ["esm", "cjs"],
-  dts: true,           // emits .d.ts for each entry
+  dts: true, // emits .d.ts for each entry
   sourcemap: true,
   clean: true,
   outDir: "dist",

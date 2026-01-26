@@ -1,11 +1,9 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: [
-    "src/index.ts",
-  ],
+  entry: ["src/index.ts"],
   format: ["esm", "cjs"],
-  dts: true,           // emits .d.ts for each entry
+  dts: true, // emits .d.ts for each entry
   sourcemap: true,
   clean: true,
   outDir: "dist",
