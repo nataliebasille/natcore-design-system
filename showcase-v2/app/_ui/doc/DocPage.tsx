@@ -26,7 +26,7 @@ const MutedText = ({
   return (
     <span
       className={classnames(
-        "my-4 block tracking-wider text-950-surface/60",
+        "text-surface-950/60 my-4 block tracking-wider",
         className,
       )}
     >
@@ -69,7 +69,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   );
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_280px] *:not-first:pl-4 *:not-last:pr-4 items-start scroll-smooth divide-x divide-600-surface/30">
+    <div className="divide-surface-600/30 grid grid-cols-[minmax(0,1fr)_280px] items-start divide-x scroll-smooth *:not-first:pl-4 *:not-last:pr-4">
       <article className="w-full flex-1 **:tracking-tight!">
         <h1 id={title}>{title}</h1>
 
@@ -112,10 +112,7 @@ export const DocSection = ({
       <div className="relative my-4">
         <CopySectionUrl sectionId={title} />
 
-        <Heading
-          id={title}
-          className="text-primary-800 dark:text-primary-50 tracking-wider"
-        >
+        <Heading id={title} className="tracking-wider">
           {title}
         </Heading>
       </div>

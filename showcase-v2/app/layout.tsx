@@ -22,9 +22,9 @@ export default function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"
         />
       </head>
-      <body className="grid h-screen w-screen grid-rows-[auto_1fr] grid-cols-[minmax(16rem,20rem)_1fr] overflow-hidden bg-50-surface">
-        <Header className="col-span-2 bg-50-surface border-b-600-surface/30 border-b" />
-        <Sidebar className="bg-100-surface border-r-600-surface/30 border-r">
+      <body className="bg-surface-50 grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_1fr] grid-rows-[auto_1fr] overflow-hidden">
+        <Header className="bg-surface-50 border-b-surface-600/30 col-span-2 border-b" />
+        <Sidebar className="bg-surface-100 border-r-surface-600/30 border-r">
           <SidebarGroup header="Getting Started">
             <SidebarLink href="/">Introduction</SidebarLink>
             <SidebarLink href="/installation">Installation</SidebarLink>
@@ -39,7 +39,7 @@ export default function RootLayout({
             <SidebarLink href="/tabs">Tabs</SidebarLink>
           </SidebarGroup>
         </Sidebar>
-        <main className="p-6 bg-50-surface overflow-auto">{children}</main>
+        <main className="bg-surface-50 overflow-auto p-6">{children}</main>
       </body>
     </html>
   );

@@ -1,72 +1,40 @@
 @theme inline {
   /* soft card */
-  --card-bg-soft: var(--card-tone-100);
-  --card-hover-bg-soft: var(--card-tone-200);
-  --card-fg-soft: var(--card-tone-text-100);
-  --card-hover-fg-soft: var(--card-tone-text-200);
-  --card-border-color-soft: var(--card-tone-200);
+  --card-bg-soft: var(--color-100);
+  --card-hover-bg-soft: var(--color-200);
+  --card-fg-soft: var(--color-on-100);
+  --card-hover-fg-soft: var(--color-on-200);
+  --card-border-color-soft: var(--color-200);
 
   /* solid card */
-  --card-bg-solid: var(--card-tone-500);
-  --card-hover-bg-solid: var(--card-tone-600);
-  --card-fg-solid: var(--card-tone-text-500);
-  --card-hover-fg-solid: var(--card-tone-text-600);
+  --card-bg-solid: var(--color-500);
+  --card-hover-bg-solid: var(--color-600);
+  --card-fg-solid: var(--color-on-500);
+  --card-hover-fg-solid: var(--color-on-600);
   --card-border-color-solid: color-mix(
     in srgb,
-    var(--card-tone-500),
+    var(--color-500),
     transparent 75%
   );
 
   /* ghost card */
-  --card-bg-ghost: color-mix(in srgb, var(--card-tone-500), transparent 80%);
-  --card-hover-bg-ghost: color-mix(
-    in srgb,
-    var(--card-tone-500),
-    transparent 60%
-  );
-  --card-fg-ghost: var(--card-tone-700);
-  --card-hover-fg-ghost: var(--card-tone-700);
+  --card-bg-ghost: color-mix(in srgb, var(--color-500), transparent 80%);
+  --card-hover-bg-ghost: color-mix(in srgb, var(--color-500), transparent 60%);
+  --card-fg-ghost: var(--color-700);
+  --card-hover-fg-ghost: var(--color-700);
   --card-border-color-ghost: color-mix(
     in srgb,
-    var(--card-tone-500),
+    var(--color-500),
     transparent 80%
   );
-  --card-hover-border-color-ghost: var(--card-tone-500);
+  --card-hover-border-color-ghost: var(--color-500);
 }
 
 @utility card-* {
-  --card-tone-100: var(--color-100-surface);
-  --card-tone-100: --modifier(--card-100-*);
-  --card-tone-text-100: var(--color-text-100-surface);
-  --card-tone-text-100: --modifier(--card-text-100-*);
-  --card-tone-200: var(--color-200-surface);
-  --card-tone-200: --modifier(--card-200-*);
-  --card-tone-text-200: var(--color-text-200-surface);
-  --card-tone-text-200: --modifier(--card-text-200-*);
-  --card-tone-300: var(--color-300-surface);
-  --card-tone-300: --modifier(--card-300-*);
-  --card-tone-500: var(--color-500-surface);
-  --card-tone-500: --modifier(--card-500-*);
-  --card-tone-text-500: var(--color-text-500-surface);
-  --card-tone-text-500: --modifier(--card-text-500-*);
-  --card-tone-600: var(--color-600-surface);
-  --card-tone-600: --modifier(--card-600-*);
-  --card-tone-text-600: var(--color-text-600-surface);
-  --card-tone-text-600: --modifier(--card-text-600-*);
-  --card-tone-700: var(--color-700-surface);
-  --card-tone-700: --modifier(--card-700-*);
-
-  --card-bg: --value(--card-bg-*);
-  --card-hover-bg: --value(--card-hover-bg-*);
-  --card-fg: --value(--card-fg-*);
-  --card-hover-fg: --value(--card-hover-fg-*);
-  --card-border-color: --value(--card-border-color-*);
-  --card-hover-border-color: --value(--card-hover-border-color-*);
-
   @apply rounded-md;
-  background-color: var(--card-bg);
-  color: var(--card-fg);
-  border: 1px solid var(--card-border-color);
+  background-color: --value(--card-bg-*);
+  color: --value(--card-fg-*);
+  border: 1px solid --value(--card-border-color-*);
 
   > .card-header,
   > .card-content,
@@ -75,21 +43,21 @@
   }
 
   > .card-header {
-    border-bottom: 1px solid var(--card-border-color);
+    border-bottom: 1px solid --value(--card-border-color-*);
   }
 
   > .card-footer {
-    border-top: 1px solid var(--card-border-color);
+    border-top: 1px solid --value(--card-border-color-*);
   }
 }
 
 @utility card-hover {
-  @apply transition-colors ease-in-out duration-250 cursor-pointer;
+  @apply cursor-pointer transition-colors duration-250 ease-in-out;
 
   &:hover {
-    background-color: var(--card-bg-hover);
-    color: var(--card-fg-hover);
-    border-color: var(--card-border-color-hover);
+    background-color: --value(--color-hover-*);
+    color: --value(--color-on-hover-*);
+    border-color: --value(--card-border-color-hover-*);
     transform: scale(1.01);
   }
 }

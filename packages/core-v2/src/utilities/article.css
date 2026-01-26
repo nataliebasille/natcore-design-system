@@ -1,21 +1,33 @@
 @utility article {
-  p, .list-item {
+  p,
+  .list-item {
     @apply leading-relaxed!;
   }
 
   > *:first-child {
-    @apply mt-0!
+    @apply mt-0!;
   }
 
   p {
     margin: --spacing(4) 0;
   }
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     margin: --spacing(8) 0 --spacing(4) 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--on-tone-200);
   }
 }
 
 article {
-  @apply article
+  @apply article;
 }

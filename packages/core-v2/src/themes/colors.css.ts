@@ -88,8 +88,8 @@ function roleToCssVars(name: string, ramp: Record<Shade, string>) {
     const fg = bestContrastText(bg);
 
     return css.styleList({
-      [`--color-${shade}-${name}`]: bg,
-      [`--color-text-${shade}-${name}`]: fg,
+      [`--color-${name}-${shade}`]: bg,
+      [`--color-on-${name}-${shade}`]: fg,
     });
   });
 }

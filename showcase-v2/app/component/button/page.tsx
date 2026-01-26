@@ -87,7 +87,19 @@ export default async function ButtonPage() {
     >
       <DocSection title="Playground">
         <div className="card-soft rounded-sm!">
-          <div className="card-content">Playground for button</div>
+          <div className="card-content theme-primary">
+            <div className="divide-300 grid grid-cols-[1fr_auto] divide-x *:px-2">
+              <div className=""></div>
+              <div>
+                <select>
+                  <option>Solid</option>
+                  <option>Outline</option>
+                  <option>Ghost</option>
+                  <option>Ghost Outline</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
       </DocSection>
     </DocPage>

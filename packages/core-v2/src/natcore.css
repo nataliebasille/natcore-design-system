@@ -5,6 +5,7 @@
 @plugin "@nataliebasille/natcore-design-system-v2/plugin";
 
 @import "./themes/colors.css";
+@import "./themes/themeable.css";
 
 /* Variants */
 @import "./variants/active.css";

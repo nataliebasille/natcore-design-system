@@ -106,7 +106,7 @@ export default function Home() {
         <p>Tokens are exposed as CSS variables. Example:</p>
 
         <pre>
-          <code>--color-500-primary</code>
+          <code>--color-primary</code>-500
         </pre>
       </section>
 
