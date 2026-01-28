@@ -1,82 +1,87 @@
 @theme inline {
   /* solid button */
-  --btn-bg-standard-solid: var(--btn-tone-500);
-  --btn-text-standard-solid: var(--btn-tone-text-500);
-  --btn-bg-hover-solid: var(--btn-tone-900);
+  --btn-bg-solid: var(--tone-500);
+  --btn-fg-solid: var(--tone-text-500);
+  --btn-hover-bg-solid: var(--tone-900);
 
   /* outline button */
-  --btn-bg-standard-outline: transparent;
-  --btn-text-standard-outline: var(--btn-tone-500);
-  --btn-border-color-outline: var(--btn-tone-500);
-  --btn-bg-hover-outline: var(--btn-tone-50);
-  --btn-text-hover-outline: var(--btn-tone-text-50);
+  --btn-bg-outline: transparent;
+  --btn-fg-outline: var(--tone-500);
+  --btn-border-color-outline: var(--tone-500);
+  --btn-hover-bg-outline: var(--tone-50);
+  --btn-hover-fg-outline: var(--tone-text-50);
 
   /* ghost button */
-  --btn-bg-standard-ghost: color-mix(
+  --btn-bg-ghost: transparent;
+  --btn-hover-bg-ghost: color-mix(in srgb, var(--tone-500), transparent 90%);
+  --btn-fg-ghost: var(--tone-current-fg);
+  --btn-border-color-ghost: transparent;
+  --btn-hover-fg-ghost: color-mix(
     in srgb,
-    var(--btn-tone-500),
+    var(--tone-current-fg),
+    var(--tone-800) 90%
+  );
+  --btn-hover-border-color-ghost: color-mix(
+    in srgb,
+    var(--tone-500),
     transparent 80%
   );
-  --btn-bg-hover-ghost: color-mix(
-    in srgb,
-    var(--btn-tone-500),
-    transparent 60%
-  );
-  --btn-text-standard-ghost: var(--btn-tone-800);
-  --btn-text-hover-ghost: var(--btn-tone-800);
-  --btn-border-color-standard-ghost: color-mix(
-    in srgb,
-    var(--btn-tone-500),
-    transparent 20%
-  );
-  --btn-border-color-hover-ghost: var(--btn-tone-500);
   --btn-box-shadow-focus-ghost: 0 0 0 3px var(--color-gray-300);
 
-  /* ghost outline button */
-  --btn-bg-standard-ghost-outline: transparent;
-  --btn-text-standard-ghost-outline: var(--color-gray-600);
-  --btn-border-color-standard-ghost-outline: var(--color-gray-300);
-  --btn-bg-hover-ghost-outline: var(--color-gray-100);
+  --btn-px-sm: 0.75em;
+  --btn-py-sm: 0.5em;
+  --btn-px-md: 1em;
+  --btn-py-md: 0.75em;
+  --btn-px-lg: 1.25em;
+  --btn-py-lg: 1em;
 }
 
 @utility btn-* {
-  /* modifier overrides */
-  --btn-tone-50: var(--color-50-primary);
-  --btn-tone-50: --modifier(--color-50-*);
-  --btn-tone-text-50: var(--color-text-50-primary);
-  --btn-tone-text-50: --modifier(--color-text-50-*);
-  --btn-tone-500: var(--color-500-primary);
-  --btn-tone-500: --modifier(--color-500-*);
-  --btn-tone-text-500: var(--color-text-500-primary);
-  --btn-tone-text-500: --modifier(--color-text-500-*);
-  --btn-tone-800: var(--color-800-primary);
-  --btn-tone-800: --modifier(--color-800-*);
-  --btn-tone-900: var(--color-900-primary);
-  --btn-tone-900: --modifier(--color-900-*);
+  @layer components {
+    /* modifier overrides */
+    --tone-50: --modifier(--tone-50- *);
+    --tone-on-50: --modifier(--tone-on-50- *);
+    --tone-300: --modifier(--tone-300- *);
+    --tone-500: --modifier(--tone-500- *);
+    --tone-800: --modifier(--tone-800- *);
+    --tone-900: --modifier(--tone-900- *);
 
-  @apply cursor-pointer px-[1em] py-[.75em] border transition-all ease-in-out duration-250 rounded-lg;
+    @apply cursor-pointer rounded-lg border transition-all duration-250 ease-in-out;
 
-  background-color: --value(--btn-bg-standard-*);
-  border-color: --value(--btn-border-color-standard-*);
-  color: --value(--btn-text-standard-*);
+    padding-inline: var(--btn-px-override, var(--btn-px, var(--btn-px-md)));
+    padding-block: var(--btn-py-override, var(--btn-py, var(--btn-py-md)));
 
-  &:hover {
-    background-color: --value(--btn-bg-hover-*);
-    color: --value(--btn-text-hover-*);
-    border-color: --value(--btn-border-color-hover-*);
-  }
+    background-color: --value(--btn-bg- *);
+    border-color: --value(--btn-border-color- *);
+    color: --value(--btn-fg- *);
 
-  &:focus {
-    outline: none;
-    box-shadow: --value(--btn-box-shadow-focus-*);
-  }
+    &:hover {
+      background-color: --value(--btn-hover-bg- *);
+      color: --value(--btn-hover-fg- *);
+      border-color: --value(--btn-hover-border-color- *);
+    }
 
-  &:active {
-    transform: scale(0.95);
+    &:active {
+      transform: scale(0.95);
+    }
   }
 }
 
 @utility btn-size-* {
+  --btn-px: --value(--btn-px-*);
+  --btn-py: --value(--btn-py-*);
   font-size: --value(--text-*);
-  line-height: --value(--text-* --line-height);
+}
+
+@utility btn-icon {
+  --btn-px-override: min(
+    var(--btn-px, var(--btn-px-md)),
+    var(--btn-py, var(--btn-py-md))
+  );
+  --btn-py-override: min(
+    var(--btn-px, var(--btn-px-md)),
+    var(--btn-py, var(--btn-py-md))
+  );
+
+  @apply aspect-square rounded-full;
 }

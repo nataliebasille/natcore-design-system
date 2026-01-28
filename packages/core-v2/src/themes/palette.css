@@ -1,95 +1,95 @@
 @theme {
-  --tone-50-primary: var(--color-primary-50);
-  --on-tone-50-primary: var(--color-on-primary-50);
-  --tone-100-primary: var(--color-primary-100);
-  --on-tone-100-primary: var(--color-on-primary-100);
-  --tone-200-primary: var(--color-primary-200);
-  --on-tone-200-primary: var(--color-on-primary-200);
-  --tone-300-primary: var(--color-primary-300);
-  --on-tone-300-primary: var(--color-on-primary-300);
-  --tone-400-primary: var(--color-primary-400);
-  --on-tone-400-primary: var(--color-on-primary-400);
-  --tone-500-primary: var(--color-primary-500);
-  --on-tone-500-primary: var(--color-on-primary-500);
-  --tone-600-primary: var(--color-primary-600);
-  --on-tone-600-primary: var(--color-on-primary-600);
-  --tone-700-primary: var(--color-primary-700);
-  --on-tone-700-primary: var(--color-on-primary-700);
-  --tone-800-primary: var(--color-primary-800);
-  --on-tone-800-primary: var(--color-on-primary-800);
-  --tone-900-primary: var(--color-primary-900);
-  --on-tone-900-primary: var(--color-on-primary-900);
-  --tone-950-primary: var(--color-primary-950);
-  --on-tone-950-primary: var(--color-on-primary-950);
+  --tone-50-primary: var(--color-primary-scale-50);
+  --on-tone-50-primary: var(--color-on-primary-scale-50);
+  --tone-100-primary: var(--color-primary-scale-100);
+  --on-tone-100-primary: var(--color-on-primary-scale-100);
+  --tone-200-primary: var(--color-primary-scale-200);
+  --on-tone-200-primary: var(--color-on-primary-scale-200);
+  --tone-300-primary: var(--color-primary-scale-300);
+  --on-tone-300-primary: var(--color-on-primary-scale-300);
+  --tone-400-primary: var(--color-primary-scale-400);
+  --on-tone-400-primary: var(--color-on-primary-scale-400);
+  --tone-500-primary: var(--color-primary-scale-500);
+  --on-tone-500-primary: var(--color-on-primary-scale-500);
+  --tone-600-primary: var(--color-primary-scale-600);
+  --on-tone-600-primary: var(--color-on-primary-scale-600);
+  --tone-700-primary: var(--color-primary-scale-700);
+  --on-tone-700-primary: var(--color-on-primary-scale-700);
+  --tone-800-primary: var(--color-primary-scale-800);
+  --on-tone-800-primary: var(--color-on-primary-scale-800);
+  --tone-900-primary: var(--color-primary-scale-900);
+  --on-tone-900-primary: var(--color-on-primary-scale-900);
+  --tone-950-primary: var(--color-primary-scale-950);
+  --on-tone-950-primary: var(--color-on-primary-scale-950);
 
-  --tone-50-secondary: var(--color-secondary-50);
-  --on-tone-50-secondary: var(--color-on-secondary-50);
-  --tone-100-secondary: var(--color-secondary-100);
-  --on-tone-100-secondary: var(--color-on-secondary-100);
-  --tone-200-secondary: var(--color-secondary-200);
-  --on-tone-200-secondary: var(--color-on-secondary-200);
-  --tone-300-secondary: var(--color-secondary-300);
-  --on-tone-300-secondary: var(--color-on-secondary-300);
-  --tone-400-secondary: var(--color-secondary-400);
-  --on-tone-400-secondary: var(--color-on-secondary-400);
-  --tone-500-secondary: var(--color-secondary-500);
-  --on-tone-500-secondary: var(--color-on-secondary-500);
-  --tone-600-secondary: var(--color-secondary-600);
-  --on-tone-600-secondary: var(--color-on-secondary-600);
-  --tone-700-secondary: var(--color-secondary-700);
-  --on-tone-700-secondary: var(--color-on-secondary-700);
-  --tone-800-secondary: var(--color-secondary-800);
-  --on-tone-800-secondary: var(--color-on-secondary-800);
-  --tone-900-secondary: var(--color-secondary-900);
-  --on-tone-900-secondary: var(--color-on-secondary-900);
-  --tone-950-secondary: var(--color-secondary-950);
-  --on-tone-950-secondary: var(--color-on-secondary-950);
+  --tone-50-secondary: var(--color-secondary-scale-50);
+  --on-tone-50-secondary: var(--color-on-secondary-scale-50);
+  --tone-100-secondary: var(--color-secondary-scale-100);
+  --on-tone-100-secondary: var(--color-on-secondary-scale-100);
+  --tone-200-secondary: var(--color-secondary-scale-200);
+  --on-tone-200-secondary: var(--color-on-secondary-scale-200);
+  --tone-300-secondary: var(--color-secondary-scale-300);
+  --on-tone-300-secondary: var(--color-on-secondary-scale-300);
+  --tone-400-secondary: var(--color-secondary-scale-400);
+  --on-tone-400-secondary: var(--color-on-secondary-scale-400);
+  --tone-500-secondary: var(--color-secondary-scale-500);
+  --on-tone-500-secondary: var(--color-on-secondary-scale-500);
+  --tone-600-secondary: var(--color-secondary-scale-600);
+  --on-tone-600-secondary: var(--color-on-secondary-scale-600);
+  --tone-700-secondary: var(--color-secondary-scale-700);
+  --on-tone-700-secondary: var(--color-on-secondary-scale-700);
+  --tone-800-secondary: var(--color-secondary-scale-800);
+  --on-tone-800-secondary: var(--color-on-secondary-scale-800);
+  --tone-900-secondary: var(--color-secondary-scale-900);
+  --on-tone-900-secondary: var(--color-on-secondary-scale-900);
+  --tone-950-secondary: var(--color-secondary-scale-950);
+  --on-tone-950-secondary: var(--color-on-secondary-scale-950);
 
-  --tone-50-accent: var(--color-accent-50);
-  --on-tone-50-accent: var(--color-on-accent-50);
-  --tone-100-accent: var(--color-accent-100);
-  --on-tone-100-accent: var(--color-on-accent-100);
-  --tone-200-accent: var(--color-accent-200);
-  --on-tone-200-accent: var(--color-on-accent-200);
-  --tone-300-accent: var(--color-accent-300);
-  --on-tone-300-accent: var(--color-on-accent-300);
-  --tone-400-accent: var(--color-accent-400);
-  --on-tone-400-accent: var(--color-on-accent-400);
-  --tone-500-accent: var(--color-accent-500);
-  --on-tone-500-accent: var(--color-on-accent-500);
-  --tone-600-accent: var(--color-accent-600);
-  --on-tone-600-accent: var(--color-on-accent-600);
-  --tone-700-accent: var(--color-accent-700);
-  --on-tone-700-accent: var(--color-on-accent-700);
-  --tone-800-accent: var(--color-accent-800);
-  --on-tone-800-accent: var(--color-on-accent-800);
-  --tone-900-accent: var(--color-accent-900);
-  --on-tone-900-accent: var(--color-on-accent-900);
-  --tone-950-accent: var(--color-accent-950);
-  --on-tone-950-accent: var(--color-on-accent-950);
+  --tone-50-accent: var(--color-accent-scale-50);
+  --on-tone-50-accent: var(--color-on-accent-scale-50);
+  --tone-100-accent: var(--color-accent-scale-100);
+  --on-tone-100-accent: var(--color-on-accent-scale-100);
+  --tone-200-accent: var(--color-accent-scale-200);
+  --on-tone-200-accent: var(--color-on-accent-scale-200);
+  --tone-300-accent: var(--color-accent-scale-300);
+  --on-tone-300-accent: var(--color-on-accent-scale-300);
+  --tone-400-accent: var(--color-accent-scale-400);
+  --on-tone-400-accent: var(--color-on-accent-scale-400);
+  --tone-500-accent: var(--color-accent-scale-500);
+  --on-tone-500-accent: var(--color-on-accent-scale-500);
+  --tone-600-accent: var(--color-accent-scale-600);
+  --on-tone-600-accent: var(--color-on-accent-scale-600);
+  --tone-700-accent: var(--color-accent-scale-700);
+  --on-tone-700-accent: var(--color-on-accent-scale-700);
+  --tone-800-accent: var(--color-accent-scale-800);
+  --on-tone-800-accent: var(--color-on-accent-scale-800);
+  --tone-900-accent: var(--color-accent-scale-900);
+  --on-tone-900-accent: var(--color-on-accent-scale-900);
+  --tone-950-accent: var(--color-accent-scale-950);
+  --on-tone-950-accent: var(--color-on-accent-scale-950);
 
-  --tone-50-surface: var(--color-surface-50);
-  --on-tone-50-surface: var(--color-on-surface-50);
-  --tone-100-surface: var(--color-surface-100);
-  --on-tone-100-surface: var(--color-on-surface-100);
-  --tone-200-surface: var(--color-surface-200);
-  --on-tone-200-surface: var(--color-on-surface-200);
-  --tone-300-surface: var(--color-surface-300);
-  --on-tone-300-surface: var(--color-on-surface-300);
-  --tone-400-surface: var(--color-surface-400);
-  --on-tone-400-surface: var(--color-on-surface-400);
-  --tone-500-surface: var(--color-surface-500);
-  --on-tone-500-surface: var(--color-on-surface-500);
-  --tone-600-surface: var(--color-surface-600);
-  --on-tone-600-surface: var(--color-on-surface-600);
-  --tone-700-surface: var(--color-surface-700);
-  --on-tone-700-surface: var(--color-on-surface-700);
-  --tone-800-surface: var(--color-surface-800);
-  --on-tone-800-surface: var(--color-on-surface-800);
-  --tone-900-surface: var(--color-surface-900);
-  --on-tone-900-surface: var(--color-on-surface-900);
-  --tone-950-surface: var(--color-surface-950);
-  --on-tone-950-surface: var(--color-on-surface-950);
+  --tone-50-surface: var(--color-surface-scale-50);
+  --on-tone-50-surface: var(--color-on-surface-scale-50);
+  --tone-100-surface: var(--color-surface-scale-100);
+  --on-tone-100-surface: var(--color-on-surface-scale-100);
+  --tone-200-surface: var(--color-surface-scale-200);
+  --on-tone-200-surface: var(--color-on-surface-scale-200);
+  --tone-300-surface: var(--color-surface-scale-300);
+  --on-tone-300-surface: var(--color-on-surface-scale-300);
+  --tone-400-surface: var(--color-surface-scale-400);
+  --on-tone-400-surface: var(--color-on-surface-scale-400);
+  --tone-500-surface: var(--color-surface-scale-500);
+  --on-tone-500-surface: var(--color-on-surface-scale-500);
+  --tone-600-surface: var(--color-surface-scale-600);
+  --on-tone-600-surface: var(--color-on-surface-scale-600);
+  --tone-700-surface: var(--color-surface-scale-700);
+  --on-tone-700-surface: var(--color-on-surface-scale-700);
+  --tone-800-surface: var(--color-surface-scale-800);
+  --on-tone-800-surface: var(--color-on-surface-scale-800);
+  --tone-900-surface: var(--color-surface-scale-900);
+  --on-tone-900-surface: var(--color-on-surface-scale-900);
+  --tone-950-surface: var(--color-surface-scale-950);
+  --on-tone-950-surface: var(--color-on-surface-scale-950);
 }
 
 @utility palette-* {
@@ -140,4 +140,34 @@
     --tone-950: --value(--tone-50- *);
     --on-tone-950: --value(--on-tone-50- *);
   }
+}
+
+@utility bg-* {
+  /* Resolve the color token behind bg-* (theme value OR arbitrary like bg-[#...] / bg-(--my-var)) */
+  --tone-current-bg-raw: --value(--color-*, [color], [*]);
+
+  /* Resolve optional alpha modifier: bg-foo/50, bg-foo/[.35], etc */
+  --_tone-bg-alpha: --modifier([percentage], [number]);
+  --_tone-bg-alpha: calc(--modifier(integer) * 1%);
+  --_tone-bg-alpha: calc(--modifier(number) * 100%);
+
+  /* Apply background the same way Tailwind v4 does (via color-mix) */
+  background-color: color-mix(
+    in oklab,
+    var(--tone-current-bg-raw) var(--_tone-bg-alpha, 100%),
+    transparent
+  );
+
+  /* Expose your “current” vars */
+  --tone-current-bg: color-mix(
+    in oklab,
+    var(--tone-current-bg-raw) var(--_tone-bg-alpha, 100%),
+    transparent
+  );
+
+  /*
+    If you have “on” tokens, this will set fg automatically for theme-backed colors.
+    For arbitrary bg values, this line will just be omitted (no match).
+  */
+  --tone-current-fg: --value(--color-on-*, [*]);
 }

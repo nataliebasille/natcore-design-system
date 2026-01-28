@@ -4,10 +4,7 @@
 /* Plugin with default colors */
 @plugin "@nataliebasille/natcore-design-system-v2/plugin";
 
-/* Enable light-dark() CSS function */
-:root {
-  color-scheme: light dark;
-}
+/* Note: color-scheme is now controlled by user via scheme-* utility classes */
 
 @import "./themes/colors.css";
 @import "./themes/palette.css";

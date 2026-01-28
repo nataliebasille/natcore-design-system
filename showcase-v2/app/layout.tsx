@@ -2,6 +2,7 @@ import { Header } from "./_ui/header";
 import { Sidebar, SidebarGroup, SidebarLink } from "./_ui/sidebar";
 import "./globals.css";
 import { Roboto } from "next/font/google";
+import { ThemeProvider } from "./_ui/theme-provider";
 
 const roboto = Roboto({ subsets: ["latin"] });
 
@@ -15,33 +16,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={roboto.className}>
+    <html lang="en" className={roboto.className} suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"
         />
       </head>
-      <body className="bg-surface-scale-50 grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_1fr] grid-rows-[auto_1fr] overflow-hidden scheme-light-dark">
-        <Header className="bg-surface-scale-50 border-b-surface-scale-600/30 col-span-2 border-b" />
-        <Sidebar className="max-md:tray-left bg-surface-scale-100 border-r-surface-scale-600/30 h-full border-r">
-          <SidebarGroup header="Getting Started">
-            <SidebarLink href="/">Introduction</SidebarLink>
-            <SidebarLink href="/installation">Installation</SidebarLink>
-          </SidebarGroup>
+      <body className="bg-surface-scale-50 grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_1fr] grid-rows-[auto_1fr] overflow-hidden">
+        <ThemeProvider>
+          <Header className="bg-surface-scale-50 border-b-surface-scale-600/30 col-span-2 border-b" />
+          <Sidebar className="max-md:tray-left bg-surface-scale-100 border-r-surface-scale-600/30 h-full border-r">
+            <SidebarGroup header="Getting Started">
+              <SidebarLink href="/">Introduction</SidebarLink>
+              <SidebarLink href="/installation">Installation</SidebarLink>
+            </SidebarGroup>
 
-          <SidebarGroup header="Core"></SidebarGroup>
+            <SidebarGroup header="Core"></SidebarGroup>
 
-          <SidebarGroup header="Components">
-            <SidebarLink href="/component/button">Button</SidebarLink>
-            <SidebarLink href="/component/card">Card</SidebarLink>
-            <SidebarLink href="/component/modal">Modal</SidebarLink>
-            <SidebarLink href="/component/tabs">Tabs</SidebarLink>
-          </SidebarGroup>
-        </Sidebar>
-        <main className="bg-surface-scale-50 overflow-auto p-6 max-md:col-span-2">
-          {children}
-        </main>
+            <SidebarGroup header="Components">
+              <SidebarLink href="/component/button">Button</SidebarLink>
+              <SidebarLink href="/component/card">Card</SidebarLink>
+              <SidebarLink href="/component/modal">Modal</SidebarLink>
+              <SidebarLink href="/component/tabs">Tabs</SidebarLink>
+            </SidebarGroup>
+          </Sidebar>
+          <main className="bg-surface-scale-50 overflow-auto p-6 max-md:col-span-2">
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );
