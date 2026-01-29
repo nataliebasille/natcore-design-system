@@ -1,0 +1,95 @@
+@theme inline {
+  /* solid button */
+  --btn-bg-solid: var(--tone-500);
+  --btn-fg-solid: var(--tone-text-500);
+  --btn-hover-bg-solid: var(--tone-900);
+
+  /* outline button */
+  --btn-bg-outline: transparent;
+  --btn-fg-outline: var(--tone-500);
+  --btn-border-color-outline: var(--tone-500);
+  --btn-hover-bg-outline: var(--tone-50);
+  --btn-hover-fg-outline: var(--tone-text-50);
+
+  /* ghost button */
+  --btn-bg-ghost: transparent;
+  --btn-hover-bg-ghost: color-mix(
+    in srgb,
+    var(--tone-500),
+    var(--tone-on-500) 90%
+  );
+  --btn-checked-bg-ghost: color-mix(
+    in srgb,
+    var(--tone-500),
+    var(--tone-on-500) 70%
+  );
+  --btn-fg-ghost: var(--tone-current-fg);
+  --btn-border-color-ghost: transparent;
+  --btn-hover-fg-ghost: color-mix(
+    in srgb,
+    var(--tone-current-fg),
+    var(--tone-800) 90%
+  );
+  --btn-hover-border-color-ghost: color-mix(
+    in srgb,
+    var(--tone-500),
+    transparent 80%
+  );
+  --btn-box-shadow-focus-ghost: 0 0 0 3px var(--color-gray-300);
+
+  --btn-px-sm: 0.75em;
+  --btn-py-sm: 0.5em;
+  --btn-px-md: 1em;
+  --btn-py-md: 0.75em;
+  --btn-px-lg: 1.25em;
+  --btn-py-lg: 1em;
+}
+
+@utility btn-group-* {
+  @layer components {
+    /* modifier overrides */
+    --tone-50: --modifier(--tone-50- *);
+    --tone-on-50: --modifier(--on-tone-50- *);
+    --tone-300: --modifier(--tone-300- *);
+    --tone-500: --modifier(--tone-500- *);
+    --tone-on-500: --modifier(--on-tone-500- *);
+    --tone-800: --modifier(--tone-800- *);
+    --tone-900: --modifier(--tone-900- *);
+
+    @apply inline-flex rounded-lg;
+
+    & input[type="radio"],
+    & input[type="checkbox"] {
+      @apply hidden;
+    }
+
+    & > label {
+      @apply cursor-pointer rounded-lg border transition-all duration-250 ease-in-out;
+
+      &:not(:first-child) {
+        @apply rounded-l-none;
+      }
+
+      &:not(:last-child) {
+        @apply rounded-r-none;
+      }
+
+      padding-inline: var(--btn-px-override, var(--btn-px, var(--btn-px-md)));
+      padding-block: var(--btn-py-override, var(--btn-py, var(--btn-py-md)));
+
+      background-color: --value(--btn-bg- *);
+      border-color: --value(--btn-border-color- *);
+      color: --value(--btn-fg- *);
+
+      &:hover {
+        background-color: --value(--btn-hover-bg- *);
+        color: --value(--btn-hover-fg- *);
+        border-color: --value(--btn-hover-border-color- *);
+      }
+
+      &:has(input:checked) {
+        background-color: --value(--btn-checked-bg- *);
+      }
+    }
+  }
+}

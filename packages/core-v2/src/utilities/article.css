@@ -24,7 +24,7 @@
   h4,
   h5,
   h6 {
-    color: var(--on-tone-200);
+    color: var(--tone-current-fg);
   }
 }
 

@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { Component } from "react";
+import React, { Component, useCallback } from "react";
 import { twMerge } from "tailwind-merge";
 
 interface NavLinkProps {
@@ -19,12 +19,22 @@ export default function NavLink({
   children,
   component: Component = "div",
 }: NavLinkProps) {
+  const linkRef = React.useRef<HTMLAnchorElement>(null);
   const pathname = usePathname();
   const isActive = pathname === href;
 
+  const onClick = useCallback(() => {
+    linkRef.current?.click();
+  }, []);
+
   return (
-    <Component className={twMerge(className, isActive ? "active" : "")}>
-      <Link href={href}>{children}</Link>
+    <Component
+      className={twMerge(className, isActive ? "active" : "")}
+      onClick={onClick}
+    >
+      <Link ref={linkRef} href={href}>
+        {children}
+      </Link>
     </Component>
   );
 }

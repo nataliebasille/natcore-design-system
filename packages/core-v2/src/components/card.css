@@ -1,53 +1,67 @@
 @theme inline {
   /* soft card */
-  --card-bg-soft: var(--color-100);
-  --card-hover-bg-soft: var(--color-200);
-  --card-fg-soft: var(--color-on-100);
-  --card-hover-fg-soft: var(--color-on-200);
-  --card-border-color-soft: var(--color-200);
+  --card-bg-soft: var(--tone-100);
+  --card-hover-bg-soft: var(--tone-200);
+  --card-fg-soft: var(--on-tone-100);
+  --card-hover-fg-soft: var(--on-tone-200);
+  --card-border-color-soft: var(--tone-200);
 
   /* solid card */
-  --card-bg-solid: var(--color-500);
-  --card-hover-bg-solid: var(--color-600);
-  --card-fg-solid: var(--color-on-500);
-  --card-hover-fg-solid: var(--color-on-600);
+  --card-bg-solid: var(--tone-500);
+  --card-hover-bg-solid: var(--tone-600);
+  --card-fg-solid: var(--on-tone-500);
+  --card-hover-fg-solid: var(--on-tone-600);
   --card-border-color-solid: color-mix(
     in srgb,
-    var(--color-500),
+    var(--tone-500),
     transparent 75%
   );
 
   /* ghost card */
-  --card-bg-ghost: color-mix(in srgb, var(--color-500), transparent 80%);
-  --card-hover-bg-ghost: color-mix(in srgb, var(--color-500), transparent 60%);
-  --card-fg-ghost: var(--color-700);
-  --card-hover-fg-ghost: var(--color-700);
+  --card-bg-ghost: color-mix(in srgb, var(--tone-500), transparent 80%);
+  --card-hover-bg-ghost: color-mix(in srgb, var(--tone-500), transparent 60%);
+  --card-fg-ghost: var(--tone-700);
+  --card-hover-fg-ghost: var(--tone-700);
   --card-border-color-ghost: color-mix(
     in srgb,
-    var(--color-500),
+    var(--tone-500),
     transparent 80%
   );
-  --card-hover-border-color-ghost: var(--color-500);
+  --card-hover-border-color-ghost: var(--tone-500);
 }
 
 @utility card-* {
-  @apply rounded-md;
-  background-color: --value(--card-bg-*);
-  color: --value(--card-fg-*);
-  border: 1px solid --value(--card-border-color-*);
+  @layer component {
+    --tone-100: --modifier(--tone-100- *);
+    --on-tone-100: --modifier(--on-tone-100- *);
+    --tone-200: --modifier(--tone-200- *);
+    --on-tone-200: --modifier(--on-tone-200- *);
+    --tone-500: --modifier(--tone-500- *);
+    --on-tone-500: --modifier(--on-tone-500- *);
+    --tone-600: --modifier(--tone-600- *);
+    --on-tone-600: --modifier(--on-tone-600- *);
+    --tone-700: --modifier(--tone-700- *);
 
-  > .card-header,
-  > .card-content,
-  > .card-footer {
-    padding: --spacing(4);
-  }
+    --tw-divide-color: --modifier(--tone-300- *);
 
-  > .card-header {
-    border-bottom: 1px solid --value(--card-border-color-*);
-  }
+    @apply rounded-md;
+    background-color: --value(--card-bg- *);
+    color: --value(--card-fg- *);
+    border: 1px solid --value(--card-border-color- *);
 
-  > .card-footer {
-    border-top: 1px solid --value(--card-border-color-*);
+    > .card-header,
+    > .card-content,
+    > .card-footer {
+      padding: --spacing(4);
+    }
+
+    > .card-header {
+      border-bottom: 1px solid --value(--card-border-color- *);
+    }
+
+    > .card-footer {
+      border-top: 1px solid --value(--card-border-color- *);
+    }
   }
 }
 
@@ -55,9 +69,9 @@
   @apply cursor-pointer transition-colors duration-250 ease-in-out;
 
   &:hover {
-    background-color: --value(--color-hover-*);
-    color: --value(--color-on-hover-*);
-    border-color: --value(--card-border-color-hover-*);
+    background-color: --value(--card-hover-*);
+    color: --value(--card-hover-on-*);
+    border-color: --value(--card-border-hover-*);
     transform: scale(1.01);
   }
 }

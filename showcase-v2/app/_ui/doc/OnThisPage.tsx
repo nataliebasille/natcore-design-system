@@ -11,9 +11,8 @@ export type SectionTree = {
 export const OnThisPage = ({ tree }: { tree: SectionTree[] }) => {
   return (
     <>
-      <div className="mb-4 text-xl font-bold">On this page</div>
-
-      <div className="list">{tree.flatMap(createListItems(0))}</div>
+      <div className="mb-4 text-2xl font-bold">On this page</div>
+      <div className="list list-none">{tree.flatMap(createListItems(0))}</div>
     </>
   );
 };
@@ -24,10 +23,10 @@ function createListItems(index: number) {
       <a
         key={title}
         className={classnames("list-item", {
-          "!pl-4": index === 1,
-          "!pl-8": index === 2,
-          "!pl-12": index === 3,
-          "!pl-14": index === 4,
+          "pl-4!": index === 1,
+          "pl-8!": index === 2,
+          "pl-12!": index === 3,
+          "pl-14!": index === 4,
         })}
         href={`#${title}`}
       >

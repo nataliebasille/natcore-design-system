@@ -69,8 +69,8 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   );
 
   return (
-    <div className="divide-surface-scale-600/30 grid grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth md:divide-x md:*:not-first:pl-4 md:*:not-last:pr-4">
-      <article className="w-full flex-1 **:tracking-tight!">
+    <div className="divide-surface-scale-600/30 grid h-full grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth md:divide-x md:*:not-first:pl-4 md:*:not-last:pr-4">
+      <article className="h-full w-full flex-1 p-6 **:tracking-tight!">
         <h1 id={title}>{title}</h1>
 
         {description && (
@@ -81,7 +81,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
 
         {childrenWithLevel}
       </article>
-      <div className="sticky top-0 mt-6 min-w-fit flex-initial max-md:hidden lg:w-[280px]">
+      <div className="sticky top-0 mt-6 h-full min-w-fit flex-initial max-lg:hidden lg:w-[280px]">
         <OnThisPage tree={sectionsTree} />
       </div>
     </div>
