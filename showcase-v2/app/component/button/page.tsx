@@ -3,22 +3,19 @@ import path from "node:path";
 import { __unstable__loadDesignSystem } from "tailwindcss";
 import { fileURLToPath } from "node:url";
 import { DocPage, DocSection } from "@/app/_ui/doc/DocPage";
-import { Playground } from "@/app/_ui/playground/playground";
+import {
+  Playground,
+  type PlaygroundValues,
+} from "@/app/_ui/playground/playground";
+import { PlaygroundFormElement } from "@/app/_ui/playground/playground-form-element";
+import { usePlayground } from "@/app/_ui/playground/playground-provider";
+import type { controls } from "./_components/button-playground-controls";
+import { ButtonPlayground } from "./_components/button-playground";
 
-const classes = [
-  "btn-solid/primary",
-  "btn-solid/secondary",
-  "btn-solid/accent",
-  "btn-solid/surface",
-  "btn-outline/primary",
-  "btn-outline/secondary",
-  "btn-outline/accent",
-  "btn-outline/surface",
-  "btn-ghost/primary",
-  "btn-ghost/secondary",
-  "btn-ghost/accent",
-  "btn-ghost/surface",
-];
+const defaultValues: PlaygroundValues<typeof controls> = {
+  variant: "solid",
+  palette: "primary",
+};
 
 export default async function ButtonPage() {
   // const css = await fs.readFile(
@@ -102,52 +99,7 @@ export default async function ButtonPage() {
       description="Composable button utilities: pick a variant, a tone, and a size. Everything else (hover, focus, active) is built in"
     >
       <DocSection title="Playground">
-        <Playground
-          defaultValues={
-            {
-              palette: "primary",
-              variant: "solid",
-            } as const
-          }
-          controls={{
-            variant: (
-              <select>
-                <option>Solid</option>
-                <option>Outline</option>
-                <option>Ghost</option>
-                <option>Ghost Outline</option>
-              </select>
-            ),
-            palette: (
-              <select>
-                <option>Primary</option>
-                <option>Secondary</option>
-                <option>Accent</option>
-                <option>Surface</option>
-              </select>
-            ),
-          }}
-          render={({ palette, variant }) => (
-            <div className={`flex`}>
-              <button className={`${`btn-${variant}/${palette}`}`}>
-                Button
-              </button>
-            </div>
-          )}
-        />
-        {/* <div className="card-soft/secondary rounded-md">
-          <div className="divide-secondary-scale-300 grid grid-cols-[1fr_auto] divide-x *:p-3">
-            <div className=""></div>
-            <div className="">
-              <select>
-                <option>Solid</option>
-                <option>Outline</option>
-                <option>Ghost</option>
-                <option>Ghost Outline</option>
-              </select>
-            </div>
-          </div>
-        </div> */}
+        <ButtonPlayground />
       </DocSection>
     </DocPage>
   );

@@ -115,31 +115,6 @@
   --on-tone-900: --value(--on-tone-900-*);
   --tone-950: --value(--tone-950-*);
   --on-tone-950: --value(--on-tone-950-*);
-
-  @variant dark {
-    --tone-50: --value(--tone-950- *);
-    --on-tone-50: --value(--on-tone-950- *);
-    --tone-100: --value(--tone-900- *);
-    --on-tone-100: --value(--on-tone-900- *);
-    --tone-200: --value(--tone-800- *);
-    --on-tone-200: --value(--on-tone-800- *);
-    --tone-300: --value(--tone-700- *);
-    --on-tone-300: --value(--on-tone-700- *);
-    --tone-400: --value(--tone-600- *);
-    --on-tone-400: --value(--on-tone-600- *);
-    --tone-500: --value(--tone-500- *);
-    --on-tone-500: --value(--on-tone-500- *);
-    --tone-600: --value(--tone-400- *);
-    --on-tone-600: --value(--on-tone-400- *);
-    --tone-700: --value(--tone-300- *);
-    --on-tone-700: --value(--on-tone-300- *);
-    --tone-800: --value(--tone-200- *);
-    --on-tone-800: --value(--on-tone-200- *);
-    --tone-900: --value(--tone-100- *);
-    --on-tone-900: --value(--on-tone-100- *);
-    --tone-950: --value(--tone-50- *);
-    --on-tone-950: --value(--on-tone-50- *);
-  }
 }
 
 @utility bg-* {

@@ -8,6 +8,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+import type { PlaygroundValues } from "./playground";
 
 export const PlaygroundContext = createContext({
   values: {} as Record<string, string>,
@@ -41,12 +42,17 @@ export function PlaygroundProvider({
   );
 }
 
-export function usePlayground() {
+export function usePlayground<
+  const T extends Record<string, React.ReactElement>,
+>() {
   const context = useContext(PlaygroundContext);
 
   if (!context) {
     throw new Error("usePlayground must be used within a PlaygroundProvider");
   }
 
-  return context;
+  return context as {
+    values: PlaygroundValues<T>;
+    setValue: (name: keyof T, value: string) => void;
+  };
 }

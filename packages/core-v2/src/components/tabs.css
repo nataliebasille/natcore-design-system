@@ -1,0 +1,114 @@
+@theme inline {
+  --tab-text-color-underline: color-mix(in srgb, currentColor, transparent 50%);
+  --tab-hover-border-width-underline: 0 0 --spacing(0.5) 0;
+  --tab-hover-border-style-underline: solid;
+  --tab-hover-border-color-underline: color-mix(
+    in srgb,
+    var(--tone-700),
+    transparent 50%
+  );
+  --tab-hover-font-weight-underline: normal;
+  --tab-hover-text-color-underline: color-mix(
+    in srgb,
+    currentColor,
+    transparent 35%
+  );
+  --tab-active-border-width-underline: 0 0 --spacing(0.5) 0;
+  --tab-active-border-style-underline: solid;
+  --tab-active-border-color-underline: var(--tone-700);
+  --tab-active-font-weight-underline: bold;
+  --tab-active-text-color-underline: currentColor;
+
+  --tab-divider-border-width-underline: 0 0 --spacing(0.5) 0;
+  --tab-divider-border-style-underline: solid;
+  --tab-divider-border-color-underline: color-mix(
+    in srgb,
+    var(--tone-current-fg),
+    transparent 85%
+  );
+}
+
+@utility tabs-* {
+  @layer components {
+    --number-of-tabs: --value(integer);
+
+    @apply flex flex-wrap;
+    column-gap: --spacing(2);
+
+    /* Flatten <details> so <summary> and ::details-content become grid items of .tabs-* */
+    & > * {
+      display: contents;
+    }
+
+    & > details > summary,
+    & > * > label,
+    & > * > :first-child {
+      @apply relative z-20 order-1 cursor-pointer p-2 tracking-wide;
+      color: var(--tab-text-color);
+    }
+
+    & > details::details-content,
+    & > * > :not(summary, label):last-child {
+      @apply order-3 hidden w-full;
+    }
+
+    & > details:not([open]) > summary:hover,
+    & > *:not(*:has(input:checked), .active) > label:hover,
+    & > *:not(*:has(input:checked), .active) > :first-child:hover {
+      border-width: var(--tab-hover-border-width);
+      border-style: var(--tab-hover-border-style);
+      border-color: var(--tab-hover-border-color);
+      font-weight: var(--tab-hover-font-weight);
+      color: var(--tab-hover-text-color);
+    }
+
+    & > details[open] > summary,
+    & > *:has(input:checked) > label,
+    & > *:has(input:checked) > :first-child,
+    & > *.active > :first-child {
+      border-width: var(--tab-active-border-width);
+      border-style: var(--tab-active-border-style);
+      border-color: var(--tab-active-border-color);
+      font-weight: var(--tab-active-font-weight);
+      color: var(--tab-active-text-color);
+    }
+
+    /* Show only the active/open panel */
+    & > details[open]::details-content,
+    & > *:has(input:checked) > :last-child,
+    & > *.active > :last-child {
+      display: block;
+    }
+
+    input[type="radio"] {
+      @apply sr-only;
+    }
+
+    &::before {
+      content: "";
+
+      @apply relative z-10 order-2 -mt-0.5 mb-4 h-0.5 w-full;
+      border-style: var(--tab-divider-border-style);
+      border-color: var(--tab-divider-border-color);
+      border-width: var(--tab-divider-border-width);
+    }
+  }
+}
+
+@utility tabs-style-* {
+  --tab-text-color: --value(--tab-text-color-*);
+  --tab-hover-border-width: --value(--tab-hover-border-width-*);
+  --tab-hover-border-style: --value(--tab-hover-border-style-*);
+  --tab-hover-border-color: --value(--tab-hover-border-color-*);
+  --tab-hover-font-weight: --value(--tab-hover-font-weight-*);
+  --tab-hover-text-color: --value(--tab-hover-text-color-*);
+  --tab-active-border-width: --value(--tab-active-border-width-*);
+  --tab-active-border-style: --value(--tab-active-border-style-*);
+  --tab-active-border-color: --value(--tab-active-border-color-*);
+  --tab-active-font-weight: --value(--tab-active-font-weight-*);
+  --tab-active-text-color: --value(--tab-active-text-color-*);
+
+  --tab-divider-border-width: --value(--tab-divider-border-width-*);
+  --tab-divider-border-style: --value(--tab-divider-border-style-*);
+  --tab-divider-border-color: --value(--tab-divider-border-color-*);
+}
