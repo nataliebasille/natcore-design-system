@@ -28,7 +28,10 @@ export const CodeSnippet = forwardRef(
 
     return (
       formatted && (
-        <Component ref={ref as ForwardedRef<never>} className="overflow-x-auto">
+        <Component
+          ref={ref as ForwardedRef<never>}
+          className="w-full overflow-x-auto"
+        >
           <span className="text-muted-foreground text-accent-500 relative -top-1.5 block font-sans text-[0.625rem] tracking-widest uppercase">
             {language}
           </span>

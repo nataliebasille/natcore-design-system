@@ -1,5 +1,9 @@
 @theme inline {
-  --tab-text-color-underline: color-mix(in srgb, currentColor, transparent 50%);
+  --tab-text-color-underline: color-mix(
+    in srgb,
+    var(--tone-700),
+    transparent 50%
+  );
   --tab-hover-border-width-underline: 0 0 --spacing(0.5) 0;
   --tab-hover-border-style-underline: solid;
   --tab-hover-border-color-underline: color-mix(
@@ -10,14 +14,14 @@
   --tab-hover-font-weight-underline: normal;
   --tab-hover-text-color-underline: color-mix(
     in srgb,
-    currentColor,
+    var(--tone-700),
     transparent 35%
   );
   --tab-active-border-width-underline: 0 0 --spacing(0.5) 0;
   --tab-active-border-style-underline: solid;
   --tab-active-border-color-underline: var(--tone-700);
   --tab-active-font-weight-underline: bold;
-  --tab-active-text-color-underline: currentColor;
+  --tab-active-text-color-underline: var(--tone-700);
 
   --tab-divider-border-width-underline: 0 0 --spacing(0.5) 0;
   --tab-divider-border-style-underline: solid;
@@ -96,19 +100,24 @@
 }
 
 @utility tabs-style-* {
-  --tab-text-color: --value(--tab-text-color-*);
-  --tab-hover-border-width: --value(--tab-hover-border-width-*);
-  --tab-hover-border-style: --value(--tab-hover-border-style-*);
-  --tab-hover-border-color: --value(--tab-hover-border-color-*);
-  --tab-hover-font-weight: --value(--tab-hover-font-weight-*);
-  --tab-hover-text-color: --value(--tab-hover-text-color-*);
-  --tab-active-border-width: --value(--tab-active-border-width-*);
-  --tab-active-border-style: --value(--tab-active-border-style-*);
-  --tab-active-border-color: --value(--tab-active-border-color-*);
-  --tab-active-font-weight: --value(--tab-active-font-weight-*);
-  --tab-active-text-color: --value(--tab-active-text-color-*);
+  @layer components {
+    &,
+    * {
+      --tab-text-color: --value(--tab-text-color- *);
+      --tab-hover-border-width: --value(--tab-hover-border-width- *);
+      --tab-hover-border-style: --value(--tab-hover-border-style- *);
+      --tab-hover-border-color: --value(--tab-hover-border-color- *);
+      --tab-hover-font-weight: --value(--tab-hover-font-weight- *);
+      --tab-hover-text-color: --value(--tab-hover-text-color- *);
+      --tab-active-border-width: --value(--tab-active-border-width- *);
+      --tab-active-border-style: --value(--tab-active-border-style- *);
+      --tab-active-border-color: --value(--tab-active-border-color- *);
+      --tab-active-font-weight: --value(--tab-active-font-weight- *);
+      --tab-active-text-color: --value(--tab-active-text-color- *);
 
-  --tab-divider-border-width: --value(--tab-divider-border-width-*);
-  --tab-divider-border-style: --value(--tab-divider-border-style-*);
-  --tab-divider-border-color: --value(--tab-divider-border-color-*);
+      --tab-divider-border-width: --value(--tab-divider-border-width- *);
+      --tab-divider-border-style: --value(--tab-divider-border-style- *);
+      --tab-divider-border-color: --value(--tab-divider-border-color- *);
+    }
+  }
 }

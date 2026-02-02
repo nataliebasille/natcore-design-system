@@ -30,7 +30,7 @@ export function PlaygroundResult({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ul className="tabs-2 tabs-style-underline">
+    <ul className="tabs-2 tabs-style-underline [&_label]:active:palette-accent">
       <li>
         <label>
           <input type="radio" name="playground-result" defaultChecked />
