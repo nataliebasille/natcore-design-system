@@ -8,6 +8,7 @@ export * from "./cssvalue";
 export * from "./cssvar";
 export * from "./selector";
 export * from "./styleRule";
+export * from "./tailwind-functions/public";
 export * from "./theme";
 
 export type DesignSystemAst =

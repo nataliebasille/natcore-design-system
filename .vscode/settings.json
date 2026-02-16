@@ -8,5 +8,8 @@
     "*.css": "tailwindcss"
   },
   "prettier.configPath": ".prettierrc.cjs",
-  "prettier.requireConfig": true
+  "prettier.requireConfig": true,
+  "tailwindCSS.experimental.classRegex": [
+    ["@apply\":\\s*\\[([^\\]]*)\\]", "\"([^\"]*)\""]
+  ]
 }

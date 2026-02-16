@@ -1,43 +1,86 @@
 import { describe, expectTypeOf, it, expect, vi } from "vitest";
-import { visit } from "./visit";
+import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder";
 import { theme, type ThemeAst } from "../ast/theme";
 import { cssv, type CssValueAst } from "../ast/cssvalue";
-import { color } from "../ast/color";
+import { contrast, light } from "../ast/color";
+import type { AstNode } from "./visitor-builder.types";
 
 describe("theme ast visitor", () => {
   describe("type inference", () => {
     it("correctly infers node type in visitor function", () => {
-      visit(theme({ "--test": "value" }), {
-        theme: (node) => {
-          expectTypeOf(node).toEqualTypeOf<ThemeAst>();
-        },
+      stylesheetVisitorBuilder().on("theme", (node) => {
+        expectTypeOf(node).toEqualTypeOf<ThemeAst>();
+        return node;
       });
     });
 
     it("correctly infers parent type in visitor function", () => {
-      visit(theme({ "--test": "value" }), {
-        theme: (node, parent) => {
-          expectTypeOf(parent).toEqualTypeOf<undefined>();
-        },
+      stylesheetVisitorBuilder()
+        .on("theme", (node, context) => {
+          expectTypeOf(context.parent).toEqualTypeOf<undefined>();
+          return node;
+        })
+        .visit(theme({ "--test": "value" }));
+    });
+
+    it("correctly infers child node transforms", () => {
+      const visitor = stylesheetVisitorBuilder()
+        .on("color", (node) => {
+          return `${node.mode}-${node.palette}-${node.shade}`;
+        })
+        .on("contrast", (node) => {
+          return `contrast-for-${node.for.mode}-${node.for.palette}-${node.for.shade}`;
+        });
+
+      const ast = theme({
+        "--primary": light("primary", 500),
+        "--primary-text": contrast(light("primary", 500)),
       });
+
+      const result = visitor.visit(ast);
+      type Expected = ThemeAst<{
+        "--primary": string;
+        "--primary-text": string;
+      }>;
+      expectTypeOf(result).toEqualTypeOf<Expected>();
+    });
+
+    it.skip("correctly infers transformed result type", () => {
+      const visitor = stylesheetVisitorBuilder().on("theme", (node) => {
+        return theme({
+          ...node.theme,
+          "--modified": "true",
+        });
+      });
+      const result = visitor.visit(theme({ "--original": "value" }));
+      const expected = theme({
+        "--original": "value",
+        "--modified": "true",
+      });
+
+      type Actual = typeof result;
+      type Expected = typeof expected;
+      // @ts-expect-error - Doesn't currently work
+      expectTypeOf(result).toEqualTypeOf<Expected>();
     });
   });
 
   describe("visitor invocation", () => {
     it("calls theme visitor with ThemeAst node", () => {
-      const themeSpy = vi.fn();
+      const themeSpy = vi.fn((node) => node);
 
       const ast = theme({
         "--primary": "blue",
         "--secondary": "red",
       });
 
-      visit(ast, {
-        theme: themeSpy,
-      });
+      stylesheetVisitorBuilder().on("theme", themeSpy).visit(ast);
 
       expect(themeSpy).toHaveBeenCalledOnce();
-      expect(themeSpy).toHaveBeenCalledWith(ast, undefined);
+      expect(themeSpy).toHaveBeenCalledWith(
+        ast,
+        expect.objectContaining({ parent: undefined }),
+      );
     });
 
     it("calls theme visitor with correct node properties", () => {
@@ -46,19 +89,20 @@ describe("theme ast visitor", () => {
         "--spacing": "16px",
       });
 
-      visit(ast, {
-        theme: (node) => {
-          expect(node.type).toBe("theme");
+      stylesheetVisitorBuilder()
+        .on("theme", (node) => {
+          expect(node.$ast).toBe("theme");
           expect(node.theme).toEqual({
             "--color": "green",
             "--spacing": "16px",
           });
-        },
-      });
+          return node;
+        })
+        .visit(ast);
     });
 
     it("calls theme visitor for each theme in array", () => {
-      const themeSpy = vi.fn();
+      const themeSpy = vi.fn((node) => node);
 
       const ast = [
         theme({ "--primary": "blue" }),
@@ -66,28 +110,24 @@ describe("theme ast visitor", () => {
         theme({ "--accent": "green" }),
       ];
 
-      visit(ast, {
-        theme: themeSpy,
-      });
+      stylesheetVisitorBuilder().on("theme", themeSpy).visit(ast);
 
       expect(themeSpy).toHaveBeenCalledTimes(3);
     });
 
     it("handles empty theme properties", () => {
-      const themeSpy = vi.fn();
+      const themeSpy = vi.fn((node) => node);
 
       const ast = theme({});
 
-      visit(ast, {
-        theme: themeSpy,
-      });
+      stylesheetVisitorBuilder().on("theme", themeSpy).visit(ast);
 
       expect(themeSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: "theme",
+          $ast: "theme",
           theme: {},
         }),
-        undefined,
+        expect.objectContaining({ parent: undefined }),
       );
     });
   });
@@ -95,14 +135,14 @@ describe("theme ast visitor", () => {
   describe("visitor transformation", () => {
     it("allows visitor to return new theme value", () => {
       const ast = [theme({ "--original": "value" })];
-      const result = visit(ast, {
-        theme: (node) => {
+      const result = stylesheetVisitorBuilder()
+        .on("theme", (node) => {
           return theme({
             ...node.theme,
             "--modified": "true",
           });
-        },
-      });
+        })
+        .visit(ast);
 
       expect(result).toEqual([
         theme({
@@ -112,31 +152,19 @@ describe("theme ast visitor", () => {
       ]);
     });
 
-    it("allows visitor to return undefined", () => {
-      const themeSpy = vi.fn().mockReturnValue(undefined);
-
-      const ast = [theme({ "--test": "value" })];
-      const result = visit(ast, {
-        theme: themeSpy,
-      });
-
-      expect(themeSpy).toHaveBeenCalled();
-      expect(result).toEqual(ast);
-    });
-
     it("calls visitor for each node when multiple returned", () => {
       let callCount = 0;
 
       const ast = [theme({ "--a": "1" }), theme({ "--b": "2" })];
-      visit(ast, {
-        theme: (node) => {
+      stylesheetVisitorBuilder()
+        .on("theme", (node) => {
           callCount++;
           return theme({
             ...node.theme,
             [`--call-${callCount}`]: `${callCount}`,
           });
-        },
-      });
+        })
+        .visit(ast);
 
       expect(callCount).toBe(2);
     });
@@ -145,11 +173,12 @@ describe("theme ast visitor", () => {
   describe("visitor context", () => {
     it("passes undefined as parent for top-level theme", () => {
       const ast = theme({ "--test": "value" });
-      visit(ast, {
-        theme: (node, parent) => {
-          expect(parent).toBeUndefined();
-        },
-      });
+      stylesheetVisitorBuilder()
+        .on("theme", (node, context) => {
+          expect(context.parent).toBeUndefined();
+          return node;
+        })
+        .visit(ast);
     });
 
     it("receives theme properties correctly", () => {
@@ -160,18 +189,19 @@ describe("theme ast visitor", () => {
       };
 
       const ast = theme(themeProps);
-      visit(ast, {
-        theme: (node) => {
+      stylesheetVisitorBuilder()
+        .on("theme", (node) => {
           expect(node.theme).toEqual(themeProps);
-          expect(node.type).toBe("theme");
-        },
-      });
+          expect(node.$ast).toBe("theme");
+          return node;
+        })
+        .visit(ast);
     });
   });
 
   describe("complex scenarios", () => {
     it("handles theme with many CSS variables", () => {
-      const themeSpy = vi.fn();
+      const themeSpy = vi.fn((node) => node);
 
       const ast = theme({
         "--primary-50": "#eff6ff",
@@ -186,9 +216,7 @@ describe("theme ast visitor", () => {
         "--primary-900": "#1e3a8a",
       });
 
-      visit(ast, {
-        theme: themeSpy,
-      });
+      stylesheetVisitorBuilder().on("theme", themeSpy).visit(ast);
 
       expect(themeSpy).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -197,7 +225,7 @@ describe("theme ast visitor", () => {
             "--primary-900": "#1e3a8a",
           }),
         }),
-        undefined,
+        expect.objectContaining({ parent: undefined }),
       );
     });
 
@@ -207,34 +235,36 @@ describe("theme ast visitor", () => {
         "--hover-color": "var(--base-color)",
       });
 
-      visit(ast, {
-        theme: (node) => {
+      stylesheetVisitorBuilder()
+        .on("theme", (node) => {
           expect(node.theme["--base-color"]).toBe("#0066cc");
           expect(node.theme["--hover-color"]).toBe("var(--base-color)");
-        },
-      });
+          return node;
+        })
+        .visit(ast);
     });
   });
 
   describe("theme with css-value properties", () => {
     describe("no css-value visitor", () => {
       it("preserves css-value AST when no visitor is provided", () => {
-        const cssValueNode = cssv`linear-gradient(${color("500")}, ${color("700")})`;
+        const cssValueNode = cssv`linear-gradient(${light("primary", 500)}, ${light("primary", 700)})`;
 
         const ast = theme({
           "--gradient": cssValueNode,
         });
 
-        visit(ast, {
-          theme: (node) => {
-            expect(node.theme["--gradient"]).toEqual(cssValueNode);
-          },
+        const visitor = stylesheetVisitorBuilder();
+        visitor.on("theme", (node) => {
+          expect(node.theme["--gradient"]).toEqual(cssValueNode);
+          return node;
         });
+        visitor.visit(ast);
       });
 
       it("preserves multiple css-value properties without visitor", () => {
-        const gradient1 = cssv`linear-gradient(${color("500")}, ${color("700")})`;
-        const gradient2 = cssv`radial-gradient(${color("300")}, ${color("900")})`;
+        const gradient1 = cssv`linear-gradient(${light("primary", 500)}, ${light("primary", 700)})`;
+        const gradient2 = cssv`radial-gradient(${light("primary", 300)}, ${light("primary", 900)})`;
 
         const ast = [
           theme({
@@ -243,7 +273,8 @@ describe("theme ast visitor", () => {
           }),
         ];
 
-        const result = visit(ast, {});
+        const visitor = stylesheetVisitorBuilder();
+        const result = visitor.visit(ast);
 
         expect(result).toEqual([
           theme({
@@ -254,7 +285,7 @@ describe("theme ast visitor", () => {
       });
 
       it("preserves css-value AST structure without visitor", () => {
-        const cssValueNode = cssv`${color("500")} / 50%`;
+        const cssValueNode = cssv`${light("primary", 500)} / 50%`;
 
         const ast = [
           theme({
@@ -262,21 +293,22 @@ describe("theme ast visitor", () => {
           }),
         ];
 
-        const result = visit(ast, {});
+        const visitor = stylesheetVisitorBuilder();
+        const result = visitor.visit(ast);
 
         expect((result[0] as ThemeAst).theme["--color-alpha"]).toEqual(
           cssValueNode,
         );
         expect(
-          ((result[0] as ThemeAst).theme["--color-alpha"] as CssValueAst).type,
+          ((result[0] as ThemeAst).theme["--color-alpha"] as CssValueAst).$ast,
         ).toBe("css-value");
       });
     });
 
     describe("css-value visitor that returns a value", () => {
       it("replaces css-value with returned value", () => {
-        const originalCssValue = cssv`linear-gradient(${color("500")}, ${color("700")})`;
-        const newCssValue = cssv`linear-gradient(${color("100")}, ${color("900")})`;
+        const originalCssValue = cssv`linear-gradient(${light("primary", 500)}, ${light("primary", 700)})`;
+        const newCssValue = cssv`linear-gradient(${light("primary", 100)}, ${light("primary", 900)})`;
 
         const ast = [
           theme({
@@ -284,9 +316,9 @@ describe("theme ast visitor", () => {
           }),
         ];
 
-        const result = visit(ast, {
-          "css-value": () => newCssValue,
-        });
+        const visitor = stylesheetVisitorBuilder();
+        visitor.on("css-value", () => newCssValue);
+        const result = visitor.visit(ast);
 
         expect((result[0] as ThemeAst).theme["--gradient"]).toEqual(
           newCssValue,
@@ -294,7 +326,7 @@ describe("theme ast visitor", () => {
       });
 
       it("allows transforming css-value based on node content", () => {
-        const originalCssValue = cssv`${color("500")}`;
+        const originalCssValue = cssv`${light("primary", 500)}`;
 
         const ast = [
           theme({
@@ -302,15 +334,15 @@ describe("theme ast visitor", () => {
           }),
         ];
 
-        const result = visit(ast, {
-          "css-value": (node) => {
-            // Transform by creating a new css-value
-            return cssv`modified-${color("300")}`;
-          },
+        const visitor = stylesheetVisitorBuilder();
+        visitor.on("css-value", (node) => {
+          // Transform by creating a new css-value
+          return cssv`modified-${light("primary", 300)}`;
         });
+        const result = visitor.visit(ast);
 
         expect(
-          ((result[0] as ThemeAst).theme["--color"] as CssValueAst).type,
+          ((result[0] as ThemeAst).theme["--color"] as CssValueAst).$ast,
         ).toBe("css-value");
         expect((result[0] as ThemeAst).theme["--color"]).not.toEqual(
           originalCssValue,
@@ -318,7 +350,7 @@ describe("theme ast visitor", () => {
       });
 
       it("calls css-value visitor with correct parent", () => {
-        const cssValueNode = cssv`${color("500")}`;
+        const cssValueNode = cssv`${light("primary", 500)}`;
         const parentSpy = vi.fn().mockReturnValue(cssValueNode);
 
         const themeProperties = {
@@ -326,20 +358,22 @@ describe("theme ast visitor", () => {
         };
         const ast = [theme(themeProperties)];
 
-        visit(ast, {
-          "css-value": parentSpy,
-        });
+        const visitor = stylesheetVisitorBuilder();
+        visitor.on("css-value", parentSpy);
+        visitor.visit(ast);
 
         expect(parentSpy).toHaveBeenCalledWith(
           cssValueNode,
           expect.objectContaining({
-            "--color": cssValueNode,
+            parent: expect.objectContaining({
+              "--color": cssValueNode,
+            }),
           }),
         );
       });
 
       it("allows returning a string from css-value visitor", () => {
-        const originalCssValue = cssv`${color("500")}`;
+        const originalCssValue = cssv`${light("primary", 500)}`;
 
         const ast = [
           theme({
@@ -347,9 +381,9 @@ describe("theme ast visitor", () => {
           }),
         ];
 
-        const result = visit(ast, {
-          "css-value": () => "#ff0000",
-        });
+        const visitor = stylesheetVisitorBuilder();
+        visitor.on("css-value", () => "#ff0000");
+        const result = visitor.visit(ast);
 
         expect((result[0] as ThemeAst).theme["--color"]).toBe("#ff0000");
       });
@@ -359,137 +393,26 @@ describe("theme ast visitor", () => {
 
         const ast = [
           theme({
-            "--gradient-1": cssv`${color("100")}`,
-            "--gradient-2": cssv`${color("200")}`,
-            "--gradient-3": cssv`${color("300")}`,
+            "--gradient-1": cssv`${light("primary", 100)}`,
+            "--gradient-2": cssv`${light("primary", 200)}`,
+            "--gradient-3": cssv`${light("primary", 300)}`,
           }),
         ];
 
-        visit(ast, {
-          "css-value": (node) => {
-            callCount++;
-            return cssv`transformed-${color("500")}`;
-          },
+        const visitor = stylesheetVisitorBuilder();
+        visitor.on("css-value", (node) => {
+          callCount++;
+          return cssv`transformed-${light("primary", 500)}`;
         });
+        visitor.visit(ast);
 
         expect(callCount).toBe(3);
       });
     });
 
-    describe("css-value visitor that does not return a value", () => {
-      it("preserves original css-value when visitor returns undefined", () => {
-        const originalCssValue = cssv`linear-gradient(${color("500")}, ${color("700")})`;
-
-        const ast = [
-          theme({
-            "--gradient": originalCssValue,
-          }),
-        ];
-
-        const result = visit(ast, {
-          "css-value": () => undefined,
-        });
-
-        expect((result[0] as ThemeAst).theme["--gradient"]).toEqual(
-          originalCssValue,
-        );
-      });
-
-      it("preserves original css-value when visitor returns void", () => {
-        const originalCssValue = cssv`${color("500")} / 50%`;
-
-        const ast = [
-          theme({
-            "--color-alpha": originalCssValue,
-          }),
-        ];
-
-        const result = visit(ast, {
-          "css-value": () => {
-            // Perform some side effect but don't return
-          },
-        });
-
-        expect((result[0] as ThemeAst).theme["--color-alpha"]).toEqual(
-          originalCssValue,
-        );
-      });
-
-      it("calls css-value visitor for side effects", () => {
-        const cssValueNode = cssv`${color("500")}`;
-        const sideEffectSpy = vi.fn();
-
-        const ast = [
-          theme({
-            "--color": cssValueNode,
-          }),
-        ];
-
-        visit(ast, {
-          "css-value": (node) => {
-            sideEffectSpy(node);
-            // No return value
-          },
-        });
-
-        expect(sideEffectSpy).toHaveBeenCalledWith(cssValueNode);
-      });
-
-      it("processes all css-value properties even when not returning", () => {
-        const processedNodes: CssValueAst[] = [];
-
-        const cssValue1 = cssv`${color("100")}`;
-        const cssValue2 = cssv`${color("200")}`;
-        const cssValue3 = cssv`${color("300")}`;
-
-        const ast = [
-          theme({
-            "--color-1": cssValue1,
-            "--color-2": cssValue2,
-            "--color-3": cssValue3,
-          }),
-        ];
-
-        visit(ast, {
-          "css-value": (node) => {
-            processedNodes.push(node as CssValueAst);
-            // No return
-          },
-        });
-
-        expect(processedNodes).toHaveLength(3);
-        expect(processedNodes).toContain(cssValue1);
-        expect(processedNodes).toContain(cssValue2);
-        expect(processedNodes).toContain(cssValue3);
-      });
-
-      it("preserves original values in theme after non-returning visitor", () => {
-        const cssValue1 = cssv`${color("500")}`;
-        const cssValue2 = cssv`${color("700")}`;
-
-        const ast = [
-          theme({
-            "--primary": cssValue1,
-            "--secondary": cssValue2,
-            "--static": "#000000",
-          }),
-        ];
-
-        const result = visit(ast, {
-          "css-value": () => {
-            // No return
-          },
-        });
-
-        expect((result[0] as ThemeAst).theme["--primary"]).toEqual(cssValue1);
-        expect((result[0] as ThemeAst).theme["--secondary"]).toEqual(cssValue2);
-        expect((result[0] as ThemeAst).theme["--static"]).toBe("#000000");
-      });
-    });
-
     describe("mixed theme properties with css-value", () => {
       it("handles theme with string and css-value properties", () => {
-        const cssValueNode = cssv`${color("500")}`;
+        const cssValueNode = cssv`${light("primary", 500)}`;
 
         const ast = [
           theme({
@@ -499,14 +422,14 @@ describe("theme ast visitor", () => {
           }),
         ];
 
-        const result = visit(ast, {
-          "css-value": (node) => cssv`transformed`,
-        });
+        const visitor = stylesheetVisitorBuilder();
+        visitor.on("css-value", (node) => cssv`transformed`);
+        const result = visitor.visit(ast);
 
         expect((result[0] as ThemeAst).theme["--static-color"]).toBe("#ff0000");
         expect(
           ((result[0] as ThemeAst).theme["--dynamic-color"] as CssValueAst)
-            .type,
+            .$ast,
         ).toBe("css-value");
         expect((result[0] as ThemeAst).theme["--spacing"]).toBe("16px");
       });
@@ -514,7 +437,7 @@ describe("theme ast visitor", () => {
       it("only invokes css-value visitor for css-value nodes", () => {
         const cssValueSpy = vi.fn().mockImplementation((node) => node);
 
-        const cssValueNode = cssv`${color("500")}`;
+        const cssValueNode = cssv`${light("primary", 500)}`;
         const ast = [
           theme({
             "--string-prop": "#ff0000",
@@ -523,15 +446,35 @@ describe("theme ast visitor", () => {
           }),
         ];
 
-        visit(ast, {
-          "css-value": cssValueSpy,
-        });
+        const visitor = stylesheetVisitorBuilder();
+        visitor.on("css-value", cssValueSpy);
+        visitor.visit(ast);
 
         expect(cssValueSpy).toHaveBeenCalledTimes(1);
         expect(cssValueSpy).toHaveBeenCalledWith(
           cssValueNode,
           expect.any(Object),
         );
+      });
+    });
+
+    describe("css-value type inference during transformation", () => {
+      it("infers correct type when css-value visitor returns a new css-value", () => {
+        const visitor = stylesheetVisitorBuilder().on(
+          "css-value",
+          () => "transformed-css-value" as const,
+        );
+        const result = visitor.visit(
+          theme({
+            "--color": cssv`${light("primary", 500)}`,
+          }),
+        );
+
+        type Actual = typeof result;
+        type Expected = ThemeAst<{
+          "--color": "transformed-css-value";
+        }>;
+        expectTypeOf<Actual>().toEqualTypeOf<Expected>();
       });
     });
   });

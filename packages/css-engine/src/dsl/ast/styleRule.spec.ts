@@ -14,14 +14,14 @@ describe("rule type tests", () => {
     it("returns RuleAst with correct selector and body types", () => {
       const result = styleRule(cls("button"), { color: "red" });
       expectTypeOf(result).toExtend<{
-        type: "style-rule";
+        $ast: "style-rule";
         selector: ".button";
-        body: [{ color: "red" }];
+        body: { color: "red" };
       }>();
       expect(result).toEqual({
-        type: "style-rule",
+        $ast: "style-rule",
         selector: ".button",
-        body: [{ color: "red" }],
+        body: { color: "red" },
       });
     });
 
@@ -34,17 +34,15 @@ describe("rule type tests", () => {
       const result = styleRule(cls("card"), body);
 
       expectTypeOf(result).toExtend<{
-        type: "style-rule";
+        $ast: "style-rule";
         selector: ".card";
-        body: [
-          {
-            readonly padding: "1rem";
-            readonly margin: "0.5rem";
-            readonly display: "flex";
-          },
-        ];
+        body: {
+          readonly padding: "1rem";
+          readonly margin: "0.5rem";
+          readonly display: "flex";
+        };
       }>();
-      expect(result.body).toEqual([body]);
+      expect(result.body).toEqual(body);
     });
 
     it("preserves nested RuleAst in body type", () => {
@@ -52,17 +50,15 @@ describe("rule type tests", () => {
       const result = styleRule(cls("button"), nestedRule);
 
       expectTypeOf(result).toExtend<{
-        type: "style-rule";
+        $ast: "style-rule";
         selector: ".button";
-        body: [
-          {
-            type: "style-rule";
-            selector: ":hover";
-            body: [{ opacity: "0.8" }];
-          },
-        ];
+        body: {
+          $ast: "style-rule";
+          selector: ":hover";
+          body: { opacity: "0.8" };
+        };
       }>();
-      expect(result.body).toEqual([nestedRule]);
+      expect(result.body).toEqual(nestedRule);
     });
 
     it("accepts SelectorAst and extracts value", () => {
@@ -71,7 +67,7 @@ describe("rule type tests", () => {
 
       const result = styleRule(buttonClass, { color: "blue" });
       expect(result.selector).toBe(".button");
-      expect(result.type).toBe("style-rule");
+      expect(result.$ast).toBe("style-rule");
     });
 
     it("works with element selectors", () => {
@@ -82,14 +78,12 @@ describe("rule type tests", () => {
       expectTypeOf(result).toExtend<StyleRuleAst<"div">>();
       expectTypeOf(result.selector).toExtend<"div">();
       expect(result).toEqual({
-        type: "style-rule",
+        $ast: "style-rule",
         selector: "div",
-        body: [
-          {
-            display: "flex",
-            padding: "1rem",
-          },
-        ],
+        body: {
+          display: "flex",
+          padding: "1rem",
+        },
       });
     });
 
@@ -98,9 +92,9 @@ describe("rule type tests", () => {
       expectTypeOf(result).toExtend<StyleRuleAst<"#main">>();
       expectTypeOf(result.selector).toExtend<"#main">();
       expect(result).toEqual({
-        type: "style-rule",
+        $ast: "style-rule",
         selector: "#main",
-        body: [{ width: "100%" }],
+        body: { width: "100%" },
       });
     });
 
@@ -109,9 +103,9 @@ describe("rule type tests", () => {
       expectTypeOf(result).toExtend<StyleRuleAst<":hover">>();
       expectTypeOf(result.selector).toExtend<":hover">();
       expect(result).toEqual({
-        type: "style-rule",
+        $ast: "style-rule",
         selector: ":hover",
-        body: [{ opacity: "0.8" }],
+        body: { opacity: "0.8" },
       });
     });
 
@@ -122,15 +116,15 @@ describe("rule type tests", () => {
       expectTypeOf(result).toExtend<StyleRuleAst<"ul li">>();
       expectTypeOf(result.selector).toExtend<"ul li">();
       expect(result).toEqual({
-        type: "style-rule",
+        $ast: "style-rule",
         selector: "ul li",
-        body: [{ "list-style": "none" }],
+        body: { "list-style": "none" },
       });
     });
 
     it("accepts nested RuleAst as body", () => {
       const nestedRule: StyleRuleAst = {
-        type: "style-rule",
+        $ast: "style-rule",
         selector: "&:hover",
         body: { opacity: "0.9" },
       };
@@ -138,49 +132,47 @@ describe("rule type tests", () => {
       const result = styleRule(cls("button"), nestedRule);
       expectTypeOf(result).toExtend<StyleRuleAst<".button">>();
       expect(result).toEqual({
-        type: "style-rule",
+        $ast: "style-rule",
         selector: ".button",
-        body: [nestedRule],
+        body: nestedRule,
       });
     });
 
     it("accepts array of style properties", () => {
-      const result = styleRule(
-        cls("card"),
-        { padding: "1rem" },
-        { margin: "0.5rem" },
-      );
+      const result = styleRule(cls("card"), {
+        padding: "1rem",
+        margin: "0.5rem",
+      });
       expectTypeOf(result).toExtend<StyleRuleAst<".card">>();
       expectTypeOf(result.selector).toExtend<".card">();
       expect(result).toEqual({
-        type: "style-rule",
+        $ast: "style-rule",
         selector: ".card",
-        body: [{ padding: "1rem" }, { margin: "0.5rem" }],
+        body: { padding: "1rem", margin: "0.5rem" },
       });
     });
 
     it("accepts array with mixed style properties and nested rules", () => {
       const nestedRule: StyleRuleAst = {
-        type: "style-rule",
+        $ast: "style-rule",
         selector: "&:hover",
         body: { transform: "scale(1.05)" },
       };
 
-      const result = styleRule(
-        cls("button"),
-        { padding: "0.5rem 1rem" },
-        { "background-color": "blue" },
-        nestedRule,
-      );
+      const result = styleRule(cls("button"), {
+        padding: "0.5rem 1rem",
+        "background-color": "blue",
+        $: { "&:hover": nestedRule },
+      });
 
       expect(result).toEqual({
-        type: "style-rule",
+        $ast: "style-rule",
         selector: ".button",
-        body: [
-          { padding: "0.5rem 1rem" },
-          { "background-color": "blue" },
-          nestedRule,
-        ],
+        body: {
+          padding: "0.5rem 1rem",
+          "background-color": "blue",
+          $: { "&:hover": nestedRule },
+        },
       });
     });
 
@@ -204,27 +196,22 @@ describe("rule type tests", () => {
         }),
       );
 
-      expect(component.type).toBe("style-rule");
+      expect(component.$ast).toBe("style-rule");
       expect(component.selector).toBe(".card");
-      expect(Array.isArray(component.body)).toBe(true);
-      expect(component.body).toHaveLength(3);
+      expect(typeof component.body).toBe("object");
     });
 
     it("allows deeply nested rules", () => {
-      const deepRule = styleRule(
-        cls("outer"),
-        { margin: "1rem" },
-        styleRule(
-          cls("inner"),
-          { padding: "0.5rem" },
-          styleRule(pseudo("hover"), { opacity: "0.8" }),
-        ),
-      );
+      const deepRule = styleRule(cls("outer"), {
+        margin: "1rem",
+        $: {
+          ".inner": { padding: "0.5rem", $: { ":hover": { opacity: "0.8" } } },
+        },
+      });
 
-      expect(deepRule.body).toHaveLength(2);
-      const innerBody = deepRule.body as any[];
-      expect(innerBody[1].type).toBe("style-rule");
-      expect(innerBody[1].selector).toBe(".inner");
+      expect(deepRule.body).toHaveProperty("$");
+      const innerBody = (deepRule.body as any).$[".inner"];
+      expect(innerBody).toHaveProperty("padding");
     });
   });
 
@@ -232,7 +219,7 @@ describe("rule type tests", () => {
     it("RuleAst is assignable from rule() return type", () => {
       const result = styleRule(cls("test"), { color: "red" });
       const typed: StyleRuleAst = result;
-      expect(typed.type).toBe("style-rule");
+      expect(typed.$ast).toBe("style-rule");
     });
 
     it("maintains generic selector type", () => {

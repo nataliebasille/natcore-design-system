@@ -6,11 +6,11 @@ describe("theme type tests", () => {
     it("returns ThemeAst with correct theme type", () => {
       const result = theme({ "--primary": "blue" });
       expectTypeOf(result).toEqualTypeOf<{
-        type: "theme";
+        $ast: "theme";
         theme: Readonly<{ "--primary": "blue" }>;
       }>();
       expect(result).toEqual({
-        type: "theme",
+        $ast: "theme",
         theme: { "--primary": "blue" },
       });
     });
@@ -24,7 +24,7 @@ describe("theme type tests", () => {
       const result = theme(themeProps);
 
       expectTypeOf(result).toEqualTypeOf<{
-        type: "theme";
+        $ast: "theme";
         theme: {
           readonly "--primary": "blue";
           readonly "--secondary": "red";
@@ -42,7 +42,7 @@ describe("theme type tests", () => {
         "--line-height": "1.5",
       });
 
-      expect(result.type).toBe("theme");
+      expect(result.$ast).toBe("theme");
       expect(result.theme).toEqual({
         "--color-primary": "#0066cc",
         "--color-secondary": "#ff6600",
@@ -54,11 +54,11 @@ describe("theme type tests", () => {
     it("accepts empty theme object", () => {
       const result = theme({});
       expectTypeOf(result).toEqualTypeOf<{
-        type: "theme";
+        $ast: "theme";
         theme: {};
       }>();
       expect(result).toEqual({
-        type: "theme",
+        $ast: "theme",
         theme: {},
       });
     });
@@ -85,7 +85,7 @@ describe("theme type tests", () => {
   describe("runtime behavior", () => {
     it("creates object with correct structure", () => {
       const result = theme({ "--var": "test" });
-      expect(result).toHaveProperty("type", "theme");
+      expect(result).toHaveProperty("$ast", "theme");
       expect(result).toHaveProperty("theme");
       expect(typeof result.theme).toBe("object");
     });

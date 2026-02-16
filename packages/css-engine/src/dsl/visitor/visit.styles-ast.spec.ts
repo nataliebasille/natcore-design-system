@@ -1,95 +1,88 @@
-import { describe, expectTypeOf, it, expect, vi } from "vitest";
-import { visit, type ParentVisitorNode } from "./visit";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { light } from "../ast/color";
+import { cssv } from "../ast/cssvalue";
+import { cls } from "../ast/selector";
 import {
   styleRule,
-  type StyleRuleAst,
   type StyleProperties,
+  type StyleRuleAst,
 } from "../ast/styleRule";
-import { cls } from "../ast/selector";
-import { color } from "../ast/color";
-import { cssv } from "../ast/cssvalue";
+import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder";
 
 describe("styles visitor", () => {
   describe("type inference", () => {
     it("correctly infers node type in visitor function", () => {
       const ast = styleRule(cls("test"), { color: "red" });
-      visit(ast, {
-        styles: (node) => {
-          expectTypeOf(node).toEqualTypeOf<StyleProperties>();
-        },
+      const visitor = stylesheetVisitorBuilder().on("styles", (node) => {
+        expectTypeOf(node).toEqualTypeOf<StyleProperties>();
+        return node;
       });
+      visitor.visit(ast);
+    });
+
+    it("correctly infers return type of transformation", () => {
+      const ast = styleRule(cls("test"), { color: "red" });
+      const visitor = stylesheetVisitorBuilder().on("styles", () => ({
+        color: "blue",
+        "font-size": "16px",
+      }));
+      const actual = visitor.visit(ast);
+      const expected = styleRule(cls("test"), {
+        color: "blue",
+        "font-size": "16px",
+      });
+
+      expectTypeOf(actual).toEqualTypeOf(expected);
     });
   });
 
   describe("visitor invocation", () => {
     it("calls styles visitor with StyleProperties node", () => {
-      const stylesSpy = vi.fn();
+      const stylesSpy = vi.fn().mockImplementation((node) => node);
 
       const ast = styleRule(cls("button"), {
         padding: "16px",
         margin: "8px",
-        "background-color": color("500"),
+        "background-color": light("primary", 500),
       });
 
-      visit(ast, {
-        styles: stylesSpy,
-      });
+      stylesheetVisitorBuilder().on("styles", stylesSpy).visit(ast);
 
       expect(stylesSpy).toHaveBeenCalledOnce();
       expect(stylesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           padding: "16px",
           margin: "8px",
-          "background-color": color("500"),
+          "background-color": light("primary", 500),
         }),
         expect.any(Object),
       );
     });
 
-    it("calls styles visitor for each style object in body", () => {
-      const stylesSpy = vi.fn();
-
-      const ast = styleRule(
-        cls("complex"),
-        { display: "flex" },
-        { "flex-direction": "column" },
-        { gap: "16px" },
-      );
-
-      visit(ast, {
-        styles: stylesSpy,
-      });
-
-      expect(stylesSpy).toHaveBeenCalledTimes(3);
-    });
-
     it("calls styles visitor for multiple rules", () => {
-      const stylesSpy = vi.fn();
+      const stylesSpy = vi.fn().mockImplementation((node) => node);
 
       const ast = [
         styleRule(cls("button"), { padding: "8px" }),
         styleRule(cls("input"), { margin: "4px" }),
       ];
 
-      visit(ast, {
-        styles: stylesSpy,
-      });
+      stylesheetVisitorBuilder().on("styles", stylesSpy).visit(ast);
 
       expect(stylesSpy).toHaveBeenCalledTimes(2);
     });
 
     it("calls styles visitor for nested rules", () => {
-      const stylesSpy = vi.fn();
+      const stylesSpy = vi.fn().mockImplementation((node) => node);
 
-      const ast = styleRule(
-        cls("parent"),
-        { display: "block" },
-        styleRule(cls("child"), { margin: "0" }),
-      );
-
-      visit(ast, {
-        styles: stylesSpy,
+      const ast = styleRule(cls("parent"), {
+        display: "block",
+        $: {
+          [cls("child")]: { margin: "8px" },
+        },
       });
+
+      stylesheetVisitorBuilder().on("styles", stylesSpy).visit(ast);
 
       expect(stylesSpy).toHaveBeenCalledTimes(2);
     });
@@ -102,14 +95,15 @@ describe("styles visitor", () => {
         "align-items": "center",
       });
 
-      visit(ast, {
-        styles: (node) => {
+      stylesheetVisitorBuilder()
+        .on("styles", (node) => {
           expect(node).toHaveProperty("display");
           expect(node).toHaveProperty("flex-direction");
           expect(node).toHaveProperty("justify-content");
           expect(node).toHaveProperty("align-items");
-        },
-      });
+          return node;
+        })
+        .visit(ast);
     });
   });
 
@@ -117,13 +111,14 @@ describe("styles visitor", () => {
     it("receives style rule as parent", () => {
       const ast = styleRule(cls("test"), { color: "red" });
 
-      visit(ast, {
-        styles: (node, parent) => {
-          expect(parent).toBeDefined();
-          expect((parent as StyleRuleAst).type).toBe("style-rule");
-          expect((parent as StyleRuleAst).selector).toBe(".test");
-        },
-      });
+      stylesheetVisitorBuilder()
+        .on("styles", (node, context) => {
+          expect(context.parent).toBeDefined();
+          expect((context.parent as StyleRuleAst).$ast).toBe("style-rule");
+          expect((context.parent as StyleRuleAst).selector).toBe(".test");
+          return node;
+        })
+        .visit(ast);
     });
 
     it("receives correct parent for each style object", () => {
@@ -134,16 +129,17 @@ describe("styles visitor", () => {
         styleRule(cls("input"), { margin: "4px" }),
       ];
 
-      visit(ast, {
-        styles: (node, parent) => {
-          if (parent) {
+      stylesheetVisitorBuilder()
+        .on("styles", (node, context) => {
+          if (context.parent) {
             contexts.push({
               styles: node,
-              selector: (parent as StyleRuleAst).selector as string,
+              selector: (context.parent as StyleRuleAst).selector as string,
             });
           }
-        },
-      });
+          return node;
+        })
+        .visit(ast);
 
       expect(contexts).toEqual([
         { styles: { padding: "8px" }, selector: ".button" },
@@ -152,24 +148,34 @@ describe("styles visitor", () => {
     });
 
     it("receives correct parent for nested rules", () => {
-      const contexts: Array<{ hasDisplay: boolean; selector: string }> = [];
+      const contexts: Array<{
+        hasDisplay: boolean;
+        selector: PropertyKey | undefined;
+      }> = [];
 
-      const ast = styleRule(
-        cls("parent"),
-        { display: "block" },
-        styleRule(cls("child"), { margin: "0" }),
-      );
-
-      visit(ast, {
-        styles: (node, parent) => {
-          if (parent) {
-            contexts.push({
-              hasDisplay: "display" in node,
-              selector: (parent as StyleRuleAst).selector as string,
-            });
-          }
+      const ast = styleRule(cls("parent"), {
+        display: "block",
+        $: {
+          [cls("child")]: { margin: "8px" },
         },
       });
+
+      const visitor = stylesheetVisitorBuilder().on(
+        "styles",
+        (node, context) => {
+          if (context.parent) {
+            contexts.push({
+              hasDisplay: "display" in node,
+              selector:
+                "$ast" in context.parent ?
+                  (context.parent as StyleRuleAst).selector
+                : context.path?.at(-1),
+            });
+          }
+          return node;
+        },
+      );
+      visitor.visit(ast);
 
       expect(contexts).toEqual([
         { hasDisplay: true, selector: ".parent" },
@@ -182,14 +188,13 @@ describe("styles visitor", () => {
     it("allows visitor to return new styles object", () => {
       const ast = styleRule(cls("test"), { color: "red" });
 
-      const result = visit(ast, {
-        styles: () => ({
-          color: "blue",
-          "font-size": "16px",
-        }),
-      });
+      const visitor = stylesheetVisitorBuilder().on("styles", () => ({
+        color: "blue",
+        "font-size": "16px",
+      }));
+      const result = visitor.visit(ast);
 
-      expect(result.body[0]).toEqual({
+      expect(result.body).toEqual({
         color: "blue",
         "font-size": "16px",
       });
@@ -198,14 +203,13 @@ describe("styles visitor", () => {
     it("allows visitor to merge properties", () => {
       const ast = styleRule(cls("test"), { color: "red", padding: "8px" });
 
-      const result = visit(ast, {
-        styles: (node) => ({
-          ...node,
-          modified: "true",
-        }),
-      });
+      const visitor = stylesheetVisitorBuilder().on("styles", (node) => ({
+        ...node,
+        modified: "true",
+      }));
+      const result = visitor.visit(ast);
 
-      expect(result.body[0]).toEqual({
+      expect(result.body).toEqual({
         color: "red",
         padding: "8px",
         modified: "true",
@@ -218,203 +222,90 @@ describe("styles visitor", () => {
         styleRule(cls("large"), { padding: "24px" }),
       ];
 
-      const result = visit(ast, {
-        styles: (node) => {
-          const newStyles = { ...node };
-          if (newStyles.padding === "8px") {
-            newStyles.padding = "16px";
-          }
-          return newStyles;
-        },
+      const visitor = stylesheetVisitorBuilder().on("styles", (node) => {
+        const newStyles = { ...node };
+        if (newStyles.padding === "8px") {
+          newStyles.padding = "16px";
+        }
+        return newStyles;
       });
+      const result = visitor.visit(ast);
 
-      expect(result[0]?.body[0]).toEqual({ padding: "16px" });
-      expect(result[1]?.body[0]).toEqual({ padding: "24px" });
-    });
-
-    it("allows visitor to return undefined", () => {
-      const stylesSpy = vi.fn().mockReturnValue(undefined);
-
-      const originalStyles = { color: "red", padding: "8px" };
-      const ast = styleRule(cls("test"), originalStyles);
-
-      const result = visit(ast, {
-        styles: stylesSpy,
-      });
-
-      expect(stylesSpy).toHaveBeenCalled();
-      expect(result.body[0]).toEqual(originalStyles);
-    });
-
-    it("preserves original styles when visitor returns void", () => {
-      const originalStyles = { color: "green", margin: "16px" };
-      const ast = styleRule(cls("preserved"), originalStyles);
-
-      const result = visit(ast, {
-        styles: () => {
-          // Perform some side effect but don't return
-        },
-      });
-
-      expect(result.body[0]).toEqual(originalStyles);
-    });
-  });
-
-  describe("property-specific visitors", () => {
-    it("allows property-specific visitor for single property", () => {
-      const ast = styleRule(cls("test"), {
-        color: "#ff0000",
-        padding: "8px",
-      });
-
-      const result = visit(ast, {
-        styles: {
-          color: (value) => "#000000",
-        },
-      });
-      expect((result.body[0] as StyleProperties).color).toBe("#000000");
-      expect((result.body[0] as StyleProperties).padding).toBe("8px");
-    });
-
-    it("allows multiple property-specific visitors", () => {
-      const ast = styleRule(cls("test"), {
-        color: "#ff0000",
-        padding: "8px",
-        margin: "4px",
-      });
-
-      const result = visit(ast, {
-        styles: {
-          color: () => "#000000",
-          padding: () => "16px",
-        },
-      });
-      const styles = result.body[0] as StyleProperties;
-
-      expect(styles.color).toBe("#000000");
-      expect(styles.padding).toBe("16px");
-      expect(styles.margin).toBe("4px");
-    });
-
-    it("property-specific visitor receives parent styles", () => {
-      const ast = styleRule(cls("test"), {
-        color: "red",
-        padding: "8px",
-      });
-
-      visit(ast, {
-        styles: {
-          padding: (value, parent) => {
-            expect(parent).toHaveProperty("color");
-            expect(parent).toHaveProperty("padding");
-            return "32px";
-          },
-        },
-      });
-    });
-
-    it("property-specific visitor can return undefined", () => {
-      const ast = styleRule(cls("test"), {
-        color: "#ff0000",
-        padding: "8px",
-      });
-
-      const result = visit(ast, {
-        styles: {
-          color: () => undefined,
-        },
-      });
-      expect((result.body[0] as StyleProperties).color).toBe("#ff0000");
+      expect(result[0]?.body).toEqual({ padding: "16px" });
+      expect(result[1]?.body).toEqual({ padding: "24px" });
     });
   });
 
   describe("complex scenarios", () => {
     it("handles styles with color nodes", () => {
+      expect.assertions(2);
       const ast = styleRule(cls("button"), {
-        "background-color": color("500"),
+        "background-color": light("primary", 500),
         padding: "16px",
       });
 
-      visit(ast, {
-        styles: (node) => {
+      stylesheetVisitorBuilder()
+        .on("styles", (node) => {
           expect(node["background-color"]).toBeDefined();
-          expect(node["background-color"]).toEqual(color("500"));
-        },
-      });
+          expect(node["background-color"]).toEqual(light("primary", 500));
+          return node;
+        })
+        .visit(ast);
     });
 
     it("handles styles with css-value nodes", () => {
       const ast = styleRule(cls("gradient"), {
-        "background-image": cssv`linear-gradient(${color("300")}, ${color("700")})`,
+        "background-image": cssv`linear-gradient(${light("primary", 300)}, ${light("primary", 700)})`,
       });
 
-      visit(ast, {
-        styles: (node) => {
+      stylesheetVisitorBuilder()
+        .on("styles", (node) => {
           expect(node["background-image"]).toBeDefined();
-        },
-      });
-    });
-
-    it("handles multiple style objects in single rule", () => {
-      const callCount = { count: 0 };
-
-      const ast = styleRule(
-        cls("multi"),
-        { display: "flex" },
-        { "flex-direction": "column" },
-        { gap: "16px" },
-        { padding: "24px" },
-      );
-
-      visit(ast, {
-        styles: () => {
-          callCount.count++;
-        },
-      });
-
-      expect(callCount.count).toBe(4);
+          return node;
+        })
+        .visit(ast);
     });
 
     it("transforms all style objects in complex nested structure", () => {
-      const ast = styleRule(
-        cls("parent"),
-        { display: "block" },
-        styleRule(
-          cls("child"),
-          { margin: "8px" },
-          styleRule(cls("grandchild"), { padding: "4px" }),
-        ),
-      );
-
-      const result = visit(ast, {
-        styles: (node) => ({
-          ...node,
-          modified: "true",
-        }),
+      const ast = styleRule(cls("parent"), {
+        display: "block",
+        $: {
+          [cls("child")]: {
+            margin: "8px",
+            $: {
+              [cls("grandchild")]: { padding: "4px" },
+            },
+          },
+        },
       });
 
-      expect(result.body[0]).toHaveProperty("modified");
+      const visitor = stylesheetVisitorBuilder().on("styles", (node) => ({
+        ...node,
+        modified: "true",
+      }));
+      const result = visitor.visit(ast);
 
-      const childRule = result.body[1];
-      expect(childRule.body[0]).toHaveProperty("modified");
+      expect(result.body).toHaveProperty("modified");
 
-      const grandchildRule = childRule.body[1];
-      expect(grandchildRule.body[0]).toHaveProperty("modified");
+      const childRule = result.body.$?.[cls("child")];
+      expect(childRule).toHaveProperty("modified");
+
+      const grandchildRule = childRule?.$?.[cls("grandchild")];
+      expect(grandchildRule).toHaveProperty("modified");
     });
 
     it("handles empty style objects", () => {
-      const stylesSpy = vi.fn();
+      const stylesSpy = vi.fn((node) => node);
 
       const ast = styleRule(cls("empty"), {});
 
-      visit(ast, {
-        styles: stylesSpy,
-      });
+      stylesheetVisitorBuilder().on("styles", stylesSpy).visit(ast);
 
       expect(stylesSpy).toHaveBeenCalledWith({}, expect.any(Object));
     });
 
     it("handles style objects with many properties", () => {
+      expect.assertions(1);
       const ast = styleRule(cls("complex"), {
         display: "flex",
         "flex-direction": "column",
@@ -424,210 +315,113 @@ describe("styles visitor", () => {
         padding: "24px",
         margin: "0 auto",
         "max-width": "1200px",
-        "background-color": color("50"),
+        "background-color": light("primary", 50),
         "border-radius": "8px",
       });
 
-      visit(ast, {
-        styles: (node) => {
+      stylesheetVisitorBuilder()
+        .on("styles", (node) => {
           const keys = Object.keys(node);
           expect(keys.length).toBeGreaterThan(5);
-        },
-      });
+          return node;
+        })
+        .visit(ast);
     });
   });
 
   describe("interaction with other visitors", () => {
-    it("works alongside color visitor (but color visitor doesn't affect style properties)", () => {
-      const stylesSpy = vi.fn().mockImplementation((node) => node);
-      const colorSpy = vi.fn().mockImplementation((node) => node);
-
-      const ast = styleRule(cls("test"), {
-        "background-color": color("500"),
-        color: color("100"),
-      });
-
-      visit(ast, {
-        styles: stylesSpy,
-        color: colorSpy,
-      });
-
-      expect(stylesSpy).toHaveBeenCalled();
-      // Color visitor only works on theme properties, not style properties
-      expect(colorSpy).not.toHaveBeenCalled();
-    });
-
-    it("works alongside css-value visitor (but css-value visitor doesn't affect style properties)", () => {
-      const stylesSpy = vi.fn().mockImplementation((node) => node);
-      const cssValueSpy = vi.fn().mockImplementation((node) => node);
-
-      const ast = styleRule(cls("test"), {
-        "background-image": cssv`linear-gradient(${color("500")}, ${color("700")})`,
-      });
-
-      visit(ast, {
-        styles: stylesSpy,
-        "css-value": cssValueSpy,
-      });
-
-      expect(stylesSpy).toHaveBeenCalled();
-      // CSS-value visitor only works on theme properties, not style properties
-      expect(cssValueSpy).not.toHaveBeenCalled();
-    });
-
     it("styles visitor can transform style properties including color nodes", () => {
       const ast = styleRule(cls("button"), {
-        "background-color": color("500"),
-        color: color("100"),
+        "background-color": light("primary", 500),
+        color: light("primary", 100),
       });
 
-      const result = visit(ast, {
-        styles: (node) => {
+      const result = stylesheetVisitorBuilder()
+        .on("styles", (node) => {
           // Manually transform colors in styles visitor
           const newNode = { ...node };
           if (
             newNode["background-color"] &&
             typeof newNode["background-color"] === "object" &&
-            "type" in newNode["background-color"]
+            "$ast" in newNode["background-color"]
           ) {
-            newNode["background-color"] = color("900");
+            newNode["background-color"] = light("primary", 900);
           }
           if (
             newNode.color &&
             typeof newNode.color === "object" &&
-            "type" in newNode.color
+            "$ast" in newNode.color
           ) {
-            newNode.color = color("900");
+            newNode.color = light("primary", 900);
           }
           return newNode;
-        },
-      });
-      const styles = result.body[0] as StyleProperties;
+        })
+        .visit(ast);
+      const styles = result.body;
 
-      expect(styles["background-color"]).toEqual(color("900"));
-      expect(styles.color).toEqual(color("900"));
+      expect(styles["background-color"]).toEqual(light("primary", 900));
+      expect(styles.color).toEqual(light("primary", 900));
     });
 
     it("styles transformation can add properties and preserve existing ones", () => {
       const ast = styleRule(cls("card"), {
-        "background-color": color("100"),
-        color: color("900"),
+        "background-color": light("primary", 100),
+        color: light("primary", 900),
       });
 
-      const result = visit(ast, {
-        styles: (node) => ({
-          ...node,
-          border: "1px solid black",
-        }),
-      });
-      const styles = result.body[0] as StyleProperties;
+      const visitor = stylesheetVisitorBuilder().on("styles", (node) => ({
+        ...node,
+        border: "1px solid black",
+      }));
+      const result = visitor.visit(ast);
+      const styles = result.body;
 
-      expect(styles["background-color"]).toEqual(color("100"));
-      expect(styles.color).toEqual(color("900"));
+      expect(styles["background-color"]).toEqual(light("primary", 100));
+      expect(styles.color).toEqual(light("primary", 900));
       expect(styles.border).toBe("1px solid black");
     });
   });
 
   describe("edge cases", () => {
     it("handles styles in deeply nested rules", () => {
-      const stylesSpy = vi.fn();
+      const stylesSpy = vi.fn((node) => node);
 
-      const ast = styleRule(
-        cls("level1"),
-        { color: "red" },
-        styleRule(
-          cls("level2"),
-          { color: "green" },
-          styleRule(
-            cls("level3"),
-            { color: "blue" },
-            styleRule(cls("level4"), { color: "yellow" }),
-          ),
-        ),
-      );
-
-      visit(ast, {
-        styles: stylesSpy,
+      const ast = styleRule(cls("level1"), {
+        color: "red",
+        $: {
+          [cls("level2")]: {
+            color: "green",
+            $: {
+              [cls("level3")]: {
+                color: "blue",
+                $: {
+                  [cls("level4")]: { color: "yellow" },
+                },
+              },
+            },
+          },
+        },
       });
+
+      stylesheetVisitorBuilder().on("styles", stylesSpy).visit(ast);
 
       expect(stylesSpy).toHaveBeenCalledTimes(4);
     });
 
-    it("handles mixed body items with rules and styles", () => {
-      const stylesSpy = vi.fn();
-
-      const ast = styleRule(
-        cls("mixed"),
-        { display: "flex" },
-        styleRule(cls("nested"), { margin: "8px" }),
-        { gap: "16px" },
-        { padding: "24px" },
-      );
-
-      visit(ast, {
-        styles: stylesSpy,
-      });
-
-      expect(stylesSpy).toHaveBeenCalledTimes(4); // parent + nested + 2 style objects
-    });
-
-    it("preserves style object reference when not transformed", () => {
-      const originalStyles = { color: "red", padding: "8px" };
-
-      const ast = styleRule(cls("test"), originalStyles);
-
-      const result = visit(ast, {
-        styles: () => {
-          // No return
-        },
-      });
-
-      expect(result.body[0]).toEqual(originalStyles);
-    });
-
     it("handles styles with numeric values", () => {
+      expect.assertions(2);
       const ast = styleRule(cls("test"), {
         "z-index": "10",
         opacity: "0.8",
       });
 
-      visit(ast, {
-        styles: (node) => {
+      stylesheetVisitorBuilder()
+        .on("styles", (node) => {
           expect(node).toHaveProperty("z-index");
           expect(node).toHaveProperty("opacity");
-        },
-      });
-    });
-  });
-
-  describe("performance scenarios", () => {
-    it("handles many style objects efficiently", () => {
-      const stylesSpy = vi.fn().mockImplementation((node) => node);
-
-      const rules = Array.from({ length: 100 }, (_, i) =>
-        styleRule(cls(`rule-${i}`), { color: "red", padding: `${i}px` }),
-      );
-
-      visit(rules, {
-        styles: stylesSpy,
-      });
-
-      expect(stylesSpy).toHaveBeenCalledTimes(100);
-    });
-
-    it("handles deeply nested structure efficiently", () => {
-      const stylesSpy = vi.fn().mockImplementation((node) => node);
-
-      let ast: StyleRuleAst = styleRule(cls("level-0"), { color: "red" });
-      for (let i = 1; i < 10; i++) {
-        ast = styleRule(cls(`level-${i}`), { color: "blue" }, ast);
-      }
-
-      visit(ast, {
-        styles: stylesSpy,
-      });
-
-      expect(stylesSpy).toHaveBeenCalledTimes(10);
+          return node;
+        })
+        .visit(ast);
     });
   });
 });

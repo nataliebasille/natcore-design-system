@@ -1,4 +1,7 @@
-import type { ColorAst, CssValueAst, CssVarAst, StyleProperties } from "../dsl";
+export type Eager<T> = T extends object ? { [K in keyof T]: T[K] } : T;
+export type UnionToIntersection<U> =
+  (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void ? I
+  : never;
 
 export type ExtendsNever<T> = [T] extends [never] ? true : false;
 
