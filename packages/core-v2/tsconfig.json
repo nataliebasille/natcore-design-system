@@ -20,10 +20,10 @@
   },
   "include": [
     "*.ts",
-    "shared/**/*",
-    "tailwind/**/*",
+    "src/shared/**/*",
+    "src/tailwind/**/*",
     "scripts/**/*",
-    "compile"
+    "src/compile"
   ],
   "exclude": ["dist", "node_modules"]
 }

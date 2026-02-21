@@ -1,7 +1,7 @@
 import { runTsup } from "./run-tsup";
 import path from "path";
 import fs from "node:fs/promises";
-import { compile } from "../compile";
+import { compile } from "../src/compile";
 
 console.log("🚀 Starting TypeScript build...\n");
 

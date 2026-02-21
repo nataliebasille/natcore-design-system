@@ -1,7 +1,7 @@
 import { runTsup } from "./run-tsup";
 import chokidar from "chokidar";
 import path from "path";
-import { compile } from "../compile";
+import { compile } from "../src/compile";
 import fs from "node:fs/promises";
 
 const srcDir = path.join(import.meta.dirname, "..");
