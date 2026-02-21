@@ -18,6 +18,12 @@
     "strict": true,
     "noEmit": true
   },
-  "include": ["src/**/*", "scripts/**/*"],
+  "include": [
+    "*.ts",
+    "shared/**/*",
+    "tailwind/**/*",
+    "scripts/**/*",
+    "compile"
+  ],
   "exclude": ["dist", "node_modules"]
 }

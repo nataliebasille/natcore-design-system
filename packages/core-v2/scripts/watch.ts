@@ -1,10 +1,10 @@
 import { runTsup } from "./run-tsup";
 import chokidar from "chokidar";
 import path from "path";
-import { compile } from "./compile";
+import { compile } from "../compile";
 import fs from "node:fs/promises";
 
-const srcDir = path.join(import.meta.dirname, "../src");
+const srcDir = path.join(import.meta.dirname, "..");
 const outDir = path.join(import.meta.dirname, "../dist");
 
 // Start tsup in watch mode for TypeScript files
@@ -47,13 +47,14 @@ async function initializeCssWatcher() {
   console.log("📦 Compiling all CSS and CSS.ts files from tailwind/...\n");
   const allFiles = await fs.readdir(srcDir, { recursive: true });
   // Only compile files from the tailwind/ directory
-  const files = allFiles.filter((file) =>
-    typeof file === "string" && file.startsWith("tailwind" + path.sep)
+  const files = allFiles.filter(
+    (file) =>
+      typeof file === "string" && file.startsWith("tailwind" + path.sep),
   );
   await compile(files, { dist: outDir, src: srcDir });
   console.log("✅ Initial CSS compilation complete!\n");
 
-  const watcher = chokidar.watch("./src/tailwind", {
+  const watcher = chokidar.watch("./tailwind", {
     ignoreInitial: true,
     persistent: true,
     usePolling: true, // Use polling on Windows for better reliability
@@ -102,15 +103,9 @@ async function initializeCssWatcher() {
 async function compileFile(filePath: string) {
   try {
     // If filePath is absolute, make it relative to srcDir
-    // If it's relative and starts with 'src/', remove the 'src/' prefix
     let relativePath = filePath;
     if (path.isAbsolute(filePath)) {
       relativePath = path.relative(srcDir, filePath);
-    } else if (
-      filePath.startsWith("src" + path.sep) ||
-      filePath.startsWith("src/")
-    ) {
-      relativePath = filePath.slice(4); // Remove 'src/' or 'src\\'
     }
 
     console.log(`🔨 Starting compilation of: ${relativePath}`);

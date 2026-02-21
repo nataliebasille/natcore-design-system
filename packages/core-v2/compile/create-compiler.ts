@@ -40,10 +40,12 @@ export function createCompiler(options: {
       // Calculate relative path from src directory
       // Strip 'tailwind/' prefix from directory to maintain output structure
       let outputDirectory = file.directory;
-      if (outputDirectory.startsWith('tailwind' + path.sep)) {
-        outputDirectory = outputDirectory.substring(('tailwind' + path.sep).length);
-      } else if (outputDirectory === 'tailwind') {
-        outputDirectory = '';
+      if (outputDirectory.startsWith("tailwind" + path.sep)) {
+        outputDirectory = outputDirectory.substring(
+          ("tailwind" + path.sep).length,
+        );
+      } else if (outputDirectory === "tailwind") {
+        outputDirectory = "";
       }
 
       // Create the full output path preserving directory structure
