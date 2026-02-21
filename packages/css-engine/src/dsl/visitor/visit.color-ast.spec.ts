@@ -1,28 +1,30 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { contrast, light, type ColorAst } from "../ast/color";
-import { theme, type ThemeAst } from "../ast/theme";
+import { contrast, light, type ColorAst, type ContrastAst } from "../ast/color";
 import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder";
+import { theme } from "../../constructs/theme";
+import {
+  styleList,
+  styleRule,
+  type CssValue,
+  type CssValueAst,
+} from "../public";
 
 describe("color ast visitor", () => {
   describe("type inference", () => {
     it("correctly infers node type in visitor function", () => {
-      stylesheetVisitorBuilder()
-        .on("color", (node) => {
-          expectTypeOf(node).toEqualTypeOf<ColorAst>();
-          return node;
-        })
-        .visit(theme({ "--test": light("primary", 500) }));
+      stylesheetVisitorBuilder().on("color", (node) => {
+        expectTypeOf(node).toEqualTypeOf<ColorAst>();
+        return node;
+      });
     });
 
     it("correctly infers parent type in visitor function", () => {
-      stylesheetVisitorBuilder()
-        .on("color", (node, context) => {
-          expectTypeOf(context.parent).toMatchTypeOf<
-            Record<string, any> | undefined
-          >();
-          return node;
-        })
-        .visit(theme({ "--test": light("primary", 500) }));
+      stylesheetVisitorBuilder().on("color", (node, context) => {
+        expectTypeOf(context.parent).toEqualTypeOf<
+          ContrastAst | CssValueAst | undefined
+        >();
+        return node;
+      });
     });
   });
 
@@ -30,7 +32,7 @@ describe("color ast visitor", () => {
     it("calls color visitor with ColorAst node", () => {
       const colorSpy = vi.fn().mockImplementation((node) => node);
 
-      const ast = theme({
+      const ast = styleList({
         "--primary": light("primary", 500),
         "--secondary": light("primary", 700),
       });
@@ -50,7 +52,7 @@ describe("color ast visitor", () => {
     });
 
     it("calls color visitor with correct node properties", () => {
-      const ast = theme({
+      const ast = styleList({
         "--test-color": light("primary", 300),
       });
 
@@ -63,7 +65,7 @@ describe("color ast visitor", () => {
     });
 
     it("calls color visitor with opacity value", () => {
-      const ast = theme({
+      const ast = styleList({
         "--semi-transparent": light("primary", 500, 0.5),
       });
 
@@ -78,7 +80,7 @@ describe("color ast visitor", () => {
     it("calls color visitor for each color in theme", () => {
       const colorSpy = vi.fn();
 
-      const ast = theme({
+      const ast = styleList({
         "--primary": light("primary", 500),
         "--secondary": light("primary", 600),
         "--tertiary": light("primary", 700),
@@ -91,7 +93,7 @@ describe("color ast visitor", () => {
     });
 
     it("calls color visitor for text color values", () => {
-      const ast = theme({
+      const ast = styleList({
         "--text-color": contrast(light("primary", 500)),
       });
 
@@ -107,8 +109,8 @@ describe("color ast visitor", () => {
       const colorSpy = vi.fn();
 
       const ast = [
-        theme({ "--primary": light("primary", 500) }),
-        theme({ "--secondary": light("primary", 600) }),
+        styleList({ "--primary": light("primary", 500) }),
+        styleList({ "--secondary": light("primary", 600) }),
       ];
 
       stylesheetVisitorBuilder().on("color", colorSpy).visit(ast);
@@ -119,7 +121,7 @@ describe("color ast visitor", () => {
 
   describe("visitor context", () => {
     it("receives theme properties as parent", () => {
-      const ast = theme({
+      const ast = styleList({
         "--primary": light("primary", 500),
         "--secondary": "#ff0000",
       });
@@ -143,7 +145,7 @@ describe("color ast visitor", () => {
         "--static": "#000000",
       };
 
-      const ast = theme(themeProperties);
+      const ast = styleList(themeProperties);
       const visitor = stylesheetVisitorBuilder().on("color", colorSpy);
 
       visitor.visit(ast);
@@ -165,18 +167,20 @@ describe("color ast visitor", () => {
 
   describe("visitor transformation", () => {
     it("allows visitor to return new color value", () => {
-      const ast = [theme({ "--original": light("primary", 100) })];
+      const ast = [styleList({ "--original": light("primary", 100) })];
       const result = stylesheetVisitorBuilder()
         .on("color", (node) => {
           return light("primary", 900);
         })
         .visit(ast);
 
-      expect(result[0]?.theme["--original"]).toEqual(light("primary", 900));
+      expect(result[0]?.styles[0]?.["--original"]).toEqual(
+        light("primary", 900),
+      );
     });
 
     it("allows visitor to transform based on node value", () => {
-      const ast = theme({
+      const ast = styleList({
         "--should-change": light("primary", 500),
         "--should-stay": light("primary", 300),
       });
@@ -190,19 +194,23 @@ describe("color ast visitor", () => {
         })
         .visit(ast);
 
-      expect(result.theme["--should-change"]).toEqual(light("primary", 600));
-      expect(result.theme["--should-stay"]).toEqual(light("primary", 300));
+      expect(result.styles[0]?.["--should-change"]).toEqual(
+        light("primary", 600),
+      );
+      expect(result.styles[0]?.["--should-stay"]).toEqual(
+        light("primary", 300),
+      );
     });
 
     it("allows visitor to add opacity to color", () => {
-      const ast = theme({ "--color": light("primary", 500) });
+      const ast = styleList({ "--color": light("primary", 500) });
       const result = stylesheetVisitorBuilder()
         .on("color", (node) => {
           return light(node.palette, node.shade, 0.8);
         })
         .visit(ast);
 
-      expect(result.theme["--color"]).toEqual(light("primary", 500, 0.8));
+      expect(result.styles[0]?.["--color"]).toEqual(light("primary", 500, 0.8));
     });
   });
 
@@ -210,7 +218,7 @@ describe("color ast visitor", () => {
     it("handles theme with multiple color shades", () => {
       const colorSpy = vi.fn().mockImplementation((node) => node);
 
-      const ast = theme({
+      const ast = styleList({
         "--primary-50": light("primary", 50),
         "--primary-100": light("primary", 100),
         "--primary-200": light("primary", 200),
@@ -229,7 +237,7 @@ describe("color ast visitor", () => {
     });
 
     it("transforms colors and contrast colors", () => {
-      const ast = theme({
+      const ast = styleList({
         "--primary": light("primary", 500),
         "--primary-text": contrast(light("primary", 500)),
         "--secondary": light("primary", 600),
@@ -246,12 +254,12 @@ describe("color ast visitor", () => {
 
       const result = visitor.visit(ast);
 
-      expect(result.theme["--primary"]).toEqual("light-primary-500");
-      expect(result.theme["--primary-text"]).toEqual(
+      expect(result.styles[0]?.["--primary"]).toEqual("light-primary-500");
+      expect(result.styles[0]?.["--primary-text"]).toEqual(
         "contrast-for-light-primary-500",
       );
-      expect(result.theme["--secondary"]).toEqual("light-primary-600");
-      expect(result.theme["--secondary-text"]).toEqual(
+      expect(result.styles[0]?.["--secondary"]).toEqual("light-primary-600");
+      expect(result.styles[0]?.["--secondary-text"]).toEqual(
         "contrast-for-light-primary-600",
       );
     });
@@ -259,7 +267,7 @@ describe("color ast visitor", () => {
     it("handles theme with colors with various opacity values", () => {
       const opacityValues: (number | undefined)[] = [];
 
-      const ast = theme({
+      const ast = styleList({
         "--full": light("primary", 500),
         "--semi": light("primary", 500, 0.5),
         "--quarter": light("primary", 500, 0.25),
@@ -281,7 +289,7 @@ describe("color ast visitor", () => {
     it("only calls color visitor for color nodes", () => {
       const colorSpy = vi.fn().mockImplementation((node) => node);
 
-      const ast = theme({
+      const ast = styleList({
         "--string-color": "#ff0000",
         "--color-node": light("primary", 500),
         "--another-string": "rgb(255, 0, 0)",
@@ -298,7 +306,7 @@ describe("color ast visitor", () => {
 
     it("preserves non-color properties while transforming colors", () => {
       const ast = [
-        theme({
+        styleList({
           "--static": "#ff0000",
           "--dynamic": light("primary", 500),
           "--spacing": "16px",
@@ -309,11 +317,11 @@ describe("color ast visitor", () => {
         .on("color", () => light("primary", 999 as any))
         .visit(ast);
 
-      expect((result[0] as ThemeAst).theme["--static"]).toBe("#ff0000");
-      expect((result[0] as ThemeAst).theme["--dynamic"]).toEqual(
+      expect(result[0]?.styles[0]?.["--static"]).toBe("#ff0000");
+      expect(result[0]?.styles[0]?.["--dynamic"]).toEqual(
         light("primary", 999 as any),
       );
-      expect((result[0] as ThemeAst).theme["--spacing"]).toBe("16px");
+      expect(result[0]?.styles[0]?.["--spacing"]).toBe("16px");
     });
   });
 });

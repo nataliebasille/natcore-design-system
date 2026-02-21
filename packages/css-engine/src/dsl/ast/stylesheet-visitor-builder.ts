@@ -1,57 +1,35 @@
 import type {
-  ApplyValue,
   ColorAst,
   ContrastAst,
   CssValueAst,
   CssVarAst,
   StyleRuleAst,
-  ThemeAst,
   ToneAst,
   StyleProperties,
-  Selector,
+  TailwindClassAst,
+  StyleListAst,
+  AtRuleAst,
 } from "../..";
 import { defineVisitor } from "../visitor/visitor-builder";
 
 export type StylesheetVisitorSpec =
-  | { $in: ColorAst; $out: string }
-  | { $in: ContrastAst; $out: string }
-  | { $in: CssValueAst; $out: string }
-  | { $in: CssVarAst; $out: string }
+  | { $in: ColorAst; $out: string | StyleProperties }
+  | AtRuleAst
+  | { $in: ContrastAst; $out: string | StyleProperties }
+  | { $in: CssValueAst; $out: string | StyleProperties }
+  | { $in: CssVarAst; $out: string | StyleProperties }
+  | StyleListAst
   | StyleRuleAst
-  | ThemeAst
-  | { $in: ToneAst; $out: string }
-  | {
-      apply: { $in: ApplyValue[]; $out: StyleProperties };
-      "nested-style-rule": StyleRuleAst["body"]["$"];
-      styles: StyleProperties;
-    };
+  | { $in: TailwindClassAst; $out: string | StyleProperties }
+  | { $in: ToneAst; $out: string | StyleProperties };
+
+export type DesignSystemAst =
+  StylesheetVisitorSpec extends infer T ?
+    T extends { $in: infer Ast } ?
+      Ast
+    : T
+  : never;
 
 export function stylesheetVisitorBuilder() {
-  return defineVisitor<StylesheetVisitorSpec>({
-    apply: {
-      nodeIs(node, context): node is ApplyValue[] {
-        return context.key === "@apply" && Array.isArray(node);
-      },
-    },
-    "nested-style-rule": {
-      nodeIs(node, context): node is StyleRuleAst["body"]["$"] {
-        return (
-          typeof node === "object" &&
-          node !== null &&
-          context.path?.at(-1) === "$"
-        );
-      },
-    },
-    styles: {
-      nodeIs(node, context): node is StyleProperties {
-        return (
-          typeof node === "object" &&
-          node !== null &&
-          (context.key === "styles" ||
-            context.key === "body" ||
-            context.path?.at(-2) === "$")
-        );
-      },
-    },
-  });
+  return defineVisitor<StylesheetVisitorSpec>();
 }

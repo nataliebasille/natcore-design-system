@@ -29,7 +29,7 @@ export type ToneAst = AstNode<
 export type ContrastAst = AstNode<
   "contrast",
   {
-    for: ColorAst;
+    for: ColorAst | ToneAst;
   }
 >;
 

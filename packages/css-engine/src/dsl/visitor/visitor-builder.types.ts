@@ -2,11 +2,10 @@
 //    1) Core AST + parent inference
 
 import type { Eager, ExtendsNever, UnionToIntersection } from "../../utils";
+import type { StylesheetVisitorSpec } from "../public";
 
-export type AstNode<
-  Id extends string,
-  E extends Record<string, unknown> = {},
-> = Eager<{ $ast: Id } & E>;
+export type AstNode<Id extends string, E extends Record<string, unknown> = {}> =
+  E extends any ? Eager<{ $ast: Id } & E> : never;
 export type AstSpec = {
   $in: unknown;
   $out: unknown;
@@ -84,7 +83,14 @@ type UpdateNodeWithOutMap<
   OutMap extends VisitorOutMap<Spec>,
   Node,
 > =
-  Node extends readonly (infer E)[] ? UpdateNodeWithOutMap<Spec, OutMap, E>[]
+  // Handle tuples before arrays
+  Node extends readonly [infer First, ...infer Rest] ?
+    [
+      ApplyOutMap<Spec, OutMap, First>,
+      ...UpdateNodeWithOutMap<Spec, OutMap, Rest>,
+    ]
+  : Node extends readonly [] ? []
+  : Node extends readonly (infer E)[] ? ApplyOutMap<Spec, OutMap, E>[]
   : Node extends Record<string, unknown> ?
     {
       [K in keyof Node]: K extends "$ast" ? Node[K]

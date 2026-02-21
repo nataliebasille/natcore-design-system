@@ -1,4 +1,10 @@
-import { css } from "@nataliebasille/natcore-css-engine";
+import {
+  css,
+  dsl,
+  theme,
+  type Palette,
+  type ThemeProperties,
+} from "@nataliebasille/natcore-css-engine";
 import chroma from "chroma-js";
 import * as culori from "culori";
 
@@ -7,8 +13,8 @@ const SHADES: Shade[] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
 type Anchors = { c50: string; c500: string; c950: string };
 type RoleInput =
-  | { name: string; anchors: Anchors }
-  | { name: string; seed: string };
+  | { name: Palette; anchors: Anchors }
+  | { name: Palette; seed: string };
 
 const NEAR_BLACK = "#121212";
 const NEAR_WHITE = "#FAFAFA";
@@ -27,17 +33,13 @@ const roles: RoleInput[] = [
   },
 ];
 
-export default function compile(): css.StylesheetAst {
-  const stylesheet = css.atRule(
-    "theme",
-    null,
+export default function compile() {
+  return theme(
     ...roles.flatMap((r) => {
       const ramp = generateRamp(r);
       return roleToCssVars(r.name, ramp);
     }),
   );
-
-  return stylesheet;
 }
 
 function generateRamp(input: RoleInput): Record<Shade, string> {
@@ -82,33 +84,31 @@ function bestContrastText(bg: string): string {
   return whiteRatio >= blackRatio ? NEAR_WHITE : NEAR_BLACK;
 }
 
-function roleToCssVars(name: string, ramp: Record<Shade, string>) {
-  const colors: css.StyleProperties = {};
+function roleToCssVars(name: Palette, ramp: Record<Shade, string>) {
+  const colors: ThemeProperties = {};
 
-  for (let i = 0; i < SHADES.length / 2; i++) {
-    const lightShade = SHADES[i]!;
-    const darkShade = (1000 - lightShade) as Shade;
-    const scaleShade = lightShade;
+  // First, generate all base color variables in order (50-950)
+  for (const shade of SHADES) {
+    const bg = ramp[shade];
+    const fg = bestContrastText(bg);
 
-    const lightBg = ramp[lightShade];
-    const lightFg = bestContrastText(lightBg);
-    const darkBg = ramp[darkShade];
-    const darkFg = bestContrastText(darkBg);
-
-    colors[`--color-${name}-${lightShade}`] = lightBg;
-    colors[`--color-on-${name}-${lightShade}`] = lightFg;
-    colors[`--color-${name}-${darkShade}`] = darkBg;
-    colors[`--color-on-${name}-${darkShade}`] = darkFg;
-
-    colors[`--color-${name}-scale-${scaleShade}`] =
-      `light-dark(var(--color-${name}-${scaleShade}), var(--color-${name}-${1000 - scaleShade}))`;
-    colors[`--color-on-${name}-scale-${scaleShade}`] =
-      `light-dark(var(--color-on-${name}-${scaleShade}), var(--color-on-${name}-${1000 - scaleShade}))`;
-    colors[`--color-on-${name}-scale-${1000 - scaleShade}`] =
-      `light-dark(var(--color-on-${name}-${1000 - scaleShade}), var(--color-on-${name}-${scaleShade}))`;
-    colors[`--color-${name}-scale-${1000 - scaleShade}`] =
-      `light-dark(var(--color-${name}-${1000 - scaleShade}), var(--color-${name}-${scaleShade}))`;
+    colors[`--color-${name}-${shade}`] = bg;
+    colors[`--color-on-${name}-${shade}`] = fg;
   }
 
-  return css.styleList(colors);
+  // Then, generate all scale variables in order
+  for (const shade of SHADES) {
+    const darkShade = (1000 - shade) as Shade;
+
+    colors[`--color-${name}-scale-${shade}`] = dsl.lightDark(
+      dsl.light(name, shade),
+      dsl.dark(name, darkShade),
+    );
+    colors[`--color-on-${name}-scale-${shade}`] = dsl.lightDark(
+      dsl.contrast(dsl.light(name, shade)),
+      dsl.contrast(dsl.dark(name, darkShade)),
+    );
+  }
+
+  return colors;
 }

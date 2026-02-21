@@ -4,7 +4,7 @@ import type { StyleListAst } from "./style-list";
 export type StyleBlockSimpleBody = AtRuleAst | StyleListAst | StyleBlockAst;
 
 export type StyleBlockAst = {
-  type: "style-block";
+  $css: "style-block";
   selector: string;
   body: StyleBlockSimpleBody | Array<StyleBlockSimpleBody>;
 };
@@ -16,7 +16,7 @@ export function styleBlock<S extends string>(
   body: StyleBlockAst["body"],
 ) {
   return {
-    type: "style-block",
+    $css: "style-block",
     selector,
     body,
   } satisfies StyleBlockAst;

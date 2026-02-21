@@ -1,4 +1,4 @@
-import type { AstNode } from "../visitor/visitor-builder.types";
+import type { AstNode } from "../../visitor/visitor-builder.types";
 
 export type CssVarAst<N extends string = string> = AstNode<
   "css-var",

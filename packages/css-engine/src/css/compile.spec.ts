@@ -49,9 +49,11 @@ describe("css compiler", () => {
   });
 
   test("compiles an at-rule with body", () => {
-    const ast = atRule("media", "screen and (min-width: 768px)", [
+    const ast = atRule(
+      "media",
+      "screen and (min-width: 768px)",
       styleBlock(".container", styleList({ width: "750px" })),
-    ]);
+    );
 
     const result = compile(ast);
 
@@ -68,9 +70,11 @@ describe("css compiler", () => {
     const ast = atRule(
       "media",
       "screen",
-      atRule("supports", "(display: grid)", [
+      atRule(
+        "supports",
+        "(display: grid)",
         styleBlock(".grid", styleList({ display: "grid" })),
-      ]),
+      ),
     );
 
     const result = compile(ast);
@@ -107,13 +111,17 @@ describe("css compiler", () => {
 
   test("compiles complex structure with at-rules and style blocks", () => {
     const ast = [
-      atRule("layer", "reset", [
+      atRule(
+        "layer",
+        "reset",
         styleBlock("*", styleList({ margin: "0", padding: "0" })),
-      ]),
+      ),
       styleBlock(".container", styleList({ width: "100%" })),
-      atRule("media", "(min-width: 768px)", [
+      atRule(
+        "media",
+        "(min-width: 768px)",
         styleBlock(".container", styleList({ "max-width": "750px" })),
-      ]),
+      ),
     ];
 
     const result = compile(ast);
@@ -212,10 +220,12 @@ describe("css compiler", () => {
   });
 
   test("compiles at-rule with multiple style blocks", () => {
-    const ast = atRule("layer", "components", [
+    const ast = atRule(
+      "layer",
+      "components",
       styleBlock(".btn", styleList({ padding: "0.5rem" })),
       styleBlock(".input", styleList({ border: "1px solid" })),
-    ]);
+    );
 
     const result = compile(ast);
 
@@ -232,12 +242,16 @@ describe("css compiler", () => {
   });
 
   test("compiles at-rule with nested at-rules and style blocks", () => {
-    const ast = atRule("media", "print", [
-      atRule("supports", "(display: flex)", [
+    const ast = atRule(
+      "media",
+      "print",
+      atRule(
+        "supports",
+        "(display: flex)",
         styleBlock(".flex", styleList({ display: "flex" })),
-      ]),
+      ),
       styleBlock(".page", styleList({ "page-break-after": "always" })),
-    ]);
+    );
 
     const result = compile(ast);
 
@@ -259,9 +273,11 @@ describe("css compiler", () => {
     const ast = [
       atRule("charset", '"UTF-8"'),
       styleBlock("body", styleList({ margin: "0" })),
-      atRule("media", "(prefers-color-scheme: dark)", [
+      atRule(
+        "media",
+        "(prefers-color-scheme: dark)",
         styleBlock("body", styleList({ background: "#000", color: "#fff" })),
-      ]),
+      ),
     ];
 
     const result = compile(ast);

@@ -17,13 +17,13 @@ function compileAstNode(node: StylesheetSimpleAst, depth: number): string {
   return (
     node instanceof Array ?
       node.map((n) => compileAstNode(n, depth)).join("\n\n")
-    : node.type === "at-rule" ?
+    : node.$css === "at-rule" ?
       compileAstBody(
         combine([`@${node.name}`, node.prelude], " "),
         node.body,
         depth,
       )
-    : node.type === "style-block" ?
+    : node.$css === "style-block" ?
       compileAstBody(node.selector, node.body, depth)
     : compileAstStyleProperties(node.styles, depth)
   );

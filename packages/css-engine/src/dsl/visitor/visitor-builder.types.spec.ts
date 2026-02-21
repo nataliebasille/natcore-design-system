@@ -1,19 +1,13 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
+import type { StyleProperties } from "../ast/public";
 import {
+  type ApplyOutMap,
+  type AstSpec_Normalize,
   type AstSpecIn,
   type AstSpecOut,
   type CombinedAstSpec,
-  type AstSpec_Normalize,
   type ParentsOf,
-  type ApplyOutMap,
-  type VisitorOutMap,
 } from "./visitor-builder.types";
-import type {
-  AstNode,
-  StyleProperties,
-  ThemeAst,
-  ThemeProperties,
-} from "../ast/public";
 
 describe("CombinedAstSpec", () => {
   it("should convert a single AstNode to a spec object", () => {

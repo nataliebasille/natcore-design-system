@@ -4,7 +4,7 @@ import type { StyleListAst } from "./style-list";
 export type AtRuleBody = Array<StyleListAst | StyleBlockAst | AtRuleAst>;
 
 export type AtRuleAst = {
-  type: "at-rule";
+  $css: "at-rule";
   name: string;
   prelude: string | null;
   body: AtRuleBody | null;
@@ -30,7 +30,7 @@ export function atRule(
 ) {
   const atRuleBody = arguments.length > 2 ? body : null;
   return {
-    type: "at-rule",
+    $css: "at-rule",
     name,
     prelude,
     body: atRuleBody,

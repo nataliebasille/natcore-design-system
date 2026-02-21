@@ -8,13 +8,13 @@ export type ThemeProperties = {
 export type StyleProperties = PropertiesHyphen & ThemeProperties;
 
 export type StyleListAst = {
-  type: "style-list";
+  $css: "style-list";
   styles: StyleProperties;
 };
 
 export function styleList<P extends StyleProperties>(styles: P) {
   return {
-    type: "style-list",
+    $css: "style-list",
     styles,
   } satisfies StyleListAst;
 }
