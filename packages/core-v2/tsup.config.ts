@@ -4,8 +4,8 @@ export default defineConfig(async () => {
   return {
     entry: {
       index: "src/index.ts",
-      plugin: "src/plugin.ts",
-      utils: "src/utils.ts",
+      plugin: "src/tailwind/plugin.ts",
+      utils: "src/shared/utils.ts",
     },
     format: ["esm", "cjs"],
     dts: {

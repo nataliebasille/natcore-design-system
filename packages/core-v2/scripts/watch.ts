@@ -43,13 +43,17 @@ tsupProcess.on("exit", (code) => {
 console.log("🚀 tsup is running in watch mode...\n");
 
 async function initializeCssWatcher() {
-  // Compile all CSS files initially
-  console.log("📦 Compiling all CSS and CSS.ts files...\n");
-  const files = await fs.readdir(srcDir, { recursive: true });
+  // Compile all CSS files initially from tailwind directory only
+  console.log("📦 Compiling all CSS and CSS.ts files from tailwind/...\n");
+  const allFiles = await fs.readdir(srcDir, { recursive: true });
+  // Only compile files from the tailwind/ directory
+  const files = allFiles.filter((file) =>
+    typeof file === "string" && file.startsWith("tailwind" + path.sep)
+  );
   await compile(files, { dist: outDir, src: srcDir });
   console.log("✅ Initial CSS compilation complete!\n");
 
-  const watcher = chokidar.watch("./src", {
+  const watcher = chokidar.watch("./src/tailwind", {
     ignoreInitial: true,
     persistent: true,
     usePolling: true, // Use polling on Windows for better reliability

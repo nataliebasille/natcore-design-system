@@ -38,11 +38,18 @@ export function createCompiler(options: {
       const compiledFile = await Promise.resolve(options.compile(file));
 
       // Calculate relative path from src directory
+      // Strip 'tailwind/' prefix from directory to maintain output structure
+      let outputDirectory = file.directory;
+      if (outputDirectory.startsWith('tailwind' + path.sep)) {
+        outputDirectory = outputDirectory.substring(('tailwind' + path.sep).length);
+      } else if (outputDirectory === 'tailwind') {
+        outputDirectory = '';
+      }
 
       // Create the full output path preserving directory structure
       const outPath = path.join(
         context.dist,
-        file.directory,
+        outputDirectory,
         compiledFile.filename,
       );
 
