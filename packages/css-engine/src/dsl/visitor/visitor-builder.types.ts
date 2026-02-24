@@ -2,7 +2,7 @@
 //    1) Core AST + parent inference
 
 import type { Eager, ExtendsNever, UnionToIntersection } from "../../utils";
-import type { StylesheetVisitorSpec } from "../public";
+import type { dsl, StylesheetVisitorSpec } from "../public";
 
 export type AstNode<Id extends string, E extends Record<string, unknown> = {}> =
   E extends any ? Eager<{ $ast: Id } & E> : never;
@@ -67,16 +67,18 @@ export type ApplyOutMap<
   OutMap extends VisitorOutMap<Spec>,
   Node,
 > =
-  KeysForNode<Spec, Node> extends infer K ?
-    ExtendsNever<K> extends true ? UpdateNodeWithOutMap<Spec, OutMap, Node>
-    : Extract<K, keyof OutMap> extends infer HandlerKeys ?
-      ExtendsNever<HandlerKeys> extends true ?
-        // No handlers for this node type
-        UpdateNodeWithOutMap<Spec, OutMap, Node>
-      : // Has handler(s) - pick first/any since they should be mutually exclusive
-        UpdateNodeWithOutMap<Spec, OutMap, OutMap[HandlerKeys & keyof OutMap]>
-    : never
-  : UpdateNodeWithOutMap<Spec, OutMap, Node>;
+  Node extends unknown ?
+    KeysForNode<Spec, Node> extends infer K ?
+      ExtendsNever<K> extends true ? UpdateNodeWithOutMap<Spec, OutMap, Node>
+      : Extract<K, keyof OutMap> extends infer HandlerKeys ?
+        ExtendsNever<HandlerKeys> extends true ?
+          // No handlers for this node type
+          UpdateNodeWithOutMap<Spec, OutMap, Node>
+        : // Has handler(s) - pick first/any since they should be mutually exclusive
+          UpdateNodeWithOutMap<Spec, OutMap, OutMap[HandlerKeys & keyof OutMap]>
+      : never
+    : UpdateNodeWithOutMap<Spec, OutMap, Node>
+  : never;
 
 type UpdateNodeWithOutMap<
   Spec extends NormalizedAstSpec,

@@ -4,13 +4,13 @@
 
 import type { AstNode } from "../visitor/visitor-builder.types";
 import type { CssValue, CssVarAst } from "./cssvalue/public";
-import type { ColorAst, ToneAst } from "./color";
+import type { ColorAst } from "./color";
 import type { FunctionAst } from "./tailwind-functions/public";
 
 /**
  * CSS value types for colors (bg-, text-, border-, etc.)
  */
-export type ColorValue = ColorAst | ToneAst | CssVarAst | string;
+export type ColorValue = ColorAst | CssVarAst | string;
 
 /**
  * CSS value types for lengths/sizes (w-, h-, p-, m-, etc.)

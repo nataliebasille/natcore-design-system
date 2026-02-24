@@ -37,21 +37,9 @@ export function createCompiler(options: {
       // Read the CSS file content
       const compiledFile = await Promise.resolve(options.compile(file));
 
-      // Calculate relative path from src directory
-      // Strip 'tailwind/' prefix from directory to maintain output structure
-      let outputDirectory = file.directory;
-      if (outputDirectory.startsWith("tailwind" + path.sep)) {
-        outputDirectory = outputDirectory.substring(
-          ("tailwind" + path.sep).length,
-        );
-      } else if (outputDirectory === "tailwind") {
-        outputDirectory = "";
-      }
-
-      // Create the full output path preserving directory structure
       const outPath = path.join(
         context.dist,
-        outputDirectory,
+        file.directory,
         compiledFile.filename,
       );
 

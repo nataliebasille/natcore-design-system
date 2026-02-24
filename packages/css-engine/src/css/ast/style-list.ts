@@ -2,7 +2,7 @@ import type { PropertiesHyphen } from "csstype";
 
 export type ThemeProperty = `--${string}`;
 export type ThemeProperties = {
-  [K: ThemeProperty]: string | number;
+  [K: ThemeProperty]: string | number | (string | number)[];
 };
 
 export type StyleProperties = PropertiesHyphen & ThemeProperties;

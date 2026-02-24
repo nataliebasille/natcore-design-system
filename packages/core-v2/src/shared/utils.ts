@@ -41,20 +41,6 @@ export const DESIGN_SYSTEM_VERSION = "2.0.0";
 export const TAILWIND_COMPAT_VERSION = "4.0";
 
 /**
- * Theme utilities - placeholder for future theme system
- */
-export interface ThemeConfig {
-  // Will be defined when implementing the theme system
-}
-
-/**
- * Component variant utilities - placeholder for future variant system
- */
-export interface VariantConfig {
-  // Will be defined when implementing the variant system
-}
-
-/**
  * Combines non-null/non-empty parts into a single string with a separator
  * @param parts - Array of string or null values to combine
  * @param separator - Separator to use between parts

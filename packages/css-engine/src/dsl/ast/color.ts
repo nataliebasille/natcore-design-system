@@ -11,25 +11,11 @@ export type Palette = (typeof PALETTE)[number];
 export type ColorAst = AstNode<
   "color",
   {
-    mode: "light" | "dark";
+    mode: "light" | "dark" | "adaptive";
     palette: Palette;
     shade: Shade;
+    role: "base" | "text";
     opacity?: number;
-  }
->;
-
-export type ToneAst = AstNode<
-  "tone",
-  {
-    shade: Shade;
-    opacity?: number;
-  }
->;
-
-export type ContrastAst = AstNode<
-  "contrast",
-  {
-    for: ColorAst | ToneAst;
   }
 >;
 
@@ -43,6 +29,22 @@ export function light<
     mode: "light",
     palette,
     shade,
+    role: "base",
+    opacity,
+  } satisfies ColorAst;
+}
+
+export function lightText<
+  P extends Palette,
+  S extends Shade,
+  O extends number | undefined,
+>(palette: P, shade: S, opacity?: O) {
+  return {
+    $ast: "color",
+    mode: "light",
+    palette,
+    shade,
+    role: "text",
     opacity,
   } satisfies ColorAst;
 }
@@ -57,24 +59,52 @@ export function dark<
     mode: "dark",
     palette,
     shade,
+    role: "base",
     opacity,
   } satisfies ColorAst;
 }
 
-export function tone<S extends Shade, O extends number | undefined>(
-  shade: S,
-  opacity?: O,
-) {
+export function darkText<
+  P extends Palette,
+  S extends Shade,
+  O extends number | undefined,
+>(palette: P, shade: S, opacity?: O) {
   return {
-    $ast: "tone",
+    $ast: "color",
+    mode: "dark",
+    palette,
     shade,
+    role: "text",
     opacity,
-  } satisfies ToneAst;
+  } satisfies ColorAst;
 }
 
-export function contrast(forColor: ColorAst) {
+export function adaptive<
+  P extends Palette,
+  S extends Shade,
+  O extends number | undefined,
+>(palette: P, shade: S, opacity?: O) {
   return {
-    $ast: "contrast",
-    for: forColor,
-  } satisfies ContrastAst;
+    $ast: "color",
+    mode: "adaptive",
+    palette,
+    shade,
+    role: "base",
+    opacity,
+  } satisfies ColorAst;
+}
+
+export function adaptiveText<
+  P extends Palette,
+  S extends Shade,
+  O extends number | undefined,
+>(palette: P, shade: S, opacity?: O) {
+  return {
+    $ast: "color",
+    mode: "adaptive",
+    palette,
+    shade,
+    role: "text",
+    opacity,
+  } satisfies ColorAst;
 }

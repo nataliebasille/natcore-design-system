@@ -1,6 +1,8 @@
-import { createCompiler } from "./create-compiler";
+import { createCompiler } from "../create-compiler";
 import { compile } from "@nataliebasille/natcore-css-engine";
 import { pathToFileURL } from "node:url";
+import { dslToCss } from "./dsl-to-css";
+import { themeConstructToDsl } from "./theme-construct-to-dsl";
 
 export const compileTsToCss = createCompiler({
   preprocess: (fileInfos) => {
@@ -29,9 +31,26 @@ export const compileTsToCss = createCompiler({
       );
     }
 
+    const content =
+      typeof compiler.default === "function" ?
+        compiler.default()
+      : compiler.default;
+
+    const contentAsArray = Array.isArray(content) ? content : [content];
+
+    const transpiledToCssAstContent = contentAsArray.flatMap((content) => {
+      return (
+        "$construct" in content ?
+          content.$construct === "theme" ?
+            dslToCss([themeConstructToDsl(content)])
+          : content
+        : content
+      );
+    });
+
     return {
       filename: `${file.filename.replace(".ts", "")}`,
-      content: compile(compiler.default()),
+      content: compile(transpiledToCssAstContent),
     };
   },
 });

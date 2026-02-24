@@ -1,15 +1,14 @@
 import {
-  css,
   dsl,
+  SHADES,
   theme,
   type Palette,
+  type Shade,
   type ThemeProperties,
 } from "@nataliebasille/natcore-css-engine";
 import chroma from "chroma-js";
 import * as culori from "culori";
-
-type Shade = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
-const SHADES: Shade[] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+import { colorKey } from "../../shared/colors";
 
 type Anchors = { c50: string; c500: string; c950: string };
 type RoleInput =
@@ -84,30 +83,64 @@ function bestContrastText(bg: string): string {
   return whiteRatio >= blackRatio ? NEAR_WHITE : NEAR_BLACK;
 }
 
-function roleToCssVars(name: Palette, ramp: Record<Shade, string>) {
+function roleToCssVars(palette: Palette, ramp: Record<Shade, string>) {
   const colors: ThemeProperties = {};
 
-  // First, generate all base color variables in order (50-950)
+  // Collect all color entries in a single loop for efficiency
+  const lightEntries: Array<[`--${string}`, string]> = [];
+  const darkEntries: Array<[`--${string}`, string]> = [];
+  const scaleEntries: Array<[`--${string}`, any]> = [];
+
   for (const shade of SHADES) {
     const bg = ramp[shade];
     const fg = bestContrastText(bg);
-
-    colors[`--color-${name}-${shade}`] = bg;
-    colors[`--color-on-${name}-${shade}`] = fg;
-  }
-
-  // Then, generate all scale variables in order
-  for (const shade of SHADES) {
     const darkShade = (1000 - shade) as Shade;
 
-    colors[`--color-${name}-scale-${shade}`] = dsl.lightDark(
-      dsl.light(name, shade),
-      dsl.dark(name, darkShade),
+    // Light mode entries
+    lightEntries.push(
+      [colorKey({ role: "base", palette, mode: "light", shade }), bg],
+      [colorKey({ role: "text", palette, mode: "light", shade }), fg],
     );
-    colors[`--color-on-${name}-scale-${shade}`] = dsl.lightDark(
-      dsl.contrast(dsl.light(name, shade)),
-      dsl.contrast(dsl.dark(name, darkShade)),
+
+    // Dark mode entries
+    darkEntries.push(
+      [colorKey({ role: "base", palette, mode: "dark", shade }), bg],
+      [colorKey({ role: "text", palette, mode: "dark", shade }), fg],
     );
+
+    // Scale entries
+    scaleEntries.push(
+      [
+        colorKey({
+          role: "base",
+          palette,
+          mode: "adaptive",
+          shade,
+        }),
+        dsl.lightDark(dsl.light(palette, shade), dsl.dark(palette, darkShade)),
+      ],
+      [
+        colorKey({
+          role: "text",
+          palette,
+          mode: "adaptive",
+          shade,
+        }),
+        dsl.lightDark(
+          dsl.lightText(palette, shade),
+          dsl.darkText(palette, darkShade),
+        ),
+      ],
+    );
+  }
+
+  // Assign all entries in sorted order: light, then dark, then scale
+  for (const [key, value] of [
+    ...lightEntries,
+    ...darkEntries,
+    ...scaleEntries,
+  ]) {
+    colors[key] = value;
   }
 
   return colors;

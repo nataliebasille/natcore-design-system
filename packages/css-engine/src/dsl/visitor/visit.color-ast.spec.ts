@@ -1,13 +1,7 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { contrast, light, type ColorAst, type ContrastAst } from "../ast/color";
+import { light, lightText, type ColorAst } from "../ast/color";
 import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder";
-import { theme } from "../../constructs/theme";
-import {
-  styleList,
-  styleRule,
-  type CssValue,
-  type CssValueAst,
-} from "../public";
+import { styleList, type TemplateLiteralAst } from "../public";
 
 describe("color ast visitor", () => {
   describe("type inference", () => {
@@ -21,7 +15,7 @@ describe("color ast visitor", () => {
     it("correctly infers parent type in visitor function", () => {
       stylesheetVisitorBuilder().on("color", (node, context) => {
         expectTypeOf(context.parent).toEqualTypeOf<
-          ContrastAst | CssValueAst | undefined
+          TemplateLiteralAst | undefined
         >();
         return node;
       });
@@ -94,12 +88,12 @@ describe("color ast visitor", () => {
 
     it("calls color visitor for text color values", () => {
       const ast = styleList({
-        "--text-color": contrast(light("primary", 500)),
+        "--text-color": lightText("primary", 500),
       });
 
       stylesheetVisitorBuilder()
         .on("color", (node) => {
-          expect(node).toEqual(light("primary", 500));
+          expect(node).toEqual(lightText("primary", 500));
           return node;
         })
         .visit(ast);
@@ -236,31 +230,30 @@ describe("color ast visitor", () => {
       expect(colorSpy).toHaveBeenCalledTimes(10);
     });
 
-    it("transforms colors and contrast colors", () => {
+    it("transforms colors and text colors", () => {
       const ast = styleList({
         "--primary": light("primary", 500),
-        "--primary-text": contrast(light("primary", 500)),
+        "--primary-text": lightText("primary", 500),
         "--secondary": light("primary", 600),
-        "--secondary-text": contrast(light("primary", 600)),
+        "--secondary-text": lightText("primary", 600),
       });
 
-      const visitor = stylesheetVisitorBuilder()
-        .on("color", (node) => {
-          return `${node.mode}-${node.palette}-${node.shade}`;
-        })
-        .on("contrast", (node) => {
-          return `contrast-for-${node.for.mode}-${node.for.palette}-${node.for.shade}`;
-        });
+      const visitor = stylesheetVisitorBuilder().on("color", (node) => {
+        const variantPrefix = node.role === "text" ? "text" : "base";
+        return `${variantPrefix}-${node.mode}-${node.palette}-${node.shade}`;
+      });
 
       const result = visitor.visit(ast);
 
-      expect(result.styles[0]?.["--primary"]).toEqual("light-primary-500");
+      expect(result.styles[0]?.["--primary"]).toEqual("base-light-primary-500");
       expect(result.styles[0]?.["--primary-text"]).toEqual(
-        "contrast-for-light-primary-500",
+        "text-light-primary-500",
       );
-      expect(result.styles[0]?.["--secondary"]).toEqual("light-primary-600");
+      expect(result.styles[0]?.["--secondary"]).toEqual(
+        "base-light-primary-600",
+      );
       expect(result.styles[0]?.["--secondary-text"]).toEqual(
-        "contrast-for-light-primary-600",
+        "text-light-primary-600",
       );
     });
 

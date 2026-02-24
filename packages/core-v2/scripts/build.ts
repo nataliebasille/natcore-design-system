@@ -24,11 +24,8 @@ await new Promise<void>((resolve, reject) => {
 
 const outDir = path.join(import.meta.dirname, "../dist");
 
-// Get all files recursively from tailwind directory only
-const srcDir = path.join(import.meta.dirname, "..");
-const allFiles = await fs.readdir(srcDir, { recursive: true });
-// Only compile files from the tailwind/ directory
-const files = allFiles.filter(
-  (file) => typeof file === "string" && file.startsWith("tailwind" + path.sep),
-);
+// Get all files recursively from src directory
+const srcDir = path.join(import.meta.dirname, "../src/tailwind");
+const files = await fs.readdir(srcDir, { recursive: true });
+
 await compile(files, { dist: outDir, src: srcDir });

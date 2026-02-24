@@ -61,15 +61,16 @@ export function defineVisitor<Spec extends AstSpecDefinition>(
       );
     }
 
-    const nodeType =
-      isAstNode(node) ?
-        node.$ast
-      : maybeNonAstNode(node, options, context)?.type;
+    const nodeType = getNodeType(node, options, context);
     const handler = getHandlers(handlers, nodeType);
 
     let result = handler.enter(node, context);
 
-    if (result && typeof result === "object") {
+    const resultNodeType = getNodeType(result, options, context);
+
+    if (nodeType !== resultNodeType) {
+      result = walk(result, context);
+    } else if (result && typeof result === "object") {
       for (const key in result) {
         const child = (result as Record<PropertyKey, unknown>)[key];
         (result as Record<PropertyKey, unknown>)[key] = walk(child, {
@@ -114,6 +115,16 @@ export function defineVisitor<Spec extends AstSpecDefinition>(
       return result;
     },
   } as VisitorBuilder<CombinedAstSpec<Spec>, {}>;
+}
+
+function getNodeType(
+  node: unknown,
+  options: NonAstNodeOptions<AstSpecDefinition> | undefined,
+  context: GenericVisitorContext,
+) {
+  return isAstNode(node) ?
+      node.$ast
+    : maybeNonAstNode(node, options, context)?.type;
 }
 
 function isAstNode<Spec extends AstSpecDefinition>(

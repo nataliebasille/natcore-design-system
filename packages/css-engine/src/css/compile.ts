@@ -54,6 +54,11 @@ function compileAstStyleProperties(
 ): string {
   const indent = "  ".repeat(depth);
   return Object.entries(styles)
-    .map(([key, value]) => `${indent}${key}: ${value};`)
+    .map(([key, value]: [string, string | number | (string | number)[]]) => {
+      if (Array.isArray(value)) {
+        return value.map((v) => `${indent}${key}: ${v};`).join("\n");
+      }
+      return `${indent}${key}: ${value};`;
+    })
     .join("\n");
 }

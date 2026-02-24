@@ -1,39 +1,37 @@
 import type { AstNode } from "../../visitor/visitor-builder.types";
-import type { ColorAst, ContrastAst, ToneAst } from "../color";
+import type { ColorAst } from "../color";
 import type { FunctionAst } from "../tailwind-functions/public";
 import type { CssFunction } from "./css-functions";
 import type { CssVarAst } from "./cssvar";
+import type { MatchModifierAst, MatchValueAst } from "./match-value";
 
 // Re-export related types
 export * from "./css-functions";
 export type { CssVarAst } from "./cssvar";
 export { cssvar } from "./cssvar";
+export * from "./match-value";
 
-export type CssValue =
-  | string
-  | ColorAst
-  | ContrastAst
-  | CssValueAst
-  | CssVarAst
-  | FunctionAst
-  | ToneAst
-  | CssFunction;
+export type CssValue = string | ColorAst | CssVarAst | FunctionAst;
 
-export type CssValueAst = AstNode<
+export type DynamicCssValue = CssValue | MatchValueAst | MatchModifierAst;
+
+export type AnyCssValue = CssValue | DynamicCssValue;
+
+export type TemplateLiteralAst<AllowedValue extends AnyCssValue> = AstNode<
   "css-value",
   {
     strings: string[];
-    values: CssValue[];
+    values: AllowedValue[];
   }
 >;
 
-export function cssv<VarKeys extends string = string>(
+export function cssv<AllowedValue extends AnyCssValue = CssValue>(
   strings: TemplateStringsArray,
-  ...values: CssValue[]
+  ...values: AllowedValue[]
 ) {
   return {
     $ast: "css-value",
     strings: Array.from(strings),
     values,
-  } satisfies CssValueAst;
+  } satisfies TemplateLiteralAst<AllowedValue>;
 }
