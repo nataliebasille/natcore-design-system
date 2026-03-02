@@ -91,7 +91,7 @@ function parseStyleBlock(state: ParserState): StylesheetSimpleAst {
   const body = parseBlock(state);
   expect(state, "}");
 
-  return styleBlock(selector, body.length === 1 ? body[0]! : body);
+  return styleBlock(selector, ...body);
 }
 
 function parseBlock(state: ParserState): Array<StylesheetSimpleAst> {
@@ -122,9 +122,7 @@ function parseBlock(state: ParserState): Array<StylesheetSimpleAst> {
         expect(state, "{");
         const body = parseBlock(state);
         expect(state, "}");
-        nodes.push(
-          styleBlock(possibleSelector, body.length === 1 ? body[0]! : body),
-        );
+        nodes.push(styleBlock(possibleSelector, ...body));
       } else {
         // Revert - might be more properties
         state.pos = savedPos;

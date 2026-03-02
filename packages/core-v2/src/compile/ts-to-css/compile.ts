@@ -3,6 +3,7 @@ import { compile } from "@nataliebasille/natcore-css-engine";
 import { pathToFileURL } from "node:url";
 import { dslToCss } from "./dsl-to-css";
 import { themeConstructToDsl } from "./theme-construct-to-dsl";
+import { utilityConstructToDsl } from "./utility-construct-to-dsl";
 
 export const compileTsToCss = createCompiler({
   preprocess: (fileInfos) => {
@@ -43,6 +44,8 @@ export const compileTsToCss = createCompiler({
         "$construct" in content ?
           content.$construct === "theme" ?
             dslToCss([themeConstructToDsl(content)])
+          : content.$construct === "utility" ?
+            dslToCss([utilityConstructToDsl(content)])
           : content
         : content
       );

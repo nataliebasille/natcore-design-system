@@ -1,6 +1,5 @@
 import {
   dsl,
-  type DynamicCssValue,
   type StyleListAst,
   type StyleListBuilder,
   type StyleRuleAst,
@@ -11,37 +10,20 @@ import {
 export type UtilityConstruct = {
   $construct: "utility";
   name: string;
-  styles: (
-    | TailwindClassAst
-    | StyleListAst<dsl.DynamicCssValue>
-    | StyleRuleAst<dsl.DynamicCssValue>
-  )[];
+  styles: (TailwindClassAst | StyleListAst | StyleRuleAst)[];
 };
 
 export function utility<
   N extends string,
-  B extends
-    | StyleListBuilder<dsl.DynamicCssValue>
-    | StyleRuleBodyBuilder<dsl.DynamicCssValue>,
+  B extends StyleListBuilder | StyleRuleBodyBuilder,
 >(name: N, ...body: B[]) {
   return {
     $construct: "utility",
     name,
     styles: body.flatMap(
-      (
-        b,
-      ): (
-        | TailwindClassAst
-        | StyleListAst<dsl.DynamicCssValue>
-        | StyleRuleAst<dsl.DynamicCssValue>
-      )[] => {
+      (b): (TailwindClassAst | StyleListAst | StyleRuleAst)[] => {
         if (typeof b === "object" && b !== null && "$ast" in b) {
-          return [
-            b as
-              | TailwindClassAst
-              | StyleListAst<DynamicCssValue>
-              | StyleRuleAst<DynamicCssValue>,
-          ];
+          return [b as TailwindClassAst | StyleListAst | StyleRuleAst];
         }
 
         if (
@@ -51,27 +33,16 @@ export function utility<
           return [dsl.tw(b)];
         }
 
-        const { $ = {}, ...rest } =
-          b as dsl.StyleProperties<DynamicCssValue> & {
-            $?: Partial<
-              Record<dsl.Selector, dsl.StyleListAst<DynamicCssValue>>
-            >;
-          };
+        const { $ = {}, ...rest } = b as dsl.StyleProperties & {
+          $?: Partial<Record<dsl.Selector, dsl.StyleListAst>>;
+        };
 
         return [
           ...(Object.keys(rest).length > 0 ?
-            [
-              dsl.styleList<
-                dsl.StyleListBuilder<dsl.DynamicCssValue>[],
-                dsl.DynamicCssValue
-              >(rest as dsl.StyleProperties<dsl.DynamicCssValue>),
-            ]
+            [dsl.styleList(rest as dsl.StyleProperties)]
           : []),
           ...Object.entries($).map(([selector, styles]) =>
-            dsl.styleRule(
-              selector as dsl.Selector,
-              styles as dsl.StyleListAst<dsl.DynamicCssValue>,
-            ),
+            dsl.styleRule(selector as dsl.Selector, styles as dsl.StyleListAst),
           ),
         ];
       },

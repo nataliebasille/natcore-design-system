@@ -1,37 +1,31 @@
 import type { AstNode } from "../../visitor/visitor-builder.types";
-import type { ColorAst } from "../color";
-import type { FunctionAst } from "../tailwind-functions/public";
+import type { ColorAst } from "./color";
 import type { CssFunction } from "./css-functions";
+import type { CssDataType, CssPrimitiveValue } from "./css-primitive";
 import type { CssVarAst } from "./cssvar";
 import type { MatchModifierAst, MatchValueAst } from "./match-value";
 
 // Re-export related types
 export * from "./css-functions";
-export type { CssVarAst } from "./cssvar";
+export type { CssDataType, CssPrimitiveValue } from "./css-primitive";
+export * from "./css-primitive";
 export { cssvar } from "./cssvar";
+export type { CssVarAst } from "./cssvar";
 export * from "./match-value";
+export { cssv } from "./template-literal";
+export type { TemplateLiteralAst } from "./template-literal";
 
-export type CssValue = string | ColorAst | CssVarAst | FunctionAst;
+type SpecialCssValueDataTypeMapping<D extends CssDataType> =
+  D extends "color" ? ColorAst
+  : D extends "integer" | "number" ? number
+  : string & {};
 
-export type DynamicCssValue = CssValue | MatchValueAst | MatchModifierAst;
-
-export type AnyCssValue = CssValue | DynamicCssValue;
-
-export type TemplateLiteralAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-value",
-  {
-    strings: string[];
-    values: AllowedValue[];
-  }
->;
-
-export function cssv<AllowedValue extends AnyCssValue = CssValue>(
-  strings: TemplateStringsArray,
-  ...values: AllowedValue[]
-) {
-  return {
-    $ast: "css-value",
-    strings: Array.from(strings),
-    values,
-  } satisfies TemplateLiteralAst<AllowedValue>;
-}
+export type CssValue<D extends CssDataType> =
+  | (D extends CssDataType ?
+      | Extract<CssPrimitiveValue, { $primitive: D }>
+      | SpecialCssValueDataTypeMapping<D>
+      | CssFunction
+      | CssVarAst
+    : never)
+  | MatchValueAst<D>
+  | MatchModifierAst<D>;

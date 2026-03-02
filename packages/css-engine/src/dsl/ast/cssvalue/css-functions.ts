@@ -1,75 +1,4 @@
-import type { AstNode } from "../../visitor/visitor-builder.types";
-import type { ColorAst } from "../color";
-import type { CssVarAst } from "./cssvar";
-import type { AnyCssValue, TemplateLiteralAst } from "./public";
-/**
- * Color value type for CSS functions
- */
-export type CssFunctionColorValue = string | ColorAst | CssVarAst;
-
-/**
- * Length/numeric value type for CSS functions
- */
-export type CssFunctionLengthValue<AllowedValue extends AnyCssValue> =
-  | string
-  | TemplateLiteralAst<AllowedValue>
-  | CssVarAst;
-
-/**
- * Base type for CSS function AST nodes
- */
-export type CssFunctionAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-function",
-  | {
-      name: "calc";
-      expression: CssFunctionLengthValue<AllowedValue>;
-    }
-  | {
-      name: "light-dark";
-      light: CssFunctionColorValue;
-      dark: CssFunctionColorValue;
-    }
-  | {
-      name: "min";
-      values: CssFunctionLengthValue<AllowedValue>[];
-    }
-  | {
-      name: "max";
-      values: CssFunctionLengthValue<AllowedValue>[];
-    }
-  | {
-      name: "clamp";
-      min: CssFunctionLengthValue<AllowedValue>;
-      preferred: CssFunctionLengthValue<AllowedValue>;
-      max: CssFunctionLengthValue<AllowedValue>;
-    }
-  | {
-      name: "rgb";
-      r: CssFunctionLengthValue<AllowedValue>;
-      g: CssFunctionLengthValue<AllowedValue>;
-      b: CssFunctionLengthValue<AllowedValue>;
-      alpha?: CssFunctionLengthValue<AllowedValue>;
-    }
-  | {
-      name: "hsl";
-      h: CssFunctionLengthValue<AllowedValue>;
-      s: CssFunctionLengthValue<AllowedValue>;
-      l: CssFunctionLengthValue<AllowedValue>;
-      alpha?: CssFunctionLengthValue<AllowedValue>;
-    }
-  | {
-      name: "color-mix";
-      colorspace: ColorMixColorspace;
-      base: {
-        color: CssFunctionColorValue;
-        percentage?: CssFunctionLengthValue<AllowedValue>;
-      };
-      mix: {
-        color: CssFunctionColorValue;
-        percentage?: CssFunctionLengthValue<AllowedValue>;
-      };
-    }
->;
+import type { CssValue } from "./public";
 
 /**
  * Valid colorspaces for color-mix() function
@@ -88,228 +17,253 @@ export type ColorMixColorspace =
   | "hwb";
 
 /**
- * CSS calc() function
- * @example calc("100% - 1rem")
+ * Type for CSS function values
  */
-export type CalcAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-function",
-  {
-    name: "calc";
-    expression: CssFunctionLengthValue<AllowedValue>;
-  }
->;
-
-export function calc<AllowedValue extends AnyCssValue>(
-  expression: CssFunctionLengthValue<AllowedValue>,
-): CalcAst<AllowedValue> {
-  return {
-    $ast: "css-function",
-    name: "calc",
-    expression,
-  } satisfies CalcAst<AllowedValue>;
-}
-
-/**
- * CSS light-dark() function for color scheme based values
- * @example lightDark("#fff", "#000")
- */
-export type LightDarkAst = AstNode<
-  "css-function",
-  {
-    name: "light-dark";
-    light: CssFunctionColorValue;
-    dark: CssFunctionColorValue;
-  }
->;
-
-export function lightDark(
-  light: CssFunctionColorValue,
-  dark: CssFunctionColorValue,
-): LightDarkAst {
-  return {
-    $ast: "css-function",
-    name: "light-dark",
-    light,
-    dark,
-  } satisfies LightDarkAst;
-}
-
-/**
- * CSS min() function
- * @example min("100%", "500px")
- */
-export type MinAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-function",
-  {
-    name: "min";
-    values: CssFunctionLengthValue<AllowedValue>[];
-  }
->;
-
-export function min<AllowedValue extends AnyCssValue>(
-  ...values: CssFunctionLengthValue<AllowedValue>[]
-): MinAst<AllowedValue> {
-  return {
-    $ast: "css-function",
-    name: "min",
-    values,
-  } satisfies MinAst<AllowedValue>;
-}
-
-/**
- * CSS max() function
- * @example max("100px", "10vw")
- */
-export type MaxAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-function",
-  {
-    name: "max";
-    values: CssFunctionLengthValue<AllowedValue>[];
-  }
->;
-
-export function max<AllowedValue extends AnyCssValue>(
-  ...values: CssFunctionLengthValue<AllowedValue>[]
-): MaxAst<AllowedValue> {
-  return {
-    $ast: "css-function",
-    name: "max",
-    values,
-  } satisfies MaxAst<AllowedValue>;
-}
-
-/**
- * CSS clamp() function
- * @example clamp("1rem", "5vw", "3rem")
- */
-export type ClampAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-function",
-  {
-    name: "clamp";
-    min: CssFunctionLengthValue<AllowedValue>;
-    preferred: CssFunctionLengthValue<AllowedValue>;
-    max: CssFunctionLengthValue<AllowedValue>;
-  }
->;
-
-export function clamp<AllowedValue extends AnyCssValue>(
-  min: CssFunctionLengthValue<AllowedValue>,
-  preferred: CssFunctionLengthValue<AllowedValue>,
-  max: CssFunctionLengthValue<AllowedValue>,
-): ClampAst<AllowedValue> {
-  return {
-    $ast: "css-function",
-    name: "clamp",
-    min,
-    preferred,
-    max,
-  } satisfies ClampAst<AllowedValue>;
-}
-
-/**
- * CSS rgb() function
- * @example rgb("255", "255", "255")
- */
-export type RgbAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-function",
-  {
-    name: "rgb";
-    r: CssFunctionLengthValue<AllowedValue>;
-    g: CssFunctionLengthValue<AllowedValue>;
-    b: CssFunctionLengthValue<AllowedValue>;
-    alpha?: CssFunctionLengthValue<AllowedValue>;
-  }
->;
-
-export function rgb<AllowedValue extends AnyCssValue>(
-  r: CssFunctionLengthValue<AllowedValue>,
-  g: CssFunctionLengthValue<AllowedValue>,
-  b: CssFunctionLengthValue<AllowedValue>,
-  alpha?: CssFunctionLengthValue<AllowedValue>,
-): RgbAst<AllowedValue> {
-  return {
-    $ast: "css-function",
-    name: "rgb",
-    r,
-    g,
-    b,
-    alpha,
-  } satisfies RgbAst<AllowedValue>;
-}
-
-/**
- * CSS hsl() function
- * @example hsl("200", "50%", "50%")
- */
-export type HslAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-function",
-  {
-    name: "hsl";
-    h: CssFunctionLengthValue<AllowedValue>;
-    s: CssFunctionLengthValue<AllowedValue>;
-    l: CssFunctionLengthValue<AllowedValue>;
-    alpha?: CssFunctionLengthValue<AllowedValue>;
-  }
->;
-
-export function hsl<AllowedValue extends AnyCssValue>(
-  h: CssFunctionLengthValue<AllowedValue>,
-  s: CssFunctionLengthValue<AllowedValue>,
-  l: CssFunctionLengthValue<AllowedValue>,
-  alpha?: CssFunctionLengthValue<AllowedValue>,
-): HslAst<AllowedValue> {
-  return {
-    $ast: "css-function",
-    name: "hsl",
-    h,
-    s,
-    l,
-    alpha,
-  } satisfies HslAst<AllowedValue>;
-}
-
-/**
- * CSS color-mix() function
- * @example colorMix("srgb", "red", "50%", "blue")
- */
-export type ColorMixAst<AllowedValue extends AnyCssValue> = AstNode<
-  "css-function",
-  {
-    name: "color-mix";
-    colorspace: ColorMixColorspace;
-    base: {
-      color: CssFunctionColorValue;
-      percentage?: CssFunctionLengthValue<AllowedValue>;
+export type CssFunction =
+  | {
+      $function: "calc";
+      strings: string[];
+      values: CssValue<
+        "length" | "percentage" | "number" | "integer" | "angle"
+      >[];
+      toString: () => string;
+    }
+  | {
+      $function: "min";
+      values: CssValue<
+        "length" | "percentage" | "number" | "integer" | "angle"
+      >[];
+      toString: () => string;
+    }
+  | {
+      $function: "max";
+      values: CssValue<
+        "length" | "percentage" | "number" | "integer" | "angle"
+      >[];
+      toString: () => string;
+    }
+  | {
+      $function: "clamp";
+      min: CssValue<"length" | "percentage" | "number" | "integer" | "angle">;
+      preferred: CssValue<
+        "length" | "percentage" | "number" | "integer" | "angle"
+      >;
+      max: CssValue<"length" | "percentage" | "number" | "integer" | "angle">;
+      toString: () => string;
+    }
+  | {
+      $function: "light-dark";
+      light: CssValue<"color">;
+      dark: CssValue<"color">;
+      toString: () => string;
+    }
+  | {
+      $function: "rgb";
+      r: CssValue<"number" | "integer" | "percentage">;
+      g: CssValue<"number" | "integer" | "percentage">;
+      b: CssValue<"number" | "integer" | "percentage">;
+      alpha?: CssValue<"number" | "percentage">;
+      toString: () => string;
+    }
+  | {
+      $function: "hsl";
+      h: CssValue<"angle" | "number">;
+      s: CssValue<"percentage">;
+      l: CssValue<"percentage">;
+      alpha?: CssValue<"number" | "percentage">;
+      toString: () => string;
+    }
+  | {
+      $function: "color-mix";
+      colorspace: ColorMixColorspace;
+      base: {
+        color: CssValue<"color">;
+        percentage?: CssValue<"percentage">;
+      };
+      mix: {
+        color: CssValue<"color">;
+        percentage?: CssValue<"percentage">;
+      };
+      toString: () => string;
     };
-    mix: {
-      color: CssFunctionColorValue;
-      percentage?: CssFunctionLengthValue<AllowedValue>;
-    };
-  }
->;
 
-export function colorMix<AllowedValue extends AnyCssValue>(
+// Helper to convert value to string
+function valueToString(value: any): string {
+  if (typeof value === "object" && value !== null && "toString" in value) {
+    return value.toString();
+  }
+  return String(value);
+}
+
+// Reusable helper to add toString method to CSS functions
+function withToString<T extends { $function: string }>(
+  value: T,
+  toStringFn: (v: T) => string,
+): T & { toString: () => string } {
+  return {
+    ...value,
+    toString() {
+      return toStringFn(this as T);
+    },
+  };
+}
+
+export function calc(
+  strings: TemplateStringsArray,
+  ...values: CssValue<
+    "length" | "percentage" | "number" | "integer" | "angle"
+  >[]
+) {
+  return withToString(
+    {
+      $function: "calc" as const,
+      strings: Array.from(strings),
+      values,
+    },
+    (f) => {
+      let result = "calc(";
+      for (let i = 0; i < f.strings.length; i++) {
+        result += f.strings[i];
+        if (i < f.values.length) {
+          result += valueToString(f.values[i]);
+        }
+      }
+      result += ")";
+      return result;
+    },
+  );
+}
+
+export function min(
+  ...values: CssValue<
+    "length" | "percentage" | "number" | "integer" | "angle"
+  >[]
+) {
+  return withToString(
+    {
+      $function: "min" as const,
+      values,
+    },
+    (f) => `min(${f.values.map(valueToString).join(", ")})`,
+  );
+}
+
+export function max(
+  ...values: CssValue<
+    "length" | "percentage" | "number" | "integer" | "angle"
+  >[]
+) {
+  return withToString(
+    {
+      $function: "max" as const,
+      values,
+    },
+    (f) => `max(${f.values.map(valueToString).join(", ")})`,
+  );
+}
+
+export function clamp(
+  min: CssValue<"length" | "percentage" | "number" | "integer" | "angle">,
+  preferred: CssValue<"length" | "percentage" | "number" | "integer" | "angle">,
+  max: CssValue<"length" | "percentage" | "number" | "integer" | "angle">,
+) {
+  return withToString(
+    {
+      $function: "clamp" as const,
+      min,
+      preferred,
+      max,
+    },
+    (f) =>
+      `clamp(${valueToString(f.min)}, ${valueToString(f.preferred)}, ${valueToString(f.max)})`,
+  );
+}
+
+export function lightDark(light: CssValue<"color">, dark: CssValue<"color">) {
+  return withToString(
+    {
+      $function: "light-dark" as const,
+      light,
+      dark,
+    },
+    (f) => `light-dark(${valueToString(f.light)}, ${valueToString(f.dark)})`,
+  );
+}
+
+export function rgb(
+  r: CssValue<"number" | "integer" | "percentage">,
+  g: CssValue<"number" | "integer" | "percentage">,
+  b: CssValue<"number" | "integer" | "percentage">,
+  alpha?: CssValue<"number" | "percentage">,
+) {
+  return withToString(
+    {
+      $function: "rgb" as const,
+      r,
+      g,
+      b,
+      alpha,
+    },
+    (f) => {
+      const rgb = `${valueToString(f.r)} ${valueToString(f.g)} ${valueToString(f.b)}`;
+      return f.alpha ?
+          `rgb(${rgb} / ${valueToString(f.alpha)})`
+        : `rgb(${rgb})`;
+    },
+  );
+}
+
+export function hsl(
+  h: CssValue<"angle" | "number">,
+  s: CssValue<"percentage">,
+  l: CssValue<"percentage">,
+  alpha?: CssValue<"number" | "percentage">,
+) {
+  return withToString(
+    {
+      $function: "hsl" as const,
+      h,
+      s,
+      l,
+      alpha,
+    },
+    (f) => {
+      const hsl = `${valueToString(f.h)} ${valueToString(f.s)} ${valueToString(f.l)}`;
+      return f.alpha ?
+          `hsl(${hsl} / ${valueToString(f.alpha)})`
+        : `hsl(${hsl})`;
+    },
+  );
+}
+
+export function colorMix(
   colorspace: ColorMixColorspace,
   base: {
-    color: CssFunctionColorValue;
-    percentage?: CssFunctionLengthValue<AllowedValue>;
+    color: CssValue<"color">;
+    percentage?: CssValue<"percentage">;
   },
   mix: {
-    color: CssFunctionColorValue;
-    percentage?: CssFunctionLengthValue<AllowedValue>;
+    color: CssValue<"color">;
+    percentage?: CssValue<"percentage">;
   },
-): ColorMixAst<AllowedValue> {
-  return {
-    $ast: "css-function",
-    name: "color-mix",
-    colorspace,
-    base,
-    mix,
-  } satisfies ColorMixAst<AllowedValue>;
+) {
+  return withToString(
+    {
+      $function: "color-mix" as const,
+      colorspace,
+      base,
+      mix,
+    },
+    (f) => {
+      const baseStr =
+        f.base.percentage ?
+          `${valueToString(f.base.color)} ${valueToString(f.base.percentage)}`
+        : valueToString(f.base.color);
+      const mixStr =
+        f.mix.percentage ?
+          `${valueToString(f.mix.color)} ${valueToString(f.mix.percentage)}`
+        : valueToString(f.mix.color);
+      return `color-mix(in ${f.colorspace}, ${baseStr}, ${mixStr})`;
+    },
+  );
 }
-
-/**
- * Union of all CSS function AST types
- */
-export type CssFunction<AllowedValue extends AnyCssValue> =
-  CssFunctionAst<AllowedValue>;

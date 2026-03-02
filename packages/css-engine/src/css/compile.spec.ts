@@ -66,6 +66,28 @@ describe("css compiler", () => {
     `);
   });
 
+  test("compiles a @property at-rule with descriptors", () => {
+    const ast = atRule(
+      "property",
+      "--brand-color",
+      styleList({
+        syntax: "<color>",
+        inherits: false,
+        "initial-value": "#663399",
+      }),
+    );
+
+    const result = compile(ast);
+
+    expect(result).toMatchInlineSnapshot(`
+      "@property --brand-color {
+        syntax: <color>;
+        inherits: false;
+        initial-value: #663399;
+      }"
+    `);
+  });
+
   test("compiles nested at-rules", () => {
     const ast = atRule(
       "media",
@@ -203,6 +225,25 @@ describe("css compiler", () => {
       ".button {
         color: var(--primary-color);
         background: var(--bg-color, white);
+      }"
+    `);
+  });
+
+  test("compiles style-list containing an at-rule", () => {
+    const ast = styleBlock(
+      ".button",
+      styleList({ color: "red" }, atRule("apply", "font-semibold px-4"), {
+        "font-size": "16px",
+      }),
+    );
+
+    const result = compile(ast);
+
+    expect(result).toMatchInlineSnapshot(`
+      ".button {
+        color: red;
+        @apply font-semibold px-4;
+        font-size: 16px;
       }"
     `);
   });

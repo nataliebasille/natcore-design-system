@@ -38,6 +38,38 @@ type GenericVisitorContext = {
   path?: (PropertyKey | number)[];
 };
 
+function deepClone<T>(obj: T): T {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+
+  if (obj instanceof Array) {
+    return obj.map((item) => deepClone(item)) as T;
+  }
+
+  if (obj instanceof Date) {
+    return new Date(obj.getTime()) as T;
+  }
+
+  if (obj instanceof RegExp) {
+    return new RegExp(obj.source, obj.flags) as T;
+  }
+
+  const cloned = {} as T;
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      // Preserve toString methods and skip other functions
+      if (typeof value !== "function" || key === "toString") {
+        (cloned as Record<string, unknown>)[key] =
+          typeof value === "function" ? value : deepClone(value);
+      }
+    }
+  }
+
+  return cloned;
+}
+
 export function defineVisitor<Spec extends AstSpecDefinition>(
   ...parameters: DefineVisitorParameters<Spec>
 ): VisitorBuilder<CombinedAstSpec<Spec>, {}> {
@@ -106,7 +138,7 @@ export function defineVisitor<Spec extends AstSpecDefinition>(
     },
 
     visit(node: unknown) {
-      const result = walk(structuredClone(node), {
+      const result = walk(deepClone(node), {
         parent: undefined,
         key: undefined,
         index: undefined,

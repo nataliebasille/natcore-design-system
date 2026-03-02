@@ -13,9 +13,9 @@ export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
             className={classnames(
               "flex items-center justify-center rounded-full px-2 text-sm",
               {
-                "bg-primary-scale-500 text-primary-contrast-scale-500":
+                "bg-tone-500-primary text-primary-contrast-scale-500":
                   value.type === "component",
-                "text-primary-scale-700 border-primary-scale-700 border":
+                "text-tone-700-primary border-tone-700-primary border":
                   value.type === "modifier",
               },
             )}

@@ -1,4 +1,4 @@
-import type { Palette } from "../dsl/ast/color";
+import type { Palette } from "../dsl/ast/cssvalue/color";
 import type {
   StyleProperties,
   StyleRuleBodyBuilder,

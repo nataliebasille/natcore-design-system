@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { light } from "../ast/color";
+import { light } from "../ast/cssvalue/color";
 import { cssv } from "../ast/cssvalue/public";
 import { cls, element, id } from "../ast/selector";
 import {

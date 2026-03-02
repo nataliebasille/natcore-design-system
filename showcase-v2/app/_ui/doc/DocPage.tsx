@@ -26,7 +26,7 @@ const Description = ({
   return (
     <span
       className={classnames(
-        "text-surface-scale-950/60 my-4 block tracking-tight",
+        "text-tone-950-surface/60 my-4 block tracking-tight",
         className,
       )}
     >
@@ -69,7 +69,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   );
 
   return (
-    <div className="divide-surface-scale-600/30 grid h-full grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth md:divide-x md:*:not-first:pl-4 md:*:not-last:pr-4">
+    <div className="divide-tone-600-surface/30 grid h-full grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth md:divide-x md:*:not-first:pl-4 md:*:not-last:pr-4">
       <article className="h-full w-full p-6">
         <h1 id={title}>{title}</h1>
 

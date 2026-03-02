@@ -6,39 +6,47 @@ import {
   type TailwindClassAst,
   type StyleListAst,
   type AtRuleAst,
-  type CssFunctionAst,
+  type CssFunction,
   type FunctionAst,
-  type TemplateLiteralAst,
   type MatchValueAst,
   type MatchModifierAst,
-  type AnyCssValue,
+  type CssDataType,
 } from "../..";
 import { defineVisitor } from "../visitor/visitor-builder";
+import type { TemplateLiteralAst } from "./cssvalue/template-literal";
 
 export type StylesheetVisitorSpec =
   | {
       $in: ColorAst;
-      $out: string | StyleProperties | TemplateLiteralAst<AnyCssValue>;
+      $out: string | StyleProperties | TemplateLiteralAst<"color">;
     }
   | AtRuleAst
   | {
-      $in: TemplateLiteralAst<AnyCssValue>;
-      $out: string | StyleProperties | TemplateLiteralAst<AnyCssValue>;
+      $in: TemplateLiteralAst<CssDataType>;
+      $out: string | StyleProperties | TemplateLiteralAst<CssDataType>;
     }
   | {
       $in: CssVarAst;
-      $out: string | StyleProperties | TemplateLiteralAst<AnyCssValue>;
+      $out: string | StyleProperties | TemplateLiteralAst<CssDataType>;
     }
   | {
-      $in: CssFunctionAst<AnyCssValue>;
-      $out: string | TemplateLiteralAst<AnyCssValue>;
+      $in: FunctionAst;
+      $out: string | TemplateLiteralAst<CssDataType>;
     }
-  | { $in: FunctionAst; $out: string | TemplateLiteralAst<AnyCssValue> }
-  | { $in: MatchValueAst; $out: string | TemplateLiteralAst<AnyCssValue> }
-  | { $in: MatchModifierAst; $out: string | TemplateLiteralAst<AnyCssValue> }
+  | {
+      $in: MatchValueAst<CssDataType>;
+      $out: string | TemplateLiteralAst<CssDataType>;
+    }
+  | {
+      $in: MatchModifierAst<CssDataType>;
+      $out: string | TemplateLiteralAst<CssDataType>;
+    }
   | StyleListAst
   | StyleRuleAst
-  | { $in: TailwindClassAst; $out: string | StyleProperties };
+  | {
+      $in: TailwindClassAst;
+      $out: string | StyleProperties;
+    };
 
 export type DesignSystemAst =
   StylesheetVisitorSpec extends infer T ?

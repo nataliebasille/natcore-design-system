@@ -4,7 +4,7 @@ import path from "path";
 import { compile } from "../src/compile";
 import fs from "node:fs/promises";
 
-const srcDir = path.join(import.meta.dirname, "..");
+const srcDir = path.join(import.meta.dirname, "../src/tailwind");
 const outDir = path.join(import.meta.dirname, "../dist");
 
 // Start tsup in watch mode for TypeScript files
@@ -45,12 +45,7 @@ console.log("🚀 tsup is running in watch mode...\n");
 async function initializeCssWatcher() {
   // Compile all CSS files initially from tailwind directory only
   console.log("📦 Compiling all CSS and CSS.ts files from tailwind/...\n");
-  const allFiles = await fs.readdir(srcDir, { recursive: true });
-  // Only compile files from the tailwind/ directory
-  const files = allFiles.filter(
-    (file) =>
-      typeof file === "string" && file.startsWith("tailwind" + path.sep),
-  );
+  const files = await fs.readdir(srcDir, { recursive: true });
   await compile(files, { dist: outDir, src: srcDir });
   console.log("✅ Initial CSS compilation complete!\n");
 

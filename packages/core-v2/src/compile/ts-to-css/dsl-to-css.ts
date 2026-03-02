@@ -1,86 +1,246 @@
 import {
   css,
-  cssv,
   dsl,
   stylesheetVisitorBuilder,
-  type AnyCssValue,
+  type CssDataType,
 } from "@nataliebasille/natcore-css-engine";
 import { colorKey } from "../../shared/colors";
 
 type TopLevelAst = dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst;
 export function dslToCss(ast: TopLevelAst[]): css.StylesheetAst {
-  const normalizedAst = normalizeCssValues(ast);
-
-  return normalizedAst.flatMap(function transform(item):
-    | css.StylesheetSimpleAst
-    | css.StylesheetSimpleAst[] {
+  return ast.flatMap<css.StylesheetSimpleAst>((node) => {
     return (
-      item.$ast === "at-rule" ?
-        css.atRule(item.name, item.prelude, ...item.rules.flatMap(transform))
-      : item.$ast === "style-list" ? item.styles.map(css.styleList)
-      : css.styleBlock(item.selector, item.body.flatMap(transform))
+      node.$ast === "at-rule" ? [atRuleToCss(node)]
+      : node.$ast === "style-rule" ? [styleRuleToCss(node)]
+      : node.$ast === "style-list" ? styleListToCss(node)
+      : exhaustive(node)
     );
   });
 }
 
-function normalizeCssValues(ast: TopLevelAst[]) {
-  return stylesheetVisitorBuilder()
-    .on("color", colorKey)
-    .on("css-var", (ast) => {
-      const fallback = ast.fallback !== undefined ? `, ${ast.fallback}` : "";
-      return `var(--${ast.name}${fallback})`;
-    })
-    .on("css-function", cssFunctionToCssValue)
-    .on("function-spacing", (ast) => cssv`--spacing(${ast.value})`)
-    .on("css-value", {
-      exit: (ast) => {
-        return ast.strings.reduce(
-          (result, str, i) => result + str + (ast.values[i] ?? ""),
-          "",
-        );
-      },
-    })
-    .on("style-list", {
-      exit: (ast) => {
-        let tailwindClasses: string[] = [];
-        const properties: [string, string][] = [];
+function atRuleToCss(node: dsl.AtRuleAst): css.AtRuleAst {
+  return css.atRule(
+    node.name,
+    node.prelude,
+    ...Array.from(
+      (function* () {
+        let currentApply = "";
 
-        for (const item of ast.styles) {
-          if ("$ast" in item && item.$ast === "tailwind-class") {
-            tailwindClasses.push(
-              typeof item.value === "string" ?
-                item.value
-              : `${item.value.prefix}-[${item.value.value}]`,
-            );
+        for (const item of node.rules) {
+          if (item.$ast !== "tailwind-class" && currentApply) {
+            yield css.atRule("apply", currentApply);
+            currentApply = "";
+          }
+
+          if (item.$ast === "tailwind-class") {
+            currentApply += `${currentApply ? " " : ""}${item.value}`;
+          } else if (item.$ast === "style-rule") {
+            yield styleRuleToCss(item);
+          } else if (item.$ast === "style-list") {
+            yield* styleListToCss(item);
+          } else if (item.$ast === "at-rule") {
+            yield atRuleToCss(item);
           } else {
-            properties.push(...Object.entries(item));
+            exhaustive(item);
+          }
+        }
+      })(),
+    ),
+  );
+}
+
+function styleRuleToCss(node: dsl.StyleRuleAst): css.StyleBlockAst {
+  return css.styleBlock(
+    node.selector,
+    ...Array.from(
+      (function* () {
+        let currentApply = "";
+        for (const item of node.body) {
+          if (item.$ast !== "tailwind-class" && currentApply) {
+            yield css.atRule("apply", currentApply);
+            currentApply = "";
+          }
+
+          if (item.$ast === "tailwind-class") {
+            currentApply += `${currentApply ? " " : ""}${item.value}`;
+          } else if (item.$ast === "style-rule") {
+            yield styleRuleToCss(item);
+          } else if (item.$ast === "style-list") {
+            yield* styleListToCss(item);
+          } else {
+            exhaustive(item);
           }
         }
 
-        if (tailwindClasses.length > 0) {
-          properties.push(["@apply", tailwindClasses.join(" ")]);
+        if (currentApply) {
+          yield css.atRule("apply", currentApply);
         }
-
-        return dsl.styleList(Object.fromEntries(properties));
-      },
-    })
-    .visit(ast);
+      })(),
+    ),
+  );
 }
 
-function cssFunctionToCssValue(ast: dsl.CssFunctionAst<AnyCssValue>) {
-  return (
-    ast.name === "calc" ? cssv`calc(${ast.expression})`
-    : ast.name === "light-dark" ? cssv`light-dark(${ast.light}, ${ast.dark})`
-    : ast.name === "min" ? cssv`min(${ast.values.join(", ")})`
-    : ast.name === "max" ? cssv`max(${ast.values.join(", ")})`
-    : ast.name === "clamp" ?
-      cssv`clamp(${ast.min}, ${ast.preferred}, ${ast.max})`
-    : ast.name === "rgb" ?
-      cssv`rgb(${ast.r}, ${ast.g}, ${ast.b}${ast.alpha ? ` / ${ast.alpha}` : ""})`
-    : ast.name === "hsl" ?
-      cssv`hsl(${ast.h}, ${ast.s}, ${ast.l}${ast.alpha ? ` / ${ast.alpha}` : ""})`
-    : exhaustive(ast)
+function styleListToCss(
+  node: dsl.StyleListAst,
+): (css.AtRuleAst | css.StyleListAst)[] {
+  return Array.from(
+    (function* () {
+      let currentApply = "";
+      let currentStyles: css.StyleProperties | undefined = undefined;
+
+      for (const item of node.styles) {
+        if ("$ast" in item && item.$ast === "tailwind-class") {
+          if (currentStyles) {
+            yield css.styleList(currentStyles);
+            currentStyles = undefined;
+          }
+
+          currentApply += `${currentApply ? " " : ""}${item.value}`;
+        } else {
+          if (currentApply) {
+            yield css.atRule("apply", currentApply);
+            currentApply = "";
+          }
+
+          currentStyles = Object.assign(
+            currentStyles || {},
+            Object.fromEntries(
+              Object.entries(item as dsl.StyleProperties)
+                .filter(
+                  (
+                    entry,
+                  ): entry is [string, Exclude<(typeof entry)[1], undefined>] =>
+                    !!entry[1],
+                )
+                .map(([key, value]) => [
+                  key,
+                  transformStylePropertyValue(value),
+                ]),
+            ),
+          );
+        }
+      }
+
+      if (currentApply) {
+        yield css.atRule("apply", currentApply);
+      }
+
+      if (currentStyles) {
+        yield css.styleList(currentStyles);
+      }
+    })(),
   );
+}
+
+function transformStylePropertyValue(
+  value: Exclude<
+    dsl.StyleProperties[keyof dsl.StyleProperties],
+    Array<unknown>
+  >,
+): css.StyleProperties[keyof css.StyleProperties] | false; // false is used to filter out undefined values;
+function transformStylePropertyValue(
+  value: Extract<
+    dsl.StyleProperties[keyof dsl.StyleProperties],
+    Array<unknown>
+  >,
+): css.StyleProperties[keyof css.StyleProperties];
+function transformStylePropertyValue(
+  value: dsl.StyleProperties[keyof dsl.StyleProperties],
+): css.StyleProperties[keyof css.StyleProperties] | false;
+
+function transformStylePropertyValue(
+  value: dsl.StyleProperties[keyof dsl.StyleProperties],
+): css.StyleProperties[keyof css.StyleProperties] | false {
+  if (!value) {
+    return false;
+  }
+
+  if (value instanceof Array) {
+    return value
+      .flatMap(transformStylePropertyValue)
+      .filter((v): v is Exclude<typeof v, undefined | false> => !!v);
+  }
+
+  const intermediateTransfomredValue = stylesheetVisitorBuilder()
+    .on("color", (ast) => {
+      const key = colorKey(ast);
+
+      return dsl.cssvar(key);
+    })
+    .on("function-spacing", (value) => `--spacing(${value.value})`)
+    .on(
+      "css-var",
+      (value) =>
+        `var(${value.name}${value.fallback !== undefined ? `, ${value.fallback}` : ""})`,
+    )
+    .on("match-value", (value) => matchToString("--value", value.candidates))
+    .on("match-modifier", (value) =>
+      matchToString("--modifier", value.candidates),
+    )
+    .visit(value);
+
+  return (
+    (
+      !intermediateTransfomredValue ||
+        typeof intermediateTransfomredValue === "string" ||
+        typeof intermediateTransfomredValue === "number"
+    ) ?
+      intermediateTransfomredValue
+    : (
+      "$primitive" in intermediateTransfomredValue ||
+      "$function" in intermediateTransfomredValue
+    ) ?
+      `${intermediateTransfomredValue}`
+    : transformCssTemplate(intermediateTransfomredValue)
+  );
+}
+
+function transformCssTemplate(value: {
+  strings: string[];
+  values: unknown[];
+}): css.StylePropertyValue {
+  let result = "";
+
+  for (let i = 0; i < value.strings.length; i++) {
+    result += value.strings[i] || "";
+    const templateValue = value.values[i];
+    if (templateValue !== undefined) {
+      result += `${templateValue}`;
+    }
+  }
+
+  return result;
+}
+
+function transformCssTemplateValue(
+  value: dsl.CssValue<dsl.CssDataType>,
+): string {
+  return (
+    typeof value === "string" || typeof value === "number" ? `${value}`
+    : "$primitive" in value || "$function" in value ? `${value}`
+    : value.$ast === "color" ? colorKey(value)
+    : value.$ast === "css-var" ?
+      `var(--${value.name}${value.fallback !== undefined ? `, ${value.fallback}` : ""})`
+    : value.$ast === "match-value" ? matchToString("--value", value.candidates)
+    : value.$ast === "match-modifier" ?
+      matchToString("--modifier", value.candidates)
+    : exhaustive(value)
+  );
+}
+
+function matchToString(
+  functionName: string,
+  candidates: dsl.TwValueCandidate<CssDataType>[],
+) {
+  const args = candidates.map((candidates) => {
+    return (
+      candidates.$twCandidate === "variable" ? `${candidates.root}-*`
+      : candidates.$twCandidate === "arbitrary" ? `[${candidates.dataType}]`
+      : candidates.dataType
+    );
+  });
+
+  return `${functionName}(${args.join(", ")})`;
 }
 
 function exhaustive(_: never): never {

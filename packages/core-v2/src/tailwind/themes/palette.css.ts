@@ -34,8 +34,8 @@ export default () => [
           dsl.match.arbitraryNumber(),
         ),
       ),
-      dsl.calc(dsl.cssv`${dsl.match.asModifier(dsl.match.integer())} * 1%`),
-      dsl.calc(dsl.cssv`${dsl.match.asModifier(dsl.match.number())} * 100%`),
+      dsl.calc`${dsl.match.asModifier(dsl.match.bare.integer())} * ${dsl.primitive.percentage(1)}`,
+      dsl.calc`${dsl.match.asModifier(dsl.match.bare.number())} * ${dsl.primitive.percentage(100)}`,
     ],
 
     "--tone-current-bg": dsl.colorMix(
@@ -45,7 +45,7 @@ export default () => [
         percentage: dsl.cssvar("--_tone-bg-alpha", "100%"),
       },
       {
-        color: "transparent",
+        color: dsl.primitive.color.transparent(),
       },
     ),
 
@@ -61,7 +61,7 @@ export default () => [
         percentage: dsl.cssvar("--_tone-bg-alpha", "100%"),
       },
       {
-        color: "transparent",
+        color: dsl.primitive.color.transparent(),
       },
     ),
   }),

@@ -3,31 +3,30 @@
  */
 
 import type { AstNode } from "../visitor/visitor-builder.types";
-import type { CssValue, CssVarAst } from "./cssvalue/public";
-import type { ColorAst } from "./color";
+import type { CssDataType, CssValue, CssVarAst } from "./cssvalue/public";
+import type { ColorAst } from "./cssvalue/color";
 import type { FunctionAst } from "./tailwind-functions/public";
 
 /**
  * CSS value types for colors (bg-, text-, border-, etc.)
  */
-export type ColorValue = ColorAst | CssVarAst | string;
+export type ColorValue = CssValue<"color">;
 
 /**
  * CSS value types for lengths/sizes (w-, h-, p-, m-, etc.)
  */
-export type LengthValue = string | CssVarAst | FunctionAst;
+export type LengthValue = CssValue<"length">;
 
 /**
  * Arbitrary value with CSS value support and type constraints per prefix.
  * Can be either a string literal like "[100px]" or a structured type with a constrained CssValue.
  *
- * @template Prefix - The utility prefix (e.g., 'w', 'bg', 'text')
- * @template Value - The allowed CSS value type (ColorValue, LengthValue, or CssValue)
+ * @template D - The CSS data type (color, length, etc.)
+ * @template P - The utility prefix (e.g., 'w', 'bg', 'text')
  */
-export type ArbitraryValue<
-  Prefix extends string = string,
-  Value extends CssValue = CssValue,
-> = `[${string}]` | { prefix: Prefix; value: Value };
+export type ArbitraryValue<D extends CssDataType, P extends string> =
+  | `[${string}]`
+  | { prefix: P; value: CssValue<D> };
 
 // Tailwind spacing scale
 type TailwindSpacing =
@@ -248,15 +247,15 @@ type Margin =
   | `${"m" | "mx" | "my" | "mt" | "mr" | "mb" | "ml" | "ms" | "me"}-${TailwindSpacing | "auto"}`
   | `${"m" | "mx" | "my" | "mt" | "mr" | "mb" | "ml" | "ms" | "me"}-[${string}]`
   | ArbitraryValue<
-      "m" | "mx" | "my" | "mt" | "mr" | "mb" | "ml" | "ms" | "me",
-      LengthValue
+      "length",
+      "m" | "mx" | "my" | "mt" | "mr" | "mb" | "ml" | "ms" | "me"
     >;
 type Padding =
   | `${"p" | "px" | "py" | "pt" | "pr" | "pb" | "pl" | "ps" | "pe"}-${TailwindSpacing}`
   | `${"p" | "px" | "py" | "pt" | "pr" | "pb" | "pl" | "ps" | "pe"}-[${string}]`
   | ArbitraryValue<
-      "p" | "px" | "py" | "pt" | "pr" | "pb" | "pl" | "ps" | "pe",
-      LengthValue
+      "length",
+      "p" | "px" | "py" | "pt" | "pr" | "pb" | "pl" | "ps" | "pe"
     >;
 type Space = `space-${"x" | "y"}-${TailwindSpacing | "reverse"}`;
 
@@ -264,27 +263,27 @@ type Space = `space-${"x" | "y"}-${TailwindSpacing | "reverse"}`;
 type Width =
   | `w-${TailwindSpacing | TailwindFractional | "screen" | "svw" | "lvw" | "dvw" | "min" | "max" | "fit"}`
   | `w-[${string}]`
-  | ArbitraryValue<"w", LengthValue>
+  | ArbitraryValue<"length", "w">
   | `min-w-${TailwindSpacing | TailwindFractional | "full" | "min" | "max" | "fit"}`
   | `min-w-[${string}]`
-  | ArbitraryValue<"min-w", LengthValue>
+  | ArbitraryValue<"length", "min-w">
   | `max-w-${"0" | "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full" | "min" | "max" | "fit" | "prose" | "screen-sm" | "screen-md" | "screen-lg" | "screen-xl" | "screen-2xl"}`
   | `max-w-[${string}]`
-  | ArbitraryValue<"max-w", LengthValue>;
+  | ArbitraryValue<"length", "max-w">;
 type Height =
   | `h-${TailwindSpacing | TailwindFractional | "screen" | "svh" | "lvh" | "dvh" | "min" | "max" | "fit"}`
   | `h-[${string}]`
-  | ArbitraryValue<"h", LengthValue>
+  | ArbitraryValue<"length", "h">
   | `min-h-${TailwindSpacing | TailwindFractional | "full" | "screen" | "svh" | "lvh" | "dvh" | "min" | "max" | "fit"}`
   | `min-h-[${string}]`
-  | ArbitraryValue<"min-h", LengthValue>
+  | ArbitraryValue<"length", "min-h">
   | `max-h-${TailwindSpacing | TailwindFractional | "full" | "screen" | "svh" | "lvh" | "dvh" | "min" | "max" | "fit"}`
   | `max-h-[${string}]`
-  | ArbitraryValue<"max-h", LengthValue>;
+  | ArbitraryValue<"length", "max-h">;
 type Size =
   | `size-${TailwindSpacing | TailwindFractional | "full" | "min" | "max" | "fit"}`
   | `size-[${string}]`
-  | ArbitraryValue<"size", LengthValue>;
+  | ArbitraryValue<"length", "size">;
 
 // Typography
 type FontFamily = "font-sans" | "font-serif" | "font-mono";
@@ -324,7 +323,7 @@ type TextColor =
   | `text-${TailwindColors}`
   | `text-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`
   | `text-[${string}]`
-  | ArbitraryValue<"text", ColorValue>;
+  | ArbitraryValue<"color", "text">;
 type TextDecoration =
   | "underline"
   | "overline"
@@ -368,7 +367,7 @@ type BackgroundColor =
   | `bg-${TailwindColors}`
   | `bg-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`
   | `bg-[${string}]`
-  | ArbitraryValue<"bg", ColorValue>;
+  | ArbitraryValue<"color", "bg">;
 type BackgroundSize = "bg-auto" | "bg-cover" | "bg-contain";
 type BackgroundPosition =
   | "bg-bottom"
@@ -395,6 +394,7 @@ type BorderWidth =
   | `border${"" | "-t" | "-r" | "-b" | "-l" | "-x" | "-y" | "-s" | "-e"}${"" | "-0" | "-2" | "-4" | "-8"}`
   | `border${"" | "-t" | "-r" | "-b" | "-l" | "-x" | "-y" | "-s" | "-e"}-[${string}]`
   | ArbitraryValue<
+      "length",
       | "border"
       | "border-t"
       | "border-r"
@@ -403,14 +403,13 @@ type BorderWidth =
       | "border-x"
       | "border-y"
       | "border-s"
-      | "border-e",
-      LengthValue
+      | "border-e"
     >;
 type BorderColor =
   | `border-${TailwindColors}`
   | `border-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`
   | `border-[${string}]`
-  | ArbitraryValue<"border", ColorValue>;
+  | ArbitraryValue<"color", "border">;
 type BorderStyle =
   | "border-solid"
   | "border-dashed"
@@ -421,7 +420,7 @@ type BorderStyle =
 type DivideWidth =
   | `divide-${"x" | "y"}${"" | "-0" | "-2" | "-4" | "-8" | "-reverse"}`
   | `divide-${"x" | "y"}-[${string}]`
-  | ArbitraryValue<"divide-x" | "divide-y", LengthValue>;
+  | ArbitraryValue<"length", "divide-x" | "divide-y">;
 type DivideColor =
   | `divide-${TailwindColors}`
   | `divide-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`;
@@ -703,59 +702,59 @@ export function tw(value: TailwindUtility): TailwindClassAst {
 }
 
 /**
- * Maps each Tailwind prefix to its allowed CSS value type.
+ * Maps each Tailwind prefix to its CSS data type.
  * This ensures type safety when creating arbitrary values.
  */
-export type PrefixValueMap = {
+export type PrefixDataTypeMap = {
   // Color utilities
-  bg: ColorValue;
-  text: ColorValue;
-  border: ColorValue;
+  bg: "color";
+  text: "color";
+  border: "color";
 
   // Sizing utilities
-  w: LengthValue;
-  h: LengthValue;
-  "min-w": LengthValue;
-  "max-w": LengthValue;
-  "min-h": LengthValue;
-  "max-h": LengthValue;
-  size: LengthValue;
+  w: "length";
+  h: "length";
+  "min-w": "length";
+  "max-w": "length";
+  "min-h": "length";
+  "max-h": "length";
+  size: "length";
 
   // Margin utilities
-  m: LengthValue;
-  mx: LengthValue;
-  my: LengthValue;
-  mt: LengthValue;
-  mr: LengthValue;
-  mb: LengthValue;
-  ml: LengthValue;
-  ms: LengthValue;
-  me: LengthValue;
+  m: "length";
+  mx: "length";
+  my: "length";
+  mt: "length";
+  mr: "length";
+  mb: "length";
+  ml: "length";
+  ms: "length";
+  me: "length";
 
   // Padding utilities
-  p: LengthValue;
-  px: LengthValue;
-  py: LengthValue;
-  pt: LengthValue;
-  pr: LengthValue;
-  pb: LengthValue;
-  pl: LengthValue;
-  ps: LengthValue;
-  pe: LengthValue;
+  p: "length";
+  px: "length";
+  py: "length";
+  pt: "length";
+  pr: "length";
+  pb: "length";
+  pl: "length";
+  ps: "length";
+  pe: "length";
 
   // Border width utilities
-  "border-t": LengthValue;
-  "border-r": LengthValue;
-  "border-b": LengthValue;
-  "border-l": LengthValue;
-  "border-x": LengthValue;
-  "border-y": LengthValue;
-  "border-s": LengthValue;
-  "border-e": LengthValue;
+  "border-t": "length";
+  "border-r": "length";
+  "border-b": "length";
+  "border-l": "length";
+  "border-x": "length";
+  "border-y": "length";
+  "border-s": "length";
+  "border-e": "length";
 
   // Divide utilities
-  "divide-x": LengthValue;
-  "divide-y": LengthValue;
+  "divide-x": "length";
+  "divide-y": "length";
 };
 
 /**
@@ -777,9 +776,11 @@ export type PrefixValueMap = {
  * // Invalid: Type error - can't use length for background
  * arbitraryValue('bg', '100px') // ❌ Type error
  */
-export function arbitraryValue<P extends keyof PrefixValueMap>(
+export function arbitraryValue<P extends keyof PrefixDataTypeMap>(
   prefix: P,
-  value: PrefixValueMap[P],
-): ArbitraryValue<P, PrefixValueMap[P]> {
-  return { prefix, value } as ArbitraryValue<P, PrefixValueMap[P]>;
+  value: CssValue<PrefixDataTypeMap[P]>,
+): ArbitraryValue<PrefixDataTypeMap[P], P> {
+  return { prefix, value };
 }
+
+const x = arbitraryValue("border-b", "2px");

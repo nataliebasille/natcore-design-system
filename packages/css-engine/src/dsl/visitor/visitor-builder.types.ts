@@ -2,17 +2,23 @@
 //    1) Core AST + parent inference
 
 import type { Eager, ExtendsNever, UnionToIntersection } from "../../utils";
-import type { dsl, StylesheetVisitorSpec } from "../public";
+import {
+  dsl,
+  stylesheetVisitorBuilder,
+  type StylesheetVisitorSpec,
+} from "../public";
 
-export type AstNode<Id extends string, E extends Record<string, unknown> = {}> =
-  E extends any ? Eager<{ $ast: Id } & E> : never;
+export type AstNode<
+  Id extends string,
+  E extends Record<string, unknown> = {},
+> = Eager<{ $ast: Id } & E>;
+
 export type AstSpec = {
   $in: unknown;
   $out: unknown;
 };
 
-export type AstSpecIn<Spec extends AstSpec> =
-  Spec extends { $in: infer I } ? I : never;
+export type AstSpecIn<Spec extends AstSpec> = Spec["$in"];
 
 export type AstSpecOut<Spec extends AstSpec> =
   Spec extends { $out: infer O } ? O : AstSpecIn<Spec>;
@@ -24,34 +30,105 @@ export type AstSpecDefinition =
       [K: string]: unknown | { $in: unknown; $out?: unknown };
     };
 
-export type AstSpec_Normalize<Spec extends AstSpecDefinition> = {
-  [K in keyof Spec & string]: Spec[K] extends { $in: infer I; $out: infer O } ?
-    { $in: I; $out: I extends O ? O : I | O }
-  : Spec[K] extends { $in: infer I } ? { $in: I; $out: I }
-  : { $in: Spec[K]; $out: Spec[K] };
+type NormalizeEntry<V> =
+  V extends { $in: infer I; $out: infer O } ?
+    { $in: I; $out: [I] extends [O] ? O : I | O }
+  : V extends { $in: infer I } ? { $in: I; $out: I }
+  : { $in: V; $out: V };
+export type AstSpec_Normalize<Spec extends Record<string, unknown>> = {
+  [K in keyof Spec & string]: NormalizeEntry<Spec[K]>;
 };
 
 export type NormalizedAstSpec = {
   [K: string]: AstSpec;
 };
 
-type UnifiedSpec<Specs extends AstSpecDefinition> = {
-  [K in Extract<Specs, AstNode<string>> as K["$ast"]]: { $in: K; $out: K };
-} & {
-  [K in Extract<
-    Specs,
-    { $in: AstNode<string>; $out: unknown }
-  > as K["$in"]["$ast"]]: K;
-} & UnionToIntersection<
-    Specs extends infer S ?
+type IsAstNode<T> = T extends { $ast: string } ? true : false;
+type AstIdOf<T> = T extends { $ast: infer I extends string } ? I : never;
+
+type AstIndex<Spec extends NormalizedAstSpec> = {
+  [K in keyof Spec & string as AstIdOf<Spec[K]["$in"]>]: K;
+};
+
+type NonAstKeys<Spec extends NormalizedAstSpec> = {
+  [K in keyof Spec & string]: IsAstNode<Spec[K]["$in"]> extends true ? never
+  : K;
+}[keyof Spec & string];
+
+type UpdateNode<
+  Spec extends NormalizedAstSpec,
+  OutMap extends VisitorOutMap<Spec>,
+  Node,
+> =
+  // --- tuples: preserve readonly vs mutable ---
+  Node extends readonly [infer First, ...infer Rest] ?
+    readonly [
+      ApplyOutMap<Spec, OutMap, First>,
+      ...UpdateNode<Spec, OutMap, Rest>,
+    ]
+  : Node extends [infer First, ...infer Rest] ?
+    [ApplyOutMap<Spec, OutMap, First>, ...UpdateNode<Spec, OutMap, Rest>]
+  : Node extends readonly [] ? readonly []
+  : Node extends [] ? []
+  : // --- arrays: mutable first, then readonly ---
+  Node extends (infer E)[] ? ApplyOutMap<Spec, OutMap, E>[]
+  : Node extends readonly (infer E)[] ? readonly ApplyOutMap<Spec, OutMap, E>[]
+  : // --- objects ---
+  Node extends Record<string, unknown> ?
+    {
+      [K in keyof Node]: K extends "$ast" ? Node[K]
+      : ApplyOutMap<Spec, OutMap, Node[K]>;
+    }
+  : Node;
+
+type ApplyOne<
+  Spec extends NormalizedAstSpec,
+  OutMap extends VisitorOutMap<Spec>,
+  Node,
+  Idx extends Record<string, keyof Spec>,
+  NonAst extends keyof Spec,
+> =
+  IsAstNode<Node> extends true ?
+    AstIdOf<Node> extends infer Id extends string ?
+      Id extends keyof Idx ?
+        Idx[Id] extends infer K extends keyof Spec ?
+          K extends keyof OutMap ?
+            OutMap[K]
+          : UpdateNode<Spec, OutMap, Node>
+        : UpdateNode<Spec, OutMap, Node>
+      : UpdateNode<Spec, OutMap, Node>
+    : UpdateNode<Spec, OutMap, Node>
+  : // only attempt non-ast handlers when node isn't ast
+  Extract<NonAst, keyof OutMap> extends infer K2 ?
+    [K2] extends [never] ?
+      UpdateNode<Spec, OutMap, Node>
+    : OutMap[K2 & keyof OutMap]
+  : UpdateNode<Spec, OutMap, Node>;
+
+type UnionKeys<U> = U extends U ? keyof U : never;
+
+type MergeUnionObjects<U> = {
+  [K in UnionKeys<U>]: U extends Record<K, unknown> ? U[K] : never;
+};
+
+type UnifiedSpec<Specs extends AstSpecDefinition> = MergeUnionObjects<
+  // 1) Plain AstNode<string> members -> keyed by $ast, { $in: node; $out: node }
+  | (Extract<Specs, AstNode<string>> extends infer N ?
+      N extends AstNode<infer Id> ?
+        { [K in Id]: { $in: N; $out: N } }
+      : never
+    : never)
+
+  // 2) Explicit { $in: AstNode<string>; $out: unknown } members -> keyed by $in.$ast
+  | (Extract<Specs, { $in: AstNode<string>; $out: unknown }> extends infer S ?
       S extends { $in: AstNode<infer Id> } ?
         { [K in Id]: S }
       : never
-    : never
-  > &
-  UnionToIntersection<
-    Exclude<Specs, AstNode<string> | { $in: unknown; $out: unknown }>
-  >;
+    : never)
+
+  // 3) Object-map members { [K: string]: ... } pass through as-is
+  | Exclude<Specs, AstNode<string> | { $in: unknown; $out: unknown }>
+>;
 
 export type CombinedAstSpec<Specs extends AstSpecDefinition> =
   AstSpec_Normalize<{
@@ -68,49 +145,8 @@ export type ApplyOutMap<
   Node,
 > =
   Node extends unknown ?
-    KeysForNode<Spec, Node> extends infer K ?
-      ExtendsNever<K> extends true ? UpdateNodeWithOutMap<Spec, OutMap, Node>
-      : Extract<K, keyof OutMap> extends infer HandlerKeys ?
-        ExtendsNever<HandlerKeys> extends true ?
-          // No handlers for this node type
-          UpdateNodeWithOutMap<Spec, OutMap, Node>
-        : // Has handler(s) - pick first/any since they should be mutually exclusive
-          UpdateNodeWithOutMap<Spec, OutMap, OutMap[HandlerKeys & keyof OutMap]>
-      : never
-    : UpdateNodeWithOutMap<Spec, OutMap, Node>
+    ApplyOne<Spec, OutMap, Node, AstIndex<Spec>, NonAstKeys<Spec>>
   : never;
-
-type UpdateNodeWithOutMap<
-  Spec extends NormalizedAstSpec,
-  OutMap extends VisitorOutMap<Spec>,
-  Node,
-> =
-  // Handle tuples before arrays
-  Node extends readonly [infer First, ...infer Rest] ?
-    [
-      ApplyOutMap<Spec, OutMap, First>,
-      ...UpdateNodeWithOutMap<Spec, OutMap, Rest>,
-    ]
-  : Node extends readonly [] ? []
-  : Node extends readonly (infer E)[] ? ApplyOutMap<Spec, OutMap, E>[]
-  : Node extends Record<string, unknown> ?
-    {
-      [K in keyof Node]: K extends "$ast" ? Node[K]
-      : ApplyOutMap<Spec, OutMap, Node[K]>;
-    }
-  : Node;
-
-type KeysForNode<Spec extends NormalizedAstSpec, Node> = {
-  [K in keyof Spec]: Node extends AstNode<infer NodeId> ?
-    // Node is an AST node - only match if Spec $in is same AST node type
-    Spec[K]["$in"] extends AstNode<NodeId> ?
-      K
-    : never
-  : // Node is NOT an AST node - only match if Spec $in is also not an AST node
-  Spec[K]["$in"] extends AstNode<string> ? never
-  : Node extends Spec[K]["$in"] ? K
-  : never;
-}[keyof Spec];
 
 export type ParentsOf<
   Spec extends NormalizedAstSpec,
@@ -163,7 +199,7 @@ type VisitorFunctionEnter<
   Spec extends NormalizedAstSpec,
   OutMap extends VisitorOutMap<Spec>,
   Id extends keyof Spec,
-  Out extends AstSpecOut<Spec[Id]>,
+  Out,
 > = (
   node: AstSpecIn<Spec[Id]>,
   context: VisitorContext<Spec, AstSpecIn<Spec[Id]>, OutMap>,
@@ -173,45 +209,86 @@ type VisitorFunctionExit<
   Spec extends NormalizedAstSpec,
   OutMap extends VisitorOutMap<Spec>,
   Id extends keyof Spec,
-  Out extends AstSpecOut<Spec[Id]>,
+  ExitIn,
+  ExitOut,
 > = (
-  node: ApplyOutMap<Spec, OutMap, AstSpecIn<Spec[Id]>>,
+  node: ExitIn,
   context: VisitorContext<Spec, AstSpecIn<Spec[Id]>, OutMap>,
-) => Out;
+) => ExitOut;
 
-type VisitorEventFunctions<
+type WithSelf<
   Spec extends NormalizedAstSpec,
   OutMap extends VisitorOutMap<Spec>,
-  Id extends keyof Spec,
-  EnterOut extends AstSpecOut<Spec[Id]>,
-  ExitOut extends AstSpecOut<Spec[Id]> = EnterOut,
-> = {
-  enter?: VisitorFunctionEnter<Spec, OutMap, Id, EnterOut>;
-  exit?: VisitorFunctionExit<Spec, OutMap, Id, ExitOut>;
-};
+  K extends keyof Spec,
+  SelfOut,
+> = OutMap & { [P in K]: SelfOut };
+declare const __visitor_spec: unique symbol;
+declare const __visitor_outMap: unique symbol;
+
+type WithSelfDeclared<
+  Spec extends NormalizedAstSpec,
+  OutMap extends VisitorOutMap<Spec>,
+  K extends keyof Spec,
+> = OutMap & { [P in K]: AstSpecOut<Spec[K]> };
 
 export type VisitorBuilder<
   Spec extends NormalizedAstSpec,
   OutMap extends VisitorOutMap<Spec>,
 > = {
+  // enter+exit
+  on<K extends keyof Spec, EnterOut, ExitOut extends AstSpecOut<Spec[K]>>(
+    type: K,
+    handler: {
+      enter: VisitorFunctionEnter<Spec, OutMap, K, EnterOut>;
+      exit: (
+        node: ApplyOutMap<Spec, WithSelfDeclared<Spec, OutMap, K>, EnterOut>,
+        context: VisitorContext<
+          Spec,
+          AstSpecIn<Spec[K]>,
+          WithSelfDeclared<Spec, OutMap, K>
+        >,
+      ) => ExitOut;
+    },
+  ): VisitorBuilder<Spec, OutMap & { [P in K]: ExitOut }>;
+
+  // enter-only (single function)
   on<K extends keyof Spec, Out extends AstSpecOut<Spec[K]>>(
     type: K,
     handler: VisitorFunctionEnter<Spec, OutMap, K, Out>,
   ): VisitorBuilder<Spec, OutMap & { [P in K]: Out }>;
 
-  on<
-    K extends keyof Spec,
-    EnterOut extends AstSpecOut<Spec[K]>,
-    ExitOut extends AstSpecOut<Spec[K]> = EnterOut,
-  >(
+  // enter-only (object)
+  on<K extends keyof Spec, EnterOut extends AstSpecOut<Spec[K]>>(
     type: K,
-    handler: VisitorEventFunctions<Spec, OutMap, K, EnterOut, ExitOut>,
+    handler: {
+      enter: VisitorFunctionEnter<Spec, OutMap, K, EnterOut>;
+      exit?: never;
+    },
+  ): VisitorBuilder<Spec, OutMap & { [P in K]: EnterOut }>;
+
+  // exit-only  ✅ recursion works, no circular inference
+  on<K extends keyof Spec, ExitOut extends AstSpecOut<Spec[K]>>(
+    type: K,
+    handler: {
+      enter?: never;
+      exit: (
+        node: ApplyOutMap<
+          Spec,
+          WithSelfDeclared<Spec, OutMap, K>,
+          AstSpecIn<Spec[K]>
+        >,
+        context: VisitorContext<
+          Spec,
+          AstSpecIn<Spec[K]>,
+          WithSelfDeclared<Spec, OutMap, K>
+        >,
+      ) => ExitOut;
+    },
   ): VisitorBuilder<Spec, OutMap & { [P in K]: ExitOut }>;
 
-  visit<Node extends readonly AstSpecIn<Spec[keyof Spec]>[]>(
+  visit<Node extends readonly any[]>(
     node: Node,
   ): ApplyOutMap<Spec, OutMap, Node>;
-  visit<Node extends AstSpecIn<Spec[keyof Spec]>>(
-    node: Node,
-  ): ApplyOutMap<Spec, OutMap, Node>;
+
+  visit<Node>(node: Node): ApplyOutMap<Spec, OutMap, Node>;
 };

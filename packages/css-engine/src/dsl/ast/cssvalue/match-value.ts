@@ -1,78 +1,179 @@
-export type MatchValueAst = {
+import type { Eager } from "../../../utils";
+import type {
+  CssDataType,
+  SupportedArbitraryDataType,
+  SupportedBareDataType,
+} from "./css-primitive";
+import type { VarLiteral } from "./cssvar";
+
+type TwCandiate<Name, Args extends Record<string, unknown>> =
+  Args extends any ? Eager<{ $twCandidate: Name } & Args> : never;
+
+export type TwVariableCandidate = TwCandiate<"variable", { root: VarLiteral }>;
+
+export type TwArbitraryCandidate =
+  SupportedArbitraryDataType | "*" extends infer T ?
+    T extends string ?
+      TwCandiate<"arbitrary", { dataType: T }>
+    : never
+  : never;
+
+export type TwBareCandidate =
+  SupportedBareDataType extends infer T ?
+    T extends string ?
+      TwCandiate<"bare", { dataType: T }>
+    : never
+  : never;
+
+export type TwValueCandidate<D extends CssDataType> =
+  | TwVariableCandidate
+  | Extract<TwArbitraryCandidate, { dataType: "*" }>
+  | (D extends CssDataType ? Extract<TwArbitraryCandidate, { dataType: D }>
+    : never)
+  | (D extends CssDataType ? Extract<TwBareCandidate, { dataType: D }> : never);
+
+export type MatchValueAst<D extends CssDataType> = {
   $ast: "match-value";
-  candidates: TwValueCandidate[];
+  candidates: TwValueCandidate<D>[];
 };
 
-export type MatchModifierAst = {
+export type MatchModifierAst<D extends CssDataType> = {
   $ast: "match-modifier";
-  candidates: TwValueCandidate[];
+  candidates: TwValueCandidate<D>[];
 };
-
-export type TwVariableCandidate = { type: "var"; root: `--${string}` };
-export type TwArbitraryCandidate = never;
-
-export type TwValueCandidate =
-  | { type: "var"; var: `--${string}` }
-  | {
-      type: "arbitrary";
-      hint?: "*" | "length" | "color" | "number" | "ident" | "percentage";
-    }
-  | { type: "primitive"; kind: "integer" | "number" | "ident" };
 
 export const match = {
   // CSS Variable
-  variable: (varName: `--${string}`): MatchValueAst => ({
+  variable: (varName: `--${string}`): MatchValueAst<CssDataType> => ({
     $ast: "match-value",
-    candidates: [{ type: "var", var: varName }],
+    candidates: [{ $twCandidate: "variable", root: varName }],
   }),
 
   // Arbitrary values
-  arbitraryAny: (): MatchValueAst => ({
+  arbitrary: {
+    any: (): MatchValueAst<CssDataType> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "*" }],
+    }),
+    absoluteSize: (): MatchValueAst<"absolute-size"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "absolute-size" }],
+    }),
+    angle: (): MatchValueAst<"angle"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "angle" }],
+    }),
+    bgSize: (): MatchValueAst<"bg-size"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "bg-size" }],
+    }),
+    color: (): MatchValueAst<"color"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "color" }],
+    }),
+    familyName: (): MatchValueAst<"family-name"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "family-name" }],
+    }),
+    genericName: (): MatchValueAst<"generic-name"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "generic-name" }],
+    }),
+    image: (): MatchValueAst<"image"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "image" }],
+    }),
+    length: (): MatchValueAst<"length"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "length" }],
+    }),
+    lineWidth: (): MatchValueAst<"line-width"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "line-width" }],
+    }),
+    number: (): MatchValueAst<"number"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "number" }],
+    }),
+    percentage: (): MatchValueAst<"percentage"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "percentage" }],
+    }),
+    position: (): MatchValueAst<"position"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "position" }],
+    }),
+    ratio: (): MatchValueAst<"ratio"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "ratio" }],
+    }),
+    relativeSize: (): MatchValueAst<"relative-size"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "relative-size" }],
+    }),
+    url: (): MatchValueAst<"url"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "url" }],
+    }),
+    vector: (): MatchValueAst<"vector"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "arbitrary", dataType: "vector" }],
+    }),
+  },
+
+  // Legacy arbitrary aliases (for backward compatibility)
+  arbitraryAny: (): MatchValueAst<CssDataType> => ({
     $ast: "match-value",
-    candidates: [{ type: "arbitrary", hint: "*" }],
+    candidates: [{ $twCandidate: "arbitrary", dataType: "*" }],
   }),
-  arbitraryLength: (): MatchValueAst => ({
+  arbitraryLength: (): MatchValueAst<"length"> => ({
     $ast: "match-value",
-    candidates: [{ type: "arbitrary", hint: "length" }],
+    candidates: [{ $twCandidate: "arbitrary", dataType: "length" }],
   }),
-  arbitraryColor: (): MatchValueAst => ({
+  arbitraryColor: (): MatchValueAst<"color"> => ({
     $ast: "match-value",
-    candidates: [{ type: "arbitrary", hint: "color" }],
+    candidates: [{ $twCandidate: "arbitrary", dataType: "color" }],
   }),
-  arbitraryNumber: (): MatchValueAst => ({
+  arbitraryNumber: (): MatchValueAst<"number"> => ({
     $ast: "match-value",
-    candidates: [{ type: "arbitrary", hint: "number" }],
+    candidates: [{ $twCandidate: "arbitrary", dataType: "number" }],
   }),
-  arbitraryIdent: (): MatchValueAst => ({
+  arbitraryPercentage: (): MatchValueAst<"percentage"> => ({
     $ast: "match-value",
-    candidates: [{ type: "arbitrary", hint: "ident" }],
-  }),
-  arbitraryPercentage: (): MatchValueAst => ({
-    $ast: "match-value",
-    candidates: [{ type: "arbitrary", hint: "percentage" }],
+    candidates: [{ $twCandidate: "arbitrary", dataType: "percentage" }],
   }),
 
-  // Primitives
-  integer: (): MatchValueAst => ({
-    $ast: "match-value",
-    candidates: [{ type: "primitive", kind: "integer" }],
-  }),
-  number: (): MatchValueAst => ({
-    $ast: "match-value",
-    candidates: [{ type: "primitive", kind: "number" }],
-  }),
-  ident: (): MatchValueAst => ({
-    $ast: "match-value",
-    candidates: [{ type: "primitive", kind: "ident" }],
-  }),
+  // Bare/Primitive values
+  bare: {
+    integer: (): MatchValueAst<"integer"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "bare", dataType: "integer" }],
+    }),
+    number: (): MatchValueAst<"number"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "bare", dataType: "number" }],
+    }),
+    percentage: (): MatchValueAst<"percentage"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "bare", dataType: "percentage" }],
+    }),
+    ratio: (): MatchValueAst<"ratio"> => ({
+      $ast: "match-value",
+      candidates: [{ $twCandidate: "bare", dataType: "ratio" }],
+    }),
+  },
 
   // Union of multiple resolved values
-  oneOf: (...values: MatchValueAst[]): MatchValueAst => ({
+  oneOf: <D extends CssDataType>(
+    ...values: MatchValueAst<D>[]
+  ): MatchValueAst<D> => ({
     $ast: "match-value",
     candidates: values.flatMap((v) => v.candidates),
   }),
 
-  asModifier(value: MatchValueAst): MatchModifierAst {
+  asModifier: <D extends CssDataType>(
+    value: MatchValueAst<D>,
+  ): MatchModifierAst<D> => {
     return {
       $ast: "match-modifier",
       candidates: value.candidates,

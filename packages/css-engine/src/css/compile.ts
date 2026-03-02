@@ -1,7 +1,9 @@
 import type {
   StylesheetSimpleAst,
   StyleProperties,
+  StylePropertyValue,
   StylesheetAst,
+  AtRuleAst,
 } from "./ast";
 import { combine } from "../utils";
 
@@ -25,7 +27,7 @@ function compileAstNode(node: StylesheetSimpleAst, depth: number): string {
       )
     : node.$css === "style-block" ?
       compileAstBody(node.selector, node.body, depth)
-    : compileAstStyleProperties(node.styles, depth)
+    : compileAstStyleList(node.styles, depth)
   );
 }
 
@@ -48,13 +50,37 @@ function compileAstBody(
   return `${indent}${prelude} {\n${bodyContent}\n${indent}}`;
 }
 
+function compileAstStyleList(
+  styles: (StyleProperties | AtRuleAst)[],
+  depth: number,
+): string {
+  return styles
+    .map((style) =>
+      isAtRuleStyleListItem(style) ?
+        compileAstNode(style, depth)
+      : compileAstStyleProperties(style, depth),
+    )
+    .join("\n");
+}
+
+function isAtRuleStyleListItem(
+  style: StyleProperties | AtRuleAst,
+): style is AtRuleAst {
+  return (
+    typeof style === "object" &&
+    style !== null &&
+    "$css" in style &&
+    style.$css === "at-rule"
+  );
+}
+
 function compileAstStyleProperties(
   styles: StyleProperties,
   depth: number,
 ): string {
   const indent = "  ".repeat(depth);
   return Object.entries(styles)
-    .map(([key, value]: [string, string | number | (string | number)[]]) => {
+    .map(([key, value]: [string, StylePropertyValue]) => {
       if (Array.isArray(value)) {
         return value.map((v) => `${indent}${key}: ${v};`).join("\n");
       }

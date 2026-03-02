@@ -1,19 +1,17 @@
 import type { AtRuleAst } from "./at-rule";
 import type { StyleListAst } from "./style-list";
 
-export type StyleBlockSimpleBody = AtRuleAst | StyleListAst | StyleBlockAst;
+export type StyleBlockBody = AtRuleAst | StyleListAst | StyleBlockAst;
 
 export type StyleBlockAst = {
   $css: "style-block";
   selector: string;
-  body: StyleBlockSimpleBody | Array<StyleBlockSimpleBody>;
+  body: Array<StyleBlockBody>;
 };
-
-export type StyleBlockBuilder = typeof styleBlock;
 
 export function styleBlock<S extends string>(
   selector: S,
-  body: StyleBlockAst["body"],
+  ...body: StyleBlockBody[]
 ) {
   return {
     $css: "style-block",

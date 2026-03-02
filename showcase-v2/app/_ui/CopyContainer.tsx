@@ -43,7 +43,7 @@ export const CopyContainer = ({ children }: CopyContainerProps) => {
       </div>
       <span
         className={classnames("flex-initial cursor-pointer pl-2", {
-          "text-secondary-scale-500 font-bold": copiedText === "copied!",
+          "text-tone-500-secondary font-bold": copiedText === "copied!",
         })}
         onClick={handleClick}
       >

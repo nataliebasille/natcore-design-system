@@ -4,18 +4,14 @@
 
 import type { AstNode } from "../visitor/visitor-builder.types";
 import type { css } from "../../css";
-import type {
-  AnyCssValue,
-  CssFunctionAst,
-  CssValue,
-  TemplateLiteralAst,
-} from "./cssvalue/public";
+import type { CssDataType, CssFunction, CssValue } from "./cssvalue/public";
 import type { Selector } from "./selector";
 import {
   tw,
   type TailwindClassAst,
   type TailwindUtility,
 } from "./tailwind-utilities";
+import type { TemplateLiteralAst } from "./cssvalue/template-literal";
 
 export type {
   TailwindUtility,
@@ -26,52 +22,43 @@ export type {
 } from "./tailwind-utilities";
 export { arbitraryValue } from "./tailwind-utilities";
 
-export type StyleProperties<AllowedValue extends AnyCssValue = CssValue> = {
+export type StyleProperties = {
   [K in keyof css.StyleProperties]?:
-    | AllowedValue
-    | TemplateLiteralAst<AllowedValue>
-    | CssFunctionAst<AllowedValue>
-    | (
-        | AllowedValue
-        | TemplateLiteralAst<AllowedValue>
-        | CssFunctionAst<AllowedValue>
-      )[];
+    | CssValue<CssDataType>
+    | TemplateLiteralAst<CssDataType>
+    | CssFunction
+    | (CssValue<CssDataType> | TemplateLiteralAst<CssDataType> | CssFunction)[];
 };
 
-export type StyleListAst<AllowedValue extends AnyCssValue = CssValue> = AstNode<
+export type StyleListAst = AstNode<
   "style-list",
-  { styles: (StyleProperties<AllowedValue> | TailwindClassAst)[] }
+  { styles: (StyleProperties | TailwindClassAst)[] }
 >;
-export type StyleRuleBody<AllowedValue extends AnyCssValue = CssValue> =
-  | StyleListAst<AllowedValue>
-  | StyleRuleAst<AllowedValue>;
-export type StyleRuleAst<AllowedValue extends AnyCssValue = CssValue> = AstNode<
+export type StyleRuleBody = StyleListAst | StyleRuleAst | TailwindClassAst;
+export type StyleRuleAst = AstNode<
   "style-rule",
   {
     selector: Selector;
-    body: StyleRuleBody<AllowedValue>[];
+    body: StyleRuleBody[];
   }
 >;
 
-export type StyleRuleBodyBuilder<AllowedValue extends AnyCssValue = CssValue> =
-  | StyleListAst<AllowedValue>
-  | StyleRuleAst<AllowedValue>
-  | (StyleProperties<AllowedValue> & {
+export type StyleRuleBodyBuilder =
+  | StyleListAst
+  | StyleRuleAst
+  | TailwindUtility
+  | (StyleProperties & {
       $?: {
-        [K in Selector]?:
-          | StyleRuleBodyBuilder<AllowedValue>
-          | StyleRuleBodyBuilder<AllowedValue>[];
+        [K in Selector]?: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
       };
     });
 
-type BodyBuilder_To_StyleRuleBody<
-  V extends AnyCssValue,
-  T extends StyleRuleBodyBuilder<V>[],
-> =
-  T extends [infer U, ...infer R extends StyleRuleBodyBuilder<V>[]] ?
+type BodyBuilder_To_StyleRuleBody<T extends StyleRuleBodyBuilder[]> =
+  T extends [infer U, ...infer R extends StyleRuleBodyBuilder[]] ?
     [
-      ...(U extends StyleListAst<V> ? [U]
-      : U extends StyleRuleAst<V> ? [U]
+      ...(U extends TailwindUtility ? [{ $ast: "tailwind-class"; value: U }]
+      : U extends StyleListAst ? [U]
+      : U extends StyleRuleAst ? [U]
       : U extends { $: infer Nested } ?
         [
           {
@@ -94,25 +81,31 @@ type BodyBuilder_To_StyleRuleBody<
             ];
           },
         ]),
-      ...BodyBuilder_To_StyleRuleBody<V, R>,
+      ...BodyBuilder_To_StyleRuleBody<R>,
     ]
+  : T extends (infer U)[] ?
+    // Handle array types by converting each possible element
+    (U extends TailwindUtility ? { $ast: "tailwind-class"; value: U }
+    : U extends StyleListAst | StyleRuleAst ? U
+    : U extends { $: any } ? StyleListAst | StyleRuleAst
+    : StyleListAst)[]
   : [];
 
-type NestedSelectorsToAst<T, V extends AnyCssValue = CssValue> =
-  T extends Partial<Record<Selector, StyleRuleBodyBuilder<V>>> ?
+type NestedSelectorsToAst<T> =
+  T extends Partial<Record<Selector, StyleRuleBodyBuilder>> ?
     Array<
       {
-        [K in keyof T]: T[K] extends StyleRuleBodyBuilder<V> ?
+        [K in keyof T]: T[K] extends StyleRuleBodyBuilder ?
           {
             $ast: "style-rule";
             selector: K;
-            body: BodyBuilder_To_StyleRuleBody<V, [T[K]]>;
+            body: BodyBuilder_To_StyleRuleBody<[T[K]]>;
           }
-        : T[K] extends StyleRuleBodyBuilder<V>[] ?
+        : T[K] extends StyleRuleBodyBuilder[] ?
           {
             $ast: "style-rule";
             selector: K;
-            body: BodyBuilder_To_StyleRuleBody<V, T[K]>;
+            body: BodyBuilder_To_StyleRuleBody<T[K]>;
           }
         : never;
       }[keyof T]
@@ -124,32 +117,47 @@ type NestedSelectorsToAst<T, V extends AnyCssValue = CssValue> =
  */
 export function styleRule<
   const S extends Selector,
-  const B extends StyleRuleBodyBuilder<V>[],
-  const V extends AnyCssValue = CssValue,
+  const B extends StyleRuleBodyBuilder[],
 >(selector: S, ...body: B) {
-  const astBody: StyleRuleBody<V>[] = body.flatMap((item) => {
-    if ("$ast" in item) return [item];
+  const astBody: StyleRuleBody[] = body.flatMap((item): StyleRuleBody[] => {
+    // Handle strings (TailwindUtility)
+    if (typeof item === "string") {
+      return [tw(item)];
+    }
 
+    // Handle AST nodes (StyleListAst, StyleRuleAst, TailwindClassAst)
+    if (typeof item === "object" && item !== null && "$ast" in item) {
+      return [item];
+    }
+
+    // Handle ArbitraryValue objects (which have prefix/value structure)
+    if (
+      typeof item === "object" &&
+      item !== null &&
+      "prefix" in item &&
+      "value" in item
+    ) {
+      return [tw(item as TailwindUtility)];
+    }
+
+    // Handle StyleProperties with optional nested selectors
     const { $, ...styles } = item;
 
     return [
       ...(Object.keys(styles).length > 0 ?
-        [{ $ast: "style-list", styles: [styles] } satisfies StyleListAst<V>]
+        [{ $ast: "style-list", styles: [styles] } satisfies StyleListAst]
       : []),
       ...(typeof $ === "object" ?
         Object.entries($).map(([sel, body]) => {
           const nestedBody = (
             !body ? []
             : Array.isArray(body) ? body
-            : [body]) as StyleRuleBodyBuilder<V>[];
+            : [body]) as StyleRuleBodyBuilder[];
           return (
-            styleRule as <
-              S extends Selector,
-              B extends StyleRuleBodyBuilder<V>[],
-            >(
+            styleRule as <S extends Selector, B extends StyleRuleBodyBuilder[]>(
               selector: S,
               ...body: B
-            ) => StyleRuleAst<V>
+            ) => StyleRuleAst
           )(sel as Selector, ...nestedBody);
         })
       : []),
@@ -159,47 +167,44 @@ export function styleRule<
   return {
     $ast: "style-rule" as const,
     selector,
-    body: astBody as BodyBuilder_To_StyleRuleBody<
-      V,
-      B
-    > satisfies StyleRuleBody<V>[],
+    body: astBody as BodyBuilder_To_StyleRuleBody<B> satisfies StyleRuleBody[],
   };
 }
 
-export type StyleListBuilder<AllowedValue extends AnyCssValue = CssValue> =
-  | StyleProperties<AllowedValue>
+export type StyleListBuilder =
+  | StyleProperties
   | TailwindUtility
   | TailwindClassAst;
 
-type ListBuilder_To_StyleListAst<
-  V extends AnyCssValue,
-  T extends StyleListBuilder<V>[],
-> =
-  T extends [infer U, ...infer R extends StyleListBuilder<V>[]] ?
+type ListBuilder_To_StyleListAst<T extends StyleListBuilder[]> =
+  T extends [infer U, ...infer R extends StyleListBuilder[]] ?
     [
       ...(U extends TailwindUtility ? [{ $ast: "tailwind-class"; value: U }]
       : U extends TailwindClassAst ? [U]
-      : U extends StyleProperties<V> ?
+      : U extends StyleProperties ?
         [
           {
             -readonly [K in keyof U]: U[K];
           },
         ]
       : []),
-      ...ListBuilder_To_StyleListAst<V, R>,
+      ...ListBuilder_To_StyleListAst<R>,
     ]
+  : T extends (infer U)[] ?
+    // Handle array types by converting each possible element
+    (U extends TailwindUtility ? { $ast: "tailwind-class"; value: U }
+    : U extends TailwindClassAst ? U
+    : U extends StyleProperties ? StyleProperties
+    : never)[]
   : [];
 
-export function styleList<
-  const B extends StyleListBuilder<V>[],
-  const V extends AnyCssValue = CssValue,
->(...styles: B) {
+export function styleList<const B extends StyleListBuilder[]>(...styles: B) {
   return {
     $ast: "style-list" as const,
     styles: styles.map((s) =>
       typeof s === "string" ? tw(s)
       : typeof s === "object" && "prefix" in s ? tw(s)
       : s,
-    ) as ListBuilder_To_StyleListAst<V, B> satisfies StyleListAst<V>["styles"],
-  } satisfies StyleListAst<V>;
+    ) as ListBuilder_To_StyleListAst<B> satisfies StyleListAst["styles"],
+  } satisfies StyleListAst;
 }
