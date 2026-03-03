@@ -325,4 +325,19 @@ describe("ApplyOutMap", () => {
     type Actual = ApplyOutMap<Spec, OutMap, typeof node>;
     expectTypeOf<Actual>().toEqualTypeOf<Expected>();
   });
+
+  it("should remap a mapped ast node when enter returns a different ast type", () => {
+    type AstA = { $in: { $ast: "A"; value: string }; $out: AstB["$in"] };
+    type AstB = { $in: { $ast: "B"; value: number }; $out: string };
+    type Spec = CombinedAstSpec<AstA | AstB>;
+
+    type OutMap = {
+      A: AstB["$in"];
+      B: string;
+    };
+
+    type Expected = string;
+    type Actual = ApplyOutMap<Spec, OutMap, AstA["$in"]>;
+    expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+  });
 });

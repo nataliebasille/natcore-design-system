@@ -22,12 +22,13 @@ export type {
 } from "./tailwind-utilities";
 export { arbitraryValue } from "./tailwind-utilities";
 
+export type StylePropertyValue =
+  | CssValue<CssDataType>
+  | TemplateLiteralAst<CssDataType>
+  | CssFunction;
+
 export type StyleProperties = {
-  [K in keyof css.StyleProperties]?:
-    | CssValue<CssDataType>
-    | TemplateLiteralAst<CssDataType>
-    | CssFunction
-    | (CssValue<CssDataType> | TemplateLiteralAst<CssDataType> | CssFunction)[];
+  [K in keyof css.StyleProperties]?: StylePropertyValue | StylePropertyValue[];
 };
 
 export type StyleListAst = AstNode<

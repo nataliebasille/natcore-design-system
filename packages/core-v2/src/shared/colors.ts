@@ -24,11 +24,36 @@ export function colorKey(
   color: Pick<ColorAst, "role" | "palette" | "mode" | "shade">,
 ) {
   const mode = color.mode === "adaptive" ? ("tone" as const) : color.mode;
-  return `--color${color.role === "text" ? ("-on" as const) : ("" as const)}-${mode}-${color.shade}-${color.palette}` as const;
+  return `--color${color.role === "text" ? ("-on" as const) : ("" as const)}-${mode}-${color.shade}${color.palette !== "current" ? `-${color.palette}` : ""}` as const;
 }
 
 export function toneKey(color: Pick<ColorAst, "shade" | "role">) {
-  return `--tone${color.role === "text" ? ("-on" as const) : ("" as const)}-${color.shade}` as const;
+  return `--${color.role === "text" ? ("on-" as const) : ("" as const)}tone-${color.shade}` as const;
+}
+
+export function renderPalette(
+  tones: Pick<ColorAst, "shade" | "role">[],
+  opt: { modifier?: true } = {},
+) {
+  const renderer = (tone: Pick<ColorAst, "shade" | "role">) => {
+    const match = dsl.match.variable(
+      colorKey({
+        ...tone,
+        palette: "current",
+        mode: "adaptive",
+      }),
+    );
+
+    return opt.modifier ? dsl.match.asModifier(match) : match;
+  };
+
+  const dedup = new Map(tones.map((tone) => [toneKey(tone), tone]));
+
+  return Object.fromEntries(
+    Array.from(dedup.entries()).map(
+      ([key, tone]) => [key, renderer(tone)] as const,
+    ),
+  );
 }
 
 export function matchColor() {

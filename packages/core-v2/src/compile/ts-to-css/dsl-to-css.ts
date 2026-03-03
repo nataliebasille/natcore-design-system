@@ -161,18 +161,16 @@ function transformStylePropertyValue(
       .filter((v): v is Exclude<typeof v, undefined | false> => !!v);
   }
 
-  const intermediateTransfomredValue = stylesheetVisitorBuilder()
+  const intermediateTransformedValue = stylesheetVisitorBuilder()
     .on("color", (ast) => {
       const key = colorKey(ast);
 
       return dsl.cssvar(key);
     })
     .on("function-spacing", (value) => `--spacing(${value.value})`)
-    .on(
-      "css-var",
-      (value) =>
-        `var(${value.name}${value.fallback !== undefined ? `, ${value.fallback}` : ""})`,
-    )
+    .on("css-var", function cssVarToString(value): string {
+      return `var(${value.name}${value.fallback ? `, ${typeof value.fallback === "object" ? cssVarToString(value.fallback) : ""}` : ""})`;
+    })
     .on("match-value", (value) => matchToString("--value", value.candidates))
     .on("match-modifier", (value) =>
       matchToString("--modifier", value.candidates),
@@ -181,17 +179,17 @@ function transformStylePropertyValue(
 
   return (
     (
-      !intermediateTransfomredValue ||
-        typeof intermediateTransfomredValue === "string" ||
-        typeof intermediateTransfomredValue === "number"
+      !intermediateTransformedValue ||
+        typeof intermediateTransformedValue === "string" ||
+        typeof intermediateTransformedValue === "number"
     ) ?
-      intermediateTransfomredValue
+      intermediateTransformedValue
     : (
-      "$primitive" in intermediateTransfomredValue ||
-      "$function" in intermediateTransfomredValue
+      "$primitive" in intermediateTransformedValue ||
+      "$function" in intermediateTransformedValue
     ) ?
-      `${intermediateTransfomredValue}`
-    : transformCssTemplate(intermediateTransfomredValue)
+      `${intermediateTransformedValue}`
+    : transformCssTemplate(intermediateTransformedValue)
   );
 }
 
@@ -210,22 +208,6 @@ function transformCssTemplate(value: {
   }
 
   return result;
-}
-
-function transformCssTemplateValue(
-  value: dsl.CssValue<dsl.CssDataType>,
-): string {
-  return (
-    typeof value === "string" || typeof value === "number" ? `${value}`
-    : "$primitive" in value || "$function" in value ? `${value}`
-    : value.$ast === "color" ? colorKey(value)
-    : value.$ast === "css-var" ?
-      `var(--${value.name}${value.fallback !== undefined ? `, ${value.fallback}` : ""})`
-    : value.$ast === "match-value" ? matchToString("--value", value.candidates)
-    : value.$ast === "match-modifier" ?
-      matchToString("--modifier", value.candidates)
-    : exhaustive(value)
-  );
 }
 
 function matchToString(

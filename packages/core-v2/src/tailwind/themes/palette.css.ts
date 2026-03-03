@@ -1,22 +1,18 @@
 import { dsl, SHADES, utility } from "@nataliebasille/natcore-css-engine";
-import { matchColor, matchTextColor, toneKey } from "../../shared/colors";
+import {
+  matchColor,
+  matchTextColor,
+  renderPalette,
+  toneKey,
+} from "../../shared/colors";
 
 export default () => [
   utility(
     "palette",
-    Object.fromEntries(
+    renderPalette(
       SHADES.flatMap((shade) => [
-        [
-          toneKey({ shade, role: "base" }),
-          dsl.match.variable(`--tone-${shade}`),
-        ],
-        [
-          toneKey({
-            shade,
-            role: "text",
-          }),
-          dsl.match.variable(`--on-tone-${shade}`),
-        ],
+        { shade, role: "base" },
+        { shade, role: "text" },
       ]),
     ),
   ),

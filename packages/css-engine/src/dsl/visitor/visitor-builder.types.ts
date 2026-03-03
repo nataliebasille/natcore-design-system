@@ -1,12 +1,7 @@
 // /* ============================================================
 //    1) Core AST + parent inference
 
-import type { Eager, ExtendsNever, UnionToIntersection } from "../../utils";
-import {
-  dsl,
-  stylesheetVisitorBuilder,
-  type StylesheetVisitorSpec,
-} from "../public";
+import type { Eager, ExtendsNever } from "../../utils";
 
 export type AstNode<
   Id extends string,
@@ -35,6 +30,7 @@ type NormalizeEntry<V> =
     { $in: I; $out: [I] extends [O] ? O : I | O }
   : V extends { $in: infer I } ? { $in: I; $out: I }
   : { $in: V; $out: V };
+
 export type AstSpec_Normalize<Spec extends Record<string, unknown>> = {
   [K in keyof Spec & string]: NormalizeEntry<Spec[K]>;
 };
@@ -81,6 +77,27 @@ type UpdateNode<
     }
   : Node;
 
+type RemapMappedAstResult<
+  Spec extends NormalizedAstSpec,
+  OutMap extends VisitorOutMap<Spec>,
+  MappedNode,
+  SourceKey extends keyof Spec,
+  Idx extends Record<string, keyof Spec>,
+> =
+  MappedNode extends unknown ?
+    IsAstNode<MappedNode> extends true ?
+      AstIdOf<MappedNode> extends infer ReturnedId extends string ?
+        ReturnedId extends keyof Idx ?
+          Idx[ReturnedId] extends infer ReturnedKey extends keyof Spec ?
+            ReturnedKey extends SourceKey ?
+              UpdateNode<Spec, OutMap, MappedNode>
+            : ApplyOutMap<Spec, OutMap, MappedNode>
+          : UpdateNode<Spec, OutMap, MappedNode>
+        : UpdateNode<Spec, OutMap, MappedNode>
+      : UpdateNode<Spec, OutMap, MappedNode>
+    : UpdateNode<Spec, OutMap, MappedNode>
+  : never;
+
 type ApplyOne<
   Spec extends NormalizedAstSpec,
   OutMap extends VisitorOutMap<Spec>,
@@ -93,7 +110,7 @@ type ApplyOne<
       Id extends keyof Idx ?
         Idx[Id] extends infer K extends keyof Spec ?
           K extends keyof OutMap ?
-            OutMap[K]
+            RemapMappedAstResult<Spec, OutMap, OutMap[K], K, Idx>
           : UpdateNode<Spec, OutMap, Node>
         : UpdateNode<Spec, OutMap, Node>
       : UpdateNode<Spec, OutMap, Node>
@@ -204,26 +221,6 @@ type VisitorFunctionEnter<
   node: AstSpecIn<Spec[Id]>,
   context: VisitorContext<Spec, AstSpecIn<Spec[Id]>, OutMap>,
 ) => Out;
-
-type VisitorFunctionExit<
-  Spec extends NormalizedAstSpec,
-  OutMap extends VisitorOutMap<Spec>,
-  Id extends keyof Spec,
-  ExitIn,
-  ExitOut,
-> = (
-  node: ExitIn,
-  context: VisitorContext<Spec, AstSpecIn<Spec[Id]>, OutMap>,
-) => ExitOut;
-
-type WithSelf<
-  Spec extends NormalizedAstSpec,
-  OutMap extends VisitorOutMap<Spec>,
-  K extends keyof Spec,
-  SelfOut,
-> = OutMap & { [P in K]: SelfOut };
-declare const __visitor_spec: unique symbol;
-declare const __visitor_outMap: unique symbol;
 
 type WithSelfDeclared<
   Spec extends NormalizedAstSpec,

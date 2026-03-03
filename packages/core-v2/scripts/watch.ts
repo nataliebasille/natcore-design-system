@@ -49,7 +49,7 @@ async function initializeCssWatcher() {
   await compile(files, { dist: outDir, src: srcDir });
   console.log("✅ Initial CSS compilation complete!\n");
 
-  const watcher = chokidar.watch("./tailwind", {
+  const watcher = chokidar.watch(srcDir, {
     ignoreInitial: true,
     persistent: true,
     usePolling: true, // Use polling on Windows for better reliability
@@ -63,8 +63,13 @@ async function initializeCssWatcher() {
   watcher.on("ready", () => {
     console.log("👀 Watcher is ready!");
     const watched = watcher.getWatched();
-    console.log(`   Watched paths:`, watched);
-    console.log(`   Total watched items:`, Object.keys(watched).length);
+    const totalWatchedFiles = Object.values(watched).reduce(
+      (count, files) => count + files.length,
+      0,
+    );
+    console.log(`   Watching: ${srcDir}`);
+    console.log(`   Watched directories: ${Object.keys(watched).length}`);
+    console.log(`   Watched files: ${totalWatchedFiles}`);
     console.log();
   });
 

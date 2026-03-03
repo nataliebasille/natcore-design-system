@@ -12,7 +12,7 @@ export type ColorAst = AstNode<
   "color",
   {
     mode: "light" | "dark" | "adaptive";
-    palette: Palette;
+    palette: Palette | "current";
     shade: Shade;
     role: "base" | "text";
     opacity?: number;
@@ -103,6 +103,34 @@ export function adaptiveText<
     $ast: "color",
     mode: "adaptive",
     palette,
+    shade,
+    role: "text",
+    opacity,
+  } satisfies ColorAst;
+}
+
+export function current<S extends Shade, O extends number | undefined>(
+  shade: S,
+  opacity?: O,
+) {
+  return {
+    $ast: "color",
+    mode: "adaptive",
+    palette: "current",
+    shade,
+    role: "text",
+    opacity,
+  } satisfies ColorAst;
+}
+
+export function currentText<S extends Shade, O extends number | undefined>(
+  shade: S,
+  opacity?: O,
+) {
+  return {
+    $ast: "color",
+    mode: "adaptive",
+    palette: "current",
     shade,
     role: "text",
     opacity,

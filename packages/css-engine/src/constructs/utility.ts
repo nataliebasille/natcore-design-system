@@ -15,8 +15,10 @@ export type UtilityConstruct = {
 
 export function utility<
   N extends string,
-  B extends StyleListBuilder | StyleRuleBodyBuilder,
->(name: N, ...body: B[]) {
+>(
+  name: N,
+  ...body: (StyleListBuilder | StyleRuleBodyBuilder)[]
+) {
   return {
     $construct: "utility",
     name,

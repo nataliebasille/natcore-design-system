@@ -1,6 +1,7 @@
 import { createCompiler } from "../create-compiler";
 import { compile } from "@nataliebasille/natcore-css-engine";
 import { pathToFileURL } from "node:url";
+import { componentConstructToDsl } from "./component-construct-to-dsl";
 import { dslToCss } from "./dsl-to-css";
 import { themeConstructToDsl } from "./theme-construct-to-dsl";
 import { utilityConstructToDsl } from "./utility-construct-to-dsl";
@@ -26,10 +27,8 @@ export const compileTsToCss = createCompiler({
     fileUrl.searchParams.set("t", Date.now().toString());
     const compiler = await import(fileUrl.href);
 
-    if (typeof compiler.default !== "function") {
-      throw new Error(
-        `Expected default export to be a function in ${file.path}`,
-      );
+    if (!("default" in compiler)) {
+      throw new Error(`Expected default export in ${file.path}`);
     }
 
     const content =
@@ -46,6 +45,8 @@ export const compileTsToCss = createCompiler({
             dslToCss([themeConstructToDsl(content)])
           : content.$construct === "utility" ?
             dslToCss([utilityConstructToDsl(content)])
+          : content.$construct === "component" ?
+            dslToCss(componentConstructToDsl(content))
           : content
         : content
       );

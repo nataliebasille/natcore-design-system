@@ -284,6 +284,7 @@ type Size =
   | `size-${TailwindSpacing | TailwindFractional | "full" | "min" | "max" | "fit"}`
   | `size-[${string}]`
   | ArbitraryValue<"length", "size">;
+type AspectRatio = "aspect-auto" | "aspect-square" | "aspect-video" | `aspect-[${string}]`;
 
 // Typography
 type FontFamily = "font-sans" | "font-serif" | "font-mono";
@@ -514,7 +515,8 @@ type Transition =
   | "transition-opacity"
   | "transition-shadow"
   | "transition-transform";
-type Duration = `duration-${0 | 75 | 100 | 150 | 200 | 300 | 500 | 700 | 1000}`;
+type Duration =
+  `duration-${0 | 75 | 100 | 150 | 200 | 300 | 500 | 700 | 1000 | (number & {})}`;
 type Ease = "ease-linear" | "ease-in" | "ease-out" | "ease-in-out";
 type Delay = `delay-${0 | 75 | 100 | 150 | 200 | 300 | 500 | 700 | 1000}`;
 
@@ -630,6 +632,7 @@ export type TailwindUtility =
   | Width
   | Height
   | Size
+  | AspectRatio
   | FontFamily
   | FontSize
   | FontWeight
