@@ -7,7 +7,8 @@
   "module": "./dist/natcore.css",
   "exports": {
     ".": {
-      "style": "./dist/natcore.css"
+      "style": "./dist/natcore.css",
+      "default": "./dist/natcore.css"
     },
     "./plugin": {
       "types": "./dist/plugin.d.ts",

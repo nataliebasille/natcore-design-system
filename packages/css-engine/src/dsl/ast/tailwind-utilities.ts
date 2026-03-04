@@ -207,6 +207,13 @@ type JustifyItems =
   | "justify-items-end"
   | "justify-items-center"
   | "justify-items-stretch";
+type PlaceItems =
+  | "place-items-normal"
+  | "place-items-start"
+  | "place-items-end"
+  | "place-items-center"
+  | "place-items-baseline"
+  | "place-items-stretch";
 type AlignItems =
   | "items-start"
   | "items-end"
@@ -284,7 +291,11 @@ type Size =
   | `size-${TailwindSpacing | TailwindFractional | "full" | "min" | "max" | "fit"}`
   | `size-[${string}]`
   | ArbitraryValue<"length", "size">;
-type AspectRatio = "aspect-auto" | "aspect-square" | "aspect-video" | `aspect-[${string}]`;
+type AspectRatio =
+  | "aspect-auto"
+  | "aspect-square"
+  | "aspect-video"
+  | `aspect-[${string}]`;
 
 // Typography
 type FontFamily = "font-sans" | "font-serif" | "font-mono";
@@ -332,6 +343,7 @@ type TextDecoration =
   | "no-underline";
 type TextTransform = "uppercase" | "lowercase" | "capitalize" | "normal-case";
 type TextOverflow = "truncate" | "text-ellipsis" | "text-clip";
+type TextWrap = "text-wrap" | "text-nowrap" | "text-balance" | "text-pretty";
 type LineHeight =
   | "leading-3"
   | "leading-4"
@@ -619,6 +631,7 @@ export type TailwindUtility =
   | FlexShrink
   | JustifyContent
   | JustifyItems
+  | PlaceItems
   | AlignItems
   | AlignContent
   | AlignSelf
@@ -642,6 +655,7 @@ export type TailwindUtility =
   | TextDecoration
   | TextTransform
   | TextOverflow
+  | TextWrap
   | LineHeight
   | LetterSpacing
   | WhiteSpace

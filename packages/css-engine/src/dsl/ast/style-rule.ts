@@ -12,6 +12,7 @@ import {
   type TailwindUtility,
 } from "./tailwind-utilities";
 import type { TemplateLiteralAst } from "./cssvalue/template-literal";
+import type { SpacingFunctionAst } from "./tailwind-functions/spacing";
 
 export type {
   TailwindUtility,
@@ -25,7 +26,8 @@ export { arbitraryValue } from "./tailwind-utilities";
 export type StylePropertyValue =
   | CssValue<CssDataType>
   | TemplateLiteralAst<CssDataType>
-  | CssFunction;
+  | CssFunction
+  | SpacingFunctionAst;
 
 export type StyleProperties = {
   [K in keyof css.StyleProperties]?: StylePropertyValue | StylePropertyValue[];

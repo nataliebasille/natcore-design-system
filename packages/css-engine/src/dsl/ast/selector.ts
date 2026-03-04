@@ -16,6 +16,10 @@ export type Selector =
   | `[${string}]` // attribute
   | `:${string}` // pseudo-class
   | `::${string}` // pseudo-element
+  | `${string}[${string}]` // compound attribute selector (e.g. input[type="radio"])
+  | `${string}:${string}` // compound pseudo selector (e.g. input:checked)
+  | `${string}::${string}` // compound pseudo-element selector
+  | `${string}.${string}` // compound class selector
   | `&${string}` // parent reference
   | `${string} ${string}` // descendant combinator
   | `${string} > ${string}` // child combinator

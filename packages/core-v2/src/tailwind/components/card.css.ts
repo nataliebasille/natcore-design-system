@@ -92,7 +92,7 @@ export default [
 
         $: {
           [cardSections]: {
-            padding: "--spacing(4)",
+            padding: `${dsl.spacing("4")}`,
           },
 
           [dsl.child(dsl.parent(), dsl.cls("card-header"))]: {
