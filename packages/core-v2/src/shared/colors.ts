@@ -1,8 +1,4 @@
-import {
-  dsl,
-  type ColorAst,
-  type Palette,
-} from "@nataliebasille/natcore-css-engine";
+import { dsl, type ColorAst } from "@nataliebasille/natcore-css-engine";
 
 export type Shade =
   | 50
@@ -25,17 +21,6 @@ export function colorKey(
 ) {
   const mode = color.mode === "adaptive" ? ("tone" as const) : color.mode;
   return `--color${color.role === "text" ? ("-on" as const) : ("" as const)}-${mode}-${color.shade}${color.palette !== "current" ? `-${color.palette}` : ""}` as const;
-}
-
-export function currentBaseColor(shade: Shade, opacity?: number) {
-  return {
-    $ast: "color",
-    mode: "adaptive",
-    palette: "current",
-    shade,
-    role: "base",
-    opacity,
-  } satisfies ColorAst;
 }
 
 export function toneKey(color: Pick<ColorAst, "shade" | "role">) {

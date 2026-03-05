@@ -1,12 +1,11 @@
 import { component, dsl } from "@nataliebasille/natcore-css-engine";
-import { currentBaseColor } from "../../shared/colors";
 
 export default [
   component("divider", {
     themeable: "surface",
     variants: {
       default: {
-        "--divider-color": currentBaseColor(500),
+        "--divider-color": dsl.current(500),
       },
     },
     styles: [
@@ -20,22 +19,25 @@ export default [
         "font-weight": dsl.cssvar("--font-weight-bold"),
 
         $: {
-          [dsl.list(dsl.pseudo("before"), dsl.pseudo("after"))]: {
+          [dsl.select.list(
+            dsl.select.pseudo("before"),
+            dsl.select.pseudo("after"),
+          )]: {
             content: '""',
             flex: "1",
             height: "1px",
             "background-color": dsl.cssvar("--divider-color"),
           },
-          [dsl.parent(":empty::after")]: {
+          [dsl.select.parent(":empty::after")]: {
             "margin-left": "0",
           },
-          [dsl.parent(":empty::before")]: {
+          [dsl.select.parent(":empty::before")]: {
             "margin-right": "0",
           },
-          [dsl.pseudo("before")]: {
+          [dsl.select.pseudo("before")]: {
             "margin-right": `${dsl.spacing("2")}`,
           },
-          [dsl.pseudo("after")]: {
+          [dsl.select.pseudo("after")]: {
             "margin-left": `${dsl.spacing("2")}`,
           },
         },
@@ -47,7 +49,7 @@ export default [
     themeable: "surface",
     variants: {
       default: {
-        "--divider-color": currentBaseColor(500),
+        "--divider-color": dsl.current(500),
       },
     },
     styles: [
@@ -61,22 +63,25 @@ export default [
         "font-weight": dsl.cssvar("--font-weight-bold"),
 
         $: {
-          [dsl.list(dsl.pseudo("before"), dsl.pseudo("after"))]: {
+          [dsl.select.list(
+            dsl.select.pseudo("before"),
+            dsl.select.pseudo("after"),
+          )]: {
             content: '""',
             flex: "1",
             width: "1px",
             "background-color": dsl.cssvar("--divider-color"),
           },
-          [dsl.parent(":empty::after")]: {
+          [dsl.select.parent(":empty::after")]: {
             "margin-top": "0",
           },
-          [dsl.parent(":empty::before")]: {
+          [dsl.select.parent(":empty::before")]: {
             "margin-bottom": "0",
           },
-          [dsl.pseudo("before")]: {
+          [dsl.select.pseudo("before")]: {
             "margin-bottom": `${dsl.spacing("2")}`,
           },
-          [dsl.pseudo("after")]: {
+          [dsl.select.pseudo("after")]: {
             "margin-top": `${dsl.spacing("2")}`,
           },
         },

@@ -1,5 +1,4 @@
 import { component, dsl } from "@nataliebasille/natcore-css-engine";
-import { currentBaseColor } from "../../shared/colors";
 
 const allSiblingInputs = "~ input, ~ select, ~ textarea";
 const allChildInputs = "> input, > select, > textarea";
@@ -8,10 +7,10 @@ export default component("form-control", {
   themeable: "surface",
   variants: {
     default: {
-      "--form-control-bg": currentBaseColor(100),
+      "--form-control-bg": dsl.current(100),
       "--form-control-fg": dsl.currentText(100),
-      "--form-control-border": currentBaseColor(300),
-      "--form-control-active": currentBaseColor(700),
+      "--form-control-border": dsl.current(300),
+      "--form-control-active": dsl.current(700),
     },
   },
   styles: {
@@ -77,7 +76,7 @@ export default component("form-control", {
         "border-color": dsl.cssvar("--form-control-border"),
 
         $: {
-          [dsl.parent(":has(~ .form-control-suffix)")]: {
+          [dsl.select.parent(":has(~ .form-control-suffix)")]: {
             "border-top-right-radius": "0",
             "border-bottom-right-radius": "0",
             "border-right": "none",
@@ -91,7 +90,7 @@ export default component("form-control", {
         "padding-left": "1.33333em",
       },
 
-      [dsl.parent(".form-control-error")]: {
+      [dsl.select.parent(".form-control-error")]: {
         $: {
           ["> .form-control-label, > label, > input, > select, > textarea, > .form-control-prefix, > .form-control-suffix"]:
             {
@@ -142,7 +141,7 @@ export default component("form-control", {
         "padding-right": ".25em",
       },
 
-      [dsl.parent(":focus-within")]: {
+      [dsl.select.parent(":focus-within")]: {
         $: {
           [allChildInputs]: {
             "border-color": dsl.cssvar("--form-control-active"),

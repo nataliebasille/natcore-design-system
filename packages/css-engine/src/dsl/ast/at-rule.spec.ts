@@ -20,13 +20,13 @@ import {
   supportsFinePointer,
   type AtRuleAst,
 } from "./at-rule";
-import { styleRule, styleList } from "./style-rule";
-import { cls, pseudo } from "./selector";
+import { styleRule, styleList, arbitraryValue } from "./style-rule";
+import { select } from "./selector";
 
 describe("at-rule tests", () => {
   describe("atRule()", () => {
     it("creates AtRuleAst with name, prelude, and rules", () => {
-      const rule = styleRule(cls("container"), { maxWidth: "1200px" });
+      const rule = styleRule(select.cls("container"), { maxWidth: "1200px" });
       const result = atRule("media", "(min-width: 768px)", rule);
 
       expect(result).toEqual({
@@ -39,7 +39,7 @@ describe("at-rule tests", () => {
     });
 
     it("creates AtRuleAst without prelude", () => {
-      const rule = styleRule(cls("button"), { padding: "8px" });
+      const rule = styleRule(select.cls("button"), { padding: "8px" });
       const result = atRule("keyframes", rule);
 
       expect(result).toEqual({
@@ -52,8 +52,8 @@ describe("at-rule tests", () => {
     });
 
     it("accepts multiple rules", () => {
-      const rule1 = styleRule(cls("nav"), { display: "none" });
-      const rule2 = styleRule(cls("main"), { padding: "1rem" });
+      const rule1 = styleRule(select.cls("nav"), { display: "none" });
+      const rule2 = styleRule(select.cls("main"), { padding: "1rem" });
       const result = atRule("media", "(max-width: 640px)", rule1, rule2);
 
       expect(result.rules).toHaveLength(2);
@@ -62,8 +62,8 @@ describe("at-rule tests", () => {
     });
 
     it("accepts multiple rules without prelude", () => {
-      const rule1 = styleRule(cls("from"), { opacity: "0" });
-      const rule2 = styleRule(cls("to"), { opacity: "1" });
+      const rule1 = styleRule(select.cls("from"), { opacity: "0" });
+      const rule2 = styleRule(select.cls("to"), { opacity: "1" });
       const result = atRule("keyframes", rule1, rule2);
 
       expect(result.rules).toHaveLength(2);
@@ -73,7 +73,7 @@ describe("at-rule tests", () => {
     });
 
     it("accepts nested at-rules", () => {
-      const innerRule = styleRule(cls("grid"), { display: "grid" });
+      const innerRule = styleRule(select.cls("grid"), { display: "grid" });
       const nestedAtRule = atRule("supports", "(display: grid)", innerRule);
       const result = atRule("media", "(min-width: 1024px)", nestedAtRule);
 
@@ -96,11 +96,11 @@ describe("at-rule tests", () => {
 
     it("mixes StyleListAst with StyleRuleAst and AtRuleAst", () => {
       const styles = styleList({ opacity: "0" });
-      const rule = styleRule(cls("from"), { transform: "scale(0)" });
+      const rule = styleRule(select.cls("from"), { transform: "scale(0)" });
       const nested = atRule(
         "media",
         "(prefers-reduced-motion: reduce)",
-        styleRule(cls("to"), { transition: "none" }),
+        styleRule(select.cls("to"), { transition: "none" }),
       );
 
       const result = atRule("keyframes", "bounce", styles, rule, nested);
@@ -110,11 +110,42 @@ describe("at-rule tests", () => {
       expect(result.rules[1]?.$ast).toBe("style-rule");
       expect(result.rules[2]?.$ast).toBe("at-rule");
     });
+
+    it("builds StyleListAst from style property objects", () => {
+      const result = atRule("media", "(min-width: 768px)", {
+        display: "flex",
+        gap: "1rem",
+      });
+
+      expect(result.rules).toEqual([
+        {
+          $ast: "style-list",
+          styles: [{ display: "flex", gap: "1rem" }],
+        },
+      ]);
+      expect(result.rules[0]?.$ast).toBe("style-list");
+    });
+
+    it("builds TailwindClassAst from arbitrary utility objects", () => {
+      const result = atRule(
+        "media",
+        "(min-width: 768px)",
+        arbitraryValue("bg", "#101010"),
+      );
+
+      expect(result.rules).toEqual([
+        {
+          $ast: "tailwind-class",
+          value: arbitraryValue("bg", "#101010"),
+        },
+      ]);
+      expect(result.rules[0]?.$ast).toBe("tailwind-class");
+    });
   });
 
   describe("media()", () => {
     it("creates media query with min-width", () => {
-      const rule = styleRule(cls("container"), { maxWidth: "1200px" });
+      const rule = styleRule(select.cls("container"), { maxWidth: "1200px" });
       const result = media("min-width", "768px", rule);
 
       expect(result).toEqual({
@@ -126,7 +157,7 @@ describe("at-rule tests", () => {
     });
 
     it("creates media query with max-width", () => {
-      const rule = styleRule(cls("mobile"), { fontSize: "14px" });
+      const rule = styleRule(select.cls("mobile"), { fontSize: "14px" });
       const result = media("max-width", "640px", rule);
 
       expect(result.name).toBe("media");
@@ -134,14 +165,14 @@ describe("at-rule tests", () => {
     });
 
     it("creates media query with orientation", () => {
-      const rule = styleRule(cls("layout"), { flexDirection: "column" });
+      const rule = styleRule(select.cls("layout"), { flexDirection: "column" });
       const result = media("orientation", "portrait", rule);
 
       expect(result.prelude).toBe("(orientation: portrait)");
     });
 
     it("creates media query with aspect-ratio", () => {
-      const rule = styleRule(cls("video"), { aspectRatio: "16/9" });
+      const rule = styleRule(select.cls("video"), { aspectRatio: "16/9" });
       const result = media("aspect-ratio", "16/9", rule);
 
       expect(result.prelude).toBe("(aspect-ratio: 16/9)");
@@ -161,7 +192,9 @@ describe("at-rule tests", () => {
 
   describe("mediaEnv()", () => {
     it("creates media query with color-scheme preference", () => {
-      const rule = styleRule(cls("card"), { backgroundColor: "#1a1a1a" });
+      const rule = styleRule(select.cls("card"), {
+        backgroundColor: "#1a1a1a",
+      });
       const result = mediaEnv("color-scheme", "dark", rule);
 
       expect(result).toEqual({
@@ -173,28 +206,28 @@ describe("at-rule tests", () => {
     });
 
     it("creates media query with contrast preference", () => {
-      const rule = styleRule(cls("text"), { borderWidth: "2px" });
+      const rule = styleRule(select.cls("text"), { borderWidth: "2px" });
       const result = mediaEnv("contrast", "high", rule);
 
       expect(result.prelude).toBe("(prefers-contrast: high)");
     });
 
     it("creates media query with reduced-motion", () => {
-      const rule = styleRule(cls("animated"), { animation: "none" });
+      const rule = styleRule(select.cls("animated"), { animation: "none" });
       const result = mediaEnv("reduced-motion", "reduce", rule);
 
       expect(result.prelude).toBe("(prefers-reduced-motion: reduce)");
     });
 
     it("creates media query with hover capability", () => {
-      const rule = styleRule(cls("link"), { cursor: "pointer" });
+      const rule = styleRule(select.cls("link"), { cursor: "pointer" });
       const result = mediaEnv("hover", "hover", rule);
 
       expect(result.prelude).toBe("(prefers-hover: hover)");
     });
 
     it("creates media query with pointer precision", () => {
-      const rule = styleRule(cls("precise"), { fontSize: "12px" });
+      const rule = styleRule(select.cls("precise"), { fontSize: "12px" });
       const result = mediaEnv("pointer", "fine", rule);
 
       expect(result.prelude).toBe("(prefers-pointer: fine)");
@@ -216,7 +249,7 @@ describe("at-rule tests", () => {
 
   describe("supports()", () => {
     it("creates supports query with property and value", () => {
-      const rule = styleRule(cls("grid"), { display: "grid" });
+      const rule = styleRule(select.cls("grid"), { display: "grid" });
       const result = supports("display", "grid", rule);
 
       expect(result).toEqual({
@@ -228,7 +261,9 @@ describe("at-rule tests", () => {
     });
 
     it("creates supports query with property only", () => {
-      const rule = styleRule(cls("transform"), { transform: "translateZ(0)" });
+      const rule = styleRule(select.cls("transform"), {
+        transform: "translateZ(0)",
+      });
       const result = supports("transform-3d", undefined, rule);
 
       expect(result.prelude).toBe("(transform-3d)");
@@ -237,7 +272,7 @@ describe("at-rule tests", () => {
 
   describe("container()", () => {
     it("creates container query", () => {
-      const rule = styleRule(cls("card"), { padding: "2rem" });
+      const rule = styleRule(select.cls("card"), { padding: "2rem" });
       const result = container("(min-width: 400px)", rule);
 
       expect(result).toEqual({
@@ -251,7 +286,7 @@ describe("at-rule tests", () => {
 
   describe("layer()", () => {
     it("creates layer at-rule", () => {
-      const rule = styleRule(cls("button"), { padding: "8px 16px" });
+      const rule = styleRule(select.cls("button"), { padding: "8px 16px" });
       const result = layer("components", rule);
 
       expect(result).toEqual({
@@ -265,7 +300,7 @@ describe("at-rule tests", () => {
 
   describe("breakpoint()", () => {
     it("creates media query wrapper for min-width", () => {
-      const rule = styleRule(cls("container"), { maxWidth: "1200px" });
+      const rule = styleRule(select.cls("container"), { maxWidth: "1200px" });
       const wrapper = breakpoint("min-width", "768px");
       const result = wrapper(rule);
 
@@ -278,7 +313,7 @@ describe("at-rule tests", () => {
     });
 
     it("creates media query wrapper for max-width", () => {
-      const rule = styleRule(cls("mobile"), { fontSize: "14px" });
+      const rule = styleRule(select.cls("mobile"), { fontSize: "14px" });
       const wrapper = breakpoint("max-width", "640px");
       const result = wrapper(rule);
 
@@ -286,8 +321,8 @@ describe("at-rule tests", () => {
     });
 
     it("accepts multiple rules", () => {
-      const rule1 = styleRule(cls("nav"), { display: "flex" });
-      const rule2 = styleRule(cls("main"), { padding: "2rem" });
+      const rule1 = styleRule(select.cls("nav"), { display: "flex" });
+      const rule2 = styleRule(select.cls("main"), { padding: "2rem" });
       const result = breakpoint("min-width", "1024px")(rule1, rule2);
 
       expect(result.rules).toHaveLength(2);
@@ -297,7 +332,7 @@ describe("at-rule tests", () => {
 
   describe("breakpoint convenience methods", () => {
     it("breakpoint.min() creates min-width media query", () => {
-      const rule = styleRule(cls("container"), { width: "100%" });
+      const rule = styleRule(select.cls("container"), { width: "100%" });
       const result = breakpoint.min("768px")(rule);
 
       expect(result.name).toBe("media");
@@ -305,28 +340,28 @@ describe("at-rule tests", () => {
     });
 
     it("breakpoint.max() creates max-width media query", () => {
-      const rule = styleRule(cls("mobile"), { padding: "0.5rem" });
+      const rule = styleRule(select.cls("mobile"), { padding: "0.5rem" });
       const result = breakpoint.max("640px")(rule);
 
       expect(result.prelude).toBe("(max-width: 640px)");
     });
 
     it("breakpoint.minHeight() creates min-height media query", () => {
-      const rule = styleRule(cls("tall"), { minHeight: "100vh" });
+      const rule = styleRule(select.cls("tall"), { minHeight: "100vh" });
       const result = breakpoint.minHeight("600px")(rule);
 
       expect(result.prelude).toBe("(min-height: 600px)");
     });
 
     it("breakpoint.maxHeight() creates max-height media query", () => {
-      const rule = styleRule(cls("short"), { overflow: "auto" });
+      const rule = styleRule(select.cls("short"), { overflow: "auto" });
       const result = breakpoint.maxHeight("400px")(rule);
 
       expect(result.prelude).toBe("(max-height: 400px)");
     });
 
     it("breakpoint.orientation() creates orientation media query", () => {
-      const rule = styleRule(cls("portrait-layout"), {
+      const rule = styleRule(select.cls("portrait-layout"), {
         flexDirection: "column",
       });
       const result = breakpoint.orientation("portrait")(rule);
@@ -335,7 +370,7 @@ describe("at-rule tests", () => {
     });
 
     it("breakpoint.aspectRatio() creates aspect-ratio media query", () => {
-      const rule = styleRule(cls("widescreen"), { aspectRatio: "21/9" });
+      const rule = styleRule(select.cls("widescreen"), { aspectRatio: "21/9" });
       const result = breakpoint.aspectRatio("21/9")(rule);
 
       expect(result.prelude).toBe("(aspect-ratio: 21/9)");
@@ -344,7 +379,9 @@ describe("at-rule tests", () => {
 
   describe("environment preference helpers", () => {
     it("prefersDark() creates dark color-scheme media query", () => {
-      const rule = styleRule(cls("dark-card"), { backgroundColor: "#1a1a1a" });
+      const rule = styleRule(select.cls("dark-card"), {
+        backgroundColor: "#1a1a1a",
+      });
       const result = prefersDark(rule);
 
       expect(result).toEqual({
@@ -356,30 +393,34 @@ describe("at-rule tests", () => {
     });
 
     it("prefersLight() creates light color-scheme media query", () => {
-      const rule = styleRule(cls("light-card"), { backgroundColor: "#ffffff" });
+      const rule = styleRule(select.cls("light-card"), {
+        backgroundColor: "#ffffff",
+      });
       const result = prefersLight(rule);
 
       expect(result.prelude).toBe("(prefers-color-scheme: light)");
     });
 
     it("prefersReducedMotion() creates reduced-motion media query", () => {
-      const rule = styleRule(cls("no-anim"), { animation: "none" });
+      const rule = styleRule(select.cls("no-anim"), { animation: "none" });
       const result = prefersReducedMotion(rule);
 
       expect(result.prelude).toBe("(prefers-reduced-motion: reduce)");
     });
 
     it("prefersHighContrast() creates high contrast media query", () => {
-      const rule = styleRule(cls("high-contrast"), { borderWidth: "2px" });
+      const rule = styleRule(select.cls("high-contrast"), {
+        borderWidth: "2px",
+      });
       const result = prefersHighContrast(rule);
 
       expect(result.prelude).toBe("(prefers-contrast: high)");
     });
 
     it("supportsHover() creates hover media query", () => {
-      const rule = styleRule(cls("hoverable"), {
+      const rule = styleRule(select.cls("hoverable"), {
         $: {
-          [pseudo("hover")]: { opacity: "0.8" },
+          [select.pseudo("hover")]: { opacity: "0.8" },
         },
       });
       const result = supportsHover(rule);
@@ -388,7 +429,7 @@ describe("at-rule tests", () => {
     });
 
     it("supportsFinePointer() creates fine pointer media query", () => {
-      const rule = styleRule(cls("precise"), { cursor: "pointer" });
+      const rule = styleRule(select.cls("precise"), { cursor: "pointer" });
       const result = supportsFinePointer(rule);
 
       expect(result.prelude).toBe("(prefers-pointer: fine)");
@@ -397,7 +438,7 @@ describe("at-rule tests", () => {
 
   describe("complex nested scenarios", () => {
     it("nests media query inside supports", () => {
-      const innerRule = styleRule(cls("grid"), {
+      const innerRule = styleRule(select.cls("grid"), {
         display: "grid",
         gridTemplateColumns: "repeat(3, 1fr)",
       });
@@ -410,7 +451,7 @@ describe("at-rule tests", () => {
     });
 
     it("nests multiple levels of at-rules", () => {
-      const rule = styleRule(cls("advanced"), { color: "blue" });
+      const rule = styleRule(select.cls("advanced"), { color: "blue" });
       const level1 = mediaEnv("color-scheme", "dark", rule);
       const level2 = mediaEnv("hover", "hover", level1);
       const level3 = media("min-width", "768px", level2);
@@ -421,9 +462,9 @@ describe("at-rule tests", () => {
     });
 
     it("combines multiple rules under one at-rule", () => {
-      const rule1 = styleRule(cls("nav"), { display: "flex" });
-      const rule2 = styleRule(cls("sidebar"), { width: "250px" });
-      const rule3 = styleRule(cls("main"), { marginLeft: "250px" });
+      const rule1 = styleRule(select.cls("nav"), { display: "flex" });
+      const rule2 = styleRule(select.cls("sidebar"), { width: "250px" });
+      const rule3 = styleRule(select.cls("main"), { marginLeft: "250px" });
 
       const result = media("min-width", "1024px", rule1, rule2, rule3);
 
@@ -432,12 +473,12 @@ describe("at-rule tests", () => {
     });
 
     it("mixes regular and at-rule rules", () => {
-      const baseRule = styleRule(cls("card"), { padding: "1rem" });
+      const baseRule = styleRule(select.cls("card"), { padding: "1rem" });
       const darkRule = prefersDark(
-        styleRule(cls("card"), { backgroundColor: "#1a1a1a" }),
+        styleRule(select.cls("card"), { backgroundColor: "#1a1a1a" }),
       );
       const responsiveRule = breakpoint.min("768px")(
-        styleRule(cls("card"), { padding: "2rem" }),
+        styleRule(select.cls("card"), { padding: "2rem" }),
       );
 
       const combined = layer("components", baseRule, darkRule, responsiveRule);
@@ -451,13 +492,13 @@ describe("at-rule tests", () => {
 
   describe("integration with styleRule", () => {
     it("wraps styleRule with nested selectors", () => {
-      const rule = styleRule(cls("button"), {
+      const rule = styleRule(select.cls("button"), {
         padding: "8px 16px",
         $: {
-          [pseudo("hover")]: {
+          [select.pseudo("hover")]: {
             backgroundColor: "blue",
           },
-          [pseudo("active")]: {
+          [select.pseudo("active")]: {
             backgroundColor: "darkblue",
           },
         },
@@ -474,13 +515,13 @@ describe("at-rule tests", () => {
     });
 
     it("applies at-rule to multiple style rules", () => {
-      const button = styleRule(cls("button"), { fontSize: "16px" });
-      const input = styleRule(cls("input"), { fontSize: "16px" });
-      const select = styleRule(cls("select"), { fontSize: "16px" });
+      const button = styleRule(select.cls("button"), { fontSize: "16px" });
+      const input = styleRule(select.cls("input"), { fontSize: "16px" });
+      const selectRule = styleRule(select.cls("select"), { fontSize: "16px" });
 
-      const result = breakpoint.min("768px")(button, input, select);
+      const result = breakpoint.min("768px")(button, input, selectRule);
 
-      expect(result.rules).toEqual([button, input, select]);
+      expect(result.rules).toEqual([button, input, selectRule]);
     });
   });
 });

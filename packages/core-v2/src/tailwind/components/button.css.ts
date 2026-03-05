@@ -57,13 +57,13 @@ export default [
         color: dsl.match.variable("--btn-fg"),
 
         $: {
-          [dsl.parent(dsl.pseudo("hover"))]: {
+          [dsl.select.parent(dsl.select.pseudo("hover"))]: {
             "background-color": dsl.match.variable("--btn-hover-bg"),
             color: dsl.match.variable("--btn-hover-fg"),
             "border-color": dsl.match.variable("--btn-hover-border-color"),
           },
 
-          [dsl.parent(dsl.pseudo("active"))]: {
+          [dsl.select.parent(dsl.select.pseudo("active"))]: {
             transform: dsl.cssv`scale(${dsl.primitive.number(0.98)})`,
           },
         },

@@ -155,3 +155,20 @@ type ListValue<S extends string[]> =
 export function list<S extends string[]>(...selectors: S): ListValue<S> {
   return selectors.join(", ") as ListValue<S>;
 }
+
+export const select = {
+  element,
+  any,
+  cls,
+  id,
+  attr,
+  pseudo,
+  pseudoElement,
+  parent,
+  descendant,
+  child,
+  adjacent,
+  sibling,
+  compound,
+  list,
+} as const;

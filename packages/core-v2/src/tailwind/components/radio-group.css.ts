@@ -1,13 +1,12 @@
 import { component, dsl } from "@nataliebasille/natcore-css-engine";
-import { currentBaseColor } from "../../shared/colors";
 
 export default component("radio-group", {
   themeable: "surface",
   variants: {
     default: {
-      "--radio-group-border": currentBaseColor(300),
-      "--radio-group-hover": currentBaseColor(200),
-      "--radio-group-active": currentBaseColor(500),
+      "--radio-group-border": dsl.current(300),
+      "--radio-group-hover": dsl.current(200),
+      "--radio-group-active": dsl.current(500),
       "--radio-group-active-fg": dsl.currentText(500),
     },
   },
@@ -39,7 +38,7 @@ export default component("radio-group", {
           "border-radius": dsl.cssvar("--radius-full"),
 
           $: {
-            [dsl.parent(":hover")]: {
+            [dsl.select.parent(":hover")]: {
               "background-color": dsl.cssvar("--radio-group-hover"),
             },
           },

@@ -702,7 +702,8 @@ export type TailwindUtility =
   | Float
   | Clear
   | ObjectFit
-  | ObjectPosition;
+  | ObjectPosition
+  | (string & {}); // Allow any string for custom utilities or future additions
 
 export type TailwindClassAst = AstNode<
   "tailwind-class",

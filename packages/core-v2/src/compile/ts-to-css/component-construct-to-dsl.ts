@@ -18,7 +18,7 @@ export function componentConstructToDsl(
   const hasVariants = Object.keys(componentConstruct.variants ?? {}).length > 0;
   const paletteSet = getPaletteVarsUsedInComponent(componentConstruct);
   return hasVariants ?
-      dynamicComponentConstructToDsl(componentConstruct)
+      dynamicComponentConstructToDsl(componentConstruct, paletteSet)
     : staticComponentConstructToDsl(componentConstruct);
 }
 
@@ -36,7 +36,11 @@ function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
     : componentConstruct.styles;
 
   const output: dsl.AtRuleAst[] = [
-    dsl.atRule("utility", componentConstruct.name, ...baseStyles),
+    dsl.atRule(
+      "utility",
+      componentConstruct.name,
+      wrapComponentLayer(...baseStyles),
+    ),
   ];
 
   if (!componentConstruct.themeable) {
@@ -48,7 +52,9 @@ function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
       dsl.atRule(
         "utility",
         `${componentConstruct.name}/${palette}`,
-        ...resolveStylesForPalette(componentConstruct.styles, palette),
+        wrapComponentLayer(
+          ...resolveStylesForPalette(componentConstruct.styles, palette),
+        ),
       ),
     );
   }
@@ -58,7 +64,7 @@ function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
 
 function dynamicComponentConstructToDsl(
   componentConstruct: ComponentConstruct,
-  paletteUsages = getPaletteVarsUsedInComponent(componentConstruct),
+  paletteUsages: PaletteUsage[],
 ) {
   return [
     dsl.atRule(
@@ -69,13 +75,16 @@ function dynamicComponentConstructToDsl(
     dsl.atRule(
       "utility",
       `${componentConstruct.name}-*`,
-      dsl.layer(
-        "component",
+      wrapComponentLayer(
         dsl.styleList(renderPalette(paletteUsages, { modifier: true })),
         ...componentConstruct.styles,
       ),
     ),
   ];
+}
+
+function wrapComponentLayer(...styles: Parameters<typeof dsl.layer>[2][]) {
+  return dsl.layer("components", ...styles);
 }
 
 function getPaletteVarsUsedInComponent(componentConstruct: ComponentConstruct) {

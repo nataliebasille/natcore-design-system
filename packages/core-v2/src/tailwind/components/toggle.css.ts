@@ -1,5 +1,4 @@
 import { component, dsl } from "@nataliebasille/natcore-css-engine";
-import { currentBaseColor } from "../../shared/colors";
 
 const TOGGLE_SIZE_MD = 1.75;
 const PADDING_MD = 0.125;
@@ -10,10 +9,10 @@ export default component("toggle", {
   themeable: "primary",
   variants: {
     default: {
-      "--toggle-border": currentBaseColor(300),
-      "--toggle-bg": currentBaseColor(100),
-      "--toggle-hover": currentBaseColor(200),
-      "--toggle-active": currentBaseColor(700),
+      "--toggle-border": dsl.current(300),
+      "--toggle-bg": dsl.current(100),
+      "--toggle-hover": dsl.current(200),
+      "--toggle-active": dsl.current(700),
     },
   },
   styles: [
@@ -38,20 +37,21 @@ export default component("toggle", {
       transition: "all 150ms ease-in-out",
 
       $: {
-        [dsl.parent(":has(input[type='checkbox']:checked)")]: {
+        [dsl.select.parent(":has(input[type='checkbox']:checked)")]: {
           "background-color": dsl.cssvar("--toggle-bg"),
         },
 
-        [dsl.parent(':not(:has(input[type="checkbox"]:checked)):hover')]: {
-          "background-color": dsl.colorMix(
-            "srgb",
-            {
-              color: dsl.cssvar("--toggle-hover"),
-              percentage: dsl.primitive.percentage(20),
-            },
-            { color: dsl.primitive.color.transparent() },
-          ),
-        },
+        [dsl.select.parent(':not(:has(input[type="checkbox"]:checked)):hover')]:
+          {
+            "background-color": dsl.colorMix(
+              "srgb",
+              {
+                color: dsl.cssvar("--toggle-hover"),
+                percentage: dsl.primitive.percentage(20),
+              },
+              { color: dsl.primitive.color.transparent() },
+            ),
+          },
 
         ["> input[type='checkbox']"]: {
           width: `${TOGGLE_SIZE_MD}rem`,
@@ -72,7 +72,7 @@ export default component("toggle", {
           transition: "all 150ms ease-in-out",
 
           $: {
-            [dsl.parent(":hover")]: {
+            [dsl.select.parent(":hover")]: {
               "background-color": dsl.colorMix(
                 "srgb",
                 {
@@ -83,14 +83,14 @@ export default component("toggle", {
               ),
             },
 
-            [dsl.parent(":checked")]: {
+            [dsl.select.parent(":checked")]: {
               transform: "translate(100%, 0)",
               "background-color": dsl.cssvar("--toggle-active"),
             },
           },
         },
 
-        [dsl.parent(".toggle-lg")]: {
+        [dsl.select.parent(".toggle-lg")]: {
           width: `${TOGGLE_SIZE_MD * 2}rem`,
           height: `${TOGGLE_SIZE_MD}rem`,
           padding: `${PADDING_LG}rem`,

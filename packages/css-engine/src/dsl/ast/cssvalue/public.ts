@@ -4,6 +4,7 @@ import type { CssFunction } from "./css-functions";
 import type { CssDataType, CssPrimitiveValue } from "./css-primitive";
 import type { CssVarAst } from "./cssvar";
 import type { MatchModifierAst, MatchValueAst } from "./match-value";
+import type { SpacingFunctionAst } from "../tailwind-functions/spacing";
 
 // Re-export related types
 export * from "./css-functions";
@@ -26,6 +27,7 @@ export type CssValue<D extends CssDataType> =
       | SpecialCssValueDataTypeMapping<D>
       | CssFunction
       | CssVarAst
+      | SpacingFunctionAst
     : never)
   | MatchValueAst<D>
   | MatchModifierAst<D>;

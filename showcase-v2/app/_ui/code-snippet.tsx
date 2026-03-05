@@ -32,7 +32,7 @@ export const CodeSnippet = forwardRef(
           ref={ref as ForwardedRef<never>}
           className="w-full overflow-x-auto"
         >
-          <span className="text-muted-foreground text-accent-500 relative -top-1.5 block font-sans text-[0.625rem] tracking-widest uppercase">
+          <span className="text-tone-600-accent relative -top-1.5 block font-sans text-[0.625rem] tracking-widest uppercase">
             {language}
           </span>
           <span dangerouslySetInnerHTML={{ __html: formatted }} />

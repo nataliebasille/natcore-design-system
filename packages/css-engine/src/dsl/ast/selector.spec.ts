@@ -1,213 +1,196 @@
-import { describe, it, expect, expectTypeOf } from "vitest";
-import {
-  element,
-  any,
-  cls,
-  id,
-  attr,
-  pseudo,
-  pseudoElement,
-  parent,
-  descendant,
-  child,
-  adjacent,
-  sibling,
-  compound,
-  list,
-  type Selector,
-} from "./selector";
+import { select } from "./selector";
 
 describe("selector type tests", () => {
-  describe("element()", () => {
+  describe("select.element()", () => {
     it("returns Lowercase<T> selector string", () => {
-      const result = element("DIV");
+      const result = select.element("DIV");
       expectTypeOf(result).toEqualTypeOf<"div">();
       expect(result).toEqual("div");
     });
 
     it("validates element selector format", () => {
-      expect(() => element("div")).not.toThrow();
-      expect(() => element("my-element")).not.toThrow();
-      expect(() => element("div123")).not.toThrow();
-      expect(() => element("invalid selector")).toThrow();
-      expect(() => element("123invalid")).toThrow();
+      expect(() => select.element("div")).not.toThrow();
+      expect(() => select.element("my-element")).not.toThrow();
+      expect(() => select.element("div123")).not.toThrow();
+      expect(() => select.element("invalid selector")).toThrow();
+      expect(() => select.element("123invalid")).toThrow();
     });
   });
 
-  describe("any()", () => {
+  describe("select.any()", () => {
     it("returns '*' selector string", () => {
-      const result = any();
+      const result = select.any();
       expectTypeOf(result).toEqualTypeOf<"*">();
       expect(result).toEqual("*");
     });
   });
 
-  describe("cls()", () => {
+  describe("select.cls()", () => {
     it("returns `.${T}` selector string", () => {
-      const result = cls("button");
+      const result = select.cls("button");
       expectTypeOf(result).toEqualTypeOf<".button">();
       expect(result).toEqual(".button");
     });
   });
 
-  describe("id()", () => {
+  describe("select.id()", () => {
     it("returns `#${T}` selector string", () => {
-      const result = id("main");
+      const result = select.id("main");
       expectTypeOf(result).toEqualTypeOf<"#main">();
       expect(result).toEqual("#main");
     });
   });
 
-  describe("attr()", () => {
+  describe("select.attr()", () => {
     it("returns `[${T}]` selector string", () => {
-      const result = attr("data-test");
+      const result = select.attr("data-test");
       expectTypeOf(result).toEqualTypeOf<"[data-test]">();
       expect(result).toEqual("[data-test]");
     });
   });
 
-  describe("pseudo()", () => {
+  describe("select.pseudo()", () => {
     it("returns `:${T}` selector string", () => {
-      const result = pseudo("hover");
+      const result = select.pseudo("hover");
       expectTypeOf(result).toEqualTypeOf<":hover">();
       expect(result).toEqual(":hover");
     });
   });
 
-  describe("pseudoElement()", () => {
+  describe("select.pseudoElement()", () => {
     it("returns `::${T}` selector string", () => {
-      const result = pseudoElement("before");
+      const result = select.pseudoElement("before");
       expectTypeOf(result).toEqualTypeOf<"::before">();
       expect(result).toEqual("::before");
     });
   });
 
-  describe("parent()", () => {
+  describe("select.parent()", () => {
     it("returns `&${T}` selector string", () => {
-      const result = parent(":hover");
+      const result = select.parent(":hover");
       expectTypeOf(result).toEqualTypeOf<"&:hover">();
       expect(result).toEqual("&:hover");
     });
 
     it("returns `&` when no suffix provided", () => {
-      const result = parent();
+      const result = select.parent();
       expectTypeOf(result).toEqualTypeOf<"&">();
       expect(result).toEqual("&");
     });
   });
 
-  describe("descendant()", () => {
+  describe("select.descendant()", () => {
     it("returns descendant combinator selector string", () => {
-      const result = descendant(cls("parent"), cls("child"));
+      const result = select.descendant(select.cls("parent"), select.cls("child"));
       expectTypeOf(result).toEqualTypeOf<".parent .child">();
       expect(result).toEqual(".parent .child");
     });
 
     it("works with element selectors", () => {
-      const result = descendant(element("div"), cls("button"));
+      const result = select.descendant(select.element("div"), select.cls("button"));
       expectTypeOf(result).toEqualTypeOf<"div .button">();
       expect(result).toEqual("div .button");
     });
   });
 
-  describe("child()", () => {
+  describe("select.child()", () => {
     it("returns child combinator selector string", () => {
-      const result = child(cls("parent"), cls("child"));
+      const result = select.child(select.cls("parent"), select.cls("child"));
       expectTypeOf(result).toEqualTypeOf<".parent > .child">();
       expect(result).toEqual(".parent > .child");
     });
 
     it("works with element selectors", () => {
-      const result = child(element("ul"), element("li"));
+      const result = select.child(select.element("ul"), select.element("li"));
       expectTypeOf(result).toEqualTypeOf<"ul > li">();
       expect(result).toEqual("ul > li");
     });
   });
 
-  describe("adjacent()", () => {
+  describe("select.adjacent()", () => {
     it("returns adjacent sibling combinator selector string", () => {
-      const result = adjacent(cls("prev"), cls("next"));
+      const result = select.adjacent(select.cls("prev"), select.cls("next"));
       expectTypeOf(result).toEqualTypeOf<".prev + .next">();
       expect(result).toEqual(".prev + .next");
     });
 
     it("works with element selectors", () => {
-      const result = adjacent(element("h1"), element("p"));
+      const result = select.adjacent(select.element("h1"), select.element("p"));
       expectTypeOf(result).toEqualTypeOf<"h1 + p">();
       expect(result).toEqual("h1 + p");
     });
   });
 
-  describe("sibling()", () => {
+  describe("select.sibling()", () => {
     it("returns general sibling combinator selector string", () => {
-      const result = sibling(cls("prev"), cls("sibling"));
+      const result = select.sibling(select.cls("prev"), select.cls("sibling"));
       expectTypeOf(result).toEqualTypeOf<".prev ~ .sibling">();
       expect(result).toEqual(".prev ~ .sibling");
     });
 
     it("works with element selectors", () => {
-      const result = sibling(element("h1"), element("p"));
+      const result = select.sibling(select.element("h1"), select.element("p"));
       expectTypeOf(result).toEqualTypeOf<"h1 ~ p">();
       expect(result).toEqual("h1 ~ p");
     });
   });
 
-  describe("compound()", () => {
+  describe("select.compound()", () => {
     it("returns single selector when given one argument", () => {
-      const result = compound(cls("button"));
+      const result = select.compound(select.cls("button"));
       expectTypeOf(result).toEqualTypeOf<".button">();
       expect(result).toEqual(".button");
     });
 
     it("returns compound template literal for multiple selectors", () => {
-      const result = compound(element("div"), cls("button"), id("main"));
+      const result = select.compound(select.element("div"), select.cls("button"), select.id("main"));
       expectTypeOf(result).toEqualTypeOf<"div.button#main">();
       expect(result).toEqual("div.button#main");
     });
 
     it("builds compound selectors correctly", () => {
-      const result = compound(
-        element("button"),
-        cls("primary"),
-        pseudo("hover"),
+      const result = select.compound(
+        select.element("button"),
+        select.cls("primary"),
+        select.pseudo("hover"),
       );
       expect(result).toEqual("button.primary:hover");
     });
   });
 
-  describe("list()", () => {
+  describe("select.list()", () => {
     it("returns single selector when given one argument", () => {
-      const result = list(cls("button"));
+      const result = select.list(select.cls("button"));
       expectTypeOf(result).toEqualTypeOf<".button">();
       expect(result).toEqual(".button");
     });
 
     it("returns selector list template literal for multiple selectors", () => {
-      const result = list(cls("button"), cls("link"), cls("input"));
+      const result = select.list(select.cls("button"), select.cls("link"), select.cls("input"));
       expectTypeOf(result).toEqualTypeOf<".button, .link, .input">();
       expect(result).toEqual(".button, .link, .input");
     });
 
     it("builds selector lists correctly", () => {
-      const result = list(element("button"), cls("btn"), id("submit"));
+      const result = select.list(select.element("button"), select.cls("btn"), select.id("submit"));
       expect(result).toEqual("button, .btn, #submit");
     });
   });
 
   describe("complex selector combinations", () => {
     it("builds complex nested selectors", () => {
-      const complexSelector = child(
-        compound(element("div"), cls("container")),
-        descendant(cls("item"), pseudo("hover")),
+      const complexSelector = select.child(
+        select.compound(select.element("div"), select.cls("container")),
+        select.descendant(select.cls("item"), select.pseudo("hover")),
       );
       expect(complexSelector).toEqual("div.container > .item :hover");
     });
 
     it("builds selector lists with combinators", () => {
-      const listSelector = list(
-        descendant(element("ul"), element("li")),
-        child(cls("nav"), cls("item")),
-        compound(element("a"), pseudo("visited")),
+      const listSelector = select.list(
+        select.descendant(select.element("ul"), select.element("li")),
+        select.child(select.cls("nav"), select.cls("item")),
+        select.compound(select.element("a"), select.pseudo("visited")),
       );
       expect(listSelector).toEqual("ul li, .nav > .item, a:visited");
     });

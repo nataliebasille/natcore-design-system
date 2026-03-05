@@ -1,12 +1,11 @@
 import { component, dsl, utility } from "@nataliebasille/natcore-css-engine";
-import { currentBaseColor } from "../../shared/colors";
 
 export default [
   component("radial-progress", {
     themeable: "primary",
     variants: {
       default: {
-        "--progress-base": currentBaseColor(500),
+        "--progress-base": dsl.current(500),
         "--progress-track": dsl.colorMix(
           "srgb",
           {

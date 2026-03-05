@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { light } from "../ast/cssvalue/color";
 import { cssv } from "../ast/cssvalue/public";
-import { cls } from "../ast/selector";
+import { select } from "../ast/selector";
 import {
   styleRule,
   type StyleProperties,
@@ -14,7 +14,7 @@ import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder";
 describe("style-list visitor", () => {
   describe("type inference", () => {
     it("correctly infers node type in visitor function", () => {
-      const ast = styleRule(cls("test"), { color: "red" });
+      const ast = styleRule(select.cls("test"), { color: "red" });
       const visitor = stylesheetVisitorBuilder().on("style-list", (node) => {
         expectTypeOf(node).toEqualTypeOf<StyleListAst>();
         return node;
@@ -23,7 +23,7 @@ describe("style-list visitor", () => {
     });
 
     it("correctly infers return type of transformation", () => {
-      const ast = styleRule(cls("test"), { color: "red" });
+      const ast = styleRule(select.cls("test"), { color: "red" });
       const visitor = stylesheetVisitorBuilder().on("style-list", (node) =>
         styleList({
           color: "blue",
@@ -31,7 +31,7 @@ describe("style-list visitor", () => {
         }),
       );
       const actual = visitor.visit(ast);
-      const expected = styleRule(cls("test"), {
+      const expected = styleRule(select.cls("test"), {
         color: "blue",
         "font-size": "16px",
       });
@@ -44,7 +44,7 @@ describe("style-list visitor", () => {
     it("calls style-list visitor with StyleListAst node", () => {
       const stylesSpy = vi.fn().mockImplementation((node) => node);
 
-      const ast = styleRule(cls("button"), {
+      const ast = styleRule(select.cls("button"), {
         padding: "16px",
         margin: "8px",
         "background-color": light("primary", 500),
@@ -72,8 +72,8 @@ describe("style-list visitor", () => {
       const stylesSpy = vi.fn().mockImplementation((node) => node);
 
       const ast = [
-        styleRule(cls("button"), { padding: "8px" }),
-        styleRule(cls("input"), { margin: "4px" }),
+        styleRule(select.cls("button"), { padding: "8px" }),
+        styleRule(select.cls("input"), { margin: "4px" }),
       ];
 
       stylesheetVisitorBuilder().on("style-list", stylesSpy).visit(ast);
@@ -84,10 +84,10 @@ describe("style-list visitor", () => {
     it("calls style-list visitor for nested rules", () => {
       const stylesSpy = vi.fn().mockImplementation((node) => node);
 
-      const ast = styleRule(cls("parent"), {
+      const ast = styleRule(select.cls("parent"), {
         display: "block",
         $: {
-          [cls("child")]: { margin: "8px" },
+          [select.cls("child")]: { margin: "8px" },
         },
       });
 
@@ -97,7 +97,7 @@ describe("style-list visitor", () => {
     });
 
     it("handles style objects with various CSS properties", () => {
-      const ast = styleRule(cls("flex-container"), {
+      const ast = styleRule(select.cls("flex-container"), {
         display: "flex",
         "flex-direction": "row",
         "justify-content": "center",
@@ -118,7 +118,7 @@ describe("style-list visitor", () => {
 
   describe("visitor context", () => {
     it("receives array as parent when in style rule body", () => {
-      const ast = styleRule(cls("test"), { color: "red" });
+      const ast = styleRule(select.cls("test"), { color: "red" });
 
       stylesheetVisitorBuilder()
         .on("style-list", (node, context) => {
@@ -133,8 +133,8 @@ describe("style-list visitor", () => {
       const contexts: Array<{ hasStyles: boolean }> = [];
 
       const ast = [
-        styleRule(cls("button"), { padding: "8px" }),
-        styleRule(cls("input"), { margin: "4px" }),
+        styleRule(select.cls("button"), { padding: "8px" }),
+        styleRule(select.cls("input"), { margin: "4px" }),
       ];
 
       stylesheetVisitorBuilder()
@@ -158,10 +158,10 @@ describe("style-list visitor", () => {
         hasDisplay: boolean;
       }> = [];
 
-      const ast = styleRule(cls("parent"), {
+      const ast = styleRule(select.cls("parent"), {
         display: "block",
         $: {
-          [cls("child")]: { margin: "8px" },
+          [select.cls("child")]: { margin: "8px" },
         },
       });
 
@@ -190,7 +190,7 @@ describe("style-list visitor", () => {
 
   describe("visitor transformation", () => {
     it("allows visitor to return new styles object", () => {
-      const ast = styleRule(cls("test"), { color: "red" });
+      const ast = styleRule(select.cls("test"), { color: "red" });
 
       const visitor = stylesheetVisitorBuilder().on("style-list", (node) => ({
         ...node,
@@ -212,7 +212,7 @@ describe("style-list visitor", () => {
     });
 
     it("allows visitor to merge properties", () => {
-      const ast = styleRule(cls("test"), { color: "red", padding: "8px" });
+      const ast = styleRule(select.cls("test"), { color: "red", padding: "8px" });
 
       const visitor = stylesheetVisitorBuilder().on("style-list", (node) => ({
         ...node,
@@ -234,8 +234,8 @@ describe("style-list visitor", () => {
 
     it("allows visitor to transform based on property values", () => {
       const ast = [
-        styleRule(cls("small"), { padding: "8px" }),
-        styleRule(cls("large"), { padding: "24px" }),
+        styleRule(select.cls("small"), { padding: "8px" }),
+        styleRule(select.cls("large"), { padding: "24px" }),
       ];
 
       const visitor = stylesheetVisitorBuilder().on("style-list", (node) => {
@@ -258,7 +258,7 @@ describe("style-list visitor", () => {
   describe("complex scenarios", () => {
     it("handles styles with color nodes", () => {
       expect.assertions(2);
-      const ast = styleRule(cls("button"), {
+      const ast = styleRule(select.cls("button"), {
         "background-color": light("primary", 500),
         padding: "16px",
       });
@@ -277,7 +277,7 @@ describe("style-list visitor", () => {
     });
 
     it("handles styles with css-value nodes", () => {
-      const ast = styleRule(cls("gradient"), {
+      const ast = styleRule(select.cls("gradient"), {
         "background-image": cssv`linear-gradient(${light("primary", 300)}, ${light("primary", 700)})`,
       });
 
@@ -292,13 +292,13 @@ describe("style-list visitor", () => {
     });
 
     it("transforms all style objects in complex nested structure", () => {
-      const ast = styleRule(cls("parent"), {
+      const ast = styleRule(select.cls("parent"), {
         display: "block",
         $: {
-          [cls("child")]: {
+          [select.cls("child")]: {
             margin: "8px",
             $: {
-              [cls("grandchild")]: { padding: "4px" },
+              [select.cls("grandchild")]: { padding: "4px" },
             },
           },
         },
@@ -331,7 +331,7 @@ describe("style-list visitor", () => {
     it("handles empty style objects", () => {
       const stylesSpy = vi.fn((node) => node);
 
-      const ast = styleRule(cls("empty"), {});
+      const ast = styleRule(select.cls("empty"), {});
 
       stylesheetVisitorBuilder().on("style-list", stylesSpy).visit(ast);
 
@@ -340,7 +340,7 @@ describe("style-list visitor", () => {
 
     it("handles style objects with many properties", () => {
       expect.assertions(1);
-      const ast = styleRule(cls("complex"), {
+      const ast = styleRule(select.cls("complex"), {
         display: "flex",
         "flex-direction": "column",
         "justify-content": "center",
@@ -368,7 +368,7 @@ describe("style-list visitor", () => {
 
   describe("interaction with other visitors", () => {
     it("style-list visitor can transform style properties including color nodes", () => {
-      const ast = styleRule(cls("button"), {
+      const ast = styleRule(select.cls("button"), {
         "background-color": light("primary", 500),
         color: light("primary", 100),
       });
@@ -404,7 +404,7 @@ describe("style-list visitor", () => {
     });
 
     it("style-list transformation can add properties and preserve existing ones", () => {
-      const ast = styleRule(cls("card"), {
+      const ast = styleRule(select.cls("card"), {
         "background-color": light("primary", 100),
         color: light("primary", 900),
       });
@@ -433,16 +433,16 @@ describe("style-list visitor", () => {
     it("handles styles in deeply nested rules", () => {
       const stylesSpy = vi.fn((node) => node);
 
-      const ast = styleRule(cls("level1"), {
+      const ast = styleRule(select.cls("level1"), {
         color: "red",
         $: {
-          [cls("level2")]: {
+          [select.cls("level2")]: {
             color: "green",
             $: {
-              [cls("level3")]: {
+              [select.cls("level3")]: {
                 color: "blue",
                 $: {
-                  [cls("level4")]: { color: "yellow" },
+                  [select.cls("level4")]: { color: "yellow" },
                 },
               },
             },
@@ -457,7 +457,7 @@ describe("style-list visitor", () => {
 
     it("handles styles with numeric values", () => {
       expect.assertions(2);
-      const ast = styleRule(cls("test"), {
+      const ast = styleRule(select.cls("test"), {
         "z-index": "10",
         opacity: "0.8",
       });

@@ -6,19 +6,12 @@ import {
   type StyleListAst,
   type TailwindClassAst,
 } from "./style-rule";
-import {
-  cls,
-  element,
-  id,
-  pseudo,
-  descendant,
-  type Selector,
-} from "./selector";
+import { select, type Selector } from "./selector";
 
 describe("styleRule type tests", () => {
   describe("basic rule creation", () => {
     it("returns StyleRuleAst with correct selector and body array", () => {
-      const result = styleRule(cls("button"), { color: "red" });
+      const result = styleRule(select.cls("button"), { color: "red" });
 
       expectTypeOf(result.$ast).toEqualTypeOf<"style-rule">();
       expectTypeOf(result.selector).toEqualTypeOf<".button">();
@@ -48,7 +41,7 @@ describe("styleRule type tests", () => {
         margin: "0.5rem",
         display: "flex",
       } as const;
-      const result = styleRule(cls("card"), body);
+      const result = styleRule(select.cls("card"), body);
 
       expectTypeOf(result.selector).toEqualTypeOf<".card">();
       expectTypeOf(result.body).toEqualTypeOf<
@@ -74,7 +67,7 @@ describe("styleRule type tests", () => {
     });
 
     it("handles empty body", () => {
-      const result = styleRule(cls("empty"));
+      const result = styleRule(select.cls("empty"));
 
       expectTypeOf(result.body).toEqualTypeOf<[]>();
       expect(result).toEqual({
@@ -87,7 +80,7 @@ describe("styleRule type tests", () => {
 
   describe("selector types", () => {
     it("works with class selectors", () => {
-      const buttonClass = cls("button");
+      const buttonClass = select.cls("button");
       expectTypeOf(buttonClass).toEqualTypeOf<".button">();
 
       const result = styleRule(buttonClass, { color: "blue" });
@@ -97,7 +90,7 @@ describe("styleRule type tests", () => {
     });
 
     it("works with element selectors", () => {
-      const result = styleRule(element("div"), {
+      const result = styleRule(select.element("div"), {
         display: "flex",
         padding: "1rem",
       });
@@ -124,7 +117,7 @@ describe("styleRule type tests", () => {
     });
 
     it("works with id selectors", () => {
-      const result = styleRule(id("main"), { width: "100%" });
+      const result = styleRule(select.id("main"), { width: "100%" });
 
       expectTypeOf(result.selector).toEqualTypeOf<"#main">();
       expect(result).toEqual({
@@ -140,7 +133,7 @@ describe("styleRule type tests", () => {
     });
 
     it("works with pseudo-class selectors", () => {
-      const result = styleRule(pseudo("hover"), { opacity: "0.8" });
+      const result = styleRule(select.pseudo("hover"), { opacity: "0.8" });
 
       expectTypeOf(result.selector).toEqualTypeOf<":hover">();
       expect(result).toEqual({
@@ -156,7 +149,7 @@ describe("styleRule type tests", () => {
     });
 
     it("works with combinator selectors", () => {
-      const result = styleRule(descendant(element("ul"), element("li")), {
+      const result = styleRule(select.descendant(select.element("ul"), select.element("li")), {
         "list-style": "none",
       });
 
@@ -174,10 +167,10 @@ describe("styleRule type tests", () => {
     });
 
     it("preserves exact selector literal type", () => {
-      const buttonRule = styleRule(cls("primary-button"), { color: "white" });
+      const buttonRule = styleRule(select.cls("primary-button"), { color: "white" });
       expectTypeOf(buttonRule.selector).toEqualTypeOf<".primary-button">();
 
-      const divRule = styleRule(element("section"), { display: "block" });
+      const divRule = styleRule(select.element("section"), { display: "block" });
       expectTypeOf(divRule.selector).toEqualTypeOf<"section">();
     });
   });
@@ -185,7 +178,7 @@ describe("styleRule type tests", () => {
   describe("varargs body parameters", () => {
     it("accepts multiple body items as separate arguments", () => {
       const result = styleRule(
-        cls("card"),
+        select.cls("card"),
         { padding: "1rem" },
         { margin: "0.5rem" },
         { display: "flex" },
@@ -215,9 +208,9 @@ describe("styleRule type tests", () => {
     });
 
     it("mixes style properties and nested rules", () => {
-      const nestedRule = styleRule(pseudo("hover"), { opacity: "0.8" });
+      const nestedRule = styleRule(select.pseudo("hover"), { opacity: "0.8" });
       const result = styleRule(
-        cls("button"),
+        select.cls("button"),
         { padding: "0.5rem 1rem" },
         nestedRule,
         { "background-color": "blue" },
@@ -250,7 +243,7 @@ describe("styleRule type tests", () => {
 
   describe("nested rules with $ syntax", () => {
     it("transforms $ nested selectors to StyleRuleAst array", () => {
-      const result = styleRule(cls("button"), {
+      const result = styleRule(select.cls("button"), {
         padding: "0.5rem 1rem",
         $: {
           ":hover": { opacity: "0.8" },
@@ -274,7 +267,7 @@ describe("styleRule type tests", () => {
     });
 
     it("allows deeply nested rules with multiple $ levels", () => {
-      const result = styleRule(cls("outer"), {
+      const result = styleRule(select.cls("outer"), {
         margin: "1rem",
         $: {
           ".inner": {
@@ -300,7 +293,7 @@ describe("styleRule type tests", () => {
     });
 
     it("handles $ with array of body builders", () => {
-      const result: StyleRuleAst = styleRule(cls("card"), {
+      const result: StyleRuleAst = styleRule(select.cls("card"), {
         display: "flex",
         $: {
           ":hover": [{ opacity: "0.9" }, { transform: "scale(1.05)" }],
@@ -328,7 +321,7 @@ describe("styleRule type tests", () => {
 
   describe("tailwind utilities integration", () => {
     it("accepts tailwind utility strings and converts to TailwindClassAst", () => {
-      const result = styleRule(cls("button"), "flex", "items-center");
+      const result = styleRule(select.cls("button"), "flex", "items-center");
 
       expectTypeOf(result.body).toEqualTypeOf<
         [
@@ -349,7 +342,7 @@ describe("styleRule type tests", () => {
 
     it("mixes tailwind utilities with style properties", () => {
       const result = styleRule(
-        cls("card"),
+        select.cls("card"),
         "flex",
         { padding: "1rem" },
         "rounded-lg",
@@ -382,7 +375,7 @@ describe("styleRule type tests", () => {
         $ast: "tailwind-class",
         value: "bg-blue-500",
       };
-      const result = styleRule(cls("button"), twClass);
+      const result = styleRule(select.cls("button"), twClass);
 
       expectTypeOf(result.body).toEqualTypeOf<[TailwindClassAst]>();
       expect(result.body).toEqual([twClass]);
@@ -395,7 +388,7 @@ describe("styleRule type tests", () => {
         $ast: "style-list",
         styles: [{ color: "red" }],
       };
-      const result = styleRule(cls("text"), styleList);
+      const result = styleRule(select.cls("text"), styleList);
 
       expectTypeOf(result.body).toEqualTypeOf<[StyleListAst]>();
       expect(result.body).toEqual([styleList]);
@@ -513,7 +506,7 @@ describe("styleRule type tests", () => {
 
     it("works with styleRule integration", () => {
       const list = styleList("flex", { padding: "1rem" }, "items-center");
-      const rule = styleRule(cls("container"), list);
+      const rule = styleRule(select.cls("container"), list);
 
       expectTypeOf(rule.body).toEqualTypeOf<
         [
@@ -547,10 +540,10 @@ describe("styleRule type tests", () => {
   describe("component-style nested rules", () => {
     it("allows building component with multiple nested rules as varargs", () => {
       const component = styleRule(
-        cls("card"),
+        select.cls("card"),
         { padding: "1rem", border: "1px solid gray" },
-        styleRule(pseudo("hover"), { "border-color": "blue" }),
-        styleRule(descendant(cls("card"), cls("title")), {
+        styleRule(select.pseudo("hover"), { "border-color": "blue" }),
+        styleRule(select.descendant(select.cls("card"), select.cls("title")), {
           "font-size": "1.5rem",
         }),
       );
@@ -573,7 +566,7 @@ describe("styleRule type tests", () => {
 
   describe("type compatibility", () => {
     it("StyleRuleAst is assignable from styleRule() return type", () => {
-      const result = styleRule(cls("test"), { color: "red" });
+      const result = styleRule(select.cls("test"), { color: "red" });
       const typed: StyleRuleAst = result;
       expect(typed.$ast).toBe("style-rule");
     });
@@ -583,7 +576,7 @@ describe("styleRule type tests", () => {
         return styleRule(selector, { padding: "0.5rem" });
       }
 
-      const result = createRule(cls("btn"));
+      const result = createRule(select.cls("btn"));
       expectTypeOf(result.selector).toEqualTypeOf<".btn">();
       expect(result.selector).toBe(".btn");
     });
@@ -591,7 +584,7 @@ describe("styleRule type tests", () => {
 
   describe("runtime behavior", () => {
     it("correctly extracts value from selector", () => {
-      const selector = cls("test");
+      const selector = select.cls("test");
       expect(selector).toBe(".test");
 
       const result = styleRule(selector);
@@ -603,7 +596,7 @@ describe("styleRule type tests", () => {
 
     it("flattens nested body items correctly", () => {
       const result = styleRule(
-        cls("complex"),
+        select.cls("complex"),
         { color: "red" },
         { $: { ":hover": { color: "blue" } } },
         { margin: "1rem" },

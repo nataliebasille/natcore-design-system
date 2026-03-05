@@ -13,7 +13,7 @@ export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
             className={classnames(
               "flex items-center justify-center rounded-full px-2 text-sm",
               {
-                "bg-tone-500-primary text-primary-contrast-scale-500":
+                "bg-tone-500-primary text-on-tone-500-primary":
                   value.type === "component",
                 "text-tone-700-primary border-tone-700-primary border":
                   value.type === "modifier",
@@ -22,7 +22,7 @@ export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
           >
             {value.type}
           </div>
-          <div className="text-slate-scale-600 col-span-2 -mt-2 text-sm sm:col-span-1 sm:mt-0 sm:text-base">
+          <div className="text-tone-600-surface col-span-2 -mt-2 text-sm sm:col-span-1 sm:mt-0 sm:text-base">
             {value.description}
           </div>
         </Fragment>

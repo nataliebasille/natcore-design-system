@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { light } from "../ast/cssvalue/color";
 import { cssv } from "../ast/cssvalue/public";
-import { cls, element, id } from "../ast/selector";
+import { select } from "../ast/selector";
 import {
   styleRule,
   type StyleListAst,
@@ -18,7 +18,7 @@ describe("style-rule ast visitor", () => {
         expectTypeOf(node).toEqualTypeOf<StyleRuleAst>();
         return node;
       });
-      visitor.visit(styleRule(cls("test"), { color: "red" }));
+      visitor.visit(styleRule(select.cls("test"), { color: "red" }));
     });
   });
 
@@ -26,7 +26,7 @@ describe("style-rule ast visitor", () => {
     it("calls style-rule visitor with StyleRuleAst node", () => {
       const styleRuleSpy = vi.fn((node) => node);
 
-      const ast = styleRule(cls("button"), {
+      const ast = styleRule(select.cls("button"), {
         "background-color": light("primary", 500),
         padding: "16px",
       });
@@ -44,7 +44,7 @@ describe("style-rule ast visitor", () => {
 
     it("calls style-rule visitor with correct node properties", () => {
       expect.assertions(3);
-      const ast = styleRule(cls("card"), {
+      const ast = styleRule(select.cls("card"), {
         "border-radius": "8px",
         "box-shadow": "0 2px 4px rgba(0,0,0,0.1)",
       });
@@ -67,7 +67,7 @@ describe("style-rule ast visitor", () => {
     it("handles rules with multiple body items", () => {
       const styleRuleSpy = vi.fn((node) => node);
 
-      const ast = styleRule(cls("complex"), {
+      const ast = styleRule(select.cls("complex"), {
         display: "flex",
         "flex-direction": "column",
         gap: "16px",
@@ -84,9 +84,9 @@ describe("style-rule ast visitor", () => {
       const styleRuleSpy = vi.fn((node) => node);
 
       const ast = [
-        styleRule(cls("button"), { padding: "8px" }),
-        styleRule(cls("input"), { border: "1px solid" }),
-        styleRule(cls("label"), { "font-size": "14px" }),
+        styleRule(select.cls("button"), { padding: "8px" }),
+        styleRule(select.cls("input"), { border: "1px solid" }),
+        styleRule(select.cls("label"), { "font-size": "14px" }),
       ];
 
       const visitor = stylesheetVisitorBuilder();
@@ -99,7 +99,7 @@ describe("style-rule ast visitor", () => {
 
   describe("visitor context", () => {
     it("passes undefined as parent for top-level rules", () => {
-      const ast = styleRule(cls("test"), { color: "#000" });
+      const ast = styleRule(select.cls("test"), { color: "#000" });
 
       const visitor = stylesheetVisitorBuilder();
       visitor.on("style-rule", (node, context) => {
@@ -112,7 +112,7 @@ describe("style-rule ast visitor", () => {
 
   describe("visitor transformation", () => {
     it("allows visitor to return new style rule", () => {
-      const ast = [styleRule(cls("original"), { color: "red" })];
+      const ast = [styleRule(select.cls("original"), { color: "red" })];
 
       const visitor = stylesheetVisitorBuilder();
       visitor.on("style-rule", (node) => {
@@ -125,8 +125,8 @@ describe("style-rule ast visitor", () => {
 
     it("allows visitor to transform based on selector", () => {
       const ast = [
-        styleRule(cls("button"), { color: "blue" }),
-        styleRule(cls("input"), { color: "red" }),
+        styleRule(select.cls("button"), { color: "blue" }),
+        styleRule(select.cls("input"), { color: "red" }),
       ];
 
       const visitor = stylesheetVisitorBuilder();
@@ -151,9 +151,9 @@ describe("style-rule ast visitor", () => {
       const selectors: string[] = [];
 
       const ast = [
-        styleRule(element("div"), { display: "block" }),
-        styleRule(cls("button"), { padding: "8px" }),
-        styleRule(id("main"), { width: "100%" }),
+        styleRule(select.element("div"), { display: "block" }),
+        styleRule(select.cls("button"), { padding: "8px" }),
+        styleRule(select.id("main"), { width: "100%" }),
         styleRule("*", { boxSizing: "border-box" }),
       ];
 
@@ -168,7 +168,7 @@ describe("style-rule ast visitor", () => {
     });
 
     it("handles rules with color and css-value properties", () => {
-      const ast = styleRule(cls("gradient"), {
+      const ast = styleRule(select.cls("gradient"), {
         "background-color": light("primary", 500),
         "background-image": cssv`linear-gradient(${light("primary", 300)}, ${light("primary", 700)})`,
       });
@@ -210,7 +210,7 @@ describe("style-rule ast visitor", () => {
     it("handles empty body", () => {
       const styleRuleSpy = vi.fn((node) => node);
 
-      const ast = styleRule(cls("empty"), {});
+      const ast = styleRule(select.cls("empty"), {});
 
       const visitor = stylesheetVisitorBuilder().on("style-rule", styleRuleSpy);
       visitor.visit(ast);

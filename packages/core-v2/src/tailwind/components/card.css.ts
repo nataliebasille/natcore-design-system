@@ -1,10 +1,9 @@
 import { component, dsl, utility } from "@nataliebasille/natcore-css-engine";
-import { currentBaseColor } from "../../shared/colors";
 
-const cardSections = dsl.list(
-  dsl.child(dsl.parent(), dsl.cls("card-header")),
-  dsl.child(dsl.parent(), dsl.cls("card-content")),
-  dsl.child(dsl.parent(), dsl.cls("card-footer")),
+const cardSections = dsl.select.list(
+  dsl.select.child(dsl.select.parent(), dsl.select.cls("card-header")),
+  dsl.select.child(dsl.select.parent(), dsl.select.cls("card-content")),
+  dsl.select.child(dsl.select.parent(), dsl.select.cls("card-footer")),
 );
 
 export default [
@@ -12,27 +11,27 @@ export default [
     themeable: "surface",
     variants: {
       default: {
-        "--card-bg": currentBaseColor(100),
+        "--card-bg": dsl.current(100),
         "--card-fg": dsl.currentText(100),
-        "--card-border": currentBaseColor(300),
-        "--card-section-border": currentBaseColor(300),
-        "--card-hover-bg": currentBaseColor(200),
+        "--card-border": dsl.current(300),
+        "--card-section-border": dsl.current(300),
+        "--card-hover-bg": dsl.current(200),
         "--card-hover-fg": dsl.currentText(200),
-        "--card-hover-border": currentBaseColor(300),
+        "--card-hover-border": dsl.current(300),
       },
       soft: {
-        "--card-bg": currentBaseColor(100),
+        "--card-bg": dsl.current(100),
         "--card-fg": dsl.currentText(100),
-        "--card-border": currentBaseColor(300),
-        "--card-section-border": currentBaseColor(300),
-        "--card-hover-bg": currentBaseColor(200),
+        "--card-border": dsl.current(300),
+        "--card-section-border": dsl.current(300),
+        "--card-hover-bg": dsl.current(200),
         "--card-hover-fg": dsl.currentText(200),
-        "--card-hover-border": currentBaseColor(300),
+        "--card-hover-border": dsl.current(300),
       },
       filled: {
-        "--card-bg": currentBaseColor(500),
+        "--card-bg": dsl.current(500),
         "--card-fg": dsl.currentText(500),
-        "--card-border": currentBaseColor(300),
+        "--card-border": dsl.current(300),
         "--card-section-border": dsl.colorMix(
           "srgb",
           {
@@ -41,9 +40,9 @@ export default [
           },
           { color: dsl.primitive.color.transparent() },
         ),
-        "--card-hover-bg": currentBaseColor(600),
+        "--card-hover-bg": dsl.current(600),
         "--card-hover-fg": dsl.currentText(600),
-        "--card-hover-border": currentBaseColor(300),
+        "--card-hover-border": dsl.current(300),
       },
       ghost: {
         "--card-bg": dsl.colorMix(
@@ -54,7 +53,7 @@ export default [
           },
           { color: dsl.primitive.color.transparent() },
         ),
-        "--card-fg": currentBaseColor(700),
+        "--card-fg": dsl.current(700),
         "--card-border": dsl.colorMix(
           "srgb",
           {
@@ -79,8 +78,8 @@ export default [
           },
           { color: dsl.primitive.color.transparent() },
         ),
-        "--card-hover-fg": currentBaseColor(700),
-        "--card-hover-border": currentBaseColor(500),
+        "--card-hover-fg": dsl.current(700),
+        "--card-hover-border": dsl.current(500),
       },
     },
     styles: [
@@ -95,11 +94,17 @@ export default [
             padding: `${dsl.spacing("4")}`,
           },
 
-          [dsl.child(dsl.parent(), dsl.cls("card-header"))]: {
+          [dsl.select.child(
+            dsl.select.parent(),
+            dsl.select.cls("card-header"),
+          )]: {
             "border-bottom": dsl.cssv`1px solid ${dsl.match.variable("--card-section-border")}`,
           },
 
-          [dsl.child(dsl.parent(), dsl.cls("card-footer"))]: {
+          [dsl.select.child(
+            dsl.select.parent(),
+            dsl.select.cls("card-footer"),
+          )]: {
             "border-top": dsl.cssv`1px solid ${dsl.match.variable("--card-section-border")}`,
           },
         },
@@ -115,7 +120,7 @@ export default [
     "transition-duration": "250ms",
 
     $: {
-      [dsl.parent(dsl.pseudo("hover"))]: {
+      [dsl.select.parent(dsl.select.pseudo("hover"))]: {
         "background-color": dsl.cssvar("--card-hover-bg"),
         color: dsl.cssvar("--card-hover-fg"),
         "border-color": dsl.cssvar("--card-hover-border"),
