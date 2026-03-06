@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { compile } from "./compile";
-import { atRule, styleBlock, styleList } from "./ast";
+import { compile } from "./compile.ts";
+import { atRule, styleBlock, styleList } from "./ast/index.ts";
 
 describe("css compiler", () => {
   test("compiles a style block with selector", () => {

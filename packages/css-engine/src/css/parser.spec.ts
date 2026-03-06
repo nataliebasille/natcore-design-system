@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parse } from "./parser";
+import { parse } from "./parser.ts";
 
 describe("css parser", () => {
   test("parses @property at-rule descriptors", () => {

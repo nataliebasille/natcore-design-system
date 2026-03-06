@@ -1,5 +1,5 @@
-import type { StyleBlockAst } from "./style-block";
-import type { StyleListAst } from "./style-list";
+import type { StyleBlockAst } from "./style-block.ts";
+import type { StyleListAst } from "./style-list.ts";
 
 export type AtRuleBody = Array<StyleListAst | StyleBlockAst | AtRuleAst>;
 

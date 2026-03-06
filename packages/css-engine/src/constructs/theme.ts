@@ -1,6 +1,6 @@
-import { css } from "../css";
-import type { StyleProperties } from "../dsl/public";
-import type { Eager } from "../utils";
+import { css } from "../css/index.ts";
+import type { StyleProperties } from "../dsl/public.ts";
+import type { Eager } from "../utils/index.ts";
 
 export type ThemeConstruct = {
   $construct: "theme";

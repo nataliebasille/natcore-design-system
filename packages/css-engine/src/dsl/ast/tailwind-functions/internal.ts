@@ -1,4 +1,4 @@
-import type { AstNode } from "../../visitor/visitor-builder.types";
+import type { AstNode } from "../../visitor/visitor-builder.types.ts";
 
 export type FunctionAst<
   T extends string,

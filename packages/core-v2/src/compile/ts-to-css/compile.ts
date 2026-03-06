@@ -1,10 +1,10 @@
-import { createCompiler } from "../create-compiler";
+import { createCompiler } from "../create-compiler.ts";
 import { compile, dsl } from "@nataliebasille/natcore-css-engine";
 import { pathToFileURL } from "node:url";
-import { componentConstructToDsl } from "./component-construct-to-dsl";
-import { dslToCss } from "./dsl-to-css";
-import { themeConstructToDsl } from "./theme-construct-to-dsl";
-import { utilityConstructToDsl } from "./utility-construct-to-dsl";
+import { componentConstructToDsl } from "./component-construct-to-dsl.ts";
+import { dslToCss } from "./dsl-to-css.ts";
+import { themeConstructToDsl } from "./theme-construct-to-dsl.ts";
+import { utilityConstructToDsl } from "./utility-construct-to-dsl.ts";
 
 export const compileTsToCss = createCompiler({
   preprocess: (fileInfos) => {

@@ -2,17 +2,17 @@
  * DSL Rule - CSS rule with selector and body
  */
 
-import type { AstNode } from "../visitor/visitor-builder.types";
-import type { css } from "../../css";
-import type { CssDataType, CssFunction, CssValue } from "./cssvalue/public";
-import type { Selector } from "./selector";
+import type { AstNode } from "../visitor/visitor-builder.types.ts";
+import type { css } from "../../css/index.ts";
+import type { CssDataType, CssFunction, CssValue } from "./cssvalue/public.ts";
+import type { Selector } from "./selector.ts";
 import {
   tw,
   type TailwindClassAst,
   type TailwindUtility,
-} from "./tailwind-utilities";
-import type { TemplateLiteralAst } from "./cssvalue/template-literal";
-import type { SpacingFunctionAst } from "./tailwind-functions/spacing";
+} from "./tailwind-utilities.ts";
+import type { TemplateLiteralAst } from "./cssvalue/template-literal.ts";
+import type { SpacingFunctionAst } from "./tailwind-functions/spacing.ts";
 
 export type {
   TailwindUtility,
@@ -20,8 +20,8 @@ export type {
   ArbitraryValue,
   ColorValue,
   LengthValue,
-} from "./tailwind-utilities";
-export { arbitraryValue } from "./tailwind-utilities";
+} from "./tailwind-utilities.ts";
+export { arbitraryValue } from "./tailwind-utilities.ts";
 
 export type StylePropertyValue =
   | CssValue<CssDataType>

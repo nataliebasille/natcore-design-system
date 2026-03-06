@@ -1,14 +1,14 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { light } from "../ast/cssvalue/color";
-import { cssv } from "../ast/cssvalue/public";
-import { select } from "../ast/selector";
+import { light } from "../ast/cssvalue/color.ts";
+import { cssv } from "../ast/cssvalue/public.ts";
+import { select } from "../ast/selector.ts";
 import {
   styleRule,
   type StyleListAst,
   type StyleProperties,
   type StyleRuleAst,
-} from "../ast/style-rule";
-import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder";
+} from "../ast/style-rule.ts";
+import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder.ts";
 
 describe("style-rule ast visitor", () => {
   describe("type inference", () => {

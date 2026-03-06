@@ -1,2 +1,2 @@
-export * from "./visitor-builder";
-export * from "./visitor-builder.types";
+export * from "./visitor-builder.ts";
+export * from "./visitor-builder.types.ts";

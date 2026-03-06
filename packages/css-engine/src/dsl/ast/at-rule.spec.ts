@@ -19,9 +19,9 @@ import {
   supportsHover,
   supportsFinePointer,
   type AtRuleAst,
-} from "./at-rule";
-import { styleRule, styleList, arbitraryValue } from "./style-rule";
-import { select } from "./selector";
+} from "./at-rule.ts";
+import { styleRule, styleList, arbitraryValue } from "./style-rule.ts";
+import { select } from "./selector.ts";
 
 describe("at-rule tests", () => {
   describe("atRule()", () => {

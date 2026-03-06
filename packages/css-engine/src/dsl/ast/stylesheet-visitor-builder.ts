@@ -11,9 +11,9 @@ import {
   type MatchValueAst,
   type MatchModifierAst,
   type CssDataType,
-} from "../..";
-import { defineVisitor } from "../visitor/visitor-builder";
-import type { TemplateLiteralAst } from "./cssvalue/template-literal";
+} from "../../index.ts";
+import { defineVisitor } from "../visitor/visitor-builder.ts";
+import type { TemplateLiteralAst } from "./cssvalue/template-literal.ts";
 
 export type StylesheetVisitorSpec =
   | {

@@ -1,7 +1,7 @@
 // /* ============================================================
 //    1) Core AST + parent inference
 
-import type { Eager, ExtendsNever } from "../../utils";
+import type { Eager, ExtendsNever } from "../../utils/index.ts";
 
 export type AstNode<
   Id extends string,

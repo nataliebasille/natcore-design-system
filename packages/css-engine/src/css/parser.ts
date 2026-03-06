@@ -2,8 +2,8 @@ import type {
   StylesheetAst,
   StylesheetSimpleAst,
   StyleProperties,
-} from "./ast";
-import { atRule, styleBlock, styleList } from "./ast";
+} from "./ast/index.ts";
+import { atRule, styleBlock, styleList } from "./ast/index.ts";
 
 type ParserState = {
   css: string;

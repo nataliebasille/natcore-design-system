@@ -1,10 +1,10 @@
-import type { Eager, ExtendsNever, UnionToIntersection } from "../../utils";
+import type { Eager, ExtendsNever, UnionToIntersection } from "../../utils/index.ts";
 import type {
   AstNode,
   AstSpecDefinition,
   CombinedAstSpec,
   VisitorBuilder,
-} from "./visitor-builder.types";
+} from "./visitor-builder.types.ts";
 
 type NonAstNodeOptions<Spec extends AstSpecDefinition> = Eager<{
   [K in keyof CombinedAstSpec<Spec> as CombinedAstSpec<Spec>[K]["$in"] extends (

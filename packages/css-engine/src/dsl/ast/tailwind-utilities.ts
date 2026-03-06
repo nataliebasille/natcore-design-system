@@ -2,10 +2,10 @@
  * Tailwind CSS utility class types with CssValue support
  */
 
-import type { AstNode } from "../visitor/visitor-builder.types";
-import type { CssDataType, CssValue, CssVarAst } from "./cssvalue/public";
-import type { ColorAst } from "./cssvalue/color";
-import type { FunctionAst } from "./tailwind-functions/public";
+import type { AstNode } from "../visitor/visitor-builder.types.ts";
+import type { CssDataType, CssValue, CssVarAst } from "./cssvalue/public.ts";
+import type { ColorAst } from "./cssvalue/color.ts";
+import type { FunctionAst } from "./tailwind-functions/public.ts";
 
 /**
  * CSS value types for colors (bg-, text-, border-, etc.)

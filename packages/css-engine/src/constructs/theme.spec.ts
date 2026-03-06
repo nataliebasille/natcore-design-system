@@ -1,5 +1,5 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { theme } from "./theme";
+import { theme } from "./theme.ts";
 
 describe("theme type tests", () => {
   describe("theme()", () => {

@@ -1,5 +1,5 @@
-import type { AstNode } from "../../visitor/visitor-builder.types";
-import type { CssDataType, CssValue } from "./public";
+import type { AstNode } from "../../visitor/visitor-builder.types.ts";
+import type { CssDataType, CssValue } from "./public.ts";
 
 export type TemplateLiteralAst<D extends CssDataType> = AstNode<
   "css-value",

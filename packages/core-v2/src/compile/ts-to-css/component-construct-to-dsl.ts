@@ -8,7 +8,7 @@ import {
   type Palette,
   type Shade,
 } from "@nataliebasille/natcore-css-engine";
-import { renderPaletteMatcher } from "../../shared/colors";
+import { renderPaletteMatcher } from "../../shared/colors.ts";
 
 type StylePropertyValue = dsl.StyleProperties[keyof dsl.StyleProperties];
 

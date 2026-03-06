@@ -1,4 +1,4 @@
-import { type CompileContext, type CompiledFile, type FileInfo } from "./types";
+import { type CompileContext, type CompiledFile, type FileInfo } from "./types.ts";
 import path from "node:path";
 import fs from "node:fs/promises";
 

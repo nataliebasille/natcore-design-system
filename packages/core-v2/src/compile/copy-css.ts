@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { createCompiler } from "./create-compiler";
+import { createCompiler } from "./create-compiler.ts";
 
 export const copyCss = createCompiler({
   preprocess(fileInfos) {

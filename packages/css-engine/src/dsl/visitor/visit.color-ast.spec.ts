@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { light, lightText, type ColorAst } from "../ast/cssvalue/color";
-import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder";
-import { styleList, type TemplateLiteralAst } from "../public";
+import { light, lightText, type ColorAst } from "../ast/cssvalue/color.ts";
+import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder.ts";
+import { styleList, type TemplateLiteralAst } from "../public.ts";
 
 describe("color ast visitor", () => {
   describe("type inference", () => {

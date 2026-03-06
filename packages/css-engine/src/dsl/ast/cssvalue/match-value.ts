@@ -1,10 +1,10 @@
-import type { Eager } from "../../../utils";
+import type { Eager } from "../../../utils/index.ts";
 import type {
   CssDataType,
   SupportedArbitraryDataType,
   SupportedBareDataType,
-} from "./css-primitive";
-import type { VarLiteral } from "./cssvar";
+} from "./css-primitive.ts";
+import type { VarLiteral } from "./cssvar.ts";
 
 type TwCandiate<Name, Args extends Record<string, unknown>> =
   Args extends any ? Eager<{ $twCandidate: Name } & Args> : never;

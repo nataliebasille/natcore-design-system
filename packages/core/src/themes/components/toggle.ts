@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type {  PluginAPI } from "../helpers.ts";
-import { createVariants } from "../colors";
+import { createVariants } from "../colors.ts";
 
 const toggleVariants = createVariants("toggle");
 const TOGGLE_SIZE_MD = 1.75;

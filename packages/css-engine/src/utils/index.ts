@@ -8,4 +8,4 @@ export function combine(parts: (string | null)[], separator: string): string {
   return parts.filter(Boolean).join(separator);
 }
 
-export * from "./types";
+export * from "./types.ts";

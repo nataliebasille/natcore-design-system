@@ -1,11 +1,11 @@
-import type { Palette } from "../dsl/ast/cssvalue/color";
+import type { Palette } from "../dsl/ast/cssvalue/color.ts";
 import type {
   StyleListAst,
   StylePropertyValue,
   StyleRuleAst,
   StyleRuleBodyBuilder,
-} from "../dsl/ast/style-rule";
-import { dsl } from "../dsl/public";
+} from "../dsl/ast/style-rule.ts";
+import { dsl } from "../dsl/public.ts";
 
 export type ComponentConstruct = {
   $construct: "component";

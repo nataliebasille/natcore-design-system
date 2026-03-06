@@ -4,7 +4,7 @@ import {
   stylesheetVisitorBuilder,
   type CssDataType,
 } from "@nataliebasille/natcore-css-engine";
-import { colorKey } from "../../shared/colors";
+import { colorKey } from "../../shared/colors.ts";
 
 type TopLevelAst = dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst;
 export function dslToCss(ast: TopLevelAst[]): css.StylesheetAst {

@@ -1,5 +1,5 @@
 import type { PropertiesHyphen } from "csstype";
-import type { AtRuleAst } from "./at-rule";
+import type { AtRuleAst } from "./at-rule.ts";
 
 export type ThemeProperty = `--${string}`;
 export type PropertyAtRuleDescriptor = "syntax" | "inherits" | "initial-value";

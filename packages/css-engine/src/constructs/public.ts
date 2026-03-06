@@ -1,3 +1,3 @@
-export * from "./component";
-export * from "./theme";
-export * from "./utility";
+export * from "./component.ts";
+export * from "./theme.ts";
+export * from "./utility.ts";

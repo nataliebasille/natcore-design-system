@@ -2,16 +2,16 @@
  * DSL layer - provides at-rule wrappers with strong typing
  */
 
-import type { AstNode } from "../visitor/visitor-builder.types";
+import type { AstNode } from "../visitor/visitor-builder.types.ts";
 import type {
   StyleRuleBodyBuilder,
   StyleRuleAst,
   StyleListBuilder,
   StyleListAst,
   TailwindClassAst,
-} from "./style-rule";
-import { styleRule } from "./style-rule";
-import { select } from "./selector";
+} from "./style-rule.ts";
+import { styleRule } from "./style-rule.ts";
+import { select } from "./selector.ts";
 
 /**
  * Reusable type for at-rule content - includes all possible rule types

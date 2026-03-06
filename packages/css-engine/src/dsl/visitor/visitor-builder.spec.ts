@@ -1,11 +1,11 @@
 import { describe, it, expect, expectTypeOf, vi } from "vitest";
-import { defineVisitor } from "./visitor-builder";
+import { defineVisitor } from "./visitor-builder.ts";
 import type {
   AstNode,
   CombinedAstSpec,
   ParentsOf,
-} from "./visitor-builder.types";
-import type { Eager } from "../../utils";
+} from "./visitor-builder.types.ts";
+import type { Eager } from "../../utils/index.ts";
 
 describe("defineVisitor", () => {
   describe("basic AST node traversal", () => {

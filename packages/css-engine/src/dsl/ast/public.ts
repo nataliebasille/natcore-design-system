@@ -1,10 +1,10 @@
-import type { StyleProperties, StyleRuleAst } from "./style-rule";
+import type { StyleProperties, StyleRuleAst } from "./style-rule.ts";
 
-export * from "./stylesheet-visitor-builder";
-export * from "./at-rule";
-export * from "./cssvalue/color";
-export * from "./cssvalue/public";
-export * from "./selector";
-export * from "./style-rule";
-export * from "./tailwind-functions/public";
-export * from "./tailwind-utilities";
+export * from "./stylesheet-visitor-builder.ts";
+export * from "./at-rule.ts";
+export * from "./cssvalue/color.ts";
+export * from "./cssvalue/public.ts";
+export * from "./selector.ts";
+export * from "./style-rule.ts";
+export * from "./tailwind-functions/public.ts";
+export * from "./tailwind-utilities.ts";

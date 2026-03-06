@@ -1,4 +1,4 @@
-import { select } from "./selector";
+import { select } from "./selector.ts";
 
 describe("selector type tests", () => {
   describe("select.element()", () => {

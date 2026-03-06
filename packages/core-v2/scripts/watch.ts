@@ -1,7 +1,7 @@
-import { runTsup } from "./run-tsup";
+import { runTsup } from "./run-tsup.ts";
 import chokidar from "chokidar";
 import path from "path";
-import { compile } from "../src/compile";
+import { compile } from "../src/compile/index.ts";
 import fs from "node:fs/promises";
 
 const srcDir = path.join(import.meta.dirname, "../src/tailwind");

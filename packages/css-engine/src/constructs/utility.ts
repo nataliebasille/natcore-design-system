@@ -5,7 +5,7 @@ import {
   type StyleRuleAst,
   type StyleRuleBodyBuilder,
   type TailwindClassAst,
-} from "../dsl/public";
+} from "../dsl/public.ts";
 
 export type UtilityConstruct = {
   $construct: "utility";

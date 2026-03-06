@@ -1,4 +1,4 @@
-import type { FunctionAst } from "./internal";
+import type { FunctionAst } from "./internal.ts";
 
 export type SpacingFunctionAst = FunctionAst<"spacing", { value: string }> & {
   toString: () => string;

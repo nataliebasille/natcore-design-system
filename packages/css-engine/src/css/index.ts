@@ -1,3 +1,3 @@
-export * as css from "./ast";
-export * from "./compile";
-export * from "./parser";
+export * as css from "./ast/index.ts";
+export * from "./compile.ts";
+export * from "./parser.ts";

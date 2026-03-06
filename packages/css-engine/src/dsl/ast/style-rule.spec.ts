@@ -5,8 +5,8 @@ import {
   type StyleRuleAst,
   type StyleListAst,
   type TailwindClassAst,
-} from "./style-rule";
-import { select, type Selector } from "./selector";
+} from "./style-rule.ts";
+import { select, type Selector } from "./selector.ts";
 
 describe("styleRule type tests", () => {
   describe("basic rule creation", () => {

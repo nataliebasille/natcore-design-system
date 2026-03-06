@@ -1,4 +1,4 @@
-import type { CssValue } from "./public";
+import type { CssValue } from "./public.ts";
 
 /**
  * Valid colorspaces for color-mix() function

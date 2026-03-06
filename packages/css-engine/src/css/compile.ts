@@ -4,8 +4,8 @@ import type {
   StylePropertyValue,
   StylesheetAst,
   AtRuleAst,
-} from "./ast";
-import { combine } from "../utils";
+} from "./ast/index.ts";
+import { combine } from "../utils/index.ts";
 
 export function compile(ast: StylesheetAst) {
   const astArray = ast instanceof Array ? ast : [ast];
