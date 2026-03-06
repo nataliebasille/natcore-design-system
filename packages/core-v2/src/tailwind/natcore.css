@@ -23,5 +23,6 @@
 @import "./components/button-group.css";
 @import "./components/card.css";
 @import "./components/code.css";
+@import "./components/forms/inputs.css";
 @import "./components/tabs.css";
 @import "./components/tray.css";

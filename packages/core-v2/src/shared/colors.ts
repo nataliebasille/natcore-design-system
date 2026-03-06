@@ -1,4 +1,8 @@
-import { dsl, type ColorAst } from "@nataliebasille/natcore-css-engine";
+import {
+  dsl,
+  type ColorAst,
+  type Palette,
+} from "@nataliebasille/natcore-css-engine";
 
 export type Shade =
   | 50
@@ -34,6 +38,26 @@ function baseColorKey(color: Pick<ColorAst, "role" | "mode" | "shade">) {
 
 export function toneKey(color: Pick<ColorAst, "shade" | "role">) {
   return `--${color.role === "text" ? ("on-" as const) : ("" as const)}tone-${color.shade}` as const;
+}
+
+export function currentOrDefaultColor(
+  color: Pick<ColorAst, "shade" | "role"> & Partial<Pick<ColorAst, "mode">>,
+  defaultPalette: Palette = "primary",
+) {
+  return dsl.cssvar(
+    colorKey({
+      mode: "adaptive",
+      ...color,
+      palette: "current",
+    }),
+    dsl.cssvar(
+      colorKey({
+        mode: "adaptive",
+        ...color,
+        palette: defaultPalette,
+      }),
+    ),
+  );
 }
 
 export function renderPaletteMatcher(opt: { modifier?: true } = {}) {

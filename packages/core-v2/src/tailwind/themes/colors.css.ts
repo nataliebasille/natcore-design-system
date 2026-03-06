@@ -83,6 +83,15 @@ function bestContrastText(bg: string): string {
   return whiteRatio >= blackRatio ? NEAR_WHITE : NEAR_BLACK;
 }
 
+const CHEVRON_SVG_TEMPLATE =
+  "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 24 24%22 stroke-width=%221.5%22 stroke=%22COLOR%22%3E%3Cpath stroke-linecap=%22round%22 stroke-linejoin=%22round%22 d=%22M19.5 8.25l-7.5 7.5-7.5-7.5%22 /%3E%3C/svg%3E')";
+
+function chevronUrl(color: string): string {
+  // Encode the hex color (# → %23) for use inside a data URI attribute value
+  const encoded = color.replace(/^#/, "%23");
+  return CHEVRON_SVG_TEMPLATE.replace("COLOR", encoded);
+}
+
 function roleToCssVars(palette: Palette, ramp: Record<Shade, string>) {
   const colors: ThemeProperties = {};
 
@@ -133,6 +142,15 @@ function roleToCssVars(palette: Palette, ramp: Record<Shade, string>) {
       ],
     );
   }
+
+  // Chevron variable: light-dark(url with on-light-50 color, url with on-dark-950 color)
+  const lightChevronColor = bestContrastText(ramp[50]);
+  const darkChevronColor = bestContrastText(ramp[950]);
+  const chevronKey = `--select-chevron-${palette}` as const;
+  scaleEntries.push([
+    chevronKey,
+    `light-dark(${chevronUrl(lightChevronColor)}, ${chevronUrl(darkChevronColor)})`,
+  ]);
 
   // Assign all entries in sorted order: light, then dark, then scale
   for (const [key, value] of [

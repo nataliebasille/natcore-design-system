@@ -7,7 +7,10 @@ import {
 } from "../../shared/colors";
 
 export default () => [
-  utility("palette", renderPaletteMatcher()),
+  utility("palette", {
+    ...renderPaletteMatcher(),
+    "--select-chevron": dsl.match.variable("--select-chevron"),
+  }),
 
   utility("bg", {
     "--tone-current-bg-raw": dsl.match.oneOf(
