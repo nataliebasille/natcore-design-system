@@ -30,17 +30,20 @@ module.exports = [
         {
           selector:
             "ImportDeclaration[source.value=/^\\.{1,2}/]:not([source.value=/\\.(?:[cm]?js|jsx|ts|tsx|json)$/])",
-          message: "Relative imports must include a file extension (.ts/.tsx/.js/etc).",
+          message:
+            "Relative imports must include a file extension (.ts/.tsx/.js/etc).",
         },
         {
           selector:
             "ExportNamedDeclaration[source.value=/^\\.{1,2}/]:not([source.value=/\\.(?:[cm]?js|jsx|ts|tsx|json)$/])",
-          message: "Relative re-exports must include a file extension (.ts/.tsx/.js/etc).",
+          message:
+            "Relative re-exports must include a file extension (.ts/.tsx/.js/etc).",
         },
         {
           selector:
             "ExportAllDeclaration[source.value=/^\\.{1,2}/]:not([source.value=/\\.(?:[cm]?js|jsx|ts|tsx|json)$/])",
-          message: "Relative re-exports must include a file extension (.ts/.tsx/.js/etc).",
+          message:
+            "Relative re-exports must include a file extension (.ts/.tsx/.js/etc).",
         },
       ],
     },
