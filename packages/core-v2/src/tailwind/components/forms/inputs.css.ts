@@ -1,5 +1,5 @@
 import { dsl } from "@nataliebasille/natcore-css-engine";
-import { colorKey, currentOrDefaultColor } from "../../../shared/colors";
+import { currentOrDefaultColor } from "../../../shared/colors.ts";
 
 export default [
   dsl.styleRule(dsl.select.element("label"), "flex", "flex-col", {

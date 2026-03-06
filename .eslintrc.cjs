@@ -25,6 +25,14 @@ const config = {
       { prefer: "type-imports", fixStyle: "inline-type-imports" },
     ],
     "import/consistent-type-specifier-style": ["error", "prefer-inline"],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        ts: "always",
+        tsx: "always",
+      },
+    ],
 
     // These rules are only disabled because we hit a bug in linting.
     // See https://github.com/t3-oss/create-t3-app/pull/1036#discussion_r1060505136

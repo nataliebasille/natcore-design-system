@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+ 
 import { type PluginAPI } from "./helpers.ts";
 import {
   type NormalizedColorSchema,

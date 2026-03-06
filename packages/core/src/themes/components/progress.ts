@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+ 
 import { createVariants } from "../colors.ts";
 
 const progressVariants = createVariants("progress");

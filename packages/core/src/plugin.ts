@@ -54,7 +54,7 @@ export default function (
           ...VARIABLES_TO_SHADES,
           ...customVariables,
         }).forEach(([prop, shade]) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           (schema.themes.light.variables as any)[prop] = shade;
         });
 

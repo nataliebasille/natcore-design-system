@@ -8,7 +8,7 @@ import {
 } from "@nataliebasille/natcore-css-engine";
 import chroma from "chroma-js";
 import * as culori from "culori";
-import { colorKey } from "../../shared/colors";
+import { colorKey } from "../../shared/colors.ts";
 
 type Anchors = { c50: string; c500: string; c950: string };
 type RoleInput =
