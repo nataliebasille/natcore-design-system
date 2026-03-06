@@ -2,20 +2,12 @@ import { dsl, SHADES, utility } from "@nataliebasille/natcore-css-engine";
 import {
   matchColor,
   matchTextColor,
-  renderPalette,
+  renderPaletteMatcher,
   toneKey,
 } from "../../shared/colors";
 
 export default () => [
-  utility(
-    "palette",
-    renderPalette(
-      SHADES.flatMap((shade) => [
-        { shade, role: "base" },
-        { shade, role: "text" },
-      ]),
-    ),
-  ),
+  utility("palette", renderPaletteMatcher()),
 
   utility("bg", {
     "--tone-current-bg-raw": dsl.match.oneOf(

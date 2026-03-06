@@ -8,7 +8,7 @@ import {
   type Palette,
   type Shade,
 } from "@nataliebasille/natcore-css-engine";
-import { renderPalette } from "../../shared/colors";
+import { renderPaletteMatcher } from "../../shared/colors";
 
 type StylePropertyValue = dsl.StyleProperties[keyof dsl.StyleProperties];
 
@@ -16,13 +16,10 @@ export function componentConstructToDsl(
   componentConstruct: ComponentConstruct,
 ) {
   const hasVariants = Object.keys(componentConstruct.variants ?? {}).length > 0;
-  const paletteSet = getPaletteVarsUsedInComponent(componentConstruct);
   return hasVariants ?
-      dynamicComponentConstructToDsl(componentConstruct, paletteSet)
+      dynamicComponentConstructToDsl(componentConstruct)
     : staticComponentConstructToDsl(componentConstruct);
 }
-
-type PaletteUsage = { shade: Shade; role: "base" | "text" };
 
 function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
   const defaultPalette =
@@ -64,7 +61,6 @@ function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
 
 function dynamicComponentConstructToDsl(
   componentConstruct: ComponentConstruct,
-  paletteUsages: PaletteUsage[],
 ) {
   return [
     dsl.atRule(
@@ -75,44 +71,14 @@ function dynamicComponentConstructToDsl(
     dsl.atRule(
       "utility",
       `${componentConstruct.name}-*`,
-      wrapComponentLayer(
-        dsl.styleList(renderPalette(paletteUsages, { modifier: true })),
-        ...componentConstruct.styles,
-      ),
+      dsl.styleList(renderPaletteMatcher({ modifier: true })),
+      wrapComponentLayer(...componentConstruct.styles),
     ),
   ];
 }
 
 function wrapComponentLayer(...styles: Parameters<typeof dsl.layer>[2][]) {
   return dsl.layer("components", ...styles);
-}
-
-function getPaletteVarsUsedInComponent(componentConstruct: ComponentConstruct) {
-  const palette: Array<{ shade: Shade; role: "base" | "text" }> = [];
-
-  const visitor = stylesheetVisitorBuilder().on("color", (color) => {
-    if (color.palette === "current") {
-      // Map each (shade, role) pair to a deterministic slot in an interleaved
-      // palette array: [50-base, 50-text, 100-base, 100-text, ..., 950-base, 950-text].
-      // This keeps deduplication/order stable in linear time over visited colors.
-      const index =
-        (color.shade === 50 ? 0
-        : color.shade === 950 ? 10
-        : color.shade / 100) *
-          2 +
-        (color.role === "text" ? 1 : 0);
-
-      palette[index] = { shade: color.shade, role: color.role };
-    }
-    return color;
-  });
-
-  visitor.visit([
-    ...componentConstruct.styles,
-    ...Object.values(componentConstruct.variants ?? {}).flatMap(Object.values),
-  ]);
-
-  return palette.filter(Boolean) satisfies PaletteUsage[];
 }
 
 function buildVariantThemeVars(

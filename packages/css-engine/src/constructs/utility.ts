@@ -13,9 +13,7 @@ export type UtilityConstruct = {
   styles: (TailwindClassAst | StyleListAst | StyleRuleAst)[];
 };
 
-export function utility<
-  N extends string,
->(
+export function utility<N extends string>(
   name: N,
   ...body: (StyleListBuilder | StyleRuleBodyBuilder)[]
 ) {
@@ -44,7 +42,10 @@ export function utility<
             [dsl.styleList(rest as dsl.StyleProperties)]
           : []),
           ...Object.entries($).map(([selector, styles]) =>
-            dsl.styleRule(selector as dsl.Selector, styles as dsl.StyleListAst),
+            dsl.styleRule(
+              selector as dsl.Selector,
+              ...(styles instanceof Array ? styles : [styles]),
+            ),
           ),
         ];
       },

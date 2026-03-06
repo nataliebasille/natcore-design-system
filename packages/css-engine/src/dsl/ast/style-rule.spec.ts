@@ -149,9 +149,12 @@ describe("styleRule type tests", () => {
     });
 
     it("works with combinator selectors", () => {
-      const result = styleRule(select.descendant(select.element("ul"), select.element("li")), {
-        "list-style": "none",
-      });
+      const result = styleRule(
+        select.descendant(select.element("ul"), select.element("li")),
+        {
+          "list-style": "none",
+        },
+      );
 
       expectTypeOf(result.selector).toEqualTypeOf<"ul li">();
       expect(result).toEqual({
@@ -167,10 +170,14 @@ describe("styleRule type tests", () => {
     });
 
     it("preserves exact selector literal type", () => {
-      const buttonRule = styleRule(select.cls("primary-button"), { color: "white" });
+      const buttonRule = styleRule(select.cls("primary-button"), {
+        color: "white",
+      });
       expectTypeOf(buttonRule.selector).toEqualTypeOf<".primary-button">();
 
-      const divRule = styleRule(select.element("section"), { display: "block" });
+      const divRule = styleRule(select.element("section"), {
+        display: "block",
+      });
       expectTypeOf(divRule.selector).toEqualTypeOf<"section">();
     });
   });

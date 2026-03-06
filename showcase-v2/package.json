@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm --filter @nataliebasille/natcore-* build && next build",
-    "dev": "concurrently  \"next dev\" \"pnpm --filter @nataliebasille/natcore-design-system-v2 dev\"",
+    "dev": "next dev",
     "start": "next start",
     "lint": "next lint"
   },

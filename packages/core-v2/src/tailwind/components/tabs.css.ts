@@ -30,80 +30,78 @@ const dividerMixed85 = dsl.colorMix(
 export default [
   utility(
     "tabs",
-    dsl.layer(
-      "components",
-      { "--number-of-tabs": dsl.match.bare.integer() },
-      "flex",
-      "flex-wrap",
-      {
-        "column-gap": dsl.spacing("2"),
+    { "--number-of-tabs": dsl.match.bare.integer() },
+    "flex",
+    "flex-wrap",
+    {
+      "column-gap": dsl.spacing("2"),
 
-        $: {
-          ["& > *"]: {
-            display: "contents",
+      $: {
+        ["& > *"]: {
+          display: "contents",
+        },
+
+        ["& > details > summary, & > * > label, & > * > :first-child"]: [
+          "relative",
+          "z-20",
+          "order-1",
+          "cursor-pointer",
+          "p-2",
+          "tracking-wide",
+          {
+            color: dsl.cssvar("--tab-text-color"),
+          },
+        ],
+
+        ["& > details::details-content, & > * > :not(summary, label):last-child"]:
+          ["order-3", "hidden", "w-full"],
+
+        ["& > details:not([open]) > summary:hover, & > *:not(*:has(input:checked), .active) > label:hover, & > *:not(*:has(input:checked), .active) > :first-child:hover"]:
+          {
+            "border-width": dsl.cssvar("--tab-hover-border-width"),
+            "border-style": dsl.cssvar("--tab-hover-border-style"),
+            "border-color": dsl.cssvar("--tab-hover-border-color"),
+            "font-weight": dsl.cssvar("--tab-hover-font-weight"),
+            color: dsl.cssvar("--tab-hover-text-color"),
           },
 
-          ["& > details > summary, & > * > label, & > * > :first-child"]: [
-            "relative",
-            "z-20",
-            "order-1",
-            "cursor-pointer",
-            "p-2",
-            "tracking-wide",
-            {
-              color: dsl.cssvar("--tab-text-color"),
-            },
-          ],
+        ["& > details[open] > summary, & > *:has(input:checked) > label, & > *:has(input:checked) > :first-child, & > *.active > :first-child"]:
+          {
+            "border-width": dsl.cssvar("--tab-active-border-width"),
+            "border-style": dsl.cssvar("--tab-active-border-style"),
+            "border-color": dsl.cssvar("--tab-active-border-color"),
+            "font-weight": dsl.cssvar("--tab-active-font-weight"),
+            color: dsl.cssvar("--tab-active-text-color"),
+          },
 
-          ["& > details::details-content, & > * > :not(summary, label):last-child"]:
-            ["order-3", "hidden", "w-full"],
+        ["& > details[open]::details-content, & > *:has(input:checked) > :last-child, & > *.active > :last-child"]:
+          {
+            display: "block",
+          },
 
-          ["& > details:not([open]) > summary:hover, & > *:not(*:has(input:checked), .active) > label:hover, & > *:not(*:has(input:checked), .active) > :first-child:hover"]:
-            {
-              "border-width": dsl.cssvar("--tab-hover-border-width"),
-              "border-style": dsl.cssvar("--tab-hover-border-style"),
-              "border-color": dsl.cssvar("--tab-hover-border-color"),
-              "font-weight": dsl.cssvar("--tab-hover-font-weight"),
-              color: dsl.cssvar("--tab-hover-text-color"),
-            },
+        ['& input[type="radio"]']: "sr-only",
 
-          ["& > details[open] > summary, & > *:has(input:checked) > label, & > *:has(input:checked) > :first-child, & > *.active > :first-child"]:
-            {
-              "border-width": dsl.cssvar("--tab-active-border-width"),
-              "border-style": dsl.cssvar("--tab-active-border-style"),
-              "border-color": dsl.cssvar("--tab-active-border-color"),
-              "font-weight": dsl.cssvar("--tab-active-font-weight"),
-              color: dsl.cssvar("--tab-active-text-color"),
-            },
-
-          ["& > details[open]::details-content, & > *:has(input:checked) > :last-child, & > *.active > :last-child"]:
-            {
-              display: "block",
-            },
-
-          ['& input[type="radio"]']: "sr-only",
-
-          ["&::before"]: [
-            {
-              content: '""',
-            },
-            "relative",
-            "z-10",
-            "order-2",
-            "-mt-0.5",
-            "mb-4",
-            "h-0.5",
-            "w-full",
-            {
-              "border-style": dsl.cssvar("--tab-divider-border-style"),
-              "border-color": dsl.cssvar("--tab-divider-border-color"),
-              "border-width": dsl.cssvar("--tab-divider-border-width"),
-            },
-          ],
-        },
+        ["&::before"]: [
+          {
+            content: '""',
+          },
+          "relative",
+          "z-10",
+          "order-2",
+          "-mt-0.5",
+          "mb-4",
+          "h-0.5",
+          "w-full",
+          {
+            "border-style": dsl.cssvar("--tab-divider-border-style"),
+            "border-color": dsl.cssvar("--tab-divider-border-color"),
+            "border-width": dsl.cssvar("--tab-divider-border-width"),
+          },
+        ],
       },
-    ),
+    },
   ),
+
   component("tabs-style", {
     themeable: "surface",
     variants: {

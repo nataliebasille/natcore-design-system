@@ -69,7 +69,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   );
 
   return (
-    <div className="divide-tone-600-surface/30 grid h-full grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth md:divide-x md:*:not-first:pl-4 md:*:not-last:pr-4">
+    <div className="divide-tone-600-surface/30 grid h-full grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth lg:divide-x lg:*:not-first:pl-4 lg:*:not-last:pr-4">
       <article className="h-full w-full p-6">
         <h1 id={title}>{title}</h1>
 

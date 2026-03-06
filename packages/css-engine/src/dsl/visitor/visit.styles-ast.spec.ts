@@ -212,7 +212,10 @@ describe("style-list visitor", () => {
     });
 
     it("allows visitor to merge properties", () => {
-      const ast = styleRule(select.cls("test"), { color: "red", padding: "8px" });
+      const ast = styleRule(select.cls("test"), {
+        color: "red",
+        padding: "8px",
+      });
 
       const visitor = stylesheetVisitorBuilder().on("style-list", (node) => ({
         ...node,

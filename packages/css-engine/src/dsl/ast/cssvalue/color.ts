@@ -118,7 +118,7 @@ export function current<S extends Shade, O extends number | undefined>(
     mode: "adaptive",
     palette: "current",
     shade,
-    role: "text",
+    role: "base",
     opacity,
   } satisfies ColorAst;
 }

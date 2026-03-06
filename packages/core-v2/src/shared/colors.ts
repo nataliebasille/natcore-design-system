@@ -19,23 +19,36 @@ export const SHADES: Shade[] = [
 export function colorKey(
   color: Pick<ColorAst, "role" | "palette" | "mode" | "shade">,
 ) {
+  if (color.palette === "current") {
+    return toneKey(color);
+  }
+
   const mode = color.mode === "adaptive" ? ("tone" as const) : color.mode;
-  return `--color${color.role === "text" ? ("-on" as const) : ("" as const)}-${mode}-${color.shade}${color.palette !== "current" ? `-${color.palette}` : ""}` as const;
+  return `${baseColorKey(color)}-${color.palette}` as const;
+}
+
+function baseColorKey(color: Pick<ColorAst, "role" | "mode" | "shade">) {
+  const mode = color.mode === "adaptive" ? ("tone" as const) : color.mode;
+  return `--color${color.role === "text" ? ("-on" as const) : ("" as const)}-${mode}-${color.shade}` as const;
 }
 
 export function toneKey(color: Pick<ColorAst, "shade" | "role">) {
   return `--${color.role === "text" ? ("on-" as const) : ("" as const)}tone-${color.shade}` as const;
 }
 
-export function renderPalette(
-  tones: Pick<ColorAst, "shade" | "role">[],
-  opt: { modifier?: true } = {},
-) {
+export function renderPaletteMatcher(opt: { modifier?: true } = {}) {
+  const tones = SHADES.flatMap(
+    (shade) =>
+      [
+        { shade, role: "base" },
+        { shade, role: "text" },
+      ] as const,
+  );
+
   const renderer = (tone: Pick<ColorAst, "shade" | "role">) => {
     const match = dsl.match.variable(
-      colorKey({
+      baseColorKey({
         ...tone,
-        palette: "current",
         mode: "adaptive",
       }),
     );
