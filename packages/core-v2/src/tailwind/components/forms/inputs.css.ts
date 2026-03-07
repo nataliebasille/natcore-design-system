@@ -1,7 +1,7 @@
 import { dsl } from "@nataliebasille/natcore-css-engine";
 import { currentOrDefaultColor } from "../../../shared/colors.ts";
 
-export default [
+export default dsl.layer.base(
   dsl.styleRule(dsl.select.element("label"), "flex", "flex-col", {
     $: {
       [`> *:not(input, select, textarea)`]: [
@@ -13,7 +13,11 @@ export default [
   }),
 
   dsl.styleRule(
-    dsl.select.list("input", "select", "textarea"),
+    dsl.select.list(
+      dsl.select.element("input"),
+      dsl.select.element("select"),
+      dsl.select.element("textarea"),
+    ),
     "appearance-none",
     "border-solid",
     "border-1",
@@ -29,9 +33,6 @@ export default [
         "surface",
       ),
       padding: `${dsl.primitive.length.em(0.5)} ${dsl.primitive.length.em(2)} ${dsl.primitive.length.em(0.5)} ${dsl.primitive.length.em(1)}`,
-      "background-position": `right ${dsl.primitive.length.em(0.5)} center`,
-      "background-repeat": "no-repeat",
-      "background-size": `${dsl.primitive.length.em(1)} ${dsl.primitive.length.em(1)}`,
     },
   ),
 
@@ -40,5 +41,8 @@ export default [
       "--select-chevron",
       dsl.cssvar("--select-chevron-surface"),
     ),
+    "background-position": `right ${dsl.primitive.length.em(0.5)} center`,
+    "background-repeat": "no-repeat",
+    "background-size": `${dsl.primitive.length.em(1)} ${dsl.primitive.length.em(1)}`,
   }),
-];
+);

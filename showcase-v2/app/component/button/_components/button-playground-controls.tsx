@@ -5,6 +5,7 @@ export const controls = {
   variant: (
     <PlaygroundFormElement
       name="variant"
+      label="Variant"
       input={
         <select>
           <option value="solid">Solid</option>
@@ -17,6 +18,7 @@ export const controls = {
   palette: (
     <PlaygroundFormElement
       name="palette"
+      label="Palette"
       input={
         <select>
           <option value="primary">Primary</option>

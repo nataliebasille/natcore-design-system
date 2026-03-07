@@ -165,7 +165,16 @@ function transformStylePropertyValue(
     .on("color", (ast) => {
       const key = colorKey(ast);
 
-      return dsl.cssvar(key);
+      return ast.opacity === undefined ?
+          dsl.cssvar(key)
+        : dsl.colorMix(
+            "srgb",
+            {
+              color: dsl.cssvar(key),
+              percentage: dsl.primitive.percentage(ast.opacity * 100),
+            },
+            { color: dsl.primitive.color.transparent() },
+          );
     })
     .on("function-spacing", (value) => `--spacing(${value.value})`)
     .on("css-var", function cssVarToString(value): string {

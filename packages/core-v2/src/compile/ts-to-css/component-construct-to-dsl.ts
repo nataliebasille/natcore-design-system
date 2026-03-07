@@ -8,7 +8,7 @@ import {
   type Palette,
   type Shade,
 } from "@nataliebasille/natcore-css-engine";
-import { renderPaletteMatcher } from "../../shared/colors.ts";
+import { colorKeyWithoutPalette, renderPalette } from "../../shared/colors.ts";
 
 type StylePropertyValue = dsl.StyleProperties[keyof dsl.StyleProperties];
 
@@ -22,38 +22,33 @@ export function componentConstructToDsl(
 }
 
 function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
-  const defaultPalette =
-    typeof componentConstruct.themeable === "string" ?
-      componentConstruct.themeable
-    : null;
-
-  const baseStyles =
-    defaultPalette ?
-      resolveStylesForPalette(componentConstruct.styles, defaultPalette)
-    : componentConstruct.styles;
+  const themeable = isThemeable(componentConstruct);
 
   const output: dsl.AtRuleAst[] = [
     dsl.atRule(
       "utility",
       componentConstruct.name,
-      wrapComponentLayer(...baseStyles),
+      wrapComponentLayer(...componentConstruct.styles),
     ),
   ];
 
-  if (!componentConstruct.themeable) {
-    return output;
-  }
-
-  for (const palette of PALETTE) {
-    output.push(
-      dsl.atRule(
-        "utility",
-        `${componentConstruct.name}/${palette}`,
-        wrapComponentLayer(
-          ...resolveStylesForPalette(componentConstruct.styles, palette),
+  if (themeable) {
+    for (const palette of PALETTE) {
+      output.push(
+        dsl.atRule(
+          "utility",
+          `${componentConstruct.name}/${palette}`,
+          dsl.styleList(
+            renderPalette((color) =>
+              color.role === "base" ?
+                dsl.adaptive(palette, color.shade)
+              : dsl.adaptiveText(palette, color.shade),
+            ),
+          ),
+          wrapComponentLayer(...componentConstruct.styles),
         ),
-      ),
-    );
+      );
+    }
   }
 
   return output;
@@ -71,14 +66,24 @@ function dynamicComponentConstructToDsl(
     dsl.atRule(
       "utility",
       `${componentConstruct.name}-*`,
-      dsl.styleList(renderPaletteMatcher({ modifier: true })),
+      dsl.styleList(
+        renderPalette((color) =>
+          dsl.match.asModifier(
+            dsl.match.variable(
+              colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+            ),
+          ),
+        ),
+      ),
       wrapComponentLayer(...componentConstruct.styles),
     ),
   ];
 }
 
-function wrapComponentLayer(...styles: Parameters<typeof dsl.layer>[2][]) {
-  return dsl.layer("components", ...styles);
+function wrapComponentLayer(
+  ...styles: Parameters<typeof dsl.layer.components>
+) {
+  return dsl.layer.components(...styles);
 }
 
 function buildVariantThemeVars(
@@ -94,57 +99,14 @@ function buildVariantThemeVars(
   ) as Record<`--${string}`, StylePropertyValue>;
 }
 
-function buildThemeModifierBindings(
-  themeable: ComponentConstruct["themeable"],
-): Record<`--${string}`, StylePropertyValue> {
-  if (!themeable) {
-    return {};
-  }
+function isThemeable(componentConstruct: ComponentConstruct) {
+  let themeable = false;
+  stylesheetVisitorBuilder()
+    .on("color", (ast) => {
+      themeable ||= ast.palette === "current";
+      return ast;
+    })
+    .visit([componentConstruct.styles, componentConstruct.variants]);
 
-  const defaultPalette = typeof themeable === "string" ? themeable : null;
-
-  return Object.fromEntries(
-    SHADES.flatMap((shade) => {
-      const toneVar = `--tone-${shade}` as const;
-      const toneTextVar = `--tone-on-${shade}` as const;
-
-      return [
-        [toneVar, buildModifierValue(toneVar, defaultPalette)],
-        [toneTextVar, buildModifierValue(toneTextVar, defaultPalette)],
-      ];
-    }),
-  ) as Record<`--${string}`, StylePropertyValue>;
-}
-
-function buildModifierValue(
-  rootVar: `--${string}`,
-  defaultPalette: Palette | null,
-): StylePropertyValue {
-  const modifierValue = dsl.match.asModifier(dsl.match.variable(`${rootVar}-`));
-
-  if (!defaultPalette) {
-    return modifierValue;
-  }
-
-  return [dsl.cssvar(`${rootVar}-${defaultPalette}`), modifierValue];
-}
-
-function resolveStylesForPalette(
-  styles: ComponentConstruct["styles"],
-  palette: Palette,
-) {
-  return styles.map((style) =>
-    stylesheetVisitorBuilder()
-      .on("color", (color) => {
-        if (color.palette !== "current") {
-          return color;
-        }
-
-        return {
-          ...color,
-          palette,
-        };
-      })
-      .visit(style),
-  ) as ComponentConstruct["styles"];
+  return themeable;
 }

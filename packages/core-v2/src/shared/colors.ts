@@ -28,10 +28,12 @@ export function colorKey(
   }
 
   const mode = color.mode === "adaptive" ? ("tone" as const) : color.mode;
-  return `${baseColorKey(color)}-${color.palette}` as const;
+  return `${colorKeyWithoutPalette(color)}-${color.palette}` as const;
 }
 
-function baseColorKey(color: Pick<ColorAst, "role" | "mode" | "shade">) {
+export function colorKeyWithoutPalette(
+  color: Pick<ColorAst, "role" | "mode" | "shade">,
+) {
   const mode = color.mode === "adaptive" ? ("tone" as const) : color.mode;
   return `--color${color.role === "text" ? ("-on" as const) : ("" as const)}-${mode}-${color.shade}` as const;
 }
@@ -60,7 +62,9 @@ export function currentOrDefaultColor(
   );
 }
 
-export function renderPaletteMatcher(opt: { modifier?: true } = {}) {
+export function renderPalette(
+  renderer: (color: Pick<ColorAst, "shade" | "role">) => dsl.StylePropertyValue,
+) {
   const tones = SHADES.flatMap(
     (shade) =>
       [
@@ -68,17 +72,6 @@ export function renderPaletteMatcher(opt: { modifier?: true } = {}) {
         { shade, role: "text" },
       ] as const,
   );
-
-  const renderer = (tone: Pick<ColorAst, "shade" | "role">) => {
-    const match = dsl.match.variable(
-      baseColorKey({
-        ...tone,
-        mode: "adaptive",
-      }),
-    );
-
-    return opt.modifier ? dsl.match.asModifier(match) : match;
-  };
 
   const dedup = new Map(tones.map((tone) => [toneKey(tone), tone]));
 

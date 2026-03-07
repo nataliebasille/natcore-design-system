@@ -101,35 +101,32 @@ export type AtRuleAst = AstNode<
   }
 >;
 
+export type AtRuleBodyBuilder =
+  | AtRuleAst
+  | StyleRuleBodyBuilder
+  | StyleListBuilder;
+
 /**
  * Generic at-rule constructor - with prelude
  */
 export function atRule(
   name: string,
   prelude: string | null,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst;
 
 /**
  * Generic at-rule constructor - without prelude
  */
-export function atRule(
-  name: string,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-): AtRuleAst;
+export function atRule(name: string, ...rules: AtRuleBodyBuilder[]): AtRuleAst;
 
 /**
  * Generic at-rule constructor - implementation
  */
 export function atRule(
   name: string,
-  preludeOrFirstRule?:
-    | string
-    | null
-    | AtRuleAst
-    | StyleRuleBodyBuilder
-    | StyleListBuilder,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  preludeOrFirstRule?: string | null | AtRuleBodyBuilder,
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   // Determine if first argument after name is prelude or first rule
   const hasPrelude =
@@ -202,7 +199,7 @@ function buildEnvQuery<P extends EnvironmentPreference>(
 export function media<C extends ViewportConstraint>(
   constraint: C,
   value: ViewportConstraintValues[C],
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   return atRule("media", buildMediaQuery(constraint, value), ...rules);
 }
@@ -213,7 +210,7 @@ export function media<C extends ViewportConstraint>(
 export function mediaEnv<P extends EnvironmentPreference>(
   preference: P,
   value: EnvironmentPreferenceValues[P],
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   return atRule("media", buildEnvQuery(preference, value), ...rules);
 }
@@ -224,7 +221,7 @@ export function mediaEnv<P extends EnvironmentPreference>(
 export function supports(
   property: string,
   value?: string,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   const prelude = value ? `(${property}: ${value})` : `(${property})`;
   return atRule("supports", prelude, ...rules);
@@ -235,24 +232,30 @@ export function supports(
  */
 export function container(
   query: string,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   return atRule("container", query, ...rules);
 }
 
-/**
- * Layer at-rule
- */
-export function layer(
+type BuiltInLayers<NS extends string> = {
+  [K in NS]: (...rules: AtRuleBodyBuilder[]) => AtRuleAst;
+};
+type LayerHelper = ((
   name: string,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-): AtRuleAst {
-  return atRule("layer", name, ...rules);
-}
+  ...rules: AtRuleBodyBuilder[]
+) => AtRuleAst) &
+  BuiltInLayers<"base" | "components" | "utilities">;
 
-/**
- * Legacy condition-based helpers (for backwards compatibility)
- */
+export const layer: LayerHelper = (
+  name: string,
+  ...rules: AtRuleBodyBuilder[]
+): AtRuleAst => {
+  return atRule("layer", name, ...rules);
+};
+
+layer.base = layer.bind(null, "base");
+layer.components = layer.bind(null, "components");
+layer.utilities = layer.bind(null, "utilities");
 
 /**
  * Viewport condition - creates media query
@@ -260,7 +263,7 @@ export function layer(
 export function viewport<C extends ViewportConstraint>(
   constraint: C,
   value: ViewportConstraintValues[C],
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   return media(constraint, value, ...rules);
 }
@@ -271,7 +274,7 @@ export function viewport<C extends ViewportConstraint>(
 export function env<P extends EnvironmentPreference>(
   preference: P,
   value: EnvironmentPreferenceValues[P],
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   return mediaEnv(preference, value, ...rules);
 }
@@ -282,7 +285,7 @@ export function env<P extends EnvironmentPreference>(
 export function feature(
   name: string,
   value?: string,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   return supports(name, value, ...rules);
 }
@@ -290,10 +293,7 @@ export function feature(
 /**
  * Scope condition - creates layer
  */
-export function scope(
-  name: string,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-): AtRuleAst {
+export function scope(name: string, ...rules: AtRuleBodyBuilder[]): AtRuleAst {
   return layer(name, ...rules);
 }
 
@@ -303,7 +303,7 @@ export function scope(
 export function query(
   type: QueryType,
   value: string,
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
+  ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
   // Map query types to at-rule names
   const nameMap: Record<QueryType, string> = {
@@ -323,9 +323,7 @@ export function query(
 export function breakpoint<C extends ViewportConstraint>(
   constraint: C,
   value: ViewportConstraintValues[C],
-): (
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-) => AtRuleAst {
+): (...rules: AtRuleBodyBuilder[]) => AtRuleAst {
   return (...rules) => media(constraint, value, ...rules);
 }
 
@@ -343,26 +341,20 @@ breakpoint.aspectRatio = (value: string) => breakpoint("aspect-ratio", value);
 /**
  * Common environment preference helpers - create media queries with prefers-*
  */
-export const prefersDark = (
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-) => mediaEnv("color-scheme", "dark", ...rules);
+export const prefersDark = (...rules: AtRuleBodyBuilder[]) =>
+  mediaEnv("color-scheme", "dark", ...rules);
 
-export const prefersLight = (
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-) => mediaEnv("color-scheme", "light", ...rules);
+export const prefersLight = (...rules: AtRuleBodyBuilder[]) =>
+  mediaEnv("color-scheme", "light", ...rules);
 
-export const prefersReducedMotion = (
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-) => mediaEnv("reduced-motion", "reduce", ...rules);
+export const prefersReducedMotion = (...rules: AtRuleBodyBuilder[]) =>
+  mediaEnv("reduced-motion", "reduce", ...rules);
 
-export const prefersHighContrast = (
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-) => mediaEnv("contrast", "high", ...rules);
+export const prefersHighContrast = (...rules: AtRuleBodyBuilder[]) =>
+  mediaEnv("contrast", "high", ...rules);
 
-export const supportsHover = (
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-) => mediaEnv("hover", "hover", ...rules);
+export const supportsHover = (...rules: AtRuleBodyBuilder[]) =>
+  mediaEnv("hover", "hover", ...rules);
 
-export const supportsFinePointer = (
-  ...rules: (AtRuleAst | StyleRuleBodyBuilder | StyleListBuilder)[]
-) => mediaEnv("pointer", "fine", ...rules);
+export const supportsFinePointer = (...rules: AtRuleBodyBuilder[]) =>
+  mediaEnv("pointer", "fine", ...rules);

@@ -1,10 +1,11 @@
 "use client";
 
-import { cloneElement, useEffect, useRef } from "react";
+import { cloneElement } from "react";
 import { usePlayground } from "./playground-provider";
 
 type PlaygroundFormElementProps = {
   name: string;
+  label?: string;
   input: React.ReactElement<
     HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
   >;
@@ -12,6 +13,7 @@ type PlaygroundFormElementProps = {
 
 export function PlaygroundFormElement({
   name,
+  label,
   input,
 }: PlaygroundFormElementProps) {
   const { values, setValue } = usePlayground();
@@ -24,8 +26,14 @@ export function PlaygroundFormElement({
     setValue(name, event.target.value);
   };
 
-  return cloneElement(input, {
-    value,
-    onChange,
-  } as any);
+  return (
+    <div className="form-control">
+      <label htmlFor={name}>{label ?? name}</label>
+      {cloneElement(input, {
+        id: name,
+        value,
+        onChange,
+      } as any)}
+    </div>
+  );
 }

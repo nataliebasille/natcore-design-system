@@ -1,14 +1,19 @@
 import { dsl, SHADES, utility } from "@nataliebasille/natcore-css-engine";
 import {
+  colorKeyWithoutPalette,
   matchColor,
   matchTextColor,
-  renderPaletteMatcher,
+  renderPalette,
   toneKey,
-} from "../../shared/colors";
+} from "../../shared/colors.ts";
 
 export default () => [
   utility("palette", {
-    ...renderPaletteMatcher(),
+    ...renderPalette((color) =>
+      dsl.match.variable(
+        colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+      ),
+    ),
     "--select-chevron": dsl.match.variable("--select-chevron"),
   }),
 
