@@ -3,7 +3,6 @@ import {
   PALETTE,
   stylesheetVisitorBuilder,
   type ComponentConstruct,
-  type CssDataType,
 } from "@nataliebasille/natcore-css-engine";
 import { colorKeyWithoutPalette, renderPalette } from "../../shared/colors.ts";
 
@@ -64,20 +63,26 @@ function dynamicComponentConstructToDsl(
     rootsMap,
   );
 
+  const themeable = isThemeable(componentConstruct);
+
   return [
     dsl.atRule("theme", "inline", dsl.styleList(variants)),
     dsl.atRule(
       "utility",
       `${componentConstruct.name}-*`,
-      dsl.styleList(
-        renderPalette((color) =>
-          dsl.match.asModifier(
-            dsl.match.variable(
-              colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+      ...(themeable ?
+        [
+          dsl.styleList(
+            renderPalette((color) =>
+              dsl.match.asModifier(
+                dsl.match.variable(
+                  colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        ]
+      : []),
       wrapComponentLayer(...normalizedStyles),
     ),
   ];
