@@ -3,6 +3,7 @@ import {
   stylesheetVisitorBuilder,
   type UtilityConstruct,
 } from "@nataliebasille/natcore-css-engine";
+import { themeConstructToDsl } from "./theme-construct-to-dsl.ts";
 
 export function utilityConstructToDsl(utilityConstruct: UtilityConstruct) {
   let isDynamic = false;
@@ -18,9 +19,19 @@ export function utilityConstructToDsl(utilityConstruct: UtilityConstruct) {
     })
     .visit(utilityConstruct.styles);
 
-  return dsl.atRule(
-    "utility",
-    `${utilityConstruct.name}${isDynamic ? `-*` : ""}`,
-    ...utilityConstruct.styles,
-  );
+  return [
+    ...(utilityConstruct.theme ?
+      [
+        themeConstructToDsl({
+          mode: "inline",
+          ...utilityConstruct.theme,
+        }),
+      ]
+    : []),
+    dsl.atRule(
+      "utility",
+      `${utilityConstruct.name}${isDynamic ? `-*` : ""}`,
+      ...utilityConstruct.styles,
+    ),
+  ];
 }

@@ -1,5 +1,6 @@
 import { dsl } from "@nataliebasille/natcore-css-engine";
 import { currentOrDefaultColor } from "../../../shared/colors.ts";
+import { paddingBlock, paddingInline } from "../../../shared/inputs.ts";
 
 export default dsl.layer.base(
   dsl.styleRule(dsl.select.element("label"), "flex", "flex-col", {
@@ -32,17 +33,8 @@ export default dsl.layer.base(
         { role: "base", shade: 200 },
         "surface",
       ),
-      padding: `${dsl.primitive.length.em(0.5)} ${dsl.primitive.length.em(2)} ${dsl.primitive.length.em(0.5)} ${dsl.primitive.length.em(1)}`,
+      "padding-inline": paddingInline,
+      "padding-block": paddingBlock,
     },
   ),
-
-  dsl.styleRule(dsl.select.element("select"), {
-    "background-image": dsl.cssvar(
-      "--select-chevron",
-      dsl.cssvar("--select-chevron-surface"),
-    ),
-    "background-position": `right ${dsl.primitive.length.em(0.5)} center`,
-    "background-repeat": "no-repeat",
-    "background-size": `${dsl.primitive.length.em(1)} ${dsl.primitive.length.em(1)}`,
-  }),
 );

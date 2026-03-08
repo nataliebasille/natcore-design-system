@@ -43,24 +43,26 @@ export function toneKey(color: Pick<ColorAst, "shade" | "role">) {
 }
 
 export function currentOrDefaultColor(
-  color: Pick<ColorAst, "shade" | "role"> & Partial<Pick<ColorAst, "mode">>,
+  color: Pick<ColorAst, "shade" | "role" | "opacity"> &
+    Partial<Pick<ColorAst, "mode">>,
   defaultPalette: Palette = "primary",
 ) {
-  return dsl.cssvar(
-    colorKey({
-      mode: "adaptive",
-      ...color,
-      palette: "current",
-    }),
-    dsl.cssvar(
-      colorKey({
-        mode: "adaptive",
-        ...color,
-        palette: defaultPalette,
-      }),
-    ),
-  );
+  return dsl.cssv`var(${dsl.color({
+    mode: "adaptive",
+    palette: "current",
+    ...color,
+  })}, ${dsl.color({
+    mode: "adaptive",
+    palette: defaultPalette,
+    ...color,
+  })})`;
 }
+
+export function applyOpacity(color: {
+  default: ColorAst;
+  fallback?: ColorAst;
+  opacity: number;
+}) {}
 
 export function renderPalette(
   renderer: (color: Pick<ColorAst, "shade" | "role">) => dsl.StylePropertyValue,

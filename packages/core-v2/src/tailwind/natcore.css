@@ -23,6 +23,7 @@
 @import "./components/card.css";
 @import "./components/code.css";
 @import "./components/forms/inputs.css";
+@import "./components/forms/select.css";
 @import "./components/forms/form-control.css";
 @import "./components/tabs.css";
 @import "./components/tray.css";

@@ -44,7 +44,7 @@ export const compileTsToCss = createCompiler({
           content.$construct === "theme" ?
             dslToCss([themeConstructToDsl(content)])
           : content.$construct === "utility" ?
-            dslToCss([utilityConstructToDsl(content)])
+            dslToCss(utilityConstructToDsl(content))
           : content.$construct === "component" ?
             dslToCss(componentConstructToDsl(content))
           : content

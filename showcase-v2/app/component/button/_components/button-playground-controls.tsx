@@ -1,4 +1,5 @@
 import type { PlaygroundValues } from "@/app/_ui/playground/playground";
+import { PlaygroundComboboxElement } from "@/app/_ui/playground/playground-combobox-element";
 import { PlaygroundFormElement } from "@/app/_ui/playground/playground-form-element";
 
 export const controls = {
@@ -29,9 +30,21 @@ export const controls = {
       }
     />
   ),
+  size: (
+    <PlaygroundComboboxElement
+      name="size"
+      label="Size"
+      options={[
+        { value: "sm", label: "Small" },
+        { value: "md", label: "Medium" },
+        { value: "lg", label: "Large" },
+      ]}
+    />
+  ),
 };
 
 export const defaultValues: PlaygroundValues<typeof controls> = {
   variant: "solid",
   palette: "primary",
+  size: "md",
 };

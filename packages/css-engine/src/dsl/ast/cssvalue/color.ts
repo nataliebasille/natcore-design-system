@@ -19,6 +19,19 @@ export type ColorAst = AstNode<
   }
 >;
 
+export function color<
+  M extends "light" | "dark" | "adaptive",
+  P extends Palette | "current",
+  S extends Shade,
+  R extends "base" | "text",
+  O extends number | undefined,
+>(color: { mode: M; palette: P; shade: S; role: R; opacity?: O }) {
+  return {
+    $ast: "color",
+    ...color,
+  } satisfies ColorAst;
+}
+
 export function light<
   P extends Palette,
   S extends Shade,

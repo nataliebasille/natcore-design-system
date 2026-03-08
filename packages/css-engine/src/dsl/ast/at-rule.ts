@@ -215,15 +215,26 @@ export function mediaEnv<P extends EnvironmentPreference>(
   return atRule("media", buildEnvQuery(preference, value), ...rules);
 }
 
+export type SupportConditionBuilder =
+  | {
+      [K: string]: string;
+    }
+  | string;
+
 /**
  * Supports query for feature detection
  */
 export function supports(
-  property: string,
-  value?: string,
+  properties: SupportConditionBuilder | SupportConditionBuilder[],
   ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
-  const prelude = value ? `(${property}: ${value})` : `(${property})`;
+  const prelude = (Array.isArray(properties) ? properties : [properties])
+    .map((prop) =>
+      typeof prop === "string" ?
+        `(${prop})`
+      : Object.entries(prop).map(([key, value]) => `(${key}: ${value})`),
+    )
+    .join(" and ");
   return atRule("supports", prelude, ...rules);
 }
 
@@ -287,7 +298,10 @@ export function feature(
   value?: string,
   ...rules: AtRuleBodyBuilder[]
 ): AtRuleAst {
-  return supports(name, value, ...rules);
+  return supports(
+    typeof value === "string" ? { [name]: value } : name,
+    ...rules,
+  );
 }
 
 /**

@@ -1,4 +1,9 @@
-import { component, dsl, utility } from "@nataliebasille/natcore-css-engine";
+import {
+  component,
+  dsl,
+  theme,
+  utility,
+} from "@nataliebasille/natcore-css-engine";
 
 export default [
   component("btn", {
@@ -71,11 +76,22 @@ export default [
     ],
   }),
 
-  utility("btn-size", {
-    "--btn-px": dsl.match.variable("--btn-px-*"),
-    "--btn-py": dsl.match.variable("--btn-py-*"),
-    "font-size": dsl.match.variable("--text-*"),
-  }),
+  utility(
+    "btn-size",
+    theme({
+      "--btn-px-sm": dsl.primitive.length.em(0.75),
+      "--btn-py-sm": dsl.primitive.length.em(0.5),
+      "--btn-px-md": dsl.primitive.length.em(1),
+      "--btn-py-md": dsl.primitive.length.em(0.75),
+      "--btn-px-lg": dsl.primitive.length.em(1.25),
+      "--btn-py-lg": dsl.primitive.length.em(1),
+    }),
+    {
+      "--btn-px": dsl.match.variable("--btn-px"),
+      "--btn-py": dsl.match.variable("--btn-py"),
+      "font-size": dsl.match.variable("--text"),
+    },
+  ),
 
   utility(
     "btn-icon",
