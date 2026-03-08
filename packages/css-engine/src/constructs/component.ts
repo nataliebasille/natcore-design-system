@@ -11,17 +11,23 @@ export type ComponentConstruct = {
   $construct: "component";
   name: string;
   styles: (StyleListAst | StyleRuleAst)[];
-  variants: Record<string, { [K: `--${string}`]: StylePropertyValue }>;
+  variants: ComponentVariants;
 };
 
-export function component(
-  name: string,
-  config: {
-    styles: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
-    variants?: Record<string, { [K: `--${string}`]: StylePropertyValue }>;
-  },
-) {
-  const { styles, variants = {} } = config;
+export type ComponentVariants = Record<
+  string,
+  { [K: `--${string}`]: StylePropertyValue }
+> & {
+  default?: { [K: `--${string}`]: StylePropertyValue };
+};
+
+export type ComponentBuilder = {
+  variants?: ComponentVariants;
+  styles: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
+};
+
+export function component(name: string, body: ComponentBuilder) {
+  const { styles, variants = {} } = body;
 
   return {
     $construct: "component",

@@ -3,10 +3,10 @@ import { component, dsl } from "@nataliebasille/natcore-css-engine";
 export default component("list", {
   variants: {
     default: {
-      "--list-item-hover-bg": dsl.current(200),
-      "--list-item-hover-fg": dsl.currentText(200),
-      "--list-item-active-bg": dsl.current(500),
-      "--list-item-active-fg": dsl.currentText(500),
+      "--item-hover-bg": dsl.current(200),
+      "--item-hover-fg": dsl.currentText(200),
+      "--item-active-bg": dsl.current(500),
+      "--item-active-fg": dsl.currentText(500),
     },
   },
   styles: [
@@ -33,18 +33,18 @@ export default component("list", {
           {
             $: {
               [dsl.select.parent(":hover, &:focus")]: {
-                background: dsl.cssvar("--list-item-hover-bg"),
-                color: dsl.cssvar("--list-item-hover-fg"),
+                background: dsl.cssvar("--item-hover-bg"),
+                color: dsl.cssvar("--item-hover-fg"),
               },
 
               [dsl.select.parent(".active")]: {
-                "background-color": dsl.cssvar("--list-item-active-bg"),
-                color: dsl.cssvar("--list-item-active-fg"),
+                "background-color": dsl.cssvar("--item-active-bg"),
+                color: dsl.cssvar("--item-active-fg"),
 
                 $: {
                   [dsl.select.parent(":hover, &:focus")]: {
-                    "background-color": dsl.cssvar("--list-item-active-bg"),
-                    color: dsl.cssvar("--list-item-active-fg"),
+                    "background-color": dsl.cssvar("--item-active-bg"),
+                    color: dsl.cssvar("--item-active-fg"),
                   },
                 },
               },

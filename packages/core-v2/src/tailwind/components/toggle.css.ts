@@ -8,10 +8,10 @@ const PADDING_LG = 0.3;
 export default component("toggle", {
   variants: {
     default: {
-      "--toggle-border": dsl.current(300),
-      "--toggle-bg": dsl.current(100),
-      "--toggle-hover": dsl.current(200),
-      "--toggle-active": dsl.current(700),
+      "--border": dsl.current(300),
+      "--bg": dsl.current(100),
+      "--hover": dsl.current(200),
+      "--active": dsl.current(700),
     },
   },
   styles: [
@@ -21,11 +21,11 @@ export default component("toggle", {
     "rounded-full",
     {
       "box-sizing": "content-box",
-      border: dsl.cssv`1px solid ${dsl.cssvar("--toggle-border")}`,
+      border: dsl.cssv`1px solid ${dsl.cssvar("--border")}`,
       "background-color": dsl.colorMix(
         "srgb",
         {
-          color: dsl.cssvar("--toggle-bg"),
+          color: dsl.cssvar("--bg"),
           percentage: dsl.primitive.percentage(20),
         },
         { color: dsl.primitive.color.transparent() },
@@ -37,7 +37,7 @@ export default component("toggle", {
 
       $: {
         [dsl.select.parent(":has(input[type='checkbox']:checked)")]: {
-          "background-color": dsl.cssvar("--toggle-bg"),
+          "background-color": dsl.cssvar("--bg"),
         },
 
         [dsl.select.parent(':not(:has(input[type="checkbox"]:checked)):hover')]:
@@ -45,7 +45,7 @@ export default component("toggle", {
             "background-color": dsl.colorMix(
               "srgb",
               {
-                color: dsl.cssvar("--toggle-hover"),
+                color: dsl.cssvar("--hover"),
                 percentage: dsl.primitive.percentage(20),
               },
               { color: dsl.primitive.color.transparent() },
@@ -62,7 +62,7 @@ export default component("toggle", {
           "background-color": dsl.colorMix(
             "srgb",
             {
-              color: dsl.cssvar("--toggle-bg"),
+              color: dsl.cssvar("--bg"),
               percentage: dsl.primitive.percentage(20),
             },
             { color: dsl.primitive.color.transparent() },
@@ -75,7 +75,7 @@ export default component("toggle", {
               "background-color": dsl.colorMix(
                 "srgb",
                 {
-                  color: dsl.cssvar("--toggle-hover"),
+                  color: dsl.cssvar("--hover"),
                   percentage: dsl.primitive.percentage(50),
                 },
                 { color: dsl.primitive.color.transparent() },
@@ -84,7 +84,7 @@ export default component("toggle", {
 
             [dsl.select.parent(":checked")]: {
               transform: "translate(100%, 0)",
-              "background-color": dsl.cssvar("--toggle-active"),
+              "background-color": dsl.cssvar("--active"),
             },
           },
         },

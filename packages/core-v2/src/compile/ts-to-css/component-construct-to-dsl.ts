@@ -1,12 +1,9 @@
 import {
   dsl,
   PALETTE,
-  SHADES,
   stylesheetVisitorBuilder,
-  type ColorAst,
   type ComponentConstruct,
-  type Palette,
-  type Shade,
+  type CssDataType,
 } from "@nataliebasille/natcore-css-engine";
 import { colorKeyWithoutPalette, renderPalette } from "../../shared/colors.ts";
 
@@ -57,12 +54,18 @@ function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
 function dynamicComponentConstructToDsl(
   componentConstruct: ComponentConstruct,
 ) {
+  const { variants, rootsMap } = buildScopedVariantVars(
+    componentConstruct.name,
+    componentConstruct.variants,
+  );
+
+  const normalizedStyles = normalizeVariantVariableReferences(
+    componentConstruct,
+    rootsMap,
+  );
+
   return [
-    dsl.atRule(
-      "theme",
-      "inline",
-      dsl.styleList(buildVariantThemeVars(componentConstruct.variants)),
-    ),
+    dsl.atRule("theme", "inline", dsl.styleList(variants)),
     dsl.atRule(
       "utility",
       `${componentConstruct.name}-*`,
@@ -75,7 +78,7 @@ function dynamicComponentConstructToDsl(
           ),
         ),
       ),
-      wrapComponentLayer(...componentConstruct.styles),
+      wrapComponentLayer(...normalizedStyles),
     ),
   ];
 }
@@ -86,17 +89,34 @@ function wrapComponentLayer(
   return dsl.layer.components(...styles);
 }
 
-function buildVariantThemeVars(
+function buildScopedVariantVars(
+  componentName: string,
   variants: ComponentConstruct["variants"],
-): Record<`--${string}`, StylePropertyValue> {
-  return Object.fromEntries(
-    Object.entries(variants).flatMap(([variantName, variantVars]) =>
-      Object.entries(variantVars).map(([varName, value]) => [
-        `${varName}-${variantName}`,
-        value,
-      ]),
-    ),
-  ) as Record<`--${string}`, StylePropertyValue>;
+): {
+  variants: Record<`--${string}`, StylePropertyValue>;
+  // Mapping of original variant variable names to their scoped counterparts for reference replacement
+  rootsMap: Record<`--${string}`, `--${string}`>;
+} {
+  const rootsMap: Record<`--${string}`, `--${string}`> = {};
+  return {
+    variants: Object.fromEntries(
+      Object.entries(variants).flatMap(([variantName, variantVars]) =>
+        Object.entries(variantVars).map(([varName, value]) => {
+          const root =
+            `--${componentScopedVarName(componentName, varName)}` as const;
+          rootsMap[varName as `--${string}`] =
+            rootsMap?.[varName as `--${string}`] ?? root;
+          const scopedVarName = `--${componentScopedVarName(componentName, varName)}-${variantName}`;
+          return [scopedVarName, value];
+        }),
+      ),
+    ) as Record<`--${string}`, StylePropertyValue>,
+    rootsMap,
+  };
+}
+
+function componentScopedVarName(componentName: string, varName: string) {
+  return `${componentName}-${varName.replace(/^--/, "")}`;
 }
 
 function isThemeable(componentConstruct: ComponentConstruct) {
@@ -109,4 +129,34 @@ function isThemeable(componentConstruct: ComponentConstruct) {
     .visit([componentConstruct.styles, componentConstruct.variants]);
 
   return themeable;
+}
+
+function normalizeVariantVariableReferences(
+  componentConstruct: ComponentConstruct,
+  rootsMap: Record<`--${string}`, `--${string}`>,
+) {
+  const { name, styles } = componentConstruct;
+  return stylesheetVisitorBuilder()
+    .on("css-var", (ast) => {
+      if (rootsMap[ast.name]) {
+        return { ...ast, name: rootsMap[ast.name] };
+      }
+
+      return ast;
+    })
+    .on("match-value", (ast) => ({
+      ...ast,
+      candidates: ast.candidates.map((candidate) => {
+        if (candidate.$twCandidate !== "variable") {
+          return candidate;
+        }
+
+        if (rootsMap[candidate.root]) {
+          return { ...candidate, root: rootsMap[candidate.root]! };
+        }
+
+        return candidate;
+      }),
+    }))
+    .visit(styles) as ComponentConstruct["styles"];
 }

@@ -4,8 +4,8 @@ export default [
   component("radial-progress", {
     variants: {
       default: {
-        "--progress-base": dsl.current(500),
-        "--progress-track": dsl.colorMix(
+        "--base": dsl.current(500),
+        "--track": dsl.colorMix(
           "srgb",
           {
             color: dsl.cssvar("--tone-500"),
@@ -23,24 +23,24 @@ export default [
       "text-3xl",
       "rounded-full",
       {
-        "--size": "64px",
-        "--bar-width": "8px",
-        width: dsl.cssvar("--size"),
-        background: dsl.cssv`conic-gradient(${dsl.cssvar("--progress-base")} ${dsl.cssvar("--progress")}, ${dsl.cssvar("--progress-track")} 0%)`,
+        "--radial-progress-size": "64px",
+        "--radial-progress-bar-width": "8px",
+        width: dsl.cssvar("--radial-progress-size"),
+        background: dsl.cssv`conic-gradient(${dsl.cssvar("--radial-progress-base")} ${dsl.cssvar("--progress")}, ${dsl.cssvar("--radial-progress-track")} 0%)`,
         transition: "--progress 500ms linear",
         "mask-image":
-          "radial-gradient(circle at center, transparent calc(var(--size) / 2 - var(--bar-width)), white calc(var(--size) / 2 - var(--bar-width)))",
+          "radial-gradient(circle at center, transparent calc(var(--radial-progress-size) / 2 - var(--radial-progress-bar-width)), white calc(var(--radial-progress-size) / 2 - var(--radial-progress-bar-width)))",
       },
     ],
   }),
 
   utility("progress-sm", {
-    "--size": "48px",
-    "--bar-width": "6px",
+    "--radial-progress-size": "48px",
+    "--radial-progress-bar-width": "6px",
   }),
 
   utility("progress-lg", {
-    "--size": "88px",
-    "--bar-width": "10px",
+    "--radial-progress-size": "88px",
+    "--radial-progress-bar-width": "10px",
   }),
 ];

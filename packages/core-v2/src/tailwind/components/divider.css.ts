@@ -4,7 +4,7 @@ export default [
   component("divider", {
     variants: {
       default: {
-        "--divider-color": dsl.current(500),
+        "--color": dsl.current(500),
       },
     },
     styles: [
@@ -17,7 +17,7 @@ export default [
       {
         margin: `${dsl.spacing("4")} 0`,
         "letter-spacing": dsl.cssvar("--tracking-wide"),
-        color: dsl.cssvar("--divider-color"),
+        color: dsl.cssvar("--color"),
         "font-weight": dsl.cssvar("--font-weight-bold"),
 
         $: {
@@ -28,7 +28,7 @@ export default [
             content: '""',
             flex: "1",
             height: "1px",
-            "background-color": dsl.cssvar("--divider-color"),
+            "background-color": dsl.cssvar("--color"),
           },
           [dsl.select.parent(":empty::after")]: {
             "margin-left": "0",
@@ -50,7 +50,7 @@ export default [
   component("divider-v", {
     variants: {
       default: {
-        "--divider-color": dsl.current(500),
+        "--color": dsl.current(500),
       },
     },
     styles: [
@@ -60,7 +60,7 @@ export default [
       {
         margin: `0 ${dsl.spacing("4")}`,
         "letter-spacing": dsl.cssvar("--tracking-wide"),
-        color: dsl.cssvar("--divider-color"),
+        color: dsl.cssvar("--color"),
         "font-weight": dsl.cssvar("--font-weight-bold"),
 
         $: {
@@ -71,7 +71,7 @@ export default [
             content: '""',
             flex: "1",
             width: "1px",
-            "background-color": dsl.cssvar("--divider-color"),
+            "background-color": dsl.cssvar("--color"),
           },
           [dsl.select.parent(":empty::after")]: {
             "margin-top": "0",

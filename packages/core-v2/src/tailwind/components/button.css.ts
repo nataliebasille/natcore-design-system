@@ -9,24 +9,24 @@ export default [
   component("btn", {
     variants: {
       solid: {
-        "--btn-bg": dsl.current(500),
-        "--btn-fg": dsl.currentText(500),
-        "--btn-hover-bg": dsl.current(900),
-        "--btn-hover-fg": dsl.currentText(900),
+        "--bg": dsl.current(500),
+        "--fg": dsl.currentText(500),
+        "--hover-bg": dsl.current(900),
+        "--hover-fg": dsl.currentText(900),
       },
       outline: {
-        "--btn-bg": "transparent",
-        "--btn-fg": dsl.current(500),
-        "--btn-border-color": dsl.current(500),
-        "--btn-hover-bg": dsl.current(50),
-        "--btn-hover-fg": dsl.currentText(50),
+        "--bg": "transparent",
+        "--fg": dsl.current(500),
+        "--border-color": dsl.current(500),
+        "--hover-bg": dsl.current(50),
+        "--hover-fg": dsl.currentText(50),
       },
       ghost: {
-        "--btn-bg": "transparent",
-        "--btn-hover-bg": dsl.current(500, 0.1),
-        "--btn-fg": dsl.cssvar("--tone-current-fg"),
-        "--btn-border-color": "transparent",
-        "--btn-hover-fg": dsl.colorMix(
+        "--bg": "transparent",
+        "--hover-bg": dsl.current(500, 0.1),
+        "--fg": dsl.cssvar("--tone-current-fg"),
+        "--border-color": "transparent",
+        "--hover-fg": dsl.colorMix(
           "srgb",
           { color: dsl.cssvar("--tone-current-fg") },
           {
@@ -34,8 +34,8 @@ export default [
             percentage: dsl.primitive.percentage(90),
           },
         ),
-        "--btn-hover-border-color": dsl.current(500, 0.2),
-        "--btn-box-shadow-focus": dsl.cssv`0 0 0 3px ${dsl.cssvar("--color-gray-300")}`,
+        "--hover-border-color": dsl.current(500, 0.2),
+        "--box-shadow-focus": dsl.cssv`0 0 0 3px ${dsl.cssvar("--color-gray-300")}`,
       },
     },
     styles: [
@@ -56,15 +56,15 @@ export default [
           dsl.cssvar("--btn-py", dsl.cssvar("--btn-py-md")),
         ),
 
-        "background-color": dsl.match.variable("--btn-bg"),
-        "border-color": dsl.match.variable("--btn-border-color"),
-        color: dsl.match.variable("--btn-fg"),
+        "background-color": dsl.match.variable("--bg"),
+        "border-color": dsl.match.variable("--border-color"),
+        color: dsl.match.variable("--fg"),
 
         $: {
           [dsl.select.parent(dsl.select.pseudo("hover"))]: {
-            "background-color": dsl.match.variable("--btn-hover-bg"),
-            color: dsl.match.variable("--btn-hover-fg"),
-            "border-color": dsl.match.variable("--btn-hover-border-color"),
+            "background-color": dsl.match.variable("--hover-bg"),
+            color: dsl.match.variable("--hover-fg"),
+            "border-color": dsl.match.variable("--hover-border-color"),
           },
 
           [dsl.select.parent(dsl.select.pseudo("active"))]: {

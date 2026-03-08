@@ -3,10 +3,10 @@ import { component, dsl } from "@nataliebasille/natcore-css-engine";
 export default component("radio-group", {
   variants: {
     default: {
-      "--radio-group-border": dsl.current(300),
-      "--radio-group-hover": dsl.current(200),
-      "--radio-group-active": dsl.current(500),
-      "--radio-group-active-fg": dsl.currentText(500),
+      "--border": dsl.current(300),
+      "--hover": dsl.current(200),
+      "--active": dsl.current(500),
+      "--active-fg": dsl.currentText(500),
     },
   },
   styles: [
@@ -17,7 +17,7 @@ export default component("radio-group", {
       padding: "0.125rem",
       "border-style": "solid",
       "border-width": "2px",
-      "border-color": dsl.cssvar("--radio-group-border"),
+      "border-color": dsl.cssvar("--border"),
       "border-radius": dsl.cssvar("--radius-full"),
 
       $: {
@@ -38,14 +38,14 @@ export default component("radio-group", {
 
           $: {
             [dsl.select.parent(":hover")]: {
-              "background-color": dsl.cssvar("--radio-group-hover"),
+              "background-color": dsl.cssvar("--hover"),
             },
           },
         },
 
         ['input[type="radio"]:checked + label']: {
-          "background-color": dsl.cssvar("--radio-group-active"),
-          color: dsl.cssvar("--radio-group-active-fg"),
+          "background-color": dsl.cssvar("--active"),
+          color: dsl.cssvar("--active-fg"),
         },
 
         ['input[type="radio"]:active + label']: {

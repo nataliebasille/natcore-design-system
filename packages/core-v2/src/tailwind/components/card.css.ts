@@ -10,28 +10,28 @@ export default [
   component("card", {
     variants: {
       default: {
-        "--card-bg": dsl.current(100),
-        "--card-fg": dsl.currentText(100),
-        "--card-border": dsl.current(300),
-        "--card-section-border": dsl.current(300),
-        "--card-hover-bg": dsl.current(200),
-        "--card-hover-fg": dsl.currentText(200),
-        "--card-hover-border": dsl.current(300),
+        "--bg": dsl.current(100),
+        "--fg": dsl.currentText(100),
+        "--border": dsl.current(300),
+        "--section-border": dsl.current(300),
+        "--hover-bg": dsl.current(200),
+        "--hover-fg": dsl.currentText(200),
+        "--hover-border": dsl.current(300),
       },
       soft: {
-        "--card-bg": dsl.current(100),
-        "--card-fg": dsl.currentText(100),
-        "--card-border": dsl.current(300),
-        "--card-section-border": dsl.current(300),
-        "--card-hover-bg": dsl.current(200),
-        "--card-hover-fg": dsl.currentText(200),
-        "--card-hover-border": dsl.current(300),
+        "--bg": dsl.current(100),
+        "--fg": dsl.currentText(100),
+        "--border": dsl.current(300),
+        "--section-border": dsl.current(300),
+        "--hover-bg": dsl.current(200),
+        "--hover-fg": dsl.currentText(200),
+        "--hover-border": dsl.current(300),
       },
       filled: {
-        "--card-bg": dsl.current(500),
-        "--card-fg": dsl.currentText(500),
-        "--card-border": dsl.current(300),
-        "--card-section-border": dsl.colorMix(
+        "--bg": dsl.current(500),
+        "--fg": dsl.currentText(500),
+        "--border": dsl.current(300),
+        "--section-border": dsl.colorMix(
           "srgb",
           {
             color: dsl.cssvar("--on-tone-500"),
@@ -39,12 +39,12 @@ export default [
           },
           { color: dsl.primitive.color.transparent() },
         ),
-        "--card-hover-bg": dsl.current(600),
-        "--card-hover-fg": dsl.currentText(600),
-        "--card-hover-border": dsl.current(300),
+        "--hover-bg": dsl.current(600),
+        "--hover-fg": dsl.currentText(600),
+        "--hover-border": dsl.current(300),
       },
       ghost: {
-        "--card-bg": dsl.colorMix(
+        "--bg": dsl.colorMix(
           "srgb",
           {
             color: dsl.cssvar("--tone-500"),
@@ -52,8 +52,8 @@ export default [
           },
           { color: dsl.primitive.color.transparent() },
         ),
-        "--card-fg": dsl.current(700),
-        "--card-border": dsl.colorMix(
+        "--fg": dsl.current(700),
+        "--border": dsl.colorMix(
           "srgb",
           {
             color: dsl.cssvar("--tone-500"),
@@ -61,7 +61,7 @@ export default [
           },
           { color: dsl.primitive.color.transparent() },
         ),
-        "--card-section-border": dsl.colorMix(
+        "--section-border": dsl.colorMix(
           "srgb",
           {
             color: dsl.cssvar("--tone-500"),
@@ -69,7 +69,7 @@ export default [
           },
           { color: dsl.primitive.color.transparent() },
         ),
-        "--card-hover-bg": dsl.colorMix(
+        "--hover-bg": dsl.colorMix(
           "srgb",
           {
             color: dsl.cssvar("--tone-500"),
@@ -77,16 +77,16 @@ export default [
           },
           { color: dsl.primitive.color.transparent() },
         ),
-        "--card-hover-fg": dsl.current(700),
-        "--card-hover-border": dsl.current(500),
+        "--hover-fg": dsl.current(700),
+        "--hover-border": dsl.current(500),
       },
     },
     styles: [
       "rounded-lg",
       {
-        "background-color": dsl.match.variable("--card-bg"),
-        color: dsl.match.variable("--card-fg"),
-        border: dsl.cssv`1px solid ${dsl.match.variable("--card-border")}`,
+        "background-color": dsl.match.variable("--bg"),
+        color: dsl.match.variable("--fg"),
+        border: dsl.cssv`1px solid ${dsl.match.variable("--border")}`,
 
         $: {
           [cardSections]: {
@@ -97,14 +97,14 @@ export default [
             dsl.select.parent(),
             dsl.select.cls("card-header"),
           )]: {
-            "border-bottom": dsl.cssv`1px solid ${dsl.match.variable("--card-section-border")}`,
+            "border-bottom": dsl.cssv`1px solid ${dsl.match.variable("--section-border")}`,
           },
 
           [dsl.select.child(
             dsl.select.parent(),
             dsl.select.cls("card-footer"),
           )]: {
-            "border-top": dsl.cssv`1px solid ${dsl.match.variable("--card-section-border")}`,
+            "border-top": dsl.cssv`1px solid ${dsl.match.variable("--section-border")}`,
           },
         },
       },
@@ -120,9 +120,9 @@ export default [
 
     $: {
       [dsl.select.parent(dsl.select.pseudo("hover"))]: {
-        "background-color": dsl.cssvar("--card-hover-bg"),
-        color: dsl.cssvar("--card-hover-fg"),
-        "border-color": dsl.cssvar("--card-hover-border"),
+        "background-color": dsl.cssvar("--hover-bg"),
+        color: dsl.cssvar("--hover-fg"),
+        "border-color": dsl.cssvar("--hover-border"),
         transform: "scale(1.01)",
       },
     },

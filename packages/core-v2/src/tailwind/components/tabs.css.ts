@@ -30,7 +30,7 @@ const dividerMixed85 = dsl.colorMix(
 export default [
   utility(
     "tabs",
-    { "--number-of-tabs": dsl.match.bare.integer() },
+    { "--tabs-number-of-tabs": dsl.match.bare.integer() },
     "flex",
     "flex-wrap",
     {
@@ -49,7 +49,7 @@ export default [
           "p-2",
           "tracking-wide",
           {
-            color: dsl.cssvar("--tab-text-color"),
+            color: dsl.cssvar("--tabs-text-color"),
           },
         ],
 
@@ -58,20 +58,20 @@ export default [
 
         ["& > details:not([open]) > summary:hover, & > *:not(*:has(input:checked), .active) > label:hover, & > *:not(*:has(input:checked), .active) > :first-child:hover"]:
           {
-            "border-width": dsl.cssvar("--tab-hover-border-width"),
-            "border-style": dsl.cssvar("--tab-hover-border-style"),
-            "border-color": dsl.cssvar("--tab-hover-border-color"),
-            "font-weight": dsl.cssvar("--tab-hover-font-weight"),
-            color: dsl.cssvar("--tab-hover-text-color"),
+            "border-width": dsl.cssvar("--tabs-hover-border-width"),
+            "border-style": dsl.cssvar("--tabs-hover-border-style"),
+            "border-color": dsl.cssvar("--tabs-hover-border-color"),
+            "font-weight": dsl.cssvar("--tabs-hover-font-weight"),
+            color: dsl.cssvar("--tabs-hover-text-color"),
           },
 
         ["& > details[open] > summary, & > *:has(input:checked) > label, & > *:has(input:checked) > :first-child, & > *.active > :first-child"]:
           {
-            "border-width": dsl.cssvar("--tab-active-border-width"),
-            "border-style": dsl.cssvar("--tab-active-border-style"),
-            "border-color": dsl.cssvar("--tab-active-border-color"),
-            "font-weight": dsl.cssvar("--tab-active-font-weight"),
-            color: dsl.cssvar("--tab-active-text-color"),
+            "border-width": dsl.cssvar("--tabs-active-border-width"),
+            "border-style": dsl.cssvar("--tabs-active-border-style"),
+            "border-color": dsl.cssvar("--tabs-active-border-color"),
+            "font-weight": dsl.cssvar("--tabs-active-font-weight"),
+            color: dsl.cssvar("--tabs-active-text-color"),
           },
 
         ["& > details[open]::details-content, & > *:has(input:checked) > :last-child, & > *.active > :last-child"]:
@@ -93,9 +93,9 @@ export default [
           "h-0.5",
           "w-full",
           {
-            "border-style": dsl.cssvar("--tab-divider-border-style"),
-            "border-color": dsl.cssvar("--tab-divider-border-color"),
-            "border-width": dsl.cssvar("--tab-divider-border-width"),
+            "border-style": dsl.cssvar("--tabs-divider-border-style"),
+            "border-color": dsl.cssvar("--tabs-divider-border-color"),
+            "border-width": dsl.cssvar("--tabs-divider-border-width"),
           },
         ],
       },
@@ -105,65 +105,65 @@ export default [
   component("tabs-style", {
     variants: {
       underline: {
-        "--tab-text-color": tone700Mixed50,
-        "--tab-hover-border-width": dsl.cssv`0 0 ${dsl.spacing("0.5")} 0`,
-        "--tab-hover-border-style": "solid",
-        "--tab-hover-border-color": tone700Mixed50,
-        "--tab-hover-font-weight": "normal",
-        "--tab-hover-text-color": tone700Mixed35,
-        "--tab-active-border-width": dsl.cssv`0 0 ${dsl.spacing("0.5")} 0`,
-        "--tab-active-border-style": "solid",
-        "--tab-active-border-color": dsl.cssvar("--tone-700"),
-        "--tab-active-font-weight": "bold",
-        "--tab-active-text-color": dsl.cssvar("--tone-700"),
-        "--tab-divider-border-width": dsl.cssv`0 0 ${dsl.spacing("0.5")} 0`,
-        "--tab-divider-border-style": "solid",
-        "--tab-divider-border-color": dividerMixed85,
+        "--text-color": tone700Mixed50,
+        "--hover-border-width": dsl.cssv`0 0 ${dsl.spacing("0.5")} 0`,
+        "--hover-border-style": "solid",
+        "--hover-border-color": tone700Mixed50,
+        "--hover-font-weight": "normal",
+        "--hover-text-color": tone700Mixed35,
+        "--active-border-width": dsl.cssv`0 0 ${dsl.spacing("0.5")} 0`,
+        "--active-border-style": "solid",
+        "--active-border-color": dsl.cssvar("--tone-700"),
+        "--active-font-weight": "bold",
+        "--active-text-color": dsl.cssvar("--tone-700"),
+        "--divider-border-width": dsl.cssv`0 0 ${dsl.spacing("0.5")} 0`,
+        "--divider-border-style": "solid",
+        "--divider-border-color": dividerMixed85,
       },
     },
     styles: {
       $: {
         ["&, *"]: {
-          "--tab-text-color": dsl.match.variable("--tab-text-color"),
-          "--tab-hover-border-width": dsl.match.variable(
-            "--tab-hover-border-width",
+          "--tabs-text-color": dsl.match.variable("--text-color"),
+          "--tabs-hover-border-width": dsl.match.variable(
+            "--hover-border-width",
           ),
-          "--tab-hover-border-style": dsl.match.variable(
-            "--tab-hover-border-style",
+          "--tabs-hover-border-style": dsl.match.variable(
+            "--hover-border-style",
           ),
-          "--tab-hover-border-color": dsl.match.variable(
-            "--tab-hover-border-color",
+          "--tabs-hover-border-color": dsl.match.variable(
+            "--hover-border-color",
           ),
-          "--tab-hover-font-weight": dsl.match.variable(
-            "--tab-hover-font-weight",
+          "--tabs-hover-font-weight": dsl.match.variable(
+            "--hover-font-weight",
           ),
-          "--tab-hover-text-color": dsl.match.variable(
-            "--tab-hover-text-color",
+          "--tabs-hover-text-color": dsl.match.variable(
+            "--hover-text-color",
           ),
-          "--tab-active-border-width": dsl.match.variable(
-            "--tab-active-border-width",
+          "--tabs-active-border-width": dsl.match.variable(
+            "--active-border-width",
           ),
-          "--tab-active-border-style": dsl.match.variable(
-            "--tab-active-border-style",
+          "--tabs-active-border-style": dsl.match.variable(
+            "--active-border-style",
           ),
-          "--tab-active-border-color": dsl.match.variable(
-            "--tab-active-border-color",
+          "--tabs-active-border-color": dsl.match.variable(
+            "--active-border-color",
           ),
-          "--tab-active-font-weight": dsl.match.variable(
-            "--tab-active-font-weight",
+          "--tabs-active-font-weight": dsl.match.variable(
+            "--active-font-weight",
           ),
-          "--tab-active-text-color": dsl.match.variable(
-            "--tab-active-text-color",
+          "--tabs-active-text-color": dsl.match.variable(
+            "--active-text-color",
           ),
 
-          "--tab-divider-border-width": dsl.match.variable(
-            "--tab-divider-border-width",
+          "--tabs-divider-border-width": dsl.match.variable(
+            "--divider-border-width",
           ),
-          "--tab-divider-border-style": dsl.match.variable(
-            "--tab-divider-border-style",
+          "--tabs-divider-border-style": dsl.match.variable(
+            "--divider-border-style",
           ),
-          "--tab-divider-border-color": dsl.match.variable(
-            "--tab-divider-border-color",
+          "--tabs-divider-border-color": dsl.match.variable(
+            "--divider-border-color",
           ),
         },
       },
