@@ -1,6 +1,7 @@
 {
   "eslint.enable": true,
   "eslint.useFlatConfig": true,
+  "eslint.run": "onSave",
   "eslint.validate": [
     "javascript",
     "javascriptreact",
@@ -13,15 +14,47 @@
     }
   ],
   "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "modificationsIfAvailable",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+  "editor.quickSuggestionsDelay": 75,
   "files.associations": {
     "*.css": "tailwindcss"
   },
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/.next/**": true,
+    "**/.turbo/**": true,
+    "**/coverage/**": true,
+    "**/dist/**": true,
+    "**/node_modules/**": true,
+    "**/out/**": true,
+    "**/pnpm-lock.yaml": true
+  },
   "prettier.configPath": ".prettierrc.cjs",
   "prettier.requireConfig": true,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "javascript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "useFsEventsOnParentDirectory",
+    "watchDirectory": "useFsEvents",
+    "fallbackPolling": "dynamicPriority",
+    "synchronousWatchDirectory": false,
+    "excludeDirectories": [
+      "**/.git",
+      "**/.next",
+      "**/.turbo",
+      "**/coverage",
+      "**/dist",
+      "**/node_modules",
+      "**/out"
+    ]
+  },
   "tailwindCSS.experimental.classRegex": [
     ["@apply\":\\s*\\[([^\\]]*)\\]", "\"([^\"]*)\""]
   ]

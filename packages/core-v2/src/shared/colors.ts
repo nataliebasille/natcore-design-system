@@ -47,22 +47,52 @@ export function currentOrDefaultColor(
     Partial<Pick<ColorAst, "mode">>,
   defaultPalette: Palette = "primary",
 ) {
-  return dsl.cssv`var(${dsl.color({
-    mode: "adaptive",
-    palette: "current",
-    ...color,
-  })}, ${dsl.color({
-    mode: "adaptive",
-    palette: defaultPalette,
-    ...color,
-  })})`;
+  return applyOpacity({
+    default: dsl.color({
+      mode: "adaptive",
+      palette: "current",
+      ...color,
+    }),
+    fallback: dsl.color({
+      mode: "adaptive",
+      palette: defaultPalette,
+      ...color,
+    }),
+    opacity: color.opacity,
+  });
 }
 
-export function applyOpacity(color: {
-  default: ColorAst;
-  fallback?: ColorAst;
-  opacity: number;
-}) {}
+export function applyOpacity(
+  color:
+    | ColorAst
+    | {
+        default: Omit<ColorAst, "opacity">;
+        fallback?: Omit<ColorAst, "opacity">;
+        opacity?: number;
+      },
+) {
+  const defaultKey = colorKey("default" in color ? color.default : color);
+  const fallbackKey =
+    "fallback" in color && color.fallback ?
+      colorKey(color.fallback)
+    : undefined;
+
+  const v = dsl.cssvar(
+    defaultKey,
+    fallbackKey ? dsl.cssvar(fallbackKey) : undefined,
+  );
+
+  return color.opacity === undefined ?
+      v
+    : dsl.colorMix(
+        "srgb",
+        {
+          color: v,
+          percentage: dsl.primitive.percentage(color.opacity * 100),
+        },
+        { color: dsl.primitive.color.transparent() },
+      );
+}
 
 export function renderPalette(
   renderer: (color: Pick<ColorAst, "shade" | "role">) => dsl.StylePropertyValue,

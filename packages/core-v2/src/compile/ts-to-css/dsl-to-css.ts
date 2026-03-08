@@ -4,7 +4,7 @@ import {
   stylesheetVisitorBuilder,
   type CssDataType,
 } from "@nataliebasille/natcore-css-engine";
-import { colorKey } from "../../shared/colors.ts";
+import { applyOpacity } from "../../shared/colors.ts";
 
 type TopLevelAst = dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst;
 export function dslToCss(ast: TopLevelAst[]): css.StylesheetAst {
@@ -162,20 +162,7 @@ function transformStylePropertyValue(
   }
 
   const intermediateTransformedValue = stylesheetVisitorBuilder()
-    .on("color", (ast) => {
-      const key = colorKey(ast);
-
-      return ast.opacity === undefined ?
-          dsl.cssvar(key)
-        : dsl.colorMix(
-            "srgb",
-            {
-              color: dsl.cssvar(key),
-              percentage: dsl.primitive.percentage(ast.opacity * 100),
-            },
-            { color: dsl.primitive.color.transparent() },
-          );
-    })
+    .on("color", applyOpacity)
     .on("function-spacing", (value) => `--spacing(${value.value})`)
     .on("css-var", function cssVarToString(value): string {
       return `var(${value.name}${value.fallback ? `, ${typeof value.fallback === "object" ? cssVarToString(value.fallback) : ""}` : ""})`;
