@@ -3,11 +3,12 @@ import { dsl, utility } from "@nataliebasille/natcore-css-engine";
 export default [
   utility("form-label", "flex", "flex-col", {
     $: {
-      [dsl.select.child(dsl.select.parent(), "*:not(input, select, textarea)")]: {
-        "font-size": dsl.cssvar("--text-sm"),
-        "font-weight": dsl.cssvar("--font-weight-medium"),
-        color: dsl.cssvar("--color-tone-500"),
-      },
+      [dsl.select.child(dsl.select.parent(), "*:not(input, select, textarea)")]:
+        {
+          "font-size": dsl.cssvar("--text-sm"),
+          "font-weight": dsl.cssvar("--font-weight-medium"),
+          color: dsl.cssvar("--color-tone-500"),
+        },
     },
   }),
 

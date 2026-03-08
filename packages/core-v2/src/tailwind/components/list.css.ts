@@ -1,7 +1,6 @@
 import { component, dsl } from "@nataliebasille/natcore-css-engine";
 
 export default component("list", {
-  themeable: "primary",
   variants: {
     default: {
       "--list-item-hover-bg": dsl.current(200),

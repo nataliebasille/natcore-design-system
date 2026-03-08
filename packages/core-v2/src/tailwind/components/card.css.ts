@@ -8,7 +8,6 @@ const cardSections = dsl.select.list(
 
 export default [
   component("card", {
-    themeable: "surface",
     variants: {
       default: {
         "--card-bg": dsl.current(100),

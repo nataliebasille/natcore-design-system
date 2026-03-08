@@ -8,7 +8,6 @@ const fg = dsl.currentText(50, 0.8);
 const border = dsl.current(300);
 
 export default component("form-control", {
-  themeable: "surface",
   styles: [
     "grid",
     "transition-all",

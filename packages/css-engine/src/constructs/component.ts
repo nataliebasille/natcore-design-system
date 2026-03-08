@@ -11,7 +11,6 @@ export type ComponentConstruct = {
   $construct: "component";
   name: string;
   styles: (StyleListAst | StyleRuleAst)[];
-  themeable: boolean | Palette;
   variants: Record<string, { [K: `--${string}`]: StylePropertyValue }>;
 };
 
@@ -19,17 +18,15 @@ export function component(
   name: string,
   config: {
     styles: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
-    themeable?: boolean | Palette;
     variants?: Record<string, { [K: `--${string}`]: StylePropertyValue }>;
   },
 ) {
-  const { styles, themeable = false, variants = {} } = config;
+  const { styles, variants = {} } = config;
 
   return {
     $construct: "component",
     name,
     styles: normalizeStyleBuilders(styles),
-    themeable,
     variants: variants ?? {},
   } satisfies ComponentConstruct;
 }

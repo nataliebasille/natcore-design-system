@@ -9,7 +9,6 @@ const inlineCode = dsl.select.list(
 
 export default [
   component("code", {
-    themeable: false,
     styles: [
       "block",
       "w-full",

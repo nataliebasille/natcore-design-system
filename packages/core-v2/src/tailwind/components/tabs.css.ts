@@ -103,7 +103,6 @@ export default [
   ),
 
   component("tabs-style", {
-    themeable: "surface",
     variants: {
       underline: {
         "--tab-text-color": tone700Mixed50,

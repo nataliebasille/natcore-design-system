@@ -1,7 +1,6 @@
 import { component, dsl } from "@nataliebasille/natcore-css-engine";
 
 export default component("radio-group", {
-  themeable: "surface",
   variants: {
     default: {
       "--radio-group-border": dsl.current(300),

@@ -22,15 +22,15 @@ export function Playground<const T extends Record<string, React.ReactElement>>({
   return (
     <PlaygroundProvider defaultValues={defaultValues}>
       <div className="card-ghost/secondary rounded-md">
-        <div className="divide-tone-300-secondary grid grid-cols-[1fr_minmax(auto,20rem)] divide-x *:p-3">
-          <div>
-            <PlaygroundResult>{children}</PlaygroundResult>
-          </div>
-          <div className="flex flex-col gap-2">
+        <div className="divide-tone-300-secondary grid">
+          {/* <div className="flex flex-col gap-2">
             {Object.entries(controls).map(([key, control]) =>
               cloneElement(control, { key }),
             )}
           </div>
+          <div>
+            <PlaygroundResult>{children}</PlaygroundResult>
+          </div> */}
         </div>
       </div>
     </PlaygroundProvider>

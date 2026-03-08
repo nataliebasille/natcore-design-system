@@ -2,7 +2,6 @@ import { component, dsl, utility } from "@nataliebasille/natcore-css-engine";
 
 export default [
   component("radial-progress", {
-    themeable: "primary",
     variants: {
       default: {
         "--progress-base": dsl.current(500),

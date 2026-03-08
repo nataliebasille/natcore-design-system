@@ -7,7 +7,6 @@ import {
 
 export default [
   component("btn", {
-    themeable: "primary",
     variants: {
       solid: {
         "--btn-bg": dsl.current(500),

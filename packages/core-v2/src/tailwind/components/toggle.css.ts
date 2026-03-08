@@ -6,7 +6,6 @@ const TOGGLE_SIZE_LG = 3;
 const PADDING_LG = 0.3;
 
 export default component("toggle", {
-  themeable: "primary",
   variants: {
     default: {
       "--toggle-border": dsl.current(300),

@@ -2,7 +2,6 @@ import { component, dsl } from "@nataliebasille/natcore-css-engine";
 
 export default [
   component("divider", {
-    themeable: "surface",
     variants: {
       default: {
         "--divider-color": dsl.current(500),
@@ -12,6 +11,9 @@ export default [
       "flex",
       "items-center",
       "self-stretch",
+      "my-4",
+      "tracking-wide",
+      "font-bold",
       {
         margin: `${dsl.spacing("4")} 0`,
         "letter-spacing": dsl.cssvar("--tracking-wide"),
@@ -46,7 +48,6 @@ export default [
   }),
 
   component("divider-v", {
-    themeable: "surface",
     variants: {
       default: {
         "--divider-color": dsl.current(500),
