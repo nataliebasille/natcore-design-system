@@ -21,8 +21,9 @@ export function Playground<const T extends Record<string, React.ReactElement>>({
 }: PlaygroundProps<T>) {
   return (
     <PlaygroundProvider defaultValues={defaultValues}>
-      <div className="card-ghost/secondary rounded-md">
-        <div className="divide-tone-300-secondary grid">
+      <div className="card-ghost/secondary h-10 rounded-md">
+        <div className="divider-test mt-2 h-2" />
+        <div className="grid">
           {/* <div className="flex flex-col gap-2">
             {Object.entries(controls).map(([key, control]) =>
               cloneElement(control, { key }),
