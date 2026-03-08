@@ -2,6 +2,7 @@
   "eslint.enable": true,
   "eslint.useFlatConfig": true,
   "eslint.run": "onSave",
+  "eslint.codeActionsOnSave.mode": "problems",
   "eslint.validate": [
     "javascript",
     "javascriptreact",
@@ -9,9 +10,11 @@
     "typescriptreact"
   ],
   "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
+    { "directory": "./packages/core", "changeProcessCWD": true },
+    { "directory": "./packages/core-v2", "changeProcessCWD": true },
+    { "directory": "./packages/css-engine", "changeProcessCWD": true },
+    { "directory": "./packages/icons", "changeProcessCWD": true },
+    { "directory": "./packages/react", "changeProcessCWD": true }
   ],
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "modificationsIfAvailable",

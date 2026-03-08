@@ -1,4 +1,3 @@
-import type { Palette } from "../dsl/ast/cssvalue/color.ts";
 import type {
   StyleListAst,
   StylePropertyValue,
@@ -11,6 +10,7 @@ export type ComponentConstruct = {
   $construct: "component";
   name: string;
   styles: (StyleListAst | StyleRuleAst)[];
+  defaultVariant?: string;
   variants: ComponentVariants;
 };
 
@@ -21,12 +21,16 @@ export type ComponentVariants = Record<
   default?: { [K: `--${string}`]: StylePropertyValue };
 };
 
-export type ComponentBuilder = {
-  variants?: ComponentVariants;
+export type ComponentBuilder<T extends ComponentVariants = {}> = {
+  variants?: T;
+  defaultVariant?: "default" extends keyof T ? never : NoInfer<T[keyof T]>;
   styles: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
 };
 
-export function component(name: string, body: ComponentBuilder) {
+export function component<T extends ComponentVariants = {}>(
+  name: string,
+  body: ComponentBuilder<T>,
+) {
   const { styles, variants = {} } = body;
 
   return {

@@ -3,6 +3,7 @@ import {
   type CssVarAst,
   type StyleRuleAst,
   type StyleProperties,
+  type StylePropertyValue,
   type TailwindClassAst,
   type StyleListAst,
   type AtRuleAst,
@@ -35,11 +36,11 @@ export type StylesheetVisitorSpec =
     }
   | {
       $in: MatchValueAst<CssDataType>;
-      $out: string | TemplateLiteralAst<CssDataType>;
+      $out: StylePropertyValue;
     }
   | {
       $in: MatchModifierAst<CssDataType>;
-      $out: string | TemplateLiteralAst<CssDataType>;
+      $out: StylePropertyValue;
     }
   | StyleListAst
   | StyleRuleAst

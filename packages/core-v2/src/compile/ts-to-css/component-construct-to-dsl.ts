@@ -11,20 +11,50 @@ type StylePropertyValue = dsl.StyleProperties[keyof dsl.StyleProperties];
 export function componentConstructToDsl(
   componentConstruct: ComponentConstruct,
 ) {
-  const hasVariants = Object.keys(componentConstruct.variants ?? {}).length > 0;
-  return hasVariants ?
-      dynamicComponentConstructToDsl(componentConstruct)
-    : staticComponentConstructToDsl(componentConstruct);
+  const themeable = isThemeable(componentConstruct);
+  const {
+    default: defaultVariant = (componentConstruct.defaultVariant &&
+      componentConstruct.variants?.[componentConstruct.defaultVariant]) ||
+      undefined,
+    ...dynamicVariants
+  } = componentConstruct.variants;
+  const hasVariants = Object.keys(dynamicVariants).length > 0;
+  // If there are no variant then default to static generation.
+  // If there is a default variant, we can generate a static version of the component for it.
+  const shouldGenerateStatic = !hasVariants || !!defaultVariant;
+  return [
+    ...(shouldGenerateStatic ?
+      staticComponentConstructToDsl(componentConstruct, {
+        themeable,
+        defaultVariant,
+      })
+    : []),
+    ...(hasVariants ?
+      dynamicComponentConstructToDsl(componentConstruct, { themeable })
+    : []),
+  ];
 }
 
-function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
-  const themeable = isThemeable(componentConstruct);
-
+function staticComponentConstructToDsl(
+  componentConstruct: ComponentConstruct,
+  {
+    themeable,
+    defaultVariant,
+  }: {
+    themeable: boolean;
+    defaultVariant:
+      | {
+          [K: `--${string}`]: StylePropertyValue;
+        }
+      | undefined;
+  },
+) {
+  const styles = applyVariantStyles(componentConstruct.styles, defaultVariant);
   const output: dsl.AtRuleAst[] = [
     dsl.atRule(
       "utility",
       componentConstruct.name,
-      wrapComponentLayer(...componentConstruct.styles),
+      wrapComponentLayer(...styles),
     ),
   ];
 
@@ -41,7 +71,7 @@ function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
               : dsl.adaptiveText(palette, color.shade),
             ),
           ),
-          wrapComponentLayer(...componentConstruct.styles),
+          wrapComponentLayer(...styles),
         ),
       );
     }
@@ -52,6 +82,7 @@ function staticComponentConstructToDsl(componentConstruct: ComponentConstruct) {
 
 function dynamicComponentConstructToDsl(
   componentConstruct: ComponentConstruct,
+  { themeable }: { themeable: boolean },
 ) {
   const { variants, rootsMap } = buildScopedVariantVars(
     componentConstruct.name,
@@ -62,8 +93,6 @@ function dynamicComponentConstructToDsl(
     componentConstruct,
     rootsMap,
   );
-
-  const themeable = isThemeable(componentConstruct);
 
   return [
     dsl.atRule("theme", "inline", dsl.styleList(variants)),
@@ -94,6 +123,35 @@ function wrapComponentLayer(
   return dsl.layer.components(...styles);
 }
 
+function applyVariantStyles(
+  styles: ComponentConstruct["styles"],
+  variant:
+    | {
+        [K: `--${string}`]: StylePropertyValue;
+      }
+    | undefined,
+) {
+  if (!variant) {
+    return styles;
+  }
+
+  return stylesheetVisitorBuilder()
+    .on("match-value", (ast) => {
+      const candidateToTransform = ast.candidates.filter(
+        (candidate): candidate is dsl.TwVariableCandidate => {
+          return (
+            candidate.$twCandidate === "variable" && candidate.root in variant
+          );
+        },
+      )[0];
+
+      return (
+        !candidateToTransform ? ast : (
+          variant[candidateToTransform.root]!
+        )) as dsl.StylePropertyValue;
+    })
+    .visit(styles);
+}
 function buildScopedVariantVars(
   componentName: string,
   variants: ComponentConstruct["variants"],
