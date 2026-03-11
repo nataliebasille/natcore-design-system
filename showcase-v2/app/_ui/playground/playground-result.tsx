@@ -1,33 +1,33 @@
-"use client";
+'use client'
 
-import { useEffect, useRef, useState } from "react";
-import { CodeSnippet } from "../code-snippet";
+import { useEffect, useRef, useState } from 'react'
+import { CodeSnippet } from '../code-snippet/code-snippet'
 
 export function PlaygroundResult({ children }: { children: React.ReactNode }) {
-  const sourceRef = useRef<HTMLDivElement>(null);
-  const [sourceHtml, setSourceHtml] = useState("");
+  const sourceRef = useRef<HTMLDivElement>(null)
+  const [sourceHtml, setSourceHtml] = useState('')
 
   useEffect(() => {
-    const source = sourceRef.current;
-    if (!source) return;
+    const source = sourceRef.current
+    if (!source) return
 
     const sync = () => {
-      setSourceHtml(source.innerHTML);
-    };
+      setSourceHtml(source.innerHTML)
+    }
 
     // initial sync
-    sync();
+    sync()
 
-    const observer = new MutationObserver(sync);
+    const observer = new MutationObserver(sync)
     observer.observe(source, {
       childList: true,
       subtree: true,
       characterData: true,
       attributes: true,
-    });
+    })
 
-    return () => observer.disconnect();
-  }, []);
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <ul className="tabs-2 tabs-style-underline [&_label]:active:palette-accent">
@@ -44,8 +44,8 @@ export function PlaygroundResult({ children }: { children: React.ReactNode }) {
           <input type="radio" name="playground-result" />
           Code
         </label>
-        <CodeSnippet content={sourceHtml} language="html" />
+        <CodeSnippet code={sourceHtml} language="html" />
       </li>
     </ul>
-  );
+  )
 }

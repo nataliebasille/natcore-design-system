@@ -1,6 +1,6 @@
-import type { IconifyIcon } from "@iconify-icon/react";
+import type { IconifyIcon } from '@iconify-icon/react'
 
-type IconProps = React.SVGProps<SVGSVGElement>;
+type IconProps = React.SVGProps<SVGSVGElement>
 
 export function createIcon(icon: IconifyIcon) {
   return (props: IconProps) => (
@@ -10,5 +10,5 @@ export function createIcon(icon: IconifyIcon) {
       dangerouslySetInnerHTML={{ __html: icon.body }}
       {...props}
     />
-  );
+  )
 }

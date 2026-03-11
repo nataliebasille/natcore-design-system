@@ -3,6 +3,7 @@ import {
   PALETTE,
   stylesheetVisitorBuilder,
   type ComponentConstruct,
+  type ComponentVariants,
 } from "@nataliebasille/natcore-css-engine";
 import { colorKeyWithoutPalette, renderPalette } from "../../shared/colors.ts";
 
@@ -30,7 +31,10 @@ export function componentConstructToDsl(
       })
     : []),
     ...(hasVariants ?
-      dynamicComponentConstructToDsl(componentConstruct, { themeable })
+      dynamicComponentConstructToDsl(componentConstruct, {
+        themeable,
+        dynamicVariants,
+      })
     : []),
   ];
 }
@@ -82,11 +86,17 @@ function staticComponentConstructToDsl(
 
 function dynamicComponentConstructToDsl(
   componentConstruct: ComponentConstruct,
-  { themeable }: { themeable: boolean },
+  {
+    themeable,
+    dynamicVariants,
+  }: {
+    themeable: boolean;
+    dynamicVariants: ComponentVariants;
+  },
 ) {
   const { variants, rootsMap } = buildScopedVariantVars(
     componentConstruct.name,
-    componentConstruct.variants,
+    dynamicVariants,
   );
 
   const normalizedStyles = normalizeVariantVariableReferences(

@@ -1,4 +1,9 @@
-import { dsl, SHADES, utility } from "@nataliebasille/natcore-css-engine";
+import {
+  dsl,
+  SHADES,
+  theme,
+  utility,
+} from "@nataliebasille/natcore-css-engine";
 import {
   colorKeyWithoutPalette,
   matchColor,
@@ -8,6 +13,13 @@ import {
 } from "../../shared/colors.ts";
 
 export default () => [
+  theme(
+    "inline",
+    renderPalette(
+      (color, key) =>
+        [`--color-${key.replace("--", "")}`, dsl.cssvar(key)] as const,
+    ),
+  ),
   utility("palette", {
     ...renderPalette((color) =>
       dsl.match.variable(

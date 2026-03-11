@@ -95,7 +95,10 @@ export function applyOpacity(
 }
 
 export function renderPalette(
-  renderer: (color: Pick<ColorAst, "shade" | "role">) => dsl.StylePropertyValue,
+  renderer: (
+    color: Pick<ColorAst, "shade" | "role">,
+    key: ReturnType<typeof toneKey>,
+  ) => dsl.StylePropertyValue | [`--${string}`, dsl.StylePropertyValue],
 ) {
   const tones = SHADES.flatMap(
     (shade) =>
@@ -108,9 +111,11 @@ export function renderPalette(
   const dedup = new Map(tones.map((tone) => [toneKey(tone), tone]));
 
   return Object.fromEntries(
-    Array.from(dedup.entries()).map(
-      ([key, tone]) => [key, renderer(tone)] as const,
-    ),
+    Array.from(dedup.entries()).map(([key, tone]) => {
+      const value = renderer(tone, key);
+
+      return value instanceof Array ? value : ([key, value] as const);
+    }),
   );
 }
 

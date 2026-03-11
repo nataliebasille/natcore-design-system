@@ -1,92 +1,92 @@
-import { component, dsl } from "@nataliebasille/natcore-css-engine";
+import {
+  component,
+  dsl,
+  theme,
+  utility,
+} from "@nataliebasille/natcore-css-engine";
+
+const COLOR = dsl.current(500);
 
 export default [
   component("divider", {
     variants: {
       default: {
-        "--color": dsl.current(500),
+        "--margin-inline-before": `0 ${dsl.spacing("2")}`,
+        "--margin-inline-after": `${dsl.spacing("2")} 0`,
+        "--margin-inline-no-content": "0",
+      },
+
+      v: {
+        "--flex-direction": "column",
+        "--margin-block-before": `0 ${dsl.spacing("2")}`,
+        "--margin-block-after": `${dsl.spacing("2")} 0`,
+        "--margin-block-no-content": "0",
       },
     },
     styles: [
       "flex",
       "items-center",
-      "self-stretch",
-      "my-4",
       "tracking-wide",
       "font-bold",
       {
-        margin: `${dsl.spacing("4")} 0`,
-        "letter-spacing": dsl.cssvar("--tracking-wide"),
-        color: dsl.cssvar("--color"),
-        "font-weight": dsl.cssvar("--font-weight-bold"),
+        "--divider-before-flex": dsl.primitive.percentage(50),
+        "--divider-after-flex": dsl.calc`${dsl.primitive.percentage(100)} - ${dsl.cssvar("--divider-before-flex")}`,
+        "flex-direction": dsl.match.variable("--flex-direction"),
+        color: COLOR,
 
         $: {
           [dsl.select.list(
-            dsl.select.pseudo("before"),
-            dsl.select.pseudo("after"),
+            dsl.select.parent("::before"),
+            dsl.select.parent("::after"),
           )]: {
             content: '""',
-            flex: "1",
             height: "1px",
-            "background-color": dsl.cssvar("--color"),
+            "background-color": COLOR,
           },
           [dsl.select.parent(":empty::after")]: {
-            "margin-left": "0",
+            "margin-inline": dsl.match.variable("--margin-inline-no-content"),
+            "margin-block": dsl.match.variable("--margin-block-no-content"),
           },
           [dsl.select.parent(":empty::before")]: {
-            "margin-right": "0",
+            "margin-inline": dsl.match.variable("--margin-inline-no-content"),
+            "margin-block": dsl.match.variable("--margin-block-no-content"),
           },
-          [dsl.select.pseudo("before")]: {
-            "margin-right": `${dsl.spacing("2")}`,
+          [dsl.select.parent("::before")]: {
+            flex: dsl.cssvar("--divider-before-flex", "1"),
+            "margin-inline": dsl.match.variable("--margin-inline-before"),
+            "margin-block": dsl.match.variable("--margin-block-before"),
           },
-          [dsl.select.pseudo("after")]: {
-            "margin-left": `${dsl.spacing("2")}`,
+          [dsl.select.parent("::after")]: {
+            flex: dsl.cssvar("--divider-after-flex", "1"),
+            "margin-inline": dsl.match.variable("--margin-inline-after"),
+            "margin-block": dsl.match.variable("--margin-block-after"),
           },
         },
       },
     ],
   }),
 
-  component("divider-v", {
-    variants: {
-      default: {
-        "--color": dsl.current(500),
-      },
+  utility(
+    "divider-place-content",
+    theme({
+      "--divider-place-content-before-start": dsl.primitive.percentage(0),
+      "--divider-place-content-before-center": dsl.primitive.percentage(50),
+      "--divider-place-content-before-end": dsl.primitive.percentage(100),
+    }),
+    {
+      "--divider-before-flex": [
+        dsl.match.oneOf(
+          dsl.match.variable("--divider-place-content-before"),
+          dsl.match.bare.percentage(),
+          dsl.match.arbitraryPercentage(),
+        ),
+        dsl.calc`${dsl.match.oneOf(
+          dsl.match.bare.integer(),
+          dsl.match.bare.number(),
+          dsl.match.arbitraryNumber(),
+        )} * ${dsl.primitive.percentage(1)}`,
+        dsl.calc`${dsl.match.bare.ratio()} * ${dsl.primitive.percentage(100)}`,
+      ],
     },
-    styles: [
-      "flex",
-      "flex-col",
-      "items-center",
-      {
-        margin: `0 ${dsl.spacing("4")}`,
-        "letter-spacing": dsl.cssvar("--tracking-wide"),
-        color: dsl.cssvar("--color"),
-        "font-weight": dsl.cssvar("--font-weight-bold"),
-
-        $: {
-          [dsl.select.list(
-            dsl.select.pseudo("before"),
-            dsl.select.pseudo("after"),
-          )]: {
-            content: '""',
-            flex: "1",
-            width: "1px",
-            "background-color": dsl.cssvar("--color"),
-          },
-          [dsl.select.parent(":empty::after")]: {
-            "margin-top": "0",
-          },
-          [dsl.select.parent(":empty::before")]: {
-            "margin-bottom": "0",
-          },
-          [dsl.select.pseudo("before")]: {
-            "margin-bottom": `${dsl.spacing("2")}`,
-          },
-          [dsl.select.pseudo("after")]: {
-            "margin-top": `${dsl.spacing("2")}`,
-          },
-        },
-      },
-    ],
-  }),
+  ),
 ];

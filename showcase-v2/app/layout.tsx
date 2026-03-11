@@ -1,20 +1,16 @@
-import { Header } from "./_ui/header";
-import { Sidebar, SidebarGroup, SidebarLink } from "./_ui/sidebar";
-import "./globals.css";
-import { Roboto } from "next/font/google";
-import { ThemeProvider } from "./_ui/theme-provider";
+import { Header } from './_ui/header'
+import { Sidebar, SidebarGroup, SidebarLink } from './_ui/sidebar'
+import './globals.css'
+import { Roboto } from 'next/font/google'
+import { ThemeProvider } from './_ui/theme-provider'
 
-const roboto = Roboto({ subsets: ["latin"] });
+const roboto = Roboto({ subsets: ['latin'] })
 
 export const metadata = {
-  title: "Natcore Design System",
-};
+  title: 'Natcore Design System',
+}
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={roboto.className} suppressHydrationWarning>
       <head>
@@ -47,5 +43,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

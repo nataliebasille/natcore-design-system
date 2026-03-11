@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import React, {
   type FC,
@@ -7,22 +7,22 @@ import React, {
   useCallback,
   useContext,
   useState,
-} from "react";
+} from 'react'
 
 const SidebarContext = createContext({
   isOpened: false,
   toggle: () => void 0,
-});
+})
 
-export const useSidebar = () => useContext(SidebarContext);
+export const useSidebar = () => useContext(SidebarContext)
 
 export const SidebarContextProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [isOpened, setIsOpened] = useState(false);
+  const [isOpened, setIsOpened] = useState(false)
 
   const toggle = useCallback(() => {
-    setIsOpened((open) => !open);
-    return void 0;
-  }, []);
+    setIsOpened((open) => !open)
+    return void 0
+  }, [])
 
   return (
     <SidebarContext.Provider
@@ -30,5 +30,5 @@ export const SidebarContextProvider: FC<PropsWithChildren> = ({ children }) => {
     >
       {children}
     </SidebarContext.Provider>
-  );
-};
+  )
+}

@@ -1,18 +1,18 @@
-import Image from "next/image";
-import { twMerge } from "tailwind-merge";
+import Image from 'next/image'
+import { twMerge } from 'tailwind-merge'
 
-import { GithubIcon } from "./icons/github";
-import { ThemeToggle } from "./theme-toggle";
+import { GithubIcon } from './icons/github'
+import { ThemeToggle } from './theme-toggle'
 
 type HeaderProps = {
-  className?: string;
-};
+  className?: string
+}
 
 export function Header({ className }: HeaderProps) {
   return (
     <header
       className={twMerge(
-        `border-tone-500-surface col-span-full flex items-center gap-1 border-b px-6 py-1 tracking-wider ${className}`,
+        `border-tone-500-surface col-span-full flex items-center gap-1 border-b px-6 py-1 tracking-wider ${className}`
       )}
     >
       <Image src="/logo.svg" alt="Natcore Logo" width={32} height={32} />
@@ -26,5 +26,5 @@ export function Header({ className }: HeaderProps) {
         <GithubIcon className="h-[1.5em] w-[1.5em]" />
       </button>
     </header>
-  );
+  )
 }

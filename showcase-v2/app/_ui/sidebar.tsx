@@ -1,25 +1,25 @@
-import type React from "react";
-import type { PropsWithChildren } from "react";
-import NavLink from "./nav-link";
-import { twMerge } from "tailwind-merge";
+import type React from 'react'
+import type { PropsWithChildren } from 'react'
+import NavLink from './nav-link'
+import { twMerge } from 'tailwind-merge'
 
 export type SidebarProps = PropsWithChildren<{
-  className?: string;
-}>;
+  className?: string
+}>
 
 export function Sidebar({ className, children }: SidebarProps) {
-  return <aside className={twMerge("p-4", className)}>{children}</aside>;
+  return <aside className={twMerge('p-4', className)}>{children}</aside>
 }
 
 export type SidebarGroupProps = PropsWithChildren<{
-  header: React.ReactNode;
-  className?: string;
-}>;
+  header: React.ReactNode
+  className?: string
+}>
 
 export function SidebarGroup({ header, children }: SidebarGroupProps) {
   return (
     <div className="flex flex-col">
-      <div className="text-tone-800-surface border-l-scale-2 mb-2 border-transparent pt-4 pr-2 pb-0 pl-3 text-xs tracking-wider uppercase">
+      <div className="text-tone-800-surface border-l-scale-2 mb-2 border-transparent pb-0 pl-3 pr-2 pt-4 text-xs uppercase tracking-wider">
         {header}
       </div>
 
@@ -27,12 +27,12 @@ export function SidebarGroup({ header, children }: SidebarGroupProps) {
         {children}
       </ul>
     </div>
-  );
+  )
 }
 
 export type SidebarLinkProps = PropsWithChildren<{
-  href: string;
-}>;
+  href: string
+}>
 
 export function SidebarLink({ href, children }: SidebarLinkProps) {
   return (
@@ -43,5 +43,5 @@ export function SidebarLink({ href, children }: SidebarLinkProps) {
     >
       {children}
     </NavLink>
-  );
+  )
 }

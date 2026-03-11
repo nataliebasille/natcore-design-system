@@ -24,7 +24,7 @@ export type CssFunction =
       $function: "calc";
       strings: string[];
       values: CssValue<
-        "length" | "percentage" | "number" | "integer" | "angle"
+        "length" | "percentage" | "number" | "integer" | "angle" | "ratio"
       >[];
       toString: () => string;
     }

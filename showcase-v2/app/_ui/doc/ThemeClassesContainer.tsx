@@ -1,7 +1,7 @@
-import { type ThemeClass } from "@/utlls/generate-theme-info";
-import { BasicContainer } from "./BasicContainer";
-import classnames from "classnames";
-import { Fragment } from "react";
+import { type ThemeClass } from '@/utlls/generate-theme-info'
+import { BasicContainer } from './BasicContainer'
+import classnames from 'classnames'
+import { Fragment } from 'react'
 
 export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
   return (
@@ -10,15 +10,10 @@ export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
         <Fragment key={key}>
           <div className="font-bold">.{value.className}</div>
           <div
-            className={classnames(
-              "flex items-center justify-center rounded-full px-2 text-sm",
-              {
-                "bg-tone-500-primary text-on-tone-500-primary":
-                  value.type === "component",
-                "text-tone-700-primary border-tone-700-primary border":
-                  value.type === "modifier",
-              },
-            )}
+            className={classnames('flex items-center justify-center rounded-full px-2 text-sm', {
+              'bg-tone-500-primary text-on-tone-500-primary': value.type === 'component',
+              'text-tone-700-primary border-tone-700-primary border': value.type === 'modifier',
+            })}
           >
             {value.type}
           </div>
@@ -28,5 +23,5 @@ export const ThemeClassesContainer = ({ theme }: { theme: ThemeClass[] }) => {
         </Fragment>
       ))}
     </BasicContainer>
-  );
-};
+  )
+}
