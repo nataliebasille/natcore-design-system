@@ -21,16 +21,15 @@ export function PlaygroundFormElement({
   const { values, setValue } = usePlayground();
   const value = values[name] || "";
   const onChange = React.useCallback(
-    () =>
-      (
-        value:
-          | string
-          | React.ChangeEvent<
-              HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-            >,
-      ) => {
-        setValue(name, typeof value === "string" ? value : value.target.value);
-      },
+    (
+      value:
+        | string
+        | React.ChangeEvent<
+            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+          >,
+    ) => {
+      setValue(name, typeof value === "string" ? value : value.target.value);
+    },
     [name, setValue],
   );
 
