@@ -1,170 +1,206 @@
-import { type PropsWithChildren, type ReactNode } from 'react'
-import { fetchFile } from '@/server/fetch-file'
-import { type SupportedLanguages } from '@/utlls/format-code'
-import { twMerge } from 'tailwind-merge'
-import { ServerFormattedCodeSnippet } from '@/ui/code-snippet/server-formatted-code-snippet'
-import { ExampleContainer } from './example-container'
+import { type PropsWithChildren, type ReactNode } from "react";
+import { fetchFile } from "@/server/fetch-file";
+import { type SupportedLanguages } from "@/utlls/format-code";
+import { twMerge } from "tailwind-merge";
+import { ServerFormattedCodeSnippet } from "@/ui/code-snippet/server-formatted-code-snippet";
+import { ExampleContainer } from "./example-container";
+import type { ShowcaseJsxChild } from "@/lib/preview-jsx-runtime/types";
+import { renderToMarkup } from "@/lib/preview-jsx-runtime/core";
 
-export type BaseExampleProps = { className?: string }
-export type ExampleLoader = Promise<{ code: string; content: ReactNode }>
+export type BaseExampleProps = { className?: string };
+export type ExampleLoader = Promise<{ markup: string; content: ReactNode }>;
 
 type ExampleFromFileProps = BaseExampleProps & {
-  path: string
-  language?: SupportedLanguages
-}
+  path: string;
+  language?: SupportedLanguages;
+};
+
+type ExampleFromShowcaseJsxProps = BaseExampleProps & {
+  source: ShowcaseJsxChild;
+  language?: SupportedLanguages;
+};
 
 export const StaticExample = async ({
   loader,
   className,
-  language = 'html',
+  language = "html",
 }: BaseExampleProps & {
-  loader: ExampleLoader
-  language?: SupportedLanguages
+  loader: ExampleLoader;
+  language?: SupportedLanguages;
 }) => {
-  const { code, content } = await loader
+  const { markup, content } = await loader;
 
   return (
     <ExampleContainer
-      preview={content}
-      code={<ServerFormattedCodeSnippet code={code} language={language} />}
+      ui={content}
+      markup={<ServerFormattedCodeSnippet code={markup} language={language} />}
       className={className}
     />
-  )
-}
+  );
+};
 
-StaticExample.FromChildren = ({ children, className }: PropsWithChildren<BaseExampleProps>) => {
+StaticExample.FromChildren = ({
+  children,
+  className,
+}: PropsWithChildren<BaseExampleProps>) => {
   return (
     <StaticExample
       className={className}
-      loader={getHtml(children).then((code) => ({ code, content: children }))}
+      loader={getHtml(children).then((markup) => ({
+        markup,
+        content: children,
+      }))}
     />
-  )
-}
+  );
+};
 
-StaticExample.FromFile = ({ path, className, language }: ExampleFromFileProps) => {
-  const resolvedLanguage = language ?? inferLanguage(path)
+StaticExample.FromFile = ({
+  path,
+  className,
+  language,
+}: ExampleFromFileProps) => {
+  const resolvedLanguage = language ?? inferLanguage(path);
 
   return (
     <StaticExample
       className={className}
       language={resolvedLanguage}
       loader={fetchFile(path).then((rawCode) => {
-        const normalizedCode = normalizePreviewHtml(rawCode)
-        const previewCode = resolvePreviewDisplay(normalizedCode)
-        const code = resolveCodeDisplay(normalizedCode)
+        const normalizedCode = normalizeUiHtml(rawCode);
+        const uiHtml = resolveUiDisplay(normalizedCode);
+        const markup = resolveMarkupDisplay(normalizedCode);
         const content =
-          resolvedLanguage === 'html' ? (
+          resolvedLanguage === "html" ?
             <div
               className="flex flex-wrap items-center justify-center gap-4"
-              dangerouslySetInnerHTML={{ __html: previewCode }}
+              dangerouslySetInnerHTML={{ __html: uiHtml }}
             />
-          ) : (
-            <pre className="font-mono text-xs">Preview is only available for HTML files.</pre>
-          )
+          : <pre className="font-mono text-xs">
+              UI rendering is only available for HTML files.
+            </pre>;
 
-        return { code, content }
+        return { markup, content };
       })}
     />
-  )
-}
+  );
+};
+
+StaticExample.FromShowcaseJsx = ({
+  source,
+  className,
+  language,
+}: ExampleFromShowcaseJsxProps) => {
+  return (
+    <StaticExample
+      className={className}
+      language="html"
+      loader={(async () => {
+        const { renderToUi } = await import("@/lib/preview-jsx-runtime/core");
+        const content = renderToUi(source);
+        const markup = renderToMarkup(source);
+        return { markup, content };
+      })()}
+    />
+  );
+};
 
 function inferLanguage(filePath: string): SupportedLanguages {
-  const ext = filePath.split('.').pop()?.toLowerCase()
+  const ext = filePath.split(".").pop()?.toLowerCase();
 
   switch (ext) {
-    case 'ts':
-      return 'ts'
-    case 'tsx':
-      return 'tsx'
-    case 'js':
-      return 'js'
-    case 'jsx':
-      return 'jsx'
-    case 'json':
-      return 'json'
+    case "ts":
+      return "ts";
+    case "tsx":
+      return "tsx";
+    case "js":
+      return "js";
+    case "jsx":
+      return "jsx";
+    case "json":
+      return "json";
     default:
-      return 'html'
+      return "html";
   }
 }
 
-function normalizePreviewHtml(code: string) {
-  return code.replace(/\bclassName=/g, 'class=')
+function normalizeUiHtml(code: string) {
+  return code.replace(/\bclassName=/g, "class=");
 }
 
-function resolvePreviewDisplay(source: string) {
-  return resolveConditionalDisplay(source, 'preview')
+function resolveUiDisplay(source: string) {
+  return resolveConditionalDisplay(source, "ui");
 }
 
-function resolveCodeDisplay(source: string) {
-  return resolveConditionalDisplay(source, 'code')
+function resolveMarkupDisplay(source: string) {
+  return resolveConditionalDisplay(source, "markup");
 }
 
-function resolveConditionalDisplay(source: string, mode: 'preview' | 'code') {
-  const previewMarkerPattern = /<!--\s*@example:preview\s*-->/g
-  const codeMarkerPattern = /<!--\s*@example:code\s*-->/g
-  const endMarkerPattern = /<!--\s*@example:end\s*-->/g
+function resolveConditionalDisplay(source: string, mode: "ui" | "markup") {
+  const uiMarkerPattern = /<!--\s*@example:ui\s*-->/g;
+  const markupMarkerPattern = /<!--\s*@example:markup\s*-->/g;
+  const endMarkerPattern = /<!--\s*@example:end\s*-->/g;
   const conditionalBlockPattern =
-    /<!--\s*@example:preview\s*-->([\s\S]*?)<!--\s*@example:code\s*-->([\s\S]*?)<!--\s*@example:end\s*-->/g
+    /<!--\s*@example:ui\s*-->([\s\S]*?)<!--\s*@example:markup\s*-->([\s\S]*?)<!--\s*@example:end\s*-->/g;
 
-  const previewCount = Array.from(source.matchAll(previewMarkerPattern)).length
-  const codeCount = Array.from(source.matchAll(codeMarkerPattern)).length
-  const endCount = Array.from(source.matchAll(endMarkerPattern)).length
+  const uiCount = Array.from(source.matchAll(uiMarkerPattern)).length;
+  const markupCount = Array.from(source.matchAll(markupMarkerPattern)).length;
+  const endCount = Array.from(source.matchAll(endMarkerPattern)).length;
 
-  if (previewCount === 0 && (codeCount > 0 || endCount > 0)) {
+  if (uiCount === 0 && (markupCount > 0 || endCount > 0)) {
     throw new Error(
-      'Invalid example file: found @example:code/@example:end without @example:preview.'
-    )
+      "Invalid example file: found @example:markup/@example:end without @example:ui.",
+    );
   }
 
-  if (previewCount === 0) {
-    return resolvePreviewOnlyAttributes(source, mode)
+  if (uiCount === 0) {
+    return resolveUiOnlyAttributes(source, mode);
   }
 
-  if (previewCount !== codeCount || previewCount !== endCount) {
+  if (uiCount !== markupCount || uiCount !== endCount) {
     throw new Error(
-      'Invalid example file: unmatched @example:preview/@example:code/@example:end markers.'
-    )
+      "Invalid example file: unmatched @example:ui/@example:markup/@example:end markers.",
+    );
   }
 
-  let replacedBlocks = 0
-  const resolved = source.replace(conditionalBlockPattern, (_, preview, code) => {
-    replacedBlocks += 1
-    return mode === 'preview' ? preview : code
-  })
+  let replacedBlocks = 0;
+  const resolved = source.replace(conditionalBlockPattern, (_, ui, markup) => {
+    replacedBlocks += 1;
+    return mode === "ui" ? ui : markup;
+  });
 
-  if (replacedBlocks !== previewCount) {
+  if (replacedBlocks !== uiCount) {
     throw new Error(
-      'Invalid example file: each @example:preview marker must include matching @example:code and @example:end markers.'
-    )
+      "Invalid example file: each @example:ui marker must include matching @example:markup and @example:end markers.",
+    );
   }
 
-  return resolvePreviewOnlyAttributes(stripDirectiveComments(resolved), mode)
+  return resolveUiOnlyAttributes(stripDirectiveComments(resolved), mode);
 }
 
 function stripDirectiveComments(source: string) {
   return source
-    .replace(/<!--\s*@example:preview\s*-->/g, '')
-    .replace(/<!--\s*@example:code\s*-->/g, '')
-    .replace(/<!--\s*@example:end\s*-->/g, '')
+    .replace(/<!--\s*@example:ui\s*-->/g, "")
+    .replace(/<!--\s*@example:markup\s*-->/g, "")
+    .replace(/<!--\s*@example:end\s*-->/g, "");
 }
 
-function resolvePreviewOnlyAttributes(source: string, mode: 'preview' | 'code') {
-  const previewOnlyAttributePattern =
-    /(\s+)@example:preview-attr:([^\s=/>]+)(?:=("[^"]*"|'[^']*'|[^\s>]+))?/g
+function resolveUiOnlyAttributes(source: string, mode: "ui" | "markup") {
+  const uiOnlyAttributePattern =
+    /(\s+)@example:ui-attr:([^\s=/>]+)(?:=("[^"]*"|'[^']*'|[^\s>]+))?/g;
 
   return source.replace(
-    previewOnlyAttributePattern,
+    uiOnlyAttributePattern,
     (_, leadingWhitespace: string, name: string, value?: string) => {
-      if (mode === 'code') {
-        return ''
+      if (mode === "markup") {
+        return "";
       }
 
-      return `${leadingWhitespace}${name}${value ? `=${value}` : ''}`
-    }
-  )
+      return `${leadingWhitespace}${name}${value ? `=${value}` : ""}`;
+    },
+  );
 }
 
 async function getHtml(children: ReactNode) {
-  const { renderToStaticMarkup } = await import('react-dom/server')
-  return renderToStaticMarkup(children)
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  return renderToStaticMarkup(children);
 }

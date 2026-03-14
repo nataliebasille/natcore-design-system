@@ -1,19 +1,18 @@
-import { Playground } from "@/app/_ui/playground/playground";
-import {
-  ButtonPlaygroundControls,
-  defaultValues,
-} from "./button-playground-controls";
-import { ButtonPlaygroundPreview } from "./button-playground-preview";
-import { renderMarkup } from "./render-markup";
+import { defaultValues } from "./button-playground-controls";
+import { renderToMarkup } from "@/lib/preview-jsx-runtime";
+import { getButtonPlaygroundShowcase } from "./get-showcase";
+import { codeToHtml } from "shiki/bundle/web";
+import { ButtonPlaygroundClient } from "./button-playground-client";
 
-export function ButtonPlayground() {
-  return (
-    <h1 className="text-2xl font-bold mb-4">Button Playground Placeholder</h1>
-    // <Playground
-    //   defaultValues={defaultValues}
-    //   controls={<ButtonPlaygroundControls />}
-    //   preview={<ButtonPlaygroundPreview />}
-    //   renderMarkup={renderMarkup}
-    // />
+export async function ButtonPlayground() {
+  const initialHtml = await codeToHtml(
+    renderToMarkup(getButtonPlaygroundShowcase(defaultValues)),
+    {
+      lang: "html",
+      theme: "github-dark",
+      structure: "inline",
+    },
   );
+
+  return <ButtonPlaygroundClient initialHtml={initialHtml} />;
 }

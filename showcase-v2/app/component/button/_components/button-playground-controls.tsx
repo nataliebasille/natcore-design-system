@@ -1,6 +1,6 @@
-import type { PlaygroundValues } from '@/app/_ui/playground/playground'
-import { PlaygroundComboboxElement } from '@/app/_ui/playground/playground-combobox-element'
-import { PlaygroundFormElement } from '@/app/_ui/playground/playground-form-element'
+import type { PlaygroundValues } from "@/app/_ui/playground/playground";
+import { PlaygroundComboboxElement } from "@/app/_ui/playground/playground-combobox-element";
+import { PlaygroundFormElement } from "@/app/_ui/playground/playground-form-element";
 
 export const controls = {
   variant: (
@@ -35,19 +35,19 @@ export const controls = {
       name="size"
       label="Size"
       options={[
-        { value: 'sm', label: 'Small' },
-        { value: 'md', label: 'Medium' },
-        { value: 'lg', label: 'Large' },
+        { value: "sm", label: "Small" },
+        { value: "md", label: "Medium" },
+        { value: "lg", label: "Large" },
       ]}
     />
   ),
-}
+};
 
 export const defaultValues: PlaygroundValues<typeof controls> = {
-  variant: 'solid',
-  palette: 'primary',
-  size: 'md',
-}
+  variant: "solid",
+  palette: "primary",
+  size: "md",
+};
 
 export function ButtonPlaygroundControls() {
   return (
@@ -77,5 +77,9 @@ export function ButtonPlaygroundControls() {
         }
       />
     </div>
-  )
+  );
+}
+
+function SizeControl() {
+  return;
 }

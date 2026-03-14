@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm --filter @nataliebasille/natcore-* build && next build",
+    "predev": "node -e \"require('node:fs').rmSync('.next', { recursive: true, force: true })\"",
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint",

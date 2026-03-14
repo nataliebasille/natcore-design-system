@@ -1,39 +1,43 @@
-import type { ReactNode } from 'react'
-import { CodeSnippet } from '../code-snippet/code-snippet'
-import { ExampleContainer } from '../example/example-container'
-import { PlaygroundPreview } from './playground-preview'
-import { PlaygroundProvider, usePlayground } from './playground-provider'
-import { PlaygroundCodeSnippet } from './playground-code-snippet'
-import { codeToHtml } from 'shiki/bundle/web'
+"use client";
+
+import type { ReactNode } from "react";
+import { ExampleContainer } from "../example/example-container";
+import { PlaygroundPreview } from "./playground-preview";
+import { PlaygroundProvider } from "./playground-provider";
+import { PlaygroundCodeSnippet } from "./playground-code-snippet";
 
 type PlaygroundProps<T extends Record<string, React.ReactElement>> = {
-  controls: ReactNode
-  preview: ReactNode
-  renderMarkup: (values: PlaygroundValues<T>) => string
-  defaultValues: Record<keyof T, string>
-}
+  controls: ReactNode;
+  ui: ReactNode;
+  renderMarkup: (values: PlaygroundValues<T>) => string;
+  defaultValues: Record<keyof T, string>;
+  initialHtml: string;
+};
 
-export type PlaygroundValues<in out T extends Record<string, React.ReactElement>> = {
-  [K in keyof T]: string
-}
+export type PlaygroundValues<
+  in out T extends Record<string, React.ReactElement>,
+> = {
+  [K in keyof T]: string;
+};
 
-export async function Playground<const T extends Record<string, React.ReactElement>>({
+export function Playground<const T extends Record<string, React.ReactElement>>({
   controls,
   defaultValues,
-  preview,
+  ui,
   renderMarkup,
+  initialHtml,
 }: PlaygroundProps<T>) {
-  const initialHtml = await codeToHtml(renderMarkup(defaultValues), {
-    lang: 'html',
-    theme: 'github-dark',
-    structure: 'inline',
-  })
   return (
     <PlaygroundProvider defaultValues={defaultValues}>
       <ExampleContainer
-        preview={<PlaygroundPreview controls={controls}>{preview}</PlaygroundPreview>}
-        code={<PlaygroundCodeSnippet<T> renderMarkup={renderMarkup} initialHtml={initialHtml} />}
+        ui={<PlaygroundPreview controls={controls}>{ui}</PlaygroundPreview>}
+        markup={
+          <PlaygroundCodeSnippet<T>
+            renderMarkup={renderMarkup}
+            initialHtml={initialHtml}
+          />
+        }
       />
     </PlaygroundProvider>
-  )
+  );
 }
