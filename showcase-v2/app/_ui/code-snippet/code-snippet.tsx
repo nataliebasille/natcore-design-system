@@ -1,31 +1,33 @@
-import { type SupportedLanguages } from '@/utlls/format-code'
-import { type PropsWithChildren } from 'react'
-import { ClipboardIcon } from '../icons/copy'
-import { twMerge } from 'tailwind-merge'
+import { type SupportedLanguages } from "@/utlls/format-code";
+import { type PropsWithChildren } from "react";
+import { ClipboardIcon } from "../icons/copy";
+import { twMerge } from "tailwind-merge";
+import { SpotlightContainer } from "../doc/spotlight-container";
 
 export type CodeSnippetProps = PropsWithChildren<{
-  className?: string
-  code: string
-  language: SupportedLanguages
-}>
+  className?: string;
+  code: string;
+  language: SupportedLanguages;
+}>;
 
 export function CodeSnippet({ className, code, language }: CodeSnippetProps) {
   return (
-    <div
-      className={twMerge(
-        'border-tone-300-secondary flex w-full flex-col overflow-hidden rounded-md border',
-        className
-      )}
+    <SpotlightContainer
+      title={
+        <div className="flex gap-2">
+          Code
+          <span className="text-tone-500-accent ml-auto">{language}</span>
+          <ClipboardIcon className="ml-2 h-4" />
+        </div>
+      }
+      className={twMerge("bg-zinc-950", className)}
     >
-      <span className="text-tone-500-accent bg-tone-100-secondary flex items-center rounded-t-md px-4 py-2 font-sans text-[0.625rem] font-bold uppercase tracking-widest">
-        {language} <ClipboardIcon className="ml-auto h-4" />
-      </span>
       <pre className="relative overflow-x-auto text-sm">
         <code
-          className="bg-dark-950-secondary rounded-none"
+          className="bg-transparent rounded-none p-0"
           dangerouslySetInnerHTML={{ __html: code }}
         />
       </pre>
-    </div>
-  )
+    </SpotlightContainer>
+  );
 }

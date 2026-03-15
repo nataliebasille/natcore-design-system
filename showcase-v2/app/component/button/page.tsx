@@ -1,8 +1,7 @@
 import { DocPage, DocSection } from "@/app/_ui/doc/DocPage";
-import { InlineClass } from "@/app/_ui/inline-class";
 import { ButtonPlayground } from "./_components/button-playground";
-import { ServerFormattedCodeSnippet } from "@/app/_ui/code-snippet/server-formatted-code-snippet";
 import { StaticExample } from "@/app/_ui/example/static-example";
+import { UtilityReference, UtilityValue } from "@/ui/doc/utility-reference.tsx";
 import VariantsExample from "./_examples/variants.example.tsx";
 import SolidExample from "./_examples/palette-solid.example.tsx";
 import SoftExample from "./_examples/palette-soft.example.tsx";
@@ -10,8 +9,8 @@ import OutlineExample from "./_examples/palette-outline.example.tsx";
 import GhostExample from "./_examples/palette-ghost.example.tsx";
 import SizesExample from "./_examples/sizes.example.tsx";
 import IconExample from "./_examples/icon-buttons.example.tsx";
-
-const palettes = ["primary", "secondary", "accent", "surface"] as const;
+import BtnGroupExample from "./_examples/btn-group.example.tsx";
+import { SpotlightContainer } from "@/ui/doc/spotlight-container.tsx";
 
 export default async function ButtonPage() {
   return (
@@ -19,221 +18,187 @@ export default async function ButtonPage() {
       title="Button"
       description="Composable button utilities: pick a variant, a tone, and a size. Everything else (hover, focus, active) is built in."
     >
+      {/* ── At a glance ── */}
+      <DocSection title="At a glance">
+        <SpotlightContainer>
+          <div className="flex flex-wrap gap-2">
+            <button className="btn-solid/primary">Solid</button>
+            <button className="btn-soft/secondary">Soft</button>
+            <button className="btn-outline/accent">Outline</button>
+            <button className="btn-ghost/surface">Ghost</button>
+            <button className="btn-soft/surface btn-size-sm">Small</button>
+          </div>
+        </SpotlightContainer>
+      </DocSection>
+
       {/* ── Playground ── */}
       <DocSection title="Playground">
         <ButtonPlayground />
       </DocSection>
 
-      {/* ── Usage ── */}
-      <DocSection
-        title="Usage"
-        description={
-          <>
-            Combine a variant class with a palette modifier using the{" "}
-            <InlineClass className="btn-{variant}/{palette}" /> syntax. Hover,
-            active, and transition states are built in.
-          </>
-        }
-      >
-        <ServerFormattedCodeSnippet
-          language="html"
-          code={`<!-- variant / palette -->
-<button class="btn-solid/primary">Solid Primary</button>
-<button class="btn-outline/secondary">Outline Secondary</button>
-<button class="btn-ghost/accent">Ghost Accent</button>`}
+      {/* ── btn ── */}
+      <DocSection title="btn-{variant}/{tone}">
+        <UtilityReference
+          tags={["component", "composable"]}
+          description="Applies button styling using the selected variant and tone palette."
+          table={[
+            {
+              label: "Pattern",
+              content: <span>btn-{"{variant}/{tone}"}</span>,
+            },
+            {
+              label: "Variant",
+              content: (
+                <UtilityValue values={["solid", "soft", "outline", "ghost"]} />
+              ),
+            },
+            {
+              label: "Palette",
+              content: (
+                <UtilityValue
+                  values={["primary", "secondary", "accent", "surface"]}
+                />
+              ),
+            },
+            {
+              label: "Composes with",
+              content: (
+                <>
+                  <UtilityValue
+                    values={["btn-size-{size}", "btn-icon"]}
+                    divider="+"
+                  />
+                </>
+              ),
+            },
+          ]}
         />
 
-        {/* ── Variants ── */}
-        <DocSection
-          title="Variants"
-          description={
-            <>
-              Three visual variants are available:{" "}
-              <InlineClass className="btn-solid/*" />,{" "}
-              <InlineClass className="btn-outline/*" />, and{" "}
-              <InlineClass className="btn-ghost/*" />.
-            </>
-          }
-        >
-          <StaticExample.FromShowcaseJsx source={VariantsExample} />
-        </DocSection>
+        <SpotlightContainer title="Solid">
+          <div className="flex gap-3">
+            <button className="btn-solid/primary">Button</button>
+            <button className="btn-solid/secondary">Button</button>
+            <button className="btn-solid/accent">Button</button>
+            <button className="btn-solid/surface">Button</button>
+          </div>
+        </SpotlightContainer>
 
-        {/* ── Palettes ── */}
-        <DocSection
-          title="Palettes"
-          description={
-            <>
-              Each variant can be paired with any palette:{" "}
-              {palettes.map((p, i) => (
-                <span key={p}>
-                  <InlineClass className={`*/${p}`} />
-                  {i < palettes.length - 1 ? ", " : "."}
-                </span>
-              ))}
-            </>
-          }
-        >
-          <DocSection title="Solid">
-            <StaticExample.FromShowcaseJsx source={SolidExample} />
-          </DocSection>
+        <SpotlightContainer title="Soft">
+          <div className="flex gap-3">
+            <button className="btn-soft/primary">Button</button>
+            <button className="btn-soft/secondary">Button</button>
+            <button className="btn-soft/accent">Button</button>
+            <button className="btn-soft/surface">Button</button>
+          </div>
+        </SpotlightContainer>
 
-          <DocSection title="Soft">
-            <StaticExample.FromShowcaseJsx source={SoftExample} />
-          </DocSection>
+        <SpotlightContainer title="Outline">
+          <div className="flex gap-3">
+            <button className="btn-outline/primary">Button</button>
+            <button className="btn-outline/secondary">Button</button>
+            <button className="btn-outline/accent">Button</button>
+            <button className="btn-outline/surface">Button</button>
+          </div>
+        </SpotlightContainer>
 
-          <DocSection title="Outline">
-            <StaticExample.FromShowcaseJsx source={OutlineExample} />
-          </DocSection>
-
-          <DocSection title="Ghost">
-            <StaticExample.FromShowcaseJsx source={GhostExample} />
-          </DocSection>
-        </DocSection>
-
-        {/* ── Sizes ── */}
-        <DocSection
-          title="Sizes"
-          description={
-            <>
-              Control padding and font size with{" "}
-              <InlineClass className="btn-size-{sm|md|lg}" />. The default is{" "}
-              <InlineClass className="btn-size-md" />.
-            </>
-          }
-        >
-          <StaticExample.FromShowcaseJsx source={SizesExample} />
-        </DocSection>
-
-        {/* ── Icon Buttons ── */}
-        <DocSection
-          title="Icon Buttons"
-          description={
-            <>
-              Add <InlineClass className="btn-icon" /> to make a square,
-              pill-shaped icon button. Padding is equalized automatically.
-            </>
-          }
-        >
-          <StaticExample.FromShowcaseJsx source={IconExample} />
-        </DocSection>
+        <SpotlightContainer title="ghost">
+          <div className="flex gap-3">
+            <button className="btn-ghost/primary">Button</button>
+            <button className="btn-ghost/secondary">Button</button>
+            <button className="btn-ghost/accent">Button</button>
+            <button className="btn-ghost/surface">Button</button>
+          </div>
+        </SpotlightContainer>
       </DocSection>
 
-      {/* ── API Reference ── */}
-      <DocSection
-        title="API Reference"
-        description="CSS custom properties you can override to customise a button at any scope."
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="pb-2 pr-4 font-semibold">Class</th>
-                <th className="pb-2 pr-4 font-semibold">Description</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {[
-                [
-                  "btn-solid/{palette}",
-                  "Filled button with palette background",
-                ],
-                [
-                  "btn-outline/{palette}",
-                  "Transparent button with colored border and text",
-                ],
-                [
-                  "btn-ghost/{palette}",
-                  "No border or background; subtle hover tint",
-                ],
-                ["btn-size-sm", "Small padding & font size"],
-                ["btn-size-md", "Medium padding & font size (default)"],
-                ["btn-size-lg", "Large padding & font size"],
-                [
-                  "btn-icon",
-                  "Square equal-padding icon button with pill shape",
-                ],
-              ].map(([cls, desc]) => (
-                <tr key={cls}>
-                  <td className="py-2 pr-4">
-                    <code className="text-tone-700-secondary font-mono text-xs">
-                      {cls}
-                    </code>
-                  </td>
-                  <td className="py-2 text-sm">{desc}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* ── btn-group ── */}
+      <DocSection title="btn-group-{variant}/{tone}">
+        <UtilityReference
+          tags={["component", "composable"]}
+          description="Groups adjacent buttons into a visually connected row sharing a variant style and tone palette."
+          table={[
+            {
+              label: "Pattern",
+              content: <span>btn-group-{"{variant}/{tone}"}</span>,
+            },
+            {
+              label: "Variant",
+              content: (
+                <UtilityValue values={["solid", "soft", "outline", "ghost"]} />
+              ),
+            },
+            {
+              label: "Palette",
+              content: (
+                <UtilityValue
+                  values={["primary", "secondary", "accent", "surface"]}
+                />
+              ),
+            },
+            {
+              label: "Composes with",
+              content: <span>btn-{"{variant}/{tone}"}</span>,
+            },
+          ]}
+        />
+        <StaticExample.FromShowcaseJsx source={BtnGroupExample} />
+      </DocSection>
 
-        <DocSection
-          title="CSS Variables"
-          description="These theme variables are injected by the core plugin and can be overridden locally."
-        >
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="pb-2 pr-4 font-semibold">Variable</th>
-                  <th className="pb-2 font-semibold">Purpose</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {[
-                  ["--btn-bg-solid", "Background for solid variant"],
-                  ["--btn-fg-solid", "Foreground/text for solid variant"],
-                  [
-                    "--btn-hover-bg-solid",
-                    "Hover background for solid variant",
-                  ],
-                  [
-                    "--btn-bg-outline",
-                    "Background for outline variant (transparent)",
-                  ],
-                  ["--btn-fg-outline", "Foreground/text for outline variant"],
-                  [
-                    "--btn-border-color-outline",
-                    "Border color for outline variant",
-                  ],
-                  [
-                    "--btn-hover-bg-outline",
-                    "Hover background for outline variant",
-                  ],
-                  [
-                    "--btn-bg-ghost",
-                    "Background for ghost variant (transparent)",
-                  ],
-                  ["--btn-fg-ghost", "Foreground/text for ghost variant"],
-                  [
-                    "--btn-hover-bg-ghost",
-                    "Hover background for ghost variant",
-                  ],
-                  [
-                    "--btn-px-sm / --btn-py-sm",
-                    "Inline/block padding for sm size",
-                  ],
-                  [
-                    "--btn-px-md / --btn-py-md",
-                    "Inline/block padding for md size",
-                  ],
-                  [
-                    "--btn-px-lg / --btn-py-lg",
-                    "Inline/block padding for lg size",
-                  ],
-                ].map(([variable, purpose]) => (
-                  <tr key={variable}>
-                    <td className="py-2 pr-4">
-                      <code className="text-tone-700-secondary font-mono text-xs">
-                        {variable}
-                      </code>
-                    </td>
-                    <td className="py-2 text-sm">{purpose}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </DocSection>
+      {/* ── btn-size ── */}
+      <DocSection title="btn-size-{size}">
+        <UtilityReference
+          tags={["modifier"]}
+          description="Controls the padding and font size of a button. Composes with any btn variant."
+          table={[
+            {
+              label: "Pattern",
+              content: <span>btn-size-{"{size}"}</span>,
+            },
+            {
+              label: "Size",
+              content: (
+                <>
+                  <span>sm</span>
+                  <span>md</span>
+                  <span>lg</span>
+                </>
+              ),
+            },
+            {
+              label: "Default",
+              content: <span>btn-size-md</span>,
+            },
+            {
+              label: "Composes with",
+              content: <span>btn-{"{variant}/{tone}"}</span>,
+            },
+          ]}
+        />
+        <StaticExample.FromShowcaseJsx source={SizesExample} />
+      </DocSection>
+
+      {/* ── btn-icon ── */}
+      <DocSection title="btn-icon">
+        <UtilityReference
+          tags={["modifier"]}
+          description="Makes a square, fully-rounded icon button by equalizing inline and block padding."
+          table={[
+            {
+              label: "Pattern",
+              content: <span>btn-icon</span>,
+            },
+            {
+              label: "Composes with",
+              content: (
+                <>
+                  <span>btn-{"{variant}/{tone}"}</span>
+                  <span>btn-size-{"{size}"}</span>
+                </>
+              ),
+            },
+          ]}
+        />
+        <StaticExample.FromShowcaseJsx source={IconExample} />
       </DocSection>
     </DocPage>
   );

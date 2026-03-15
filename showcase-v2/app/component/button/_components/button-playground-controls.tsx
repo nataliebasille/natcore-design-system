@@ -1,49 +1,14 @@
-import type { PlaygroundValues } from "@/app/_ui/playground/playground";
-import { PlaygroundComboboxElement } from "@/app/_ui/playground/playground-combobox-element";
-import { PlaygroundFormElement } from "@/app/_ui/playground/playground-form-element";
+import {
+  PlaygroundFormElement,
+  type PlaygroundFormElementProps,
+} from "@/app/_ui/playground/playground-form-element";
 
-export const controls = {
-  variant: (
-    <PlaygroundFormElement
-      name="variant"
-      label="Variant"
-      input={
-        <select>
-          <option value="solid">Solid</option>
-          <option value="outline">Outline</option>
-          <option value="ghost">Ghost</option>
-        </select>
-      }
-    />
-  ),
-  palette: (
-    <PlaygroundFormElement
-      name="palette"
-      label="Palette"
-      input={
-        <select>
-          <option value="primary">Primary</option>
-          <option value="secondary">Secondary</option>
-          <option value="accent">Accent</option>
-          <option value="surface">Surface</option>
-        </select>
-      }
-    />
-  ),
-  size: (
-    <PlaygroundComboboxElement
-      name="size"
-      label="Size"
-      options={[
-        { value: "sm", label: "Small" },
-        { value: "md", label: "Medium" },
-        { value: "lg", label: "Large" },
-      ]}
-    />
-  ),
+type ButtonControls = {
+  variant: "solid" | "outline" | "ghost" | "soft";
+  palette: "primary" | "secondary" | "accent" | "surface";
+  size: "sm" | "md" | "lg";
 };
-
-export const defaultValues: PlaygroundValues<typeof controls> = {
+export const defaultValues: ButtonControls = {
   variant: "solid",
   palette: "primary",
   size: "md",
@@ -51,20 +16,21 @@ export const defaultValues: PlaygroundValues<typeof controls> = {
 
 export function ButtonPlaygroundControls() {
   return (
-    <div className="flex gap-4 *:flex-1">
-      <PlaygroundFormElement
+    <div className="grid grid-cols-2 gap-4">
+      <PlaygroundFormElement<ButtonControls>
         name="variant"
         label="Variant"
         input={
           <select>
             <option value="solid">Solid</option>
+            <option value="soft">Soft</option>
             <option value="outline">Outline</option>
             <option value="ghost">Ghost</option>
           </select>
         }
       />
 
-      <PlaygroundFormElement
+      <PlaygroundFormElement<ButtonControls>
         name="palette"
         label="Palette"
         input={
@@ -76,10 +42,56 @@ export function ButtonPlaygroundControls() {
           </select>
         }
       />
+
+      <PlaygroundFormElement<ButtonControls>
+        name="size"
+        label="Size"
+        input={SizeControl}
+      />
     </div>
   );
 }
 
-function SizeControl() {
-  return;
+type SizeControlProps = {
+  value: ButtonControls["size"];
+  onChange: (value: ButtonControls["size"]) => void;
+};
+
+function SizeControl({ value, onChange }: SizeControlProps) {
+  return (
+    <div className="btn-group-ghost btn-size-sm -ml-(--btn-padding-inline)">
+      <label>
+        SM
+        <input
+          type="radio"
+          name="btn-size"
+          value="sm"
+          checked={value === "sm"}
+          onChange={() => onChange("sm")}
+        />
+      </label>
+
+      <label>
+        MD
+        <input
+          type="radio"
+          name="btn-size"
+          value="md"
+          checked={value === "md"}
+          onChange={() => onChange("md")}
+        />
+      </label>
+
+      <label>
+        LG
+        <input
+          type="radio"
+          name="btn-size"
+          value="lg"
+          checked={value === "lg"}
+          onChange={() => onChange("lg")}
+        />
+      </label>
+    </div>
+  );
 }

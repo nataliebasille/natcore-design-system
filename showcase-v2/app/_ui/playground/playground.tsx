@@ -1,26 +1,20 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ExampleContainer } from "../example/example-container";
-import { PlaygroundPreview } from "./playground-preview";
+import { SpotlightContainer } from "../doc/spotlight-container";
 import { PlaygroundProvider } from "./playground-provider";
+import { PlaygroundPreview } from "./playground-preview";
 import { PlaygroundCodeSnippet } from "./playground-code-snippet";
 
-type PlaygroundProps<T extends Record<string, React.ReactElement>> = {
+type PlaygroundProps<T extends Record<string, unknown>> = {
   controls: ReactNode;
   ui: ReactNode;
-  renderMarkup: (values: PlaygroundValues<T>) => string;
-  defaultValues: Record<keyof T, string>;
+  renderMarkup: (values: T) => string;
+  defaultValues: T;
   initialHtml: string;
 };
 
-export type PlaygroundValues<
-  in out T extends Record<string, React.ReactElement>,
-> = {
-  [K in keyof T]: string;
-};
-
-export function Playground<const T extends Record<string, React.ReactElement>>({
+export function Playground<T extends Record<string, unknown>>({
   controls,
   defaultValues,
   ui,
@@ -29,15 +23,22 @@ export function Playground<const T extends Record<string, React.ReactElement>>({
 }: PlaygroundProps<T>) {
   return (
     <PlaygroundProvider defaultValues={defaultValues}>
-      <ExampleContainer
-        ui={<PlaygroundPreview controls={controls}>{ui}</PlaygroundPreview>}
-        markup={
-          <PlaygroundCodeSnippet<T>
-            renderMarkup={renderMarkup}
-            initialHtml={initialHtml}
-          />
-        }
-      />
+      <div className="flex flex-col gap-4">
+        <SpotlightContainer title="Controls">{controls}</SpotlightContainer>
+
+        <SpotlightContainer title="Preview">
+          <div className="card-ghost bg-tone-50-surface">
+            <div className="card-content flex items-center justify-center">
+              {ui}
+            </div>
+          </div>
+        </SpotlightContainer>
+
+        <PlaygroundCodeSnippet<T>
+          renderMarkup={renderMarkup}
+          initialHtml={initialHtml}
+        />
+      </div>
     </PlaygroundProvider>
   );
 }

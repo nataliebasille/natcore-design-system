@@ -21,9 +21,12 @@ export type ComponentVariants = Record<
   default?: { [K: `--${string}`]: StylePropertyValue };
 };
 
+type VariantName<T extends ComponentVariants> = Exclude<keyof T, "default"> &
+  string;
+
 export type ComponentBuilder<T extends ComponentVariants = {}> = {
   variants?: T;
-  defaultVariant?: "default" extends keyof T ? never : NoInfer<T[keyof T]>;
+  defaultVariant?: NoInfer<VariantName<T>>;
   styles: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
 };
 
@@ -36,6 +39,7 @@ export function component<T extends ComponentVariants = {}>(
   return {
     $construct: "component",
     name,
+    defaultVariant: body.defaultVariant,
     styles: normalizeStyleBuilders(styles),
     variants: variants ?? {},
   } satisfies ComponentConstruct;

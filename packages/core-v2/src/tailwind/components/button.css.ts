@@ -38,6 +38,7 @@ const ghost = {
   "--hover-bg": dsl.current(500, 0.1),
   "--hover-fg": dsl.cssvar("--tone-current-fg"),
   "--border-color": "transparent",
+  "--active-bg": dsl.current(500, 0.2),
   "--active-hover-fg": dsl.colorMix(
     "srgb",
     { color: dsl.cssvar("--tone-current-fg") },
@@ -87,6 +88,7 @@ export default [
   }),
 
   component("btn-group", {
+    defaultVariant: "outline",
     variants: {
       solid,
       soft,

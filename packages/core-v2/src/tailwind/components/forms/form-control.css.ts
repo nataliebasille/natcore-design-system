@@ -20,7 +20,6 @@ export default component("form-control", {
 
       $: {
         ["> .form-control-label, > label, > .form-control-hint"]: ["text-xs"],
-
         ["> .form-control-label, > label, > .form-control-prefix, > .form-control-suffix"]:
           [
             "font-light",
@@ -35,109 +34,126 @@ export default component("form-control", {
             },
           ],
 
-        ["> .form-control-label, > label"]: [
-          "border-solid",
+        ["> .form-control-label, > label"]: {
+          "grid-area": "label",
+        },
+
+        [`&:not(:has(${allChildInputs}))`]: [
           "border",
-          "border-b-0",
-          "rounded-t-md",
+          "rounded-md",
           {
-            "grid-area": "label",
-            "padding-left": dsl.primitive.length.em(4 / 3),
-            "padding-right": dsl.primitive.length.em(2),
-            "padding-top": dsl.primitive.length.em(0.25),
-
-            $: {
-              [allSiblingInputs]: [
-                "rounded-t-none",
-                "border-t-0",
-                {
-                  "padding-top": dsl.primitive.length.em(0.25),
-                },
-              ],
-              ["~ .form-control-prefix, ~ .form-control-suffix"]: [
-                "rounded-t-none",
-                "border-t-0",
-              ],
-            },
-          },
-        ],
-
-        [allChildInputs]: [
-          "outline-hidden",
-          "transition-all",
-          "duration-200",
-          "ease-in-out",
-          {
-            "grid-area": "input",
-            "background-color": bg,
-            color: fg,
+            "padding-inline": dsl.primitive.length.em(4 / 3),
+            "padding-block": dsl.primitive.length.em(0.25),
             "border-color": border,
-
-            $: {
-              [dsl.select.parent(":has(~ .form-control-suffix)")]: [
-                "rounded-t-none",
-                "border-r-0",
-                {
-                  "padding-right": dsl.primitive.length.em(0.25),
-                },
-              ],
-            },
           },
         ],
 
-        ["> .form-control-hint"]: {
-          "grid-area": "hint",
-          "padding-left": dsl.primitive.length.em(4 / 3),
-        },
-
-        [dsl.select.parent(".form-control-error")]: {
+        [`&:has(${allChildInputs})`]: {
           $: {
-            ["> .form-control-label, > label, > input, > select, > textarea, > .form-control-prefix, > .form-control-suffix"]:
-              ["border-red-600"],
-            ["> .form-control-label, > label, > .form-control-hint, > .form-control-prefix, > .form-control-suffix"]:
-              ["border-red-600"],
-          },
-        },
-
-        ["> .form-control-prefix"]: [
-          "flex",
-          "items-center",
-          "border-solid",
-          "border-y",
-          "border-l",
-          "rounded-l-md",
-          "pl-1",
-          {
-            "grid-area": "prefix",
-            $: {
-              [allSiblingInputs]: ["rounded-l-none", "border-l-0", "pl-1"],
-            },
-          },
-        ],
-
-        ["> .form-control-suffix"]: [
-          "flex",
-          "items-center",
-          "border-solid",
-          "border-y",
-          "border-r",
-          "rounded-r-md",
-          "pr-1",
-          {
-            "grid-area": "suffix",
-          },
-        ],
-
-        [dsl.select.parent(":focus-within")]: {
-          $: {
-            [allChildInputs]: {
-              "border-color": dsl.current(800),
-            },
-            ["> .form-control-label, > label, > .form-control-prefix, > .form-control-suffix"]:
+            ["> .form-control-label, > label"]: [
+              "border-solid",
+              "border",
+              "border-b-0",
+              "rounded-t-md",
               {
-                "border-color": dsl.current(800),
-                color: dsl.currentText(100, 0.7),
+                "padding-left": dsl.primitive.length.em(4 / 3),
+                "padding-right": dsl.primitive.length.em(2),
+                "padding-top": dsl.primitive.length.em(0.25),
+
+                $: {
+                  [allSiblingInputs]: [
+                    "rounded-t-none",
+                    "border-t-0",
+                    {
+                      "padding-top": dsl.primitive.length.em(0.25),
+                    },
+                  ],
+                  ["~ .form-control-prefix, ~ .form-control-suffix"]: [
+                    "rounded-t-none",
+                    "border-t-0",
+                  ],
+                },
               },
+            ],
+
+            [allChildInputs]: [
+              "outline-hidden",
+              "transition-all",
+              "duration-200",
+              "ease-in-out",
+              {
+                "grid-area": "input",
+                "background-color": bg,
+                color: fg,
+                "border-color": border,
+
+                $: {
+                  [dsl.select.parent(":has(~ .form-control-suffix)")]: [
+                    "rounded-t-none",
+                    "border-r-0",
+                    {
+                      "padding-right": dsl.primitive.length.em(0.25),
+                    },
+                  ],
+                },
+              },
+            ],
+
+            ["> .form-control-hint"]: {
+              "grid-area": "hint",
+              "padding-left": dsl.primitive.length.em(4 / 3),
+            },
+
+            [dsl.select.parent(".form-control-error")]: {
+              $: {
+                ["> .form-control-label, > label, > input, > select, > textarea, > .form-control-prefix, > .form-control-suffix"]:
+                  ["border-red-600"],
+                ["> .form-control-label, > label, > .form-control-hint, > .form-control-prefix, > .form-control-suffix"]:
+                  ["border-red-600"],
+              },
+            },
+
+            ["> .form-control-prefix"]: [
+              "flex",
+              "items-center",
+              "border-solid",
+              "border-y",
+              "border-l",
+              "rounded-l-md",
+              "pl-1",
+              {
+                "grid-area": "prefix",
+                $: {
+                  [allSiblingInputs]: ["rounded-l-none", "border-l-0", "pl-1"],
+                },
+              },
+            ],
+
+            ["> .form-control-suffix"]: [
+              "flex",
+              "items-center",
+              "border-solid",
+              "border-y",
+              "border-r",
+              "rounded-r-md",
+              "pr-1",
+              {
+                "grid-area": "suffix",
+              },
+            ],
+
+            [dsl.select.parent(":focus-within")]: {
+              $: {
+                [allChildInputs]: {
+                  "border-color": dsl.current(800),
+                },
+                ["> .form-control-label, > label, > .form-control-prefix, > .form-control-suffix"]:
+                  {
+                    "border-color": dsl.current(800),
+                    color: dsl.currentText(100, 0.7),
+                  },
+              },
+            },
           },
         },
       },

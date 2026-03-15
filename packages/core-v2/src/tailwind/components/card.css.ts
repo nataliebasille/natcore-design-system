@@ -9,66 +9,35 @@ const cardSections = dsl.select.list(
 export default [
   component("card", {
     variants: {
-      default: {
-        "--bg": dsl.current(100),
-        "--fg": dsl.currentText(100),
-        "--border": dsl.current(300),
-        "--section-border": dsl.current(300),
-        "--hover-bg": dsl.current(200),
-        "--hover-fg": dsl.currentText(200),
-        "--hover-border": dsl.current(300),
+      solid: {
+        "--bg": dsl.current(700),
+        "--fg": dsl.currentText(700),
+        "--border": dsl.current(600),
+        "--section-border": dsl.current(600, 0.55),
       },
       soft: {
         "--bg": dsl.current(100),
         "--fg": dsl.currentText(100),
-        "--border": dsl.current(300),
-        "--section-border": dsl.current(300),
+        "--border": dsl.current(200),
+        "--section-border": dsl.current(200),
         "--hover-bg": dsl.current(200),
         "--hover-fg": dsl.currentText(200),
         "--hover-border": dsl.current(300),
       },
-      filled: {
-        "--bg": dsl.current(500),
-        "--fg": dsl.currentText(500),
+      outline: {
+        "--bg": dsl.current(100, 0.1),
+        "--fg": dsl.cssvar("--tone-current-fg"),
         "--border": dsl.current(300),
-        "--section-border": dsl.colorMix(
-          "srgb",
-          {
-            color: dsl.cssvar("--on-tone-500"),
-            percentage: dsl.primitive.percentage(25),
-          },
-          { color: dsl.primitive.color.transparent() },
-        ),
+        "--section-border": dsl.current(200),
         "--hover-bg": dsl.current(600),
         "--hover-fg": dsl.currentText(600),
         "--hover-border": dsl.current(300),
       },
       ghost: {
-        "--bg": dsl.colorMix(
-          "srgb",
-          {
-            color: dsl.cssvar("--tone-500"),
-            percentage: dsl.primitive.percentage(20),
-          },
-          { color: dsl.primitive.color.transparent() },
-        ),
-        "--fg": dsl.current(700),
-        "--border": dsl.colorMix(
-          "srgb",
-          {
-            color: dsl.cssvar("--tone-500"),
-            percentage: dsl.primitive.percentage(80),
-          },
-          { color: dsl.primitive.color.transparent() },
-        ),
-        "--section-border": dsl.colorMix(
-          "srgb",
-          {
-            color: dsl.cssvar("--tone-500"),
-            percentage: dsl.primitive.percentage(25),
-          },
-          { color: dsl.primitive.color.transparent() },
-        ),
+        "--bg": "transparent",
+        "--fg": dsl.cssvar("--tone-current-fg"),
+        "--border": "transparent",
+        "--section-border": dsl.current(100, 0.06),
         "--hover-bg": dsl.colorMix(
           "srgb",
           {

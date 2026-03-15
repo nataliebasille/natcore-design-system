@@ -3,41 +3,51 @@
 import React, { cloneElement } from "react";
 import { usePlayground } from "./playground-provider";
 
-type PlaygroundFormElementProps = {
-  name: string;
-  label?: string;
-  input:
-    | React.ReactElement<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >
-    | React.FC<{ value: string; onChange: (value: string) => void }>;
+type NativeInputElement = React.ReactElement<
+  HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+>;
+
+type CustomInputProps<V> = {
+  value: V;
+  onChange: (value: V) => void;
 };
 
-export function PlaygroundFormElement({
-  name,
-  label,
-  input: Input,
-}: PlaygroundFormElementProps) {
-  const { values, setValue } = usePlayground();
-  const value = values[name] || "";
+export type PlaygroundFormElementProps<T extends Record<string, unknown>> = {
+  [K in keyof T & string]: {
+    name: K;
+    label?: string;
+    input: NativeInputElement | React.FC<CustomInputProps<T[K]>>;
+  };
+}[keyof T & string];
+
+export function PlaygroundFormElement<T extends Record<string, unknown>>(
+  props: PlaygroundFormElementProps<T>,
+) {
+  const { values, setValue } = usePlayground<T>();
+  const { name, label, input: Input } = props;
+  const value = values[name];
   const onChange = React.useCallback(
     (
       value:
-        | string
+        | T[typeof name]
         | React.ChangeEvent<
             HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
           >,
     ) => {
-      setValue(name, typeof value === "string" ? value : value.target.value);
+      const nextValue =
+        isFormEvent(value) ? (value.target.value as T[typeof name]) : value;
+      setValue(name, nextValue);
     },
     [name, setValue],
   );
+
+  const CustomInput = Input as React.FC<CustomInputProps<T[typeof name]>>;
 
   return (
     <div className="form-control">
       <label htmlFor={name}>{label ?? name}</label>
       {typeof Input === "function" ?
-        <Input value={value} onChange={onChange} />
+        <CustomInput value={value} onChange={onChange} />
       : cloneElement(Input, {
           name,
           value,
@@ -45,5 +55,20 @@ export function PlaygroundFormElement({
         } as any)
       }
     </div>
+  );
+}
+
+function isFormEvent(
+  candidate: unknown,
+): candidate is React.ChangeEvent<
+  HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+> {
+  return (
+    typeof candidate === "object" &&
+    candidate !== null &&
+    "target" in candidate &&
+    typeof candidate.target === "object" &&
+    candidate.target !== null &&
+    "value" in candidate.target
   );
 }
