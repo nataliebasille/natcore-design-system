@@ -256,6 +256,8 @@ function normalizeScopedPropKey(key: string, type: "ui" | "markup") {
       return "htmlFor";
     }
 
+    if (scopedKey === "checked") return "defaultChecked";
+
     return scopedKey;
   }
 

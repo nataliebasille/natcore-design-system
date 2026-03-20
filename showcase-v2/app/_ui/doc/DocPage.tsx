@@ -69,7 +69,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   );
 
   return (
-    <div className="divide-tone-600-surface/30 lg:*:not-first:pl-4 lg:*:not-last:pr-4 grid h-full grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth lg:divide-x">
+    <div className="divide-tone-600-surface/30 lg:*:not-first:pl-4 lg:*:not-last:pr-4 grid grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth lg:divide-x">
       <article className="h-full w-full p-6">
         <h1 id={title}>{title}</h1>
 
@@ -81,7 +81,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
 
         {childrenWithLevel}
       </article>
-      <div className="sticky top-0 mt-6 h-full min-w-fit flex-initial max-lg:hidden lg:w-[280px]">
+      <div className="sticky top-6 mt-6 min-w-fit flex-initial max-lg:hidden lg:w-[280px]">
         <OnThisPage tree={sectionsTree} />
       </div>
     </div>
@@ -113,7 +113,7 @@ export const DocSection = ({
         <div className="relative">
           <CopySectionUrl sectionId={title} />
 
-          <Heading id={title} className="tracking-tighter mt-0!">
+          <Heading id={title} className="tracking-tighter mt-0! scroll-mt-20">
             {title}
           </Heading>
         </div>

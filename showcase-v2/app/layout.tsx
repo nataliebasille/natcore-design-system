@@ -44,7 +44,7 @@ export default function RootLayout({
               <SidebarLink href="/component/tabs">Tabs</SidebarLink>
             </SidebarGroup>
           </Sidebar>
-          <main className="bg-tone-50-surface overflow-auto overflow-x-hidden px-4 max-md:col-span-2">
+          <main className="bg-tone-50-surface overflow-x-hidden px-4 max-md:col-span-2">
             {children}
           </main>
         </ThemeProvider>
