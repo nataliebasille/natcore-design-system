@@ -3,11 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { codeToHtml } from "shiki/bundle/web";
 import { CodeSnippet } from "../code-snippet/code-snippet";
 import { usePlayground } from "./playground-provider";
+import { MarkupSpotlight } from "../doc/code-spotlight";
 
 export function PlaygroundCodeSnippet<T extends Record<string, unknown>>({
+  ui,
   renderMarkup,
   initialHtml,
 }: {
+  ui: React.ReactNode;
   renderMarkup: (values: T) => string;
   initialHtml: string;
 }) {
@@ -38,5 +41,11 @@ export function PlaygroundCodeSnippet<T extends Record<string, unknown>>({
     };
   }, [values]);
 
-  return <CodeSnippet language="html" code={code} />;
+  return (
+    <MarkupSpotlight
+      title="Preview"
+      preview={<div className="flex justify-center">{ui}</div>}
+      markup={code}
+    />
+  );
 }

@@ -2,7 +2,7 @@ import { type SupportedLanguages } from "@/utlls/format-code";
 import { type PropsWithChildren } from "react";
 import { ClipboardIcon } from "../icons/copy";
 import { twMerge } from "tailwind-merge";
-import { SpotlightContainer } from "../doc/spotlight-container";
+import { Spotlight } from "../doc/spotlight";
 
 export type CodeSnippetProps = PropsWithChildren<{
   className?: string;
@@ -12,7 +12,7 @@ export type CodeSnippetProps = PropsWithChildren<{
 
 export function CodeSnippet({ className, code, language }: CodeSnippetProps) {
   return (
-    <SpotlightContainer
+    <Spotlight
       title={
         <div className="flex gap-2">
           Code
@@ -28,6 +28,6 @@ export function CodeSnippet({ className, code, language }: CodeSnippetProps) {
           dangerouslySetInnerHTML={{ __html: code }}
         />
       </pre>
-    </SpotlightContainer>
+    </Spotlight>
   );
 }

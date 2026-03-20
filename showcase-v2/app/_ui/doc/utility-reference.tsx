@@ -37,6 +37,11 @@ export const UtilityReference = ({
 }: UtilityReferenceProps) => {
   return (
     <div className="space-y-4">
+      {/* Description */}
+      {description && (
+        <p className="text-tone-950-surface/60 mt-0!">{description}</p>
+      )}
+
       {/* Tags */}
       {tags && tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -46,11 +51,6 @@ export const UtilityReference = ({
             </span>
           ))}
         </div>
-      )}
-
-      {/* Description */}
-      {description && (
-        <p className="text-tone-950-surface/60 text-sm">{description}</p>
       )}
 
       {/* Reference table */}

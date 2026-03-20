@@ -3,12 +3,13 @@ import {
   type PlaygroundFormElementProps,
 } from "@/app/_ui/playground/playground-form-element";
 
-type ButtonControls = {
+export type ButtonControlValues = {
   variant: "solid" | "outline" | "ghost" | "soft";
   palette: "primary" | "secondary" | "accent" | "surface";
   size: "sm" | "md" | "lg";
 };
-export const defaultValues: ButtonControls = {
+
+export const defaultValues: ButtonControlValues = {
   variant: "solid",
   palette: "primary",
   size: "md",
@@ -17,7 +18,7 @@ export const defaultValues: ButtonControls = {
 export function ButtonPlaygroundControls() {
   return (
     <div className="grid grid-cols-2 gap-4">
-      <PlaygroundFormElement<ButtonControls>
+      <PlaygroundFormElement<ButtonControlValues>
         name="variant"
         label="Variant"
         input={
@@ -30,7 +31,7 @@ export function ButtonPlaygroundControls() {
         }
       />
 
-      <PlaygroundFormElement<ButtonControls>
+      <PlaygroundFormElement<ButtonControlValues>
         name="palette"
         label="Palette"
         input={
@@ -43,7 +44,7 @@ export function ButtonPlaygroundControls() {
         }
       />
 
-      <PlaygroundFormElement<ButtonControls>
+      <PlaygroundFormElement<ButtonControlValues>
         name="size"
         label="Size"
         input={SizeControl}
@@ -53,8 +54,8 @@ export function ButtonPlaygroundControls() {
 }
 
 type SizeControlProps = {
-  value: ButtonControls["size"];
-  onChange: (value: ButtonControls["size"]) => void;
+  value: ButtonControlValues["size"];
+  onChange: (value: ButtonControlValues["size"]) => void;
 };
 
 function SizeControl({ value, onChange }: SizeControlProps) {

@@ -3,8 +3,8 @@
 import { Playground } from "@/app/_ui/playground/playground";
 import {
   ButtonPlaygroundControls,
-  controls,
   defaultValues,
+  type ButtonControlValues,
 } from "./button-playground-controls";
 import { renderToMarkup } from "@/lib/preview-jsx-runtime";
 import { getButtonPlaygroundShowcase } from "./get-showcase";
@@ -16,7 +16,7 @@ export function ButtonPlaygroundClient({
   initialHtml: string;
 }) {
   return (
-    <Playground<typeof controls>
+    <Playground<ButtonControlValues>
       defaultValues={defaultValues}
       initialHtml={initialHtml}
       controls={<ButtonPlaygroundControls />}

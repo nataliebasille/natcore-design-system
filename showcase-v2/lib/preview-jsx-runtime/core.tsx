@@ -15,6 +15,14 @@ export function renderToUi(jsx: ShowcaseJsxChild): ReactNode {
     renderPrimitive: (value) => value,
     renderUiNode: (node, renderChild) => renderChild(node.props.children),
     renderMarkupNode: () => null,
+    renderUiElementNode: (node, renderChild) => {
+      const props = collectProps(node, "ui");
+      const children =
+        node.props.children ? renderChild(node.props.children) : undefined;
+      return createElement(node.type as any, props, children);
+    },
+    renderMarkupElementNode: (node, renderChild) =>
+      node.props.children ? renderChild(node.props.children) : null,
     renderElement: (node, renderChild) => {
       const props = collectProps(node, "ui");
       const children =
@@ -48,6 +56,21 @@ export function renderToMarkup(jsx: ShowcaseJsxChild): string {
     renderPrimitive: (value) => serializePrimitiveForMarkup(value),
     renderUiNode: () => "",
     renderMarkupNode: (node) => renderMarkupLiteral(node.props.children),
+    renderUiElementNode: (node, renderChild) =>
+      node.props.children ? renderChild(node.props.children) : "",
+    renderMarkupElementNode: (node, renderChild) => {
+      const props = collectProps(node, "markup");
+      const children =
+        node.props.children ? renderChild(node.props.children) : "";
+      const tagName = String(node.type);
+      const propsString = serializePropsForMarkup(props);
+
+      if (VOID_HTML_ELEMENTS.has(tagName.toLowerCase())) {
+        return `<${tagName}${propsString}>`;
+      }
+
+      return `<${tagName}${propsString}>${children}</${tagName}>`;
+    },
     renderElement: (node, renderChild) => {
       const props = collectProps(node, "markup");
       const children =
@@ -93,6 +116,24 @@ function renderMarkupLiteral(jsx: ShowcaseJsxChild): string {
     return renderMarkupLiteral(jsx.props.children);
   }
 
+  if (typeof jsx.type === "string" && jsx.type.startsWith("ui-")) {
+    return jsx.props.children ? renderMarkupLiteral(jsx.props.children) : "";
+  }
+
+  if (typeof jsx.type === "string" && jsx.type.startsWith("markup-")) {
+    const tagName = jsx.type.slice("markup-".length);
+    const props = collectProps(jsx, "markup");
+    const children =
+      jsx.props.children ? renderMarkupLiteral(jsx.props.children) : "";
+    const propsString = serializePropsForMarkup(props);
+
+    if (VOID_HTML_ELEMENTS.has(tagName.toLowerCase())) {
+      return `<${tagName}${propsString}>`;
+    }
+
+    return `<${tagName}${propsString}>${children}</${tagName}>`;
+  }
+
   const props = collectProps(jsx, "markup");
   const children =
     jsx.props.children ? renderMarkupLiteral(jsx.props.children) : "";
@@ -119,6 +160,14 @@ type Renderer<T> = {
     renderChild: (child: ShowcaseJsxChild) => T,
   ) => T;
   renderMarkupNode: (
+    node: ShowcaseJsxNode,
+    renderChild: (child: ShowcaseJsxChild) => T,
+  ) => T;
+  renderUiElementNode: (
+    node: ShowcaseJsxNode,
+    renderChild: (child: ShowcaseJsxChild) => T,
+  ) => T;
+  renderMarkupElementNode: (
     node: ShowcaseJsxNode,
     renderChild: (child: ShowcaseJsxChild) => T,
   ) => T;
@@ -157,6 +206,22 @@ function renderWithStructure<T>(
 
   if (jsx.type === "markup") {
     return renderer.renderMarkupNode(jsx, renderChild);
+  }
+
+  if (typeof jsx.type === "string" && jsx.type.startsWith("ui-")) {
+    const elementType = jsx.type.slice("ui-".length);
+    return renderer.renderUiElementNode(
+      { ...jsx, type: elementType as any },
+      renderChild,
+    );
+  }
+
+  if (typeof jsx.type === "string" && jsx.type.startsWith("markup-")) {
+    const elementType = jsx.type.slice("markup-".length);
+    return renderer.renderMarkupElementNode(
+      { ...jsx, type: elementType as any },
+      renderChild,
+    );
   }
 
   return renderer.renderElement(jsx, renderChild);

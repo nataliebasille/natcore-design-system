@@ -1,10 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { SpotlightContainer } from "../doc/spotlight-container";
+import { Spotlight } from "../doc/spotlight";
 import { PlaygroundProvider } from "./playground-provider";
 import { PlaygroundPreview } from "./playground-preview";
 import { PlaygroundCodeSnippet } from "./playground-code-snippet";
+import { MarkupSpotlight } from "../doc/code-spotlight";
 
 type PlaygroundProps<T extends Record<string, unknown>> = {
   controls: ReactNode;
@@ -24,17 +25,10 @@ export function Playground<T extends Record<string, unknown>>({
   return (
     <PlaygroundProvider defaultValues={defaultValues}>
       <div className="flex flex-col gap-4">
-        <SpotlightContainer title="Controls">{controls}</SpotlightContainer>
-
-        <SpotlightContainer title="Preview">
-          <div className="card-ghost bg-tone-50-surface">
-            <div className="card-content flex items-center justify-center">
-              {ui}
-            </div>
-          </div>
-        </SpotlightContainer>
+        <Spotlight title="Controls">{controls}</Spotlight>
 
         <PlaygroundCodeSnippet<T>
+          ui={ui}
           renderMarkup={renderMarkup}
           initialHtml={initialHtml}
         />

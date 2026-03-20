@@ -16,6 +16,8 @@ export type ShowcaseJsxElementType =
   | keyof React.JSX.IntrinsicElements
   | "ui"
   | "markup"
+  | `ui-${string}`
+  | `markup-${string}`
   | ShowcaseJsxFunctionComponent<any>
   | typeof Fragment;
 

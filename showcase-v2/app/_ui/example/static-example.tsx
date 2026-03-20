@@ -1,13 +1,12 @@
-import { type PropsWithChildren, type ReactNode } from "react";
+import { renderToMarkup } from "@/lib/preview-jsx-runtime/core";
+import type { ShowcaseJsxChild } from "@/lib/preview-jsx-runtime/types";
 import { fetchFile } from "@/server/fetch-file";
 import { type SupportedLanguages } from "@/utlls/format-code";
-import { twMerge } from "tailwind-merge";
-import { ServerFormattedCodeSnippet } from "@/ui/code-snippet/server-formatted-code-snippet";
-import { ExampleContainer } from "./example-container";
-import type { ShowcaseJsxChild } from "@/lib/preview-jsx-runtime/types";
-import { renderToMarkup } from "@/lib/preview-jsx-runtime/core";
+import { type PropsWithChildren, type ReactNode } from "react";
+import { codeToHtml } from "shiki/bundle/web";
+import { MarkupSpotlight } from "../doc/code-spotlight";
 
-export type BaseExampleProps = { className?: string };
+export type BaseExampleProps = { className?: string; title?: string };
 export type ExampleLoader = Promise<{ markup: string; content: ReactNode }>;
 
 type ExampleFromFileProps = BaseExampleProps & {
@@ -22,6 +21,7 @@ type ExampleFromShowcaseJsxProps = BaseExampleProps & {
 
 export const StaticExample = async ({
   loader,
+  title,
   className,
   language = "html",
 }: BaseExampleProps & {
@@ -31,9 +31,10 @@ export const StaticExample = async ({
   const { markup, content } = await loader;
 
   return (
-    <ExampleContainer
-      ui={content}
-      markup={<ServerFormattedCodeSnippet code={markup} language={language} />}
+    <MarkupSpotlight
+      title={title}
+      preview={content}
+      markup={markup}
       className={className}
     />
   );
@@ -86,18 +87,24 @@ StaticExample.FromFile = ({
 };
 
 StaticExample.FromShowcaseJsx = ({
+  title,
   source,
   className,
   language,
 }: ExampleFromShowcaseJsxProps) => {
   return (
     <StaticExample
+      title={title}
       className={className}
       language="html"
       loader={(async () => {
         const { renderToUi } = await import("@/lib/preview-jsx-runtime/core");
         const content = renderToUi(source);
-        const markup = renderToMarkup(source);
+        const markup = await codeToHtml(renderToMarkup(source), {
+          lang: "html",
+          theme: "github-dark",
+          structure: "inline",
+        });
         return { markup, content };
       })()}
     />

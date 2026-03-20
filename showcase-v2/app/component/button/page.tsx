@@ -1,16 +1,20 @@
 import { DocPage, DocSection } from "@/app/_ui/doc/DocPage";
-import { ButtonPlayground } from "./_components/button-playground";
 import { StaticExample } from "@/app/_ui/example/static-example";
+import { Spotlight } from "@/ui/doc/spotlight.tsx";
 import { UtilityReference, UtilityValue } from "@/ui/doc/utility-reference.tsx";
-import VariantsExample from "./_examples/variants.example.tsx";
-import SolidExample from "./_examples/palette-solid.example.tsx";
-import SoftExample from "./_examples/palette-soft.example.tsx";
-import OutlineExample from "./_examples/palette-outline.example.tsx";
-import GhostExample from "./_examples/palette-ghost.example.tsx";
-import SizesExample from "./_examples/sizes.example.tsx";
-import IconExample from "./_examples/icon-buttons.example.tsx";
-import BtnGroupExample from "./_examples/btn-group.example.tsx";
-import { SpotlightContainer } from "@/ui/doc/spotlight-container.tsx";
+import { ButtonPlayground } from "./_components/button-playground";
+import buttonCss from "../../../../packages/core-v2/src/tailwind/components/button.css.ts";
+import { CssFileReference } from "@/app/_ui/doc/construct-reference";
+import { ShowcaseSpotlight } from "@/ui/doc/showcase-spotlight.tsx";
+import {
+  buttonGroup,
+  GhostPaletteShowcase,
+  IconButtonsShowcase,
+  OutlinePaletteShowcase,
+  SizesShowcase,
+  SoftPaletteShowcase,
+  SolidPaletteShowcase,
+} from "./_showcase.tsx";
 
 export default async function ButtonPage() {
   return (
@@ -20,15 +24,16 @@ export default async function ButtonPage() {
     >
       {/* ── At a glance ── */}
       <DocSection title="At a glance">
-        <SpotlightContainer>
-          <div className="flex flex-wrap gap-2">
+        <Spotlight>
+          <div className="flex flex-wrap gap-2 items-center">
             <button className="btn-solid/primary">Solid</button>
             <button className="btn-soft/secondary">Soft</button>
             <button className="btn-outline/accent">Outline</button>
             <button className="btn-ghost/surface">Ghost</button>
             <button className="btn-soft/surface btn-size-sm">Small</button>
+            <button className="btn-soft/secondary btn-size-lg">Large</button>
           </div>
-        </SpotlightContainer>
+        </Spotlight>
       </DocSection>
 
       {/* ── Playground ── */}
@@ -37,168 +42,76 @@ export default async function ButtonPage() {
       </DocSection>
 
       {/* ── btn ── */}
-      <DocSection title="btn-{variant}/{tone}">
-        <UtilityReference
-          tags={["component", "composable"]}
+      <DocSection title="Button">
+        <CssFileReference
+          constructs={buttonCss}
+          for="btn"
           description="Applies button styling using the selected variant and tone palette."
-          table={[
-            {
-              label: "Pattern",
-              content: <span>btn-{"{variant}/{tone}"}</span>,
-            },
-            {
-              label: "Variant",
-              content: (
-                <UtilityValue values={["solid", "soft", "outline", "ghost"]} />
-              ),
-            },
-            {
-              label: "Palette",
-              content: (
-                <UtilityValue
-                  values={["primary", "secondary", "accent", "surface"]}
-                />
-              ),
-            },
-            {
-              label: "Composes with",
-              content: (
-                <>
-                  <UtilityValue
-                    values={["btn-size-{size}", "btn-icon"]}
-                    divider="+"
-                  />
-                </>
-              ),
-            },
-          ]}
         />
 
-        <SpotlightContainer title="Solid">
-          <div className="flex gap-3">
-            <button className="btn-solid/primary">Button</button>
-            <button className="btn-solid/secondary">Button</button>
-            <button className="btn-solid/accent">Button</button>
-            <button className="btn-solid/surface">Button</button>
-          </div>
-        </SpotlightContainer>
+        <StaticExample.FromShowcaseJsx
+          title="Solid"
+          source={SolidPaletteShowcase()}
+        />
 
-        <SpotlightContainer title="Soft">
-          <div className="flex gap-3">
-            <button className="btn-soft/primary">Button</button>
-            <button className="btn-soft/secondary">Button</button>
-            <button className="btn-soft/accent">Button</button>
-            <button className="btn-soft/surface">Button</button>
-          </div>
-        </SpotlightContainer>
+        <StaticExample.FromShowcaseJsx
+          title="Soft"
+          source={SoftPaletteShowcase()}
+        />
 
-        <SpotlightContainer title="Outline">
-          <div className="flex gap-3">
-            <button className="btn-outline/primary">Button</button>
-            <button className="btn-outline/secondary">Button</button>
-            <button className="btn-outline/accent">Button</button>
-            <button className="btn-outline/surface">Button</button>
-          </div>
-        </SpotlightContainer>
+        <StaticExample.FromShowcaseJsx
+          title="Outline"
+          source={OutlinePaletteShowcase()}
+        />
 
-        <SpotlightContainer title="ghost">
-          <div className="flex gap-3">
-            <button className="btn-ghost/primary">Button</button>
-            <button className="btn-ghost/secondary">Button</button>
-            <button className="btn-ghost/accent">Button</button>
-            <button className="btn-ghost/surface">Button</button>
-          </div>
-        </SpotlightContainer>
+        <StaticExample.FromShowcaseJsx
+          title="Ghost"
+          source={GhostPaletteShowcase()}
+        />
       </DocSection>
 
       {/* ── btn-group ── */}
-      <DocSection title="btn-group-{variant}/{tone}">
-        <UtilityReference
-          tags={["component", "composable"]}
+      <DocSection title="Button Group">
+        <CssFileReference
+          constructs={buttonCss}
+          for="btn-group"
           description="Groups adjacent buttons into a visually connected row sharing a variant style and tone palette."
-          table={[
-            {
-              label: "Pattern",
-              content: <span>btn-group-{"{variant}/{tone}"}</span>,
-            },
-            {
-              label: "Variant",
-              content: (
-                <UtilityValue values={["solid", "soft", "outline", "ghost"]} />
-              ),
-            },
-            {
-              label: "Palette",
-              content: (
-                <UtilityValue
-                  values={["primary", "secondary", "accent", "surface"]}
-                />
-              ),
-            },
-            {
-              label: "Composes with",
-              content: <span>btn-{"{variant}/{tone}"}</span>,
-            },
-          ]}
         />
-        <StaticExample.FromShowcaseJsx source={BtnGroupExample} />
+
+        <StaticExample.FromShowcaseJsx
+          title="Solid"
+          source={buttonGroup.solid}
+        />
+        <StaticExample.FromShowcaseJsx title="Soft" source={buttonGroup.soft} />
+        <StaticExample.FromShowcaseJsx
+          title="Outline"
+          source={buttonGroup.outline}
+        />
+        <StaticExample.FromShowcaseJsx
+          title="Ghost"
+          source={buttonGroup.ghost}
+        />
       </DocSection>
 
       {/* ── btn-size ── */}
-      <DocSection title="btn-size-{size}">
-        <UtilityReference
-          tags={["modifier"]}
+      <DocSection title="Sizes">
+        <CssFileReference
+          constructs={buttonCss}
+          for="btn-size"
           description="Controls the padding and font size of a button. Composes with any btn variant."
-          table={[
-            {
-              label: "Pattern",
-              content: <span>btn-size-{"{size}"}</span>,
-            },
-            {
-              label: "Size",
-              content: (
-                <>
-                  <span>sm</span>
-                  <span>md</span>
-                  <span>lg</span>
-                </>
-              ),
-            },
-            {
-              label: "Default",
-              content: <span>btn-size-md</span>,
-            },
-            {
-              label: "Composes with",
-              content: <span>btn-{"{variant}/{tone}"}</span>,
-            },
-          ]}
         />
-        <StaticExample.FromShowcaseJsx source={SizesExample} />
+
+        <StaticExample.FromShowcaseJsx source={SizesShowcase()} />
       </DocSection>
 
       {/* ── btn-icon ── */}
-      <DocSection title="btn-icon">
-        <UtilityReference
-          tags={["modifier"]}
-          description="Makes a square, fully-rounded icon button by equalizing inline and block padding."
-          table={[
-            {
-              label: "Pattern",
-              content: <span>btn-icon</span>,
-            },
-            {
-              label: "Composes with",
-              content: (
-                <>
-                  <span>btn-{"{variant}/{tone}"}</span>
-                  <span>btn-size-{"{size}"}</span>
-                </>
-              ),
-            },
-          ]}
+      <DocSection title="Icon Buttons">
+        <CssFileReference
+          constructs={buttonCss}
+          for="btn-icon"
+          description="Modifier utility to create square, fully-rounded icon buttons by equalizing inline and block padding. Composes with any btn variant and size."
         />
-        <StaticExample.FromShowcaseJsx source={IconExample} />
+        <StaticExample.FromShowcaseJsx source={IconButtonsShowcase()} />
       </DocSection>
     </DocPage>
   );

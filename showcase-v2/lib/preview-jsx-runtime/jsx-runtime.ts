@@ -30,7 +30,10 @@ type IntrinsicAttributesExtras = {
 };
 
 type IntrinsicElementsWithChildren = {
-  [K in keyof ReactJSX.IntrinsicElements]: AddChildren<
+  [K in keyof ReactJSX.IntrinsicElements as
+    | K
+    | `ui-${string & K}`
+    | `markup-${string & K}`]: AddChildren<
     FrameworkExtras<ReactJSX.IntrinsicElements[K]>
   >;
 } & {
