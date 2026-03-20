@@ -2,10 +2,8 @@
 
 import type { ReactNode } from "react";
 import { Spotlight } from "../doc/spotlight";
-import { PlaygroundProvider } from "./playground-provider";
-import { PlaygroundPreview } from "./playground-preview";
 import { PlaygroundCodeSnippet } from "./playground-code-snippet";
-import { MarkupSpotlight } from "../doc/code-spotlight";
+import { PlaygroundProvider } from "./playground-provider";
 
 type PlaygroundProps<T extends Record<string, unknown>> = {
   controls: ReactNode;

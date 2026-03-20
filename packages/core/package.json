@@ -1,49 +1,67 @@
 {
   "name": "@nataliebasille/natcore-design-system",
-  "version": "1.0.1",
+  "version": "2.0.0",
+  "description": "Natcore Design System core package for Tailwind CSS 4.0+",
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "README.md"
   ],
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
+      "import": "./dist/index.js",
       "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs"
+      "default": "./dist/index.js"
+    },
+    "./css": {
+      "style": "./dist/natcore.css",
+      "default": "./dist/natcore.css"
     },
     "./plugin": {
       "types": "./dist/plugin.d.ts",
-      "import": "./dist/plugin.mjs",
+      "import": "./dist/plugin.js",
       "require": "./dist/plugin.cjs",
-      "default": "./dist/plugin.mjs"
+      "default": "./dist/plugin.js"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
-      "import": "./dist/utils.mjs",
+      "import": "./dist/utils.js",
       "require": "./dist/utils.cjs",
-      "default": "./dist/utils.mjs"
+      "default": "./dist/utils.js"
     }
   },
   "scripts": {
-    "build": "tsup --config tsup.config.ts"
+    "build": "tsx scripts/build.ts",
+    "watch": "tsx ../core-v2/scripts/watch.ts",
+    "clean": "rimraf dist",
+    "type-check": "tsc --noEmit"
   },
   "author": "Natalie Basille",
-  "license": "ISC",
-  "dependencies": {
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5.5.3"
-  },
+  "license": "MIT",
   "peerDependencies": {
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^4.1.16"
+  },
+  "dependencies": {
+    "@nataliebasille/natcore-css-engine": "workspace:*",
+    "chroma-js": "^3.2.0",
+    "classnames": "^2.5.1",
+    "culori": "^4.0.2",
+    "next-themes": "^0.4.6"
   },
   "devDependencies": {
-    "@types/react": "^18.0.38",
-    "tsup": "^8.5.0"
+    "@tailwindcss/cli": "^4.1.16",
+    "@types/chroma-js": "^3.1.2",
+    "@types/culori": "^4.0.1",
+    "@types/node": "^22.19.0",
+    "rimraf": "^6.1.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"

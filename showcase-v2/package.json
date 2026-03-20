@@ -20,7 +20,6 @@
     "@iconify-icons/ri": "^1.2.10",
     "@nataliebasille/natcore-design-system": "workspace:*",
     "@nataliebasille/natcore-design-system-react": "workspace:*",
-    "@nataliebasille/natcore-design-system-v2": "workspace:*",
     "@nataliebasille/natcore-icons": "workspace:*",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/node": "^22.19.0",
