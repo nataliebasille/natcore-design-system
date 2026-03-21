@@ -12,6 +12,7 @@
     "moduleResolution": "bundler",
     "target": "ES2022",
     "lib": ["ES2024", "DOM"],
+    "types": ["node"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

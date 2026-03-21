@@ -18,6 +18,26 @@ export interface NatcorePluginOptions {
   colors?: ColorSchema;
 }
 
+export interface NatcoreResolvedPlugin {
+  handler: (api: {
+    addBase: (...args: unknown[]) => void;
+    matchUtilities: (...args: unknown[]) => void;
+    theme: (path: string, defaultValue?: unknown) => unknown;
+  }) => void;
+  config?: {
+    theme?: {
+      extend?: {
+        colors?: Record<string, Record<string | number, string>>;
+      };
+    };
+  };
+}
+
+export interface NatcorePluginFactory {
+  (options?: NatcorePluginOptions): NatcoreResolvedPlugin;
+  __isOptionsFunction: true;
+}
+
 /**
  * Default color schema
  */
@@ -49,9 +69,7 @@ const defaultOptions: NatcorePluginOptions = {
  * This plugin provides the core design system utilities, components,
  * and theme configuration for Tailwind CSS 4.0.
  */
-export const natcorePlugin: ReturnType<
-  typeof plugin.withOptions<NatcorePluginOptions>
-> = plugin.withOptions<NatcorePluginOptions>(
+const natcorePluginImpl = plugin.withOptions<NatcorePluginOptions>(
   (options = {}) => {
     const config = { ...defaultOptions, ...options };
     const colors = config.colors || defaultColors;
@@ -126,6 +144,9 @@ export const natcorePlugin: ReturnType<
     };
   },
 );
+
+export const natcorePlugin =
+  natcorePluginImpl as unknown as NatcorePluginFactory;
 
 /**
  * Default export for convenience

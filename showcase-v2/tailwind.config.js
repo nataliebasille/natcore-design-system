@@ -10,7 +10,7 @@ export default {
     "./components/**/*.{ts,tsx}",
     "../packages/core-v2/src/**/*.css",
   ],
-  plugins: [natcorePlugin()],
+  plugins: [natcorePlugin({})],
   theme: {
     extend: {
       backgroundImage: {
