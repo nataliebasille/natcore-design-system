@@ -1,35 +1,35 @@
-import Image from 'next/image'
-import { twMerge } from 'tailwind-merge'
+import Image from "next/image";
+import { twMerge } from "tailwind-merge";
 
-import { GithubIcon } from './icons/github'
-import { ThemeToggle } from './theme-toggle'
+import { GithubIcon } from "./icons/github";
+import { ThemeToggle } from "./theme-toggle";
 
 type HeaderProps = {
-  className?: string
-}
+  className?: string;
+};
 
 export function Header({ className }: HeaderProps) {
   return (
     <header
       className={twMerge(
-        `border-tone-500-surface col-span-full flex items-center gap-1 border-b px-6 py-1 tracking-wider ${className}`
+        `col-span-full flex items-center gap-1 border-b border-tone-500-surface px-6 py-1 tracking-wider ${className}`,
       )}
     >
       <Image src="/logo.svg" alt="Natcore Logo" width={32} height={32} />
       <span className="mr-auto flex items-center gap-2">
         <span className="text-2xl">
-          <span className="text-tone-500-primary font-bold">Nat</span>
-          <span className="text-tone-500-secondary font-normal">Core</span>
+          <span className="font-bold text-tone-500-primary">Nat</span>
+          <span className="font-normal text-tone-500-secondary">Core</span>
         </span>
-        <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-widest text-amber-600 ring-1 ring-amber-400/40">
+        <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[0.6rem] font-semibold tracking-widest text-amber-600 uppercase ring-1 ring-amber-400/40">
           v2 — In Progress
         </span>
       </span>
 
       <ThemeToggle />
-      <button className="btn-ghost/surface btn-icon btn-size-sm">
+      <button className="btn-ghost/surface btn-size-sm btn-icon">
         <GithubIcon className="h-[1.5em] w-[1.5em]" />
       </button>
     </header>
-  )
+  );
 }
