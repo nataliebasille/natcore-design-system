@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { Component, useCallback } from "react";
+import React from "react";
 import { twMerge } from "tailwind-merge";
 import { useSidebar } from "./sidebar/sidebar-provider";
 
@@ -20,29 +20,13 @@ export default function NavLink({
   children,
   component: Component = "div",
 }: NavLinkProps) {
-  const linkRef = React.useRef<HTMLAnchorElement>(null);
   const pathname = usePathname();
   const isActive = pathname === href;
   const { toggle } = useSidebar();
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (!linkRef.current?.contains(e.target as Node)) {
-        linkRef.current?.click();
-      }
-      toggle();
-    },
-    [toggle],
-  );
-  const preventLinkPropagation = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-  }, []);
 
   return (
-    <Component
-      className={twMerge(className, isActive ? "active" : "")}
-      onClick={handleClick}
-    >
-      <Link ref={linkRef} href={href} onClick={preventLinkPropagation}>
+    <Component className={twMerge(className, isActive ? "active" : "")}>
+      <Link href={href} className="block" onClick={toggle}>
         {children}
       </Link>
     </Component>
