@@ -16,9 +16,14 @@ export function Header({ className }: HeaderProps) {
       )}
     >
       <Image src="/logo.svg" alt="Natcore Logo" width={32} height={32} />
-      <span className="mr-auto text-2xl">
-        <span className="text-tone-500-primary font-bold">Nat</span>
-        <span className="text-tone-500-secondary font-normal">Core</span>
+      <span className="mr-auto flex items-center gap-2">
+        <span className="text-2xl">
+          <span className="text-tone-500-primary font-bold">Nat</span>
+          <span className="text-tone-500-secondary font-normal">Core</span>
+        </span>
+        <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-widest text-amber-600 ring-1 ring-amber-400/40">
+          v2 — In Progress
+        </span>
       </span>
 
       <ThemeToggle />
