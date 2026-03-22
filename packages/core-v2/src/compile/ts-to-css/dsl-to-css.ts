@@ -26,22 +26,28 @@ function atRuleToCss(node: dsl.AtRuleAst): css.AtRuleAst {
       (function* () {
         let currentApply = "";
 
-        for (const item of node.rules) {
-          if (item.$ast !== "tailwind-class" && currentApply) {
+        for (const item of node.rules as unknown[]) {
+          if (
+            !isTailwindClassAst(item) &&
+            !isCssTemplateAst(item) &&
+            currentApply
+          ) {
             yield css.atRule("apply", currentApply);
             currentApply = "";
           }
 
-          if (item.$ast === "tailwind-class") {
-            currentApply += `${currentApply ? " " : ""}${item.value}`;
-          } else if (item.$ast === "style-rule") {
+          if (isTailwindClassAst(item)) {
+            currentApply += `${currentApply ? " " : ""}${tailwindUtilityToClass(item.value)}`;
+          } else if (isCssTemplateAst(item)) {
+            currentApply += `${currentApply ? " " : ""}${cssTemplateToString(item)}`;
+          } else if (isStyleRuleAst(item)) {
             yield styleRuleToCss(item);
-          } else if (item.$ast === "style-list") {
+          } else if (isStyleListAst(item)) {
             yield* styleListToCss(item);
-          } else if (item.$ast === "at-rule") {
+          } else if (isAtRuleAst(item)) {
             yield atRuleToCss(item);
           } else {
-            exhaustive(item);
+            exhaustive(item as never);
           }
         }
       })(),
@@ -55,20 +61,26 @@ function styleRuleToCss(node: dsl.StyleRuleAst): css.StyleBlockAst {
     ...Array.from(
       (function* () {
         let currentApply = "";
-        for (const item of node.body) {
-          if (item.$ast !== "tailwind-class" && currentApply) {
+        for (const item of node.body as unknown[]) {
+          if (
+            !isTailwindClassAst(item) &&
+            !isCssTemplateAst(item) &&
+            currentApply
+          ) {
             yield css.atRule("apply", currentApply);
             currentApply = "";
           }
 
-          if (item.$ast === "tailwind-class") {
-            currentApply += `${currentApply ? " " : ""}${item.value}`;
-          } else if (item.$ast === "style-rule") {
+          if (isTailwindClassAst(item)) {
+            currentApply += `${currentApply ? " " : ""}${tailwindUtilityToClass(item.value)}`;
+          } else if (isCssTemplateAst(item)) {
+            currentApply += `${currentApply ? " " : ""}${cssTemplateToString(item)}`;
+          } else if (isStyleRuleAst(item)) {
             yield styleRuleToCss(item);
-          } else if (item.$ast === "style-list") {
+          } else if (isStyleListAst(item)) {
             yield* styleListToCss(item);
           } else {
-            exhaustive(item);
+            exhaustive(item as never);
           }
         }
 
@@ -88,14 +100,21 @@ function styleListToCss(
       let currentApply = "";
       let currentStyles: css.StyleProperties | undefined = undefined;
 
-      for (const item of node.styles) {
-        if ("$ast" in item && item.$ast === "tailwind-class") {
+      for (const item of node.styles as unknown[]) {
+        if (isTailwindClassAst(item)) {
           if (currentStyles) {
             yield css.styleList(currentStyles);
             currentStyles = undefined;
           }
 
-          currentApply += `${currentApply ? " " : ""}${item.value}`;
+          currentApply += `${currentApply ? " " : ""}${tailwindUtilityToClass(item.value)}`;
+        } else if (isCssTemplateAst(item)) {
+          if (currentStyles) {
+            yield css.styleList(currentStyles);
+            currentStyles = undefined;
+          }
+
+          currentApply += `${currentApply ? " " : ""}${cssTemplateToString(item)}`;
         } else {
           if (currentApply) {
             yield css.atRule("apply", currentApply);
@@ -199,11 +218,94 @@ function transformCssTemplate(value: {
     result += value.strings[i] || "";
     const templateValue = value.values[i];
     if (templateValue !== undefined) {
-      result += `${templateValue}`;
+      const resolvedValue = transformTemplateInterpolationValue(templateValue);
+      if (resolvedValue !== false) {
+        result += `${resolvedValue}`;
+      }
     }
   }
 
   return result;
+}
+
+function transformTemplateInterpolationValue(value: unknown): unknown {
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return value;
+  }
+
+  return transformStylePropertyValue(
+    value as dsl.StyleProperties[keyof dsl.StyleProperties],
+  );
+}
+
+function cssTemplateToString(value: {
+  strings: string[];
+  values: unknown[];
+}): string {
+  return `${transformCssTemplate(value)}`;
+}
+
+function isCssTemplateAst(value: unknown): value is {
+  $ast: "css-value";
+  strings: string[];
+  values: unknown[];
+} {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    "$ast" in value &&
+    "strings" in value &&
+    "values" in value &&
+    (value as { $ast?: unknown }).$ast === "css-value"
+  );
+}
+
+function isTailwindClassAst(value: unknown): value is dsl.TailwindClassAst {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    (value as { $ast?: unknown }).$ast === "tailwind-class"
+  );
+}
+
+function isStyleRuleAst(value: unknown): value is dsl.StyleRuleAst {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    (value as { $ast?: unknown }).$ast === "style-rule"
+  );
+}
+
+function isStyleListAst(value: unknown): value is dsl.StyleListAst {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    (value as { $ast?: unknown }).$ast === "style-list"
+  );
+}
+
+function isAtRuleAst(value: unknown): value is dsl.AtRuleAst {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    (value as { $ast?: unknown }).$ast === "at-rule"
+  );
+}
+
+function tailwindUtilityToClass(value: dsl.TailwindUtility): string {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (value && typeof value === "object" && "prefix" in value) {
+    return `${value.prefix}-[${transformStylePropertyValue(value.value)}]`;
+  }
+
+  return `${value}`;
 }
 
 function matchToString(

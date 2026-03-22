@@ -1,6 +1,12 @@
 import { Fragment, type ReactNode } from "react";
 
-export type UtilityTag = "utility" | "modifier" | "composable" | "component";
+export type UtilityTag =
+  | "utility"
+  | "modifier"
+  | "composable"
+  | "component"
+  | "slot"
+  | "css-variable";
 
 type TableRow = { label: string; content: ReactNode };
 
@@ -30,6 +36,19 @@ export const UtilityValue = ({ values, divider = "/" }: UtilityValueProps) => {
   );
 };
 
+const TAG_CLASSES: Record<UtilityTag, string> = {
+  component: "badge-solid/primary",
+  modifier: "badge-soft/primary",
+  composable: "badge-solid/secondary",
+  utility: "badge-solid/surface",
+  slot: "badge-soft/accent",
+  "css-variable": "badge-soft/surface",
+};
+
+export const TagBadge = ({ tag }: { tag: UtilityTag }) => (
+  <span className={`${TAG_CLASSES[tag]} inline-block`}>{tag}</span>
+);
+
 export const UtilityReference = ({
   tags,
   description,
@@ -37,33 +56,31 @@ export const UtilityReference = ({
 }: UtilityReferenceProps) => {
   return (
     <div className="space-y-4">
-      {/* Description */}
-      {description && (
-        <p className="text-tone-950-surface/60 mt-0!">{description}</p>
-      )}
-
       {/* Tags */}
       {tags && tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <span key={tag} className="badge-solid/primary">
-              {tag}
-            </span>
+            <TagBadge key={tag} tag={tag} />
           ))}
         </div>
       )}
 
+      {/* Description */}
+      {description && (
+        <p className="mt-0! text-tone-950-surface/60">{description}</p>
+      )}
+
       {/* Reference table */}
-      <div className="border-tone-300-surface/40 divide-tone-300-surface/40 overflow-hidden rounded-lg border divide-y">
+      <div className="grid grid-cols-[160px_1fr] items-start gap-px overflow-hidden rounded-lg border border-tone-300-surface/40 bg-tone-300-surface/40">
         {table.map(({ label, content }) => (
           <div
             key={label}
-            className="grid grid-cols-[160px_1fr] items-start bg-tone-50-surface"
+            className="col-span-2 row-span-1 grid grid-cols-subgrid grid-rows-subgrid gap-px"
           >
-            <div className="border-tone-300-surface/40 text-on-tone-50-surface/60 border-r px-4 py-2.5 text-sm tracking-wide">
+            <div className="bg-tone-50-surface px-4 py-2.5 text-sm tracking-wide">
               {label}
             </div>
-            <div className="flex flex-wrap items-center gap-1.5 px-4 py-2.5 text-sm text-on-tone-50-surface/80">
+            <div className="flex flex-wrap items-center gap-1.5 bg-tone-50-surface px-4 py-2.5 text-sm text-on-tone-50-surface/80">
               {content}
             </div>
           </div>

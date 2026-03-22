@@ -7,6 +7,8 @@ const parsersConfig = {
   html: {
     parser: "html",
     plugins: [parserHtml],
+    printWidth: 60,
+    htmlWhitespaceSensitivity: "ignore" as const,
   },
 
   tsx: {
@@ -33,7 +35,10 @@ const parsersConfig = {
     parser: "json",
     plugins: [parserBabel, parserEstree],
   },
-} satisfies Record<string, { parser: string; plugins: unknown[] }>;
+} satisfies Record<
+  string,
+  { parser: string; plugins: unknown[]; [key: string]: unknown }
+>;
 
 export type SupportedLanguages = keyof typeof parsersConfig;
 

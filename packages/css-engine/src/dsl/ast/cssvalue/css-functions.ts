@@ -85,6 +85,11 @@ export type CssFunction =
         percentage?: CssValue<"percentage">;
       };
       toString: () => string;
+    }
+  | {
+      $function: "translateX";
+      value: CssValue<"length" | "percentage">;
+      toString: () => string;
     };
 
 // Helper to convert value to string
@@ -265,5 +270,15 @@ export function colorMix(
         : valueToString(f.mix.color);
       return `color-mix(in ${f.colorspace}, ${baseStr}, ${mixStr})`;
     },
+  );
+}
+
+export function translateX(value: CssValue<"length" | "percentage">) {
+  return withToString(
+    {
+      $function: "translateX" as const,
+      value,
+    },
+    (f) => `translateX(${valueToString(f.value)})`,
   );
 }

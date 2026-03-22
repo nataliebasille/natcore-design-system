@@ -338,6 +338,20 @@ function serializeAttributeForMarkup(key: string, value: unknown): string[] {
       : [];
   }
 
+  if (
+    normalizedKey === "style" &&
+    typeof value === "object" &&
+    value !== null
+  ) {
+    const styleString = Object.entries(value as Record<string, unknown>)
+      .filter(([, v]) => v !== null && v !== undefined)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join("; ");
+    return styleString ?
+        [` ${normalizedKey}="${escapeHtmlAttribute(styleString)}"`]
+      : [];
+  }
+
   return [];
 }
 

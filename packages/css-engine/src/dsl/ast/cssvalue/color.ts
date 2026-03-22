@@ -5,7 +5,13 @@ export const SHADES = [
 ] as const;
 export type Shade = (typeof SHADES)[number];
 
-export const PALETTE = ["primary", "secondary", "accent", "surface"] as const;
+export const PALETTE = [
+  "primary",
+  "secondary",
+  "accent",
+  "surface",
+  "disabled",
+] as const;
 export type Palette = (typeof PALETTE)[number];
 
 export type ColorAst = AstNode<

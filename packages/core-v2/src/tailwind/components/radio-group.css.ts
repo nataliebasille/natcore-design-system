@@ -1,63 +1,54 @@
-import { component, dsl } from "@nataliebasille/natcore-css-engine";
+// MOVE TO REACT COMPONENT
+export default [];
 
-export default component("radio-group", {
-  variants: {
-    default: {
-      "--border": dsl.current(300),
-      "--hover": dsl.current(200),
-      "--active": dsl.current(500),
-      "--active-fg": dsl.currentText(500),
-    },
-  },
-  styles: [
-    "flex",
-    "w-fit",
-    "gap-1",
-    {
-      padding: "0.125rem",
-      "border-style": "solid",
-      "border-width": "2px",
-      "border-color": dsl.cssvar("--border"),
-      "border-radius": dsl.cssvar("--radius-full"),
+// import { component, dsl } from "@nataliebasille/natcore-css-engine";
 
-      $: {
-        ['input[type="radio"]']: {
-          display: "none",
-        },
+// const INLINE_GROUP = {
+//   "--group-display": "inline-flex",
+//   "--group-direction": "row",
+//   "--group-inline-padding": dsl.spacing("1"),
+//   "--group-block-padding": dsl.spacing("1"),
+//   "--group-radius": dsl.cssvar("--radius-lg"),
+// };
 
-        ["> label"]: {
-          display: "inline-flex",
-          "align-items": "center",
-          "justify-content": "center",
-          "min-height": "2rem",
-          padding: `${dsl.spacing("2")} ${dsl.spacing("4")}`,
-          "font-size": dsl.cssvar("--text-sm"),
-          transition: "all 0.2s ease-in-out",
-          cursor: "pointer",
-          "border-radius": dsl.cssvar("--radius-full"),
+// export default component("radio-group", {
+//   variants: {
+//     solid: {
+//       ...INLINE_GROUP,
+//       "--group-bg": dsl.current(900),
+//       "--hover-bg": dsl.current(700),
+//       "--hover-fg": dsl.currentText(700),
+//       "--active-bg": dsl.current(800),
+//       "--active-fg": dsl.currentText(800),
+//     },
+//   },
+//   styles: [
+//     {
+//       display: dsl.match.variable("--group-display"),
+//       "flex-direction": dsl.match.variable("--group-direction"),
+//       "background-color": dsl.match.variable("--group-bg"),
+//       "padding-inline": dsl.match.variable("--group-inline-padding"),
+//       "padding-block": dsl.match.variable("--group-block-padding"),
+//       "border-radius": dsl.match.variable("--group-radius"),
 
-          $: {
-            [dsl.select.parent(":hover")]: {
-              "background-color": dsl.cssvar("--hover"),
-            },
-          },
-        },
-
-        ['input[type="radio"]:checked + label']: {
-          "background-color": dsl.cssvar("--active"),
-          color: dsl.cssvar("--active-fg"),
-        },
-
-        ['input[type="radio"]:active + label']: {
-          transform: "scale(0.95)",
-        },
-
-        ['input[type="radio"]:disabled + label']: {
-          opacity: "0.5",
-          cursor: "not-allowed",
-          "background-color": "transparent",
-        },
-      },
-    },
-  ],
-});
+//       $: {
+//         "& > *": [
+//           "flex-1",
+//           "inline-flex",
+//           "items-center",
+//           "cursor-pointer",
+//           "rounded-lg",
+//           {
+//             $: {
+//               ["&:hover"]: {
+//                 "background-color": dsl.match.variable("--hover-bg"),
+//                 color: dsl.match.variable("--hover-fg"),
+//               },
+//             },
+//           },
+//         ],
+//         ["input[type='radio']"]: ["hidden"],
+//       },
+//     },
+//   ],
+// });

@@ -1,7 +1,7 @@
-import { renderToMarkup } from "@/lib/preview-jsx-runtime/core";
+import { renderToMarkup, renderToUi } from "@/lib/preview-jsx-runtime/core";
 import type { ShowcaseJsxChild } from "@/lib/preview-jsx-runtime/types";
 import { fetchFile } from "@/server/fetch-file";
-import { type SupportedLanguages } from "@/utlls/format-code";
+import { formatCode, type SupportedLanguages } from "@/utlls/format-code";
 import { type PropsWithChildren, type ReactNode } from "react";
 import { codeToHtml } from "shiki/bundle/web";
 import { MarkupSpotlight } from "../doc/code-spotlight";
@@ -98,9 +98,10 @@ StaticExample.FromShowcaseJsx = ({
       className={className}
       language="html"
       loader={(async () => {
-        const { renderToUi } = await import("@/lib/preview-jsx-runtime/core");
         const content = renderToUi(source);
-        const markup = await codeToHtml(renderToMarkup(source), {
+        const rawMarkup = renderToMarkup(source);
+        const formattedMarkup = await formatCode(rawMarkup, "html");
+        const markup = await codeToHtml(formattedMarkup, {
           lang: "html",
           theme: "github-dark",
           structure: "inline",

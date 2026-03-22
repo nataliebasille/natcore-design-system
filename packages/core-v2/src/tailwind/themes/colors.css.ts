@@ -11,9 +11,10 @@ import * as culori from "culori";
 import { colorKey } from "../../shared/colors.ts";
 
 type Anchors = { c50: string; c500: string; c950: string };
+type RoleBase = { name: Palette; fgOpacity?: number };
 type RoleInput =
-  | { name: Palette; anchors: Anchors }
-  | { name: Palette; seed: string };
+  | (RoleBase & { anchors: Anchors })
+  | (RoleBase & { seed: string });
 
 const NEAR_BLACK = "#121212";
 const NEAR_WHITE = "#FAFAFA";
@@ -30,13 +31,18 @@ const roles: RoleInput[] = [
     name: "surface",
     anchors: { c50: "#DBFBF2", c500: "#35E9B6", c950: "#02120E" },
   },
+  {
+    name: "disabled",
+    seed: "#8A8F98",
+    fgOpacity: 0.5,
+  },
 ];
 
 export default function compile() {
   return theme(
-    ...roles.flatMap((r) => {
-      const ramp = generateRamp(r);
-      return roleToCssVars(r.name, ramp);
+    ...roles.flatMap((role) => {
+      const ramp = generateRamp(role);
+      return roleToCssVars(role.name, ramp, role.fgOpacity);
     }),
   );
 }
@@ -48,24 +54,27 @@ function generateRamp(input: RoleInput): Record<Shade, string> {
   // Use culori's OKLCH interpolation for perceptually uniform colors
   const interpolator = culori.interpolate([c50, c500, c950], "oklch");
 
-  const colors = SHADES.map((_, i) => {
-    const t = i / (SHADES.length - 1);
+  const colors = SHADES.map((_, index) => {
+    const t = index / (SHADES.length - 1);
     const color = interpolator(t);
     // Format as OKLCH string for CSS
     return culori.formatCss(color);
   });
 
-  const ramp: Record<Shade, string> = {} as any;
-  for (let i = 0; i < SHADES.length; i++) ramp[SHADES[i]!] = colors[i]!;
+  const ramp: Record<Shade, string> = {} as Record<Shade, string>;
+  for (let index = 0; index < SHADES.length; index++) {
+    ramp[SHADES[index]!] = colors[index]!;
+  }
+
   return ramp;
 }
 
 function deriveAnchorsFromSeed(seed: string): Anchors {
   const base = chroma(seed);
 
-  // These are “nice defaults” -- you can tune per your taste:
+  // These are "nice defaults" -- you can tune per your taste:
   // - make the light end brighter + a bit less saturated
-  // - make the dark end darker + a bit less saturated (helps avoid “crushed black”)
+  // - make the dark end darker + a bit less saturated (helps avoid "crushed black")
   const c500 = base.hex();
   const c50 = base.brighten(2.2).desaturate(0.6).hex();
   const c950 = base.darken(2.6).desaturate(0.4).hex();
@@ -75,7 +84,7 @@ function deriveAnchorsFromSeed(seed: string): Anchors {
 
 /**
  * Pick the better of near-black/near-white based on WCAG contrast ratio.
- * Skeleton’s generator talks about auto-calculating contrast ratios. :contentReference[oaicite:3]{index=3}
+ * Skeleton's generator talks about auto-calculating contrast ratios.
  */
 function bestContrastText(bg: string): string {
   const blackRatio = chroma.contrast(bg, NEAR_BLACK);
@@ -87,22 +96,41 @@ const CHEVRON_SVG_TEMPLATE =
   "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 24 24%22 stroke-width=%221.5%22 stroke=%22COLOR%22%3E%3Cpath stroke-linecap=%22round%22 stroke-linejoin=%22round%22 d=%22M19.5 8.25l-7.5 7.5-7.5-7.5%22 /%3E%3C/svg%3E')";
 
 function chevronUrl(color: string): string {
-  // Encode the hex color (# → %23) for use inside a data URI attribute value
+  // Encode the hex color (# -> %23) for use inside a data URI attribute value
   const encoded = color.replace(/^#/, "%23");
   return CHEVRON_SVG_TEMPLATE.replace("COLOR", encoded);
 }
 
-function roleToCssVars(palette: Palette, ramp: Record<Shade, string>) {
+function withOpacity(color: string, opacity?: number) {
+  if (opacity === undefined) {
+    return color;
+  }
+
+  return dsl.colorMix(
+    "srgb",
+    {
+      color: dsl.primitive.color.custom(color),
+      percentage: dsl.primitive.percentage(opacity * 100),
+    },
+    { color: dsl.primitive.color.transparent() },
+  );
+}
+
+function roleToCssVars(
+  palette: Palette,
+  ramp: Record<Shade, string>,
+  fgOpacity?: number,
+) {
   const colors: ThemeProperties = {};
 
   // Collect all color entries in a single loop for efficiency
-  const lightEntries: Array<[`--${string}`, string]> = [];
-  const darkEntries: Array<[`--${string}`, string]> = [];
+  const lightEntries: Array<[`--${string}`, any]> = [];
+  const darkEntries: Array<[`--${string}`, any]> = [];
   const scaleEntries: Array<[`--${string}`, any]> = [];
 
   for (const shade of SHADES) {
-    const bg = ramp[shade];
-    const fg = bestContrastText(bg);
+    const bg = ramp[shade]!;
+    const fg = withOpacity(bestContrastText(bg), fgOpacity);
     const darkShade = (1000 - shade) as Shade;
 
     // Light mode entries
@@ -144,8 +172,8 @@ function roleToCssVars(palette: Palette, ramp: Record<Shade, string>) {
   }
 
   // Chevron variable: light-dark(url with on-light-50 color, url with on-dark-950 color)
-  const lightChevronColor = bestContrastText(ramp[50]);
-  const darkChevronColor = bestContrastText(ramp[950]);
+  const lightChevronColor = bestContrastText(ramp[50]!);
+  const darkChevronColor = bestContrastText(ramp[950]!);
   const chevronKey = `--select-chevron-${palette}` as const;
   scaleEntries.push([
     chevronKey,

@@ -68,14 +68,16 @@ function staticComponentConstructToDsl(
         dsl.atRule(
           "utility",
           `${componentConstruct.name}/${palette}`,
-          dsl.styleList(
-            renderPalette((color) =>
-              color.role === "base" ?
-                dsl.adaptive(palette, color.shade)
-              : dsl.adaptiveText(palette, color.shade),
+          wrapComponentLayer(
+            dsl.styleList(
+              renderPalette((color) =>
+                color.role === "base" ?
+                  dsl.adaptive(palette, color.shade)
+                : dsl.adaptiveText(palette, color.shade),
+              ),
             ),
+            ...styles,
           ),
-          wrapComponentLayer(...styles),
         ),
       );
     }
@@ -109,20 +111,22 @@ function dynamicComponentConstructToDsl(
     dsl.atRule(
       "utility",
       `${componentConstruct.name}-*`,
-      ...(themeable ?
-        [
-          dsl.styleList(
-            renderPalette((color) =>
-              dsl.match.asModifier(
-                dsl.match.variable(
-                  colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+      wrapComponentLayer(
+        ...(themeable ?
+          [
+            dsl.styleList(
+              renderPalette((color) =>
+                dsl.match.asModifier(
+                  dsl.match.variable(
+                    colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+                  ),
                 ),
               ),
             ),
-          ),
-        ]
-      : []),
-      wrapComponentLayer(...normalizedStyles),
+          ]
+        : []),
+        ...normalizedStyles,
+      ),
     ),
   ];
 }

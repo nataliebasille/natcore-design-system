@@ -26,7 +26,7 @@ const Description = ({
   return (
     <span
       className={twMerge(
-        "text-tone-950-surface/60 my-4 block tracking-tight",
+        "my-4 block tracking-tight text-tone-950-surface/60",
         className,
       )}
     >
@@ -69,7 +69,7 @@ export const DocPage = ({ children, title, description }: DocPageProps) => {
   );
 
   return (
-    <div className="divide-tone-600-surface/30 lg:*:not-first:pl-4 lg:*:not-last:pr-4 grid grid-cols-[minmax(0,1fr)_auto] items-start scroll-smooth lg:divide-x">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start divide-tone-600-surface/30 scroll-smooth lg:divide-x lg:*:not-first:pl-4 lg:*:not-last:pr-4">
       <article className="h-full w-full p-6">
         <h1 id={title}>{title}</h1>
 
@@ -108,12 +108,12 @@ export const DocSection = ({
   });
 
   return (
-    <div className="card-soft mt-6 mb-8">
+    <div className="mt-6 mb-8 card-soft">
       <div className="card-content">
         <div className="relative">
           <CopySectionUrl sectionId={title} />
 
-          <Heading id={title} className="tracking-tighter mt-0! scroll-mt-20">
+          <Heading id={title} className="mt-0! scroll-mt-20 tracking-tighter">
             {title}
           </Heading>
         </div>

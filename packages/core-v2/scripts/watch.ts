@@ -1,14 +1,49 @@
 import { runTsup } from "./run-tsup.ts";
 import chokidar from "chokidar";
 import path from "path";
-import { compile } from "../src/compile/index.ts";
+import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 
 const srcDir = path.join(import.meta.dirname, "../src/tailwind");
+const compileDir = path.join(import.meta.dirname, "../src/compile");
 const outDir = path.join(import.meta.dirname, "../dist");
+const corePackageDir = path.join(import.meta.dirname, "../../core");
+const coreOutDir = path.join(corePackageDir, "dist");
+const outDirs = [outDir, coreOutDir];
+const watchPaths = [srcDir, compileDir];
+
+function runCoreTsupWatch() {
+  const tsupProcess = spawn("pnpm", ["exec", "tsup", "--watch"], {
+    cwd: corePackageDir,
+    stdio: "pipe",
+    shell: true,
+  });
+
+  tsupProcess.stdout?.on("data", (data: Buffer) => {
+    process.stdout.write(`[core] ${data.toString()}`);
+  });
+
+  tsupProcess.stderr?.on("data", (data: Buffer) => {
+    process.stderr.write(`[core] ${data.toString()}`);
+  });
+
+  tsupProcess.on("error", (error) => {
+    console.error("❌ Error starting core tsup watch:", error);
+  });
+
+  tsupProcess.on("exit", (code) => {
+    if (code !== 0 && code !== null) {
+      console.error(`❌ core tsup watch exited with code ${code}`);
+    }
+  });
+
+  return tsupProcess;
+}
 
 // Start tsup in watch mode for TypeScript files
 const tsupProcess = runTsup("watch");
+const coreTsupProcess: ChildProcess = runCoreTsupWatch();
 
 let tsupInitialBuildComplete = false;
 
@@ -41,15 +76,36 @@ tsupProcess.on("exit", (code) => {
 });
 
 console.log("🚀 tsup is running in watch mode...\n");
+console.log("🚀 core tsup is running in watch mode...\n");
+
+async function runCompile(files: string[]) {
+  const compileUrl = pathToFileURL(
+    path.join(import.meta.dirname, "../src/compile/index.ts"),
+  );
+  compileUrl.searchParams.set("t", Date.now().toString());
+  const module = await import(compileUrl.href);
+  return module.compile(files, { dist: outDir, src: srcDir });
+}
+
+async function runCompileToDist(dist: string, files: string[]) {
+  const compileUrl = pathToFileURL(
+    path.join(import.meta.dirname, "../src/compile/index.ts"),
+  );
+  compileUrl.searchParams.set("t", `${Date.now()}-${dist}`);
+  const module = await import(compileUrl.href);
+  return module.compile(files, { dist, src: srcDir });
+}
 
 async function initializeCssWatcher() {
   // Compile all CSS files initially from tailwind directory only
-  console.log("📦 Compiling all CSS and CSS.ts files from tailwind/...\n");
-  const files = await fs.readdir(srcDir, { recursive: true });
-  await compile(files, { dist: outDir, src: srcDir });
+  console.log(
+    "📦 Compiling all CSS and CSS.ts files from tailwind/ to core-v2 and core dist folders...\n",
+  );
+  const files = await listTailwindFiles();
+  await compileToAllOutDirs(files);
   console.log("✅ Initial CSS compilation complete!\n");
 
-  const watcher = chokidar.watch(srcDir, {
+  const watcher = chokidar.watch(watchPaths, {
     ignoreInitial: true,
     persistent: true,
     usePolling: true, // Use polling on Windows for better reliability
@@ -67,7 +123,7 @@ async function initializeCssWatcher() {
       (count, files) => count + files.length,
       0,
     );
-    console.log(`   Watching: ${srcDir}`);
+    console.log(`   Watching: ${watchPaths.join(", ")}`);
     console.log(`   Watched directories: ${Object.keys(watched).length}`);
     console.log(`   Watched files: ${totalWatchedFiles}`);
     console.log();
@@ -75,12 +131,12 @@ async function initializeCssWatcher() {
 
   watcher.on("add", async (filePath) => {
     console.log(`➕ File added: ${filePath}`);
-    await compileFile(filePath);
+    await handleFileEvent(filePath);
   });
 
   watcher.on("change", async (filePath) => {
     console.log(`🔄 File changed: ${filePath}`);
-    await compileFile(filePath);
+    await handleFileEvent(filePath);
   });
 
   watcher.on("all", (event, filePath) => {
@@ -96,8 +152,34 @@ async function initializeCssWatcher() {
     console.log("\n🛑 Stopping watchers...");
     watcher.close();
     tsupProcess.kill();
+    coreTsupProcess.kill();
     process.exit(0);
   });
+}
+
+async function compileToAllOutDirs(files: string[]) {
+  for (const dist of outDirs) {
+    await runCompileToDist(dist, files);
+  }
+}
+
+async function listTailwindFiles() {
+  return (await fs.readdir(srcDir, { recursive: true })).filter(
+    (file) => typeof file === "string",
+  );
+}
+
+async function handleFileEvent(filePath: string) {
+  if (path.resolve(filePath).startsWith(path.resolve(compileDir))) {
+    console.log(
+      "♻️ Compile pipeline changed, rebuilding all tailwind CSS...\n",
+    );
+    await compileToAllOutDirs(await listTailwindFiles());
+    console.log("✅ Rebuilt all tailwind CSS after compiler change.\n");
+    return;
+  }
+
+  await compileFile(filePath);
 }
 
 async function compileFile(filePath: string) {
@@ -109,7 +191,7 @@ async function compileFile(filePath: string) {
     }
 
     console.log(`🔨 Starting compilation of: ${relativePath}`);
-    await compile([relativePath], { dist: outDir, src: srcDir });
+    await compileToAllOutDirs([relativePath]);
     console.log(`✅ Compiled: ${relativePath}\n`);
   } catch (error) {
     console.error(`❌ Error compiling ${filePath}:`, error);
