@@ -2,12 +2,12 @@
 const config = {
   semi: false,
   singleQuote: true,
-  trailingComma: 'es5',
+  trailingComma: "es5",
   tabWidth: 2,
   printWidth: 100,
-  plugins: ['prettier-plugin-tailwindcss'],
-  tailwindStylesheet: './app/globals.css',
-  tailwindFunctions: ['classnames', 'clsx', 'cn'],
-}
+  plugins: ["prettier-plugin-tailwindcss"],
+  tailwindStylesheet: "./app/globals.css",
+  tailwindFunctions: ["classnames", "clsx", "cn"],
+};
 
-export default config
+export default config;

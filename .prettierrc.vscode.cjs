@@ -16,7 +16,12 @@ const config = {
     {
       files: ["showcase-v2/**"],
       options: {
-        tailwindStylesheet: path.join(__dirname, "showcase-v2", "app", "globals.css"),
+        tailwindStylesheet: path.join(
+          __dirname,
+          "showcase-v2",
+          "app",
+          "globals.css",
+        ),
       },
     },
   ],
