@@ -1,11 +1,8 @@
 /** @jsxImportSource @/lib/preview-jsx-runtime */
 
-import type { controls } from "./button-playground-controls";
-import type { PlaygroundValues } from "@/app/_ui/playground/playground";
+import type { ButtonControlValues } from "./button-playground-controls";
 
-export function getButtonPlaygroundShowcase(
-  values: PlaygroundValues<typeof controls>,
-) {
+export function getButtonPlaygroundShowcase(values: ButtonControlValues) {
   const className = [
     `btn-${values.variant}/${values.palette}`,
     `btn-size-${values.size}`,

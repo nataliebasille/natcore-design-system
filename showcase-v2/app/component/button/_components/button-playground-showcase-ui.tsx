@@ -2,10 +2,10 @@
 
 import { usePlayground } from "@/app/_ui/playground/playground-provider";
 import { renderToUi } from "@/lib/preview-jsx-runtime";
-import type { controls } from "./button-playground-controls";
 import { getButtonPlaygroundShowcase } from "./get-showcase";
+import type { ButtonControlValues } from "./button-playground-controls";
 
 export function ButtonPlaygroundShowcaseUI() {
-  const { values } = usePlayground<typeof controls>();
+  const { values } = usePlayground<ButtonControlValues>();
   return <>{renderToUi(getButtonPlaygroundShowcase(values))}</>;
 }
