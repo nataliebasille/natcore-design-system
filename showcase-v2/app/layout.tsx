@@ -9,6 +9,9 @@ const roboto = Roboto({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Natcore Design System",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default async function RootLayout({
