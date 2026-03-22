@@ -22,15 +22,15 @@ const NEAR_WHITE = "#FAFAFA";
 // ---- CONFIG ----
 // Example: your primary + your surface as anchors (recommended for surfaces!)
 const roles: RoleInput[] = [
-  { name: "primary", seed: "#462255" },
-  { name: "secondary", seed: "#046E8F" },
-  { name: "accent", seed: "#B36A5E" },
-  // For a surface family, I strongly recommend anchors instead of “seed at 200”
-  // so you control how close to white the light end is.
+  { name: "primary", seed: "#5B2E91" },
+  { name: "secondary", seed: "#0F6E8C" },
+  { name: "accent", seed: "#C05A8B" },
   {
     name: "surface",
-    anchors: { c50: "#DBFBF2", c500: "#35E9B6", c950: "#02120E" },
+    anchors: { c50: "#F6F4F8", c500: "#746D7D", c950: "#100D12" },
   },
+  { name: "danger", seed: "#C0445F" },
+  { name: "success", seed: "#2F8F6B" },
   {
     name: "disabled",
     seed: "#8A8F98",

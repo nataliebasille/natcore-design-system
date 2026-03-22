@@ -10,6 +10,8 @@ export const PALETTE = [
   "secondary",
   "accent",
   "surface",
+  "success",
+  "danger",
   "disabled",
 ] as const;
 export type Palette = (typeof PALETTE)[number];
