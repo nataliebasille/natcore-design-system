@@ -1,3 +1,9 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@import '@nataliebasille/natcore-design-system-v2';
+@import "@nataliebasille/natcore-design-system-v2";
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-tablet: 48rem;
+  --breakpoint-desktop: 80rem;
+}

@@ -56,6 +56,8 @@ const TOGGLES_SELECTOR = [
   "input[type='radio']",
 ] as const;
 
+const BUTTON_SIZE_DEFAULT = dsl.primitive.length.rem(1);
+
 export default [
   theme("inline", {
     "--btn-padding-inline": dsl.cssvar(
@@ -163,29 +165,23 @@ export default [
   utility(
     "btn-size",
     theme({
-      "--btn-px-sm": dsl.primitive.length.em(0.75),
-      "--btn-py-sm": dsl.primitive.length.em(0.5),
-      "--btn-px-md": dsl.primitive.length.em(1),
-      "--btn-py-md": dsl.primitive.length.em(0.75),
-      "--btn-px-lg": dsl.primitive.length.em(1.25),
-      "--btn-py-lg": dsl.primitive.length.em(1),
+      "--btn-size-sm": dsl.primitive.length.rem(0.75),
+      "--btn-size-md": BUTTON_SIZE_DEFAULT,
+      "--btn-size-lg": dsl.primitive.length.rem(1.75),
     }),
     {
-      "--btn-px": dsl.match.variable("--btn-px"),
-      "--btn-py": dsl.match.variable("--btn-py"),
-      "font-size": dsl.match.variable("--text"),
+      "--btn-size": dsl.match.oneOf(
+        dsl.match.variable("--btn-size"),
+        dsl.match.arbitraryLength(),
+      ),
     },
   ),
 
   utility(
     "btn-icon",
     {
-      "--btn-px-override": dsl.min(
-        dsl.cssvar("--btn-px", dsl.cssvar("--btn-px-md")),
-        dsl.cssvar("--btn-py", dsl.cssvar("--btn-py-md")),
-      ),
-
-      "--btn-py-override": dsl.cssvar("--btn-px-override"),
+      "--btn-px": dsl.calc`${dsl.cssvar("--btn-size")} * 0.5`,
+      "--btn-py": dsl.calc`${dsl.cssvar("--btn-size")} * 0.5`,
     },
 
     "aspect-square",
@@ -203,8 +199,15 @@ function buttonStyles() {
     "ease-in-out",
 
     {
-      "padding-inline": dsl.cssvar("--btn-padding-inline"),
-      "padding-block": dsl.cssvar("--btn-padding-block"),
+      "--btn-size": BUTTON_SIZE_DEFAULT,
+      "--btn-px": dsl.calc`${dsl.cssvar("--btn-size")} * 0.8`,
+      "--btn-py": dsl.calc`${dsl.cssvar("--btn-size")} * 0.5`,
+      "--btn-gap": dsl.calc`${dsl.cssvar("--btn-size")} * 0.2`,
+
+      "font-size": dsl.cssvar("--btn-size"),
+      "padding-inline": dsl.cssvar("--btn-px"),
+      "padding-block": dsl.cssvar("--btn-py"),
+      gap: dsl.cssvar("--btn-gap"),
 
       "background-color": dsl.match.variable(`--bg`),
       color: dsl.match.variable(`--fg`),

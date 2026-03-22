@@ -50,6 +50,10 @@ function atRuleToCss(node: dsl.AtRuleAst): css.AtRuleAst {
             exhaustive(item as never);
           }
         }
+
+        if (currentApply) {
+          yield css.atRule("apply", currentApply);
+        }
       })(),
     ),
   );

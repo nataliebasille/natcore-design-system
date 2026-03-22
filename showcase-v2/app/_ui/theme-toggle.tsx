@@ -11,12 +11,13 @@ import {
 } from "react";
 import { twMerge } from "tailwind-merge";
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   return (
     <>
-      {/* <DesktopThemeToggle className="max-md:hidden" /> */}
+      {/* <DesktopThemeToggle className="max-tablet:hidden" /> */}
       <MobileThemeToggle
-      // className="md:hidden"
+        className={className}
+        // className="tablet:hidden"
       />
     </>
   );
@@ -85,7 +86,7 @@ function MobileThemeToggle({ className }: { className?: string }) {
     <label
       suppressHydrationWarning
       className={twMerge(
-        "toggle-outline/surface toggle-off:palette-surface toggle-on:text-white",
+        "toggle-outline/surface toggle-on:text-white toggle-off:palette-surface",
         className,
         !isMounted && "invisible",
       )}
@@ -98,7 +99,7 @@ function MobileThemeToggle({ className }: { className?: string }) {
         checked={isDark}
         onChange={cycleTheme}
       />
-      <span className="toggle-thumb flex justify-center items-center">
+      <span className="toggle-thumb flex items-center justify-center">
         {isDark ?
           <MoonIcon suppressHydrationWarning className="h-3 w-3" />
         : <SunIcon suppressHydrationWarning className="h-3 w-3" />}

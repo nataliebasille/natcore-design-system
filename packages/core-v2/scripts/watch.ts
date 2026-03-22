@@ -3,7 +3,6 @@ import chokidar from "chokidar";
 import path from "path";
 import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs/promises";
-import { pathToFileURL } from "node:url";
 
 const srcDir = path.join(import.meta.dirname, "../src/tailwind");
 const compileDir = path.join(import.meta.dirname, "../src/compile");
@@ -79,21 +78,40 @@ console.log("🚀 tsup is running in watch mode...\n");
 console.log("🚀 core tsup is running in watch mode...\n");
 
 async function runCompile(files: string[]) {
-  const compileUrl = pathToFileURL(
-    path.join(import.meta.dirname, "../src/compile/index.ts"),
-  );
-  compileUrl.searchParams.set("t", Date.now().toString());
-  const module = await import(compileUrl.href);
-  return module.compile(files, { dist: outDir, src: srcDir });
+  return runCompileToDist(outDir, files);
 }
 
 async function runCompileToDist(dist: string, files: string[]) {
-  const compileUrl = pathToFileURL(
-    path.join(import.meta.dirname, "../src/compile/index.ts"),
-  );
-  compileUrl.searchParams.set("t", `${Date.now()}-${dist}`);
-  const module = await import(compileUrl.href);
-  return module.compile(files, { dist, src: srcDir });
+  // Spawn a fresh subprocess so the compile pipeline modules are never served
+  // from the parent process's module cache (which would happen with dynamic
+  // import() after a compile-pipeline file changes).
+  return new Promise<void>((resolve, reject) => {
+    const runner = path.join(import.meta.dirname, "run-compile.ts");
+    const child = spawn(
+      "npx",
+      [
+        "tsx",
+        runner,
+        "--dist",
+        dist,
+        "--src",
+        srcDir,
+        "--files",
+        files.join(","),
+      ],
+      { stdio: "inherit", shell: true },
+    );
+
+    child.on("exit", (code) => {
+      if (code === 0 || code === null) {
+        resolve();
+      } else {
+        reject(new Error(`compile subprocess exited with code ${code}`));
+      }
+    });
+
+    child.on("error", reject);
+  });
 }
 
 async function initializeCssWatcher() {

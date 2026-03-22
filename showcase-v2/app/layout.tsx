@@ -1,9 +1,14 @@
-import { Header } from "./_ui/header";
-import { Sidebar, SidebarGroup, SidebarLink } from "./_ui/sidebar";
+import { Header } from "./_ui/header/header";
+import {
+  Sidebar,
+  SidebarGroup,
+  SidebarLink,
+} from "./_ui/sidebar/sidebar-content";
 import "./globals.css";
 import { Roboto } from "next/font/google";
 import { ThemeProvider } from "./_ui/theme-provider";
 import { headers } from "next/headers";
+import { SidebarProvider } from "./_ui/sidebar/sidebar-provider";
 
 const roboto = Roboto({ subsets: ["latin"] });
 
@@ -27,31 +32,33 @@ export default async function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"
         />
       </head>
-      <body className="grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_minmax(32rem,1fr)] grid-rows-[auto_1fr] overflow-hidden bg-tone-50-surface palette-surface max-md:grid-cols-1">
+      <body className="grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_minmax(32rem,1fr)] grid-rows-[auto_1fr] overflow-hidden bg-tone-50-surface palette-surface max-tablet:grid-cols-1">
         <ThemeProvider>
-          <Header className="col-span-2 border-b border-b-tone-600-surface/30 bg-tone-50-surface" />
-          <Sidebar className="min-h-0 overflow-y-auto border-r border-r-tone-600-surface/30 bg-tone-100-surface max-md:tray-left max-md:mt-[46px]">
-            <SidebarGroup header="Getting Started">
-              <SidebarLink href="/">Introduction</SidebarLink>
-              <SidebarLink href="/installation">Installation</SidebarLink>
-            </SidebarGroup>
+          <SidebarProvider>
+            <Header className="col-span-2 border-b border-b-tone-600-surface/30 bg-tone-50-surface" />
+            <Sidebar className="min-h-0 overflow-y-auto border-r border-r-tone-600-surface/30 bg-tone-100-surface max-tablet:mt-[50px] max-tablet:w-full max-tablet:border-r-0">
+              <SidebarGroup header="Getting Started">
+                <SidebarLink href="/">Introduction</SidebarLink>
+                <SidebarLink href="/installation">Installation</SidebarLink>
+              </SidebarGroup>
 
-            <SidebarGroup header="Core"></SidebarGroup>
+              <SidebarGroup header="Core"></SidebarGroup>
 
-            <SidebarGroup header="Components">
-              <SidebarLink href="/component/button">Button</SidebarLink>
-              <SidebarLink href="/component/radio-group">
-                Radio Group
-              </SidebarLink>
-              <SidebarLink href="/component/toggle">Toggle</SidebarLink>
-              <SidebarLink href="/component/card">Card</SidebarLink>
-              <SidebarLink href="/component/modal">Modal</SidebarLink>
-              <SidebarLink href="/component/tabs">Tabs</SidebarLink>
-            </SidebarGroup>
-          </Sidebar>
-          <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-tone-50-surface px-4 max-md:col-span-2">
-            {children}
-          </main>
+              <SidebarGroup header="Components">
+                <SidebarLink href="/component/button">Button</SidebarLink>
+                <SidebarLink href="/component/radio-group">
+                  Radio Group
+                </SidebarLink>
+                <SidebarLink href="/component/toggle">Toggle</SidebarLink>
+                <SidebarLink href="/component/card">Card</SidebarLink>
+                <SidebarLink href="/component/modal">Modal</SidebarLink>
+                <SidebarLink href="/component/tabs">Tabs</SidebarLink>
+              </SidebarGroup>
+            </Sidebar>
+            <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-tone-50-surface px-4 max-tablet:col-span-2">
+              {children}
+            </main>
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>
