@@ -19,7 +19,7 @@ export function Header({ className }: HeaderProps) {
         )}
       >
         <MenuIcon className="col-start-1 row-start-1 tablet:hidden" />
-        <div className="col-start-1 -col-end-1 row-start-1 flex items-center justify-self-center desktop:col-span-1 desktop:col-start-2 desktop:justify-self-start">
+        <div className="col-start-1 -col-end-1 row-start-1 flex items-center justify-self-center tablet:col-span-1 tablet:justify-self-start">
           <Image src="/logo.svg" alt="Natcore Logo" width={32} height={32} />
           <span className="ml-2 flex items-center gap-2">
             <span className="text-2xl">

@@ -28,7 +28,7 @@ export const VariantsShowcase = () => (
 
 // Sizes
 export const SizesShowcase = () => (
-  <ui-div className="w-full flex gap-3 items-center">
+  <ui-div className="flex w-full flex-wrap items-center gap-3">
     <button className="btn-solid/primary btn-size-sm">Small</button>
     <button className="btn-solid/primary btn-size-md">Medium</button>
     <button className="btn-solid/primary btn-size-lg">Large</button>
@@ -37,7 +37,7 @@ export const SizesShowcase = () => (
 
 // Solid Palette
 export const SolidPaletteShowcase = () => (
-  <ui-div className="w-full flex gap-3">
+  <ui-div className="flex w-full flex-wrap gap-3">
     <button className="btn-solid/primary">Primary</button>
     <button className="btn-solid/secondary">Secondary</button>
     <button className="btn-solid/accent">Accent</button>
@@ -47,7 +47,7 @@ export const SolidPaletteShowcase = () => (
 
 // Soft Palette
 export const SoftPaletteShowcase = () => (
-  <ui-div className="w-full flex gap-3">
+  <ui-div className="flex w-full flex-wrap gap-3">
     <button className="btn-soft/primary">Primary</button>
     <button className="btn-soft/secondary">Secondary</button>
     <button className="btn-soft/accent">Accent</button>
@@ -57,7 +57,7 @@ export const SoftPaletteShowcase = () => (
 
 // Outline Palette
 export const OutlinePaletteShowcase = () => (
-  <ui-div className="w-full flex gap-3">
+  <ui-div className="flex w-full flex-wrap gap-3">
     <button className="btn-outline/primary">Primary</button>
     <button className="btn-outline/secondary">Secondary</button>
     <button className="btn-outline/accent">Accent</button>
@@ -67,7 +67,7 @@ export const OutlinePaletteShowcase = () => (
 
 // Ghost Palette
 export const GhostPaletteShowcase = () => (
-  <ui-div className="w-full flex gap-3">
+  <ui-div className="flex w-full flex-wrap gap-3">
     <button className="btn-ghost/primary">Primary</button>
     <button className="btn-ghost/secondary">Secondary</button>
     <button className="btn-ghost/accent">Accent</button>
@@ -77,9 +77,9 @@ export const GhostPaletteShowcase = () => (
 
 // Icon Buttons
 export const IconButtonsShowcase = () => (
-  <ui-div className="w-full flex gap-3">
+  <ui-div className="flex w-full flex-wrap gap-3">
     <button
-      className="btn-solid/primary btn-icon"
+      className="btn-icon btn-solid/primary"
       {...uiAttr({
         "aria-label": "outline icon button",
       })}
@@ -92,7 +92,7 @@ export const IconButtonsShowcase = () => (
     </button>
 
     <button
-      className="btn-soft/primary btn-icon"
+      className="btn-icon btn-soft/primary"
       {...uiAttr({
         "aria-label": "soft icon button",
       })}
@@ -105,7 +105,7 @@ export const IconButtonsShowcase = () => (
     </button>
 
     <button
-      className="btn-outline/primary btn-icon"
+      className="btn-icon btn-outline/primary"
       {...uiAttr({
         "aria-label": "outline icon button",
       })}
@@ -118,7 +118,7 @@ export const IconButtonsShowcase = () => (
     </button>
 
     <button
-      className="btn-ghost/primary btn-icon"
+      className="btn-icon btn-ghost/primary"
       {...uiAttr({
         "aria-label": "ghost icon button",
       })}
@@ -172,7 +172,7 @@ export const buttonGroup = {
 
 // Button Groups
 export const ButtonGroupsShowcase = () => (
-  <ui-div className="w-full flex gap-3">
+  <ui-div className="flex w-full flex-wrap gap-3">
     <div className="btn-group/primary">
       <label>
         <input type="radio" name="btn-group" />
@@ -187,5 +187,33 @@ export const ButtonGroupsShowcase = () => (
         Third
       </label>
     </div>
+  </ui-div>
+);
+
+// Arbitrary Size
+export const ArbitrarySizeShowcase = () => (
+  <ui-div className="flex w-full flex-wrap items-center gap-3">
+    <button className="btn-solid/primary btn-size-[0.625rem]">0.625rem</button>
+    <button className="btn-solid/primary btn-size-[1.25rem]">1.25rem</button>
+    <button className="btn-solid/primary btn-size-[2rem]">2rem</button>
+  </ui-div>
+);
+
+// CSS Variable --btn-size override
+export const CssVarSizeShowcase = () => (
+  <ui-div className="flex w-full flex-wrap items-center gap-3">
+    <button
+      className="btn-solid/primary"
+      {...uiAttr({ style: { "--btn-size": "0.625rem" } })}
+    >
+      XS
+    </button>
+    <button className="btn-solid/primary">Default</button>
+    <button
+      className="btn-solid/primary"
+      {...uiAttr({ style: { "--btn-size": "1.5rem" } })}
+    >
+      XL
+    </button>
   </ui-div>
 );
