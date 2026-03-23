@@ -209,17 +209,20 @@ export default async function ButtonPage() {
           cssVars={[
             {
               name: "--btn-size",
-              description: "Base font size and scale factor for padding and gap.",
+              description:
+                "Base font size and scale factor for padding and gap.",
               default: "1rem",
             },
             {
               name: "--btn-px",
-              description: "Inline (horizontal) padding. Override to decouple from --btn-size.",
+              description:
+                "Inline (horizontal) padding. Override to decouple from --btn-size.",
               default: "--btn-size x 0.8",
             },
             {
               name: "--btn-py",
-              description: "Block (vertical) padding. Override to decouple from --btn-size.",
+              description:
+                "Block (vertical) padding. Override to decouple from --btn-size.",
               default: "--btn-size x 0.5",
             },
             {
