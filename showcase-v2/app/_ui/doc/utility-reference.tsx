@@ -1,4 +1,41 @@
 import { Fragment, type ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
+
+export const ApiGroup = ({
+  label,
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) => (
+  <div>
+    {label && (
+      <p className="mb-2 text-xs font-semibold tracking-widest text-on-tone-50-surface/50 uppercase">
+        {label}
+      </p>
+    )}
+    <div className="grid grid-cols-[minmax(180px,220px)_1fr] items-start gap-px overflow-hidden rounded-lg border border-tone-300-surface/40 bg-tone-300-surface/40">
+      {children}
+    </div>
+  </div>
+);
+
+export const ApiRow = ({
+  label,
+  children,
+}: {
+  label: ReactNode;
+  children?: ReactNode;
+}) => (
+  <div className="col-span-2 gap-px desktop:grid desktop:grid-cols-subgrid">
+    <div className="bg-tone-50-surface px-4 py-3 text-sm max-desktop:pb-0">
+      {label}
+    </div>
+    <div className="bg-tone-50-surface px-4 py-3 text-sm max-desktop:pt-0">
+      {children}
+    </div>
+  </div>
+);
 
 export type UtilityTag =
   | "utility"
@@ -45,8 +82,16 @@ const TAG_CLASSES: Record<UtilityTag, string> = {
   "css-variable": "badge-soft/surface",
 };
 
-export const TagBadge = ({ tag }: { tag: UtilityTag }) => (
-  <span className={`${TAG_CLASSES[tag]} inline-block`}>{tag}</span>
+export const TagBadge = ({
+  className,
+  tag,
+}: {
+  className?: string;
+  tag: UtilityTag;
+}) => (
+  <span className={twMerge(TAG_CLASSES[tag], "inline-block", className)}>
+    {tag}
+  </span>
 );
 
 export const UtilityReference = ({
@@ -71,21 +116,15 @@ export const UtilityReference = ({
       )}
 
       {/* Reference table */}
-      <div className="grid grid-cols-[160px_1fr] items-start gap-px overflow-hidden rounded-lg border border-tone-300-surface/40 bg-tone-300-surface/40">
+      <ApiGroup>
         {table.map(({ label, content }) => (
-          <div
-            key={label}
-            className="col-span-2 row-span-1 grid grid-cols-subgrid grid-rows-subgrid gap-px"
-          >
-            <div className="bg-tone-50-surface px-4 py-2.5 text-sm tracking-wide">
-              {label}
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5 bg-tone-50-surface px-4 py-2.5 text-sm text-on-tone-50-surface/80">
+          <ApiRow key={label} label={label}>
+            <div className="flex flex-wrap items-center gap-1.5 text-on-tone-50-surface/80">
               {content}
             </div>
-          </div>
+          </ApiRow>
         ))}
-      </div>
+      </ApiGroup>
     </div>
   );
 };
