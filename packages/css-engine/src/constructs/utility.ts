@@ -5,32 +5,52 @@ import {
   type StyleRuleAst,
   type StyleRuleBodyBuilder,
   type TailwindClassAst,
+  type BodyBuilder_To_StyleRuleBody,
+  type ListBuilder_To_StyleListAst,
 } from "../dsl/public.ts";
 import type { ThemeConstruct } from "./theme.ts";
 
 export type UtilityBodyBuilder = StyleListBuilder | StyleRuleBodyBuilder;
 
-export type UtilityConstruct = {
+export type BodyBuilder_To_UtilityBody<T extends UtilityBodyBuilder[]> =
+  T extends [infer U, ...infer R extends UtilityBodyBuilder[]] ?
+    [
+      U extends StyleListBuilder ? ListBuilder_To_StyleListAst<[U]>
+      : U extends StyleRuleBodyBuilder ? BodyBuilder_To_StyleRuleBody<[U]>
+      : never,
+      ...BodyBuilder_To_UtilityBody<R>,
+    ]
+  : T extends (infer U)[] ?
+    (U extends StyleListBuilder ? ListBuilder_To_StyleListAst<[U]>
+    : U extends StyleRuleBodyBuilder ? BodyBuilder_To_StyleRuleBody<[U]>
+    : never)[]
+  : [];
+
+export type UtilityConstruct<
+  N extends string,
+  T extends ThemeConstruct | undefined,
+  B extends UtilityBodyBuilder[],
+> = {
   $construct: "utility";
-  name: string;
-  theme?: ThemeConstruct;
-  styles: (TailwindClassAst | StyleListAst | StyleRuleAst)[];
+  name: N;
+  theme?: T;
+  styles: BodyBuilder_To_UtilityBody<B>;
 };
 
-export function utility<N extends string>(
+export function utility<N extends string, B extends UtilityBodyBuilder[]>(
   name: N,
-  ...body: UtilityBodyBuilder[]
-): UtilityConstruct & { name: N; theme?: never };
-export function utility<N extends string, T extends ThemeConstruct>(
-  name: N,
-  theme: T,
-  ...body: UtilityBodyBuilder[]
-): UtilityConstruct & { name: N; theme: T };
+  ...body: B
+): UtilityConstruct<N, never, B>;
+export function utility<
+  N extends string,
+  T extends ThemeConstruct,
+  B extends UtilityBodyBuilder[],
+>(name: N, theme: T, ...body: B): UtilityConstruct<N, T, B>;
 
 export function utility<N extends string>(
   name: N,
   themeOrBody: ThemeConstruct | UtilityBodyBuilder,
-  ...body: (StyleListBuilder | StyleRuleBodyBuilder)[]
+  ...body: UtilityBodyBuilder[]
 ) {
   return {
     $construct: "utility",
@@ -71,5 +91,5 @@ export function utility<N extends string>(
         ),
       ];
     }),
-  } satisfies UtilityConstruct;
+  } as UtilityConstruct<N, any, any>;
 }

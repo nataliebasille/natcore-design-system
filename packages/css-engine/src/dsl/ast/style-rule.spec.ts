@@ -7,6 +7,9 @@ import {
   type TailwindClassAst,
 } from "./style-rule.ts";
 import { select, type Selector } from "./selector.ts";
+import type { constants } from "buffer";
+import type { WithMetadata } from "../../utils/types.ts";
+import { tw } from "./tailwind-utilities.ts";
 
 describe("styleRule type tests", () => {
   describe("basic rule creation", () => {
@@ -14,14 +17,8 @@ describe("styleRule type tests", () => {
       const result = styleRule(select.cls("button"), { color: "red" });
 
       expectTypeOf(result.$ast).toEqualTypeOf<"style-rule">();
-      expectTypeOf(result.selector).toEqualTypeOf<".button">();
-      expectTypeOf(result.body).toEqualTypeOf<
-        [
-          {
-            $ast: "style-list";
-            styles: [{ color: "red" }];
-          },
-        ]
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ ".button": { color: "red" } }>>
       >();
       expect(result).toEqual({
         $ast: "style-rule",
@@ -43,20 +40,8 @@ describe("styleRule type tests", () => {
       } as const;
       const result = styleRule(select.cls("card"), body);
 
-      expectTypeOf(result.selector).toEqualTypeOf<".card">();
-      expectTypeOf(result.body).toEqualTypeOf<
-        [
-          {
-            $ast: "style-list";
-            styles: [
-              {
-                padding: "1rem";
-                margin: "0.5rem";
-                display: "flex";
-              },
-            ];
-          },
-        ]
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ ".card": typeof body }>>
       >();
       expect(result.body).toEqual([
         {
@@ -69,12 +54,9 @@ describe("styleRule type tests", () => {
     it("handles empty body", () => {
       const result = styleRule(select.cls("empty"));
 
-      expectTypeOf(result.body).toEqualTypeOf<[]>();
-      expect(result).toEqual({
-        $ast: "style-rule",
-        selector: ".empty",
-        body: [],
-      });
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ ".empty": {} }>>
+      >();
     });
   });
 
@@ -84,7 +66,9 @@ describe("styleRule type tests", () => {
       expectTypeOf(buttonClass).toEqualTypeOf<".button">();
 
       const result = styleRule(buttonClass, { color: "blue" });
-      expectTypeOf(result.selector).toEqualTypeOf<".button">();
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ ".button": { color: "blue" } }>>
+      >();
       expect(result.selector).toBe(".button");
       expect(result.$ast).toBe("style-rule");
     });
@@ -95,14 +79,11 @@ describe("styleRule type tests", () => {
         padding: "1rem",
       });
 
-      expectTypeOf(result.selector).toEqualTypeOf<"div">();
-      expectTypeOf(result.body).toEqualTypeOf<
-        [
-          {
-            $ast: "style-list";
-            styles: [{ display: "flex"; padding: "1rem" }];
-          },
-        ]
+      expectTypeOf(result).toExtend<
+        WithMetadata<
+          {},
+          Readonly<{ div: { display: "flex"; padding: "1rem" } }>
+        >
       >();
       expect(result).toEqual({
         $ast: "style-rule",
@@ -119,33 +100,17 @@ describe("styleRule type tests", () => {
     it("works with id selectors", () => {
       const result = styleRule(select.id("main"), { width: "100%" });
 
-      expectTypeOf(result.selector).toEqualTypeOf<"#main">();
-      expect(result).toEqual({
-        $ast: "style-rule",
-        selector: "#main",
-        body: [
-          {
-            $ast: "style-list",
-            styles: [{ width: "100%" }],
-          },
-        ],
-      });
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ "#main": { width: "100%" } }>>
+      >();
     });
 
     it("works with pseudo-class selectors", () => {
       const result = styleRule(select.pseudo("hover"), { opacity: "0.8" });
 
-      expectTypeOf(result.selector).toEqualTypeOf<":hover">();
-      expect(result).toEqual({
-        $ast: "style-rule",
-        selector: ":hover",
-        body: [
-          {
-            $ast: "style-list",
-            styles: [{ opacity: "0.8" }],
-          },
-        ],
-      });
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ ":hover": { opacity: "0.8" } }>>
+      >();
     });
 
     it("works with combinator selectors", () => {
@@ -156,7 +121,9 @@ describe("styleRule type tests", () => {
         },
       );
 
-      expectTypeOf(result.selector).toEqualTypeOf<"ul li">();
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ "ul li": { "list-style": "none" } }>>
+      >();
       expect(result).toEqual({
         $ast: "style-rule",
         selector: "ul li",
@@ -173,12 +140,17 @@ describe("styleRule type tests", () => {
       const buttonRule = styleRule(select.cls("primary-button"), {
         color: "white",
       });
-      expectTypeOf(buttonRule.selector).toEqualTypeOf<".primary-button">();
+
+      expectTypeOf(buttonRule).toExtend<
+        WithMetadata<{}, Readonly<{ ".primary-button": { color: "white" } }>>
+      >();
 
       const divRule = styleRule(select.element("section"), {
         display: "block",
       });
-      expectTypeOf(divRule.selector).toEqualTypeOf<"section">();
+      expectTypeOf(divRule).toExtend<
+        WithMetadata<{}, Readonly<{ section: { display: "block" } }>>
+      >();
     });
   });
 
@@ -191,12 +163,13 @@ describe("styleRule type tests", () => {
         { display: "flex" },
       );
 
-      expectTypeOf(result.body).toEqualTypeOf<
-        [
-          { $ast: "style-list"; styles: [{ padding: "1rem" }] },
-          { $ast: "style-list"; styles: [{ margin: "0.5rem" }] },
-          { $ast: "style-list"; styles: [{ display: "flex" }] },
-        ]
+      expectTypeOf(result).toExtend<
+        WithMetadata<
+          {},
+          Readonly<{
+            ".card": { padding: "1rem"; margin: "0.5rem"; display: "flex" };
+          }>
+        >
       >();
       expect(result.body).toEqual([
         {
@@ -223,17 +196,19 @@ describe("styleRule type tests", () => {
         { "background-color": "blue" },
       );
 
-      expectTypeOf(result.body).toEqualTypeOf<
-        [
-          { $ast: "style-list"; styles: [{ padding: "0.5rem 1rem" }] },
-          {
-            $ast: "style-rule";
-            selector: ":hover";
-            body: [{ $ast: "style-list"; styles: [{ opacity: "0.8" }] }];
-          },
-          { $ast: "style-list"; styles: [{ "background-color": "blue" }] },
-        ]
+      expectTypeOf(result).toExtend<
+        WithMetadata<
+          {},
+          Readonly<{
+            ".button": {
+              padding: "0.5rem 1rem";
+              ":hover": { opacity: "0.8" };
+              "background-color": "blue";
+            };
+          }>
+        >
       >();
+
       expect(result.body).toEqual([
         {
           $ast: "style-list",
@@ -330,11 +305,8 @@ describe("styleRule type tests", () => {
     it("accepts tailwind utility strings and converts to TailwindClassAst", () => {
       const result = styleRule(select.cls("button"), "flex", "items-center");
 
-      expectTypeOf(result.body).toEqualTypeOf<
-        [
-          { $ast: "tailwind-class"; value: "flex" },
-          { $ast: "tailwind-class"; value: "items-center" },
-        ]
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, { ".button": { tw: "flex" | "items-center" } }>
       >();
       expect(result.body).toHaveLength(2);
       expect(result.body[0]).toEqual({
@@ -355,12 +327,16 @@ describe("styleRule type tests", () => {
         "rounded-lg",
       );
 
-      expectTypeOf(result.body).toEqualTypeOf<
-        [
-          { $ast: "tailwind-class"; value: "flex" },
-          { $ast: "style-list"; styles: [{ padding: "1rem" }] },
-          { $ast: "tailwind-class"; value: "rounded-lg" },
-        ]
+      expectTypeOf(result).toExtend<
+        WithMetadata<
+          {},
+          {
+            ".card": {
+              tw: "flex" | "rounded-lg";
+              padding: "1rem";
+            };
+          }
+        >
       >();
       expect(result.body).toHaveLength(3);
       expect(result.body[0]).toEqual({
@@ -378,169 +354,24 @@ describe("styleRule type tests", () => {
     });
 
     it("accepts TailwindClassAst objects directly", () => {
-      const twClass: TailwindClassAst = {
-        $ast: "tailwind-class",
-        value: "bg-blue-500",
-      };
+      const twClass = tw("bg-blue-500");
       const result = styleRule(select.cls("button"), twClass);
 
-      expectTypeOf(result.body).toEqualTypeOf<[TailwindClassAst]>();
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, { ".button": { tw: "bg-blue-500" } }>
+      >();
       expect(result.body).toEqual([twClass]);
     });
   });
 
   describe("StyleListAst integration", () => {
     it("accepts StyleListAst directly", () => {
-      const styleList: StyleListAst = {
-        $ast: "style-list",
-        styles: [{ color: "red" }],
-      };
-      const result = styleRule(select.cls("text"), styleList);
+      const list = styleList({ color: "red" });
+      const result = styleRule(select.cls("text"), list);
 
-      expectTypeOf(result.body).toEqualTypeOf<[StyleListAst]>();
-      expect(result.body).toEqual([styleList]);
-    });
-  });
-
-  describe("styleList function", () => {
-    it("creates StyleListAst from style properties", () => {
-      const result = styleList({ color: "red", padding: "1rem" });
-
-      expectTypeOf(result.$ast).toEqualTypeOf<"style-list">();
-      expectTypeOf(result.styles).toEqualTypeOf<
-        [{ color: "red"; padding: "1rem" }]
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ ".text": { color: "red" } }>>
       >();
-      expect(result).toEqual({
-        $ast: "style-list",
-        styles: [{ color: "red", padding: "1rem" }],
-      });
-    });
-
-    it("creates StyleListAst from tailwind utility strings", () => {
-      const result = styleList("flex", "items-center", "justify-between");
-
-      expectTypeOf(result.$ast).toEqualTypeOf<"style-list">();
-      expectTypeOf(result.styles).toEqualTypeOf<
-        [
-          { $ast: "tailwind-class"; value: "flex" },
-          { $ast: "tailwind-class"; value: "items-center" },
-          { $ast: "tailwind-class"; value: "justify-between" },
-        ]
-      >();
-      expect(result).toEqual({
-        $ast: "style-list",
-        styles: [
-          { $ast: "tailwind-class", value: "flex" },
-          { $ast: "tailwind-class", value: "items-center" },
-          { $ast: "tailwind-class", value: "justify-between" },
-        ],
-      });
-    });
-
-    it("creates StyleListAst from TailwindClassAst objects", () => {
-      const tw1: TailwindClassAst = { $ast: "tailwind-class", value: "flex" };
-      const tw2: TailwindClassAst = {
-        $ast: "tailwind-class",
-        value: "gap-4",
-      };
-      const result = styleList(tw1, tw2);
-
-      expectTypeOf(result.styles).toEqualTypeOf<
-        [TailwindClassAst, TailwindClassAst]
-      >();
-      expect(result).toEqual({
-        $ast: "style-list",
-        styles: [tw1, tw2],
-      });
-    });
-
-    it("creates StyleListAst from mixed style builders", () => {
-      const result = styleList(
-        { color: "blue" },
-        "flex",
-        { padding: "0.5rem" },
-        "rounded-lg",
-      );
-
-      expectTypeOf(result.styles).toEqualTypeOf<
-        [
-          { color: "blue" },
-          { $ast: "tailwind-class"; value: "flex" },
-          { padding: "0.5rem" },
-          { $ast: "tailwind-class"; value: "rounded-lg" },
-        ]
-      >();
-      expect(result).toEqual({
-        $ast: "style-list",
-        styles: [
-          { color: "blue" },
-          { $ast: "tailwind-class", value: "flex" },
-          { padding: "0.5rem" },
-          { $ast: "tailwind-class", value: "rounded-lg" },
-        ],
-      });
-    });
-
-    it("handles empty styleList", () => {
-      const result = styleList();
-
-      expectTypeOf(result.styles).toEqualTypeOf<[]>();
-      expect(result).toEqual({
-        $ast: "style-list",
-        styles: [],
-      });
-    });
-
-    it("preserves literal types for style properties", () => {
-      const styles = {
-        display: "flex",
-        "flex-direction": "column",
-        gap: "1rem",
-      } as const;
-      const result = styleList(styles);
-
-      expectTypeOf(result.styles).toEqualTypeOf<
-        [
-          {
-            display: "flex";
-            "flex-direction": "column";
-            gap: "1rem";
-          },
-        ]
-      >();
-      expect(result.styles).toEqual([styles]);
-    });
-
-    it("works with styleRule integration", () => {
-      const list = styleList("flex", { padding: "1rem" }, "items-center");
-      const rule = styleRule(select.cls("container"), list);
-
-      expectTypeOf(rule.body).toEqualTypeOf<
-        [
-          {
-            $ast: "style-list";
-            styles: [
-              { $ast: "tailwind-class"; value: "flex" },
-              { padding: "1rem" },
-              { $ast: "tailwind-class"; value: "items-center" },
-            ];
-          },
-        ]
-      >();
-      expect(rule.body).toEqual([list]);
-    });
-
-    it("handles multiple style property objects", () => {
-      const result = styleList(
-        { color: "red" },
-        { "background-color": "blue" },
-        { margin: "1rem" },
-      );
-
-      expectTypeOf(result.styles).toEqualTypeOf<
-        [{ color: "red" }, { "background-color": "blue" }, { margin: "1rem" }]
-      >();
-      expect(result.styles).toHaveLength(3);
     });
   });
 
@@ -584,8 +415,9 @@ describe("styleRule type tests", () => {
       }
 
       const result = createRule(select.cls("btn"));
-      expectTypeOf(result.selector).toEqualTypeOf<".btn">();
-      expect(result.selector).toBe(".btn");
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ ".btn": { padding: "0.5rem" } }>>
+      >();
     });
   });
 
@@ -595,7 +427,9 @@ describe("styleRule type tests", () => {
       expect(selector).toBe(".test");
 
       const result = styleRule(selector);
-      expectTypeOf(result.body).toEqualTypeOf<[]>();
+      expectTypeOf(result).toExtend<
+        WithMetadata<{}, Readonly<{ ".test": {} }>>
+      >();
       expect(result.selector).toBe(".test");
       expect(result.selector).toBe(selector);
       expect(result.body).toEqual([]);
@@ -609,8 +443,186 @@ describe("styleRule type tests", () => {
         { margin: "1rem" },
       );
 
-      expect(Array.isArray(result.body)).toBe(true);
-      expect(result.body.length).toBeGreaterThan(2);
+      expectTypeOf(result).toExtend<
+        WithMetadata<
+          {},
+          Readonly<{
+            ".complex": {
+              color: "red";
+              ":hover": { color: "blue" };
+              margin: "1rem";
+            };
+          }>
+        >
+      >();
+
+      expect(result.body).toEqual([
+        {
+          $ast: "style-list",
+          styles: [{ color: "red" }],
+        },
+        {
+          $ast: "style-rule",
+          selector: ":hover",
+          body: [
+            {
+              $ast: "style-list",
+              styles: [{ color: "blue" }],
+            },
+          ],
+        },
+        {
+          $ast: "style-list",
+          styles: [{ margin: "1rem" }],
+        },
+      ]);
     });
+  });
+});
+
+describe("styleList function", () => {
+  it("creates StyleListAst from style properties", () => {
+    const result = styleList({ color: "red", padding: "1rem" });
+
+    expectTypeOf(result.$ast).toEqualTypeOf<"style-list">();
+    expectTypeOf(result).toExtend<
+      WithMetadata<{}, Readonly<{ color: "red"; padding: "1rem" }>>
+    >();
+    expect(result).toEqual({
+      $ast: "style-list",
+      styles: [{ color: "red", padding: "1rem" }],
+    });
+  });
+
+  it("creates StyleListAst from tailwind utility strings", () => {
+    const result = styleList("flex", "items-center", "justify-between");
+
+    expectTypeOf(result.$ast).toEqualTypeOf<"style-list">();
+    expectTypeOf(result).toExtend<
+      WithMetadata<
+        {},
+        Readonly<{ tw: "flex" | "items-center" | "justify-between" }>
+      >
+    >();
+    expect(result).toEqual({
+      $ast: "style-list",
+      styles: [
+        { $ast: "tailwind-class", value: "flex" },
+        { $ast: "tailwind-class", value: "items-center" },
+        { $ast: "tailwind-class", value: "justify-between" },
+      ],
+    });
+  });
+
+  it("creates StyleListAst from TailwindClassAst objects", () => {
+    const tw1 = tw("flex");
+    const tw2 = tw("gap-4");
+    const result = styleList(tw1, tw2);
+
+    expectTypeOf(result).toExtend<
+      WithMetadata<{}, Readonly<{ tw: "flex" | "gap-4" }>>
+    >();
+    expect(result).toEqual({
+      $ast: "style-list",
+      styles: [tw1, tw2],
+    });
+  });
+
+  it("creates StyleListAst from mixed style builders", () => {
+    const result = styleList(
+      { color: "blue" },
+      "flex",
+      { padding: "0.5rem" },
+      "rounded-lg",
+    );
+
+    expectTypeOf(result).toExtend<
+      WithMetadata<
+        {},
+        Readonly<{
+          color: "blue";
+          padding: "0.5rem";
+          tw: "flex" | "rounded-lg";
+        }>
+      >
+    >();
+    expect(result).toEqual({
+      $ast: "style-list",
+      styles: [
+        { color: "blue" },
+        { $ast: "tailwind-class", value: "flex" },
+        { padding: "0.5rem" },
+        { $ast: "tailwind-class", value: "rounded-lg" },
+      ],
+    });
+  });
+
+  it("handles empty styleList", () => {
+    const result = styleList();
+
+    expectTypeOf(result).toExtend<WithMetadata<{}, {}>>();
+    expect(result).toEqual({
+      $ast: "style-list",
+      styles: [],
+    });
+  });
+
+  it("preserves literal types for style properties", () => {
+    const styles = {
+      display: "flex",
+      "flex-direction": "column",
+      gap: "1rem",
+    } as const;
+    const result = styleList(styles);
+
+    expectTypeOf(result).toExtend<
+      WithMetadata<
+        {},
+        {
+          display: "flex";
+          "flex-direction": "column";
+          gap: "1rem";
+        }
+      >
+    >();
+    expect(result.styles).toEqual([styles]);
+  });
+
+  it("works with styleRule integration", () => {
+    const list = styleList("flex", { padding: "1rem" }, "items-center");
+    const rule = styleRule(select.cls("container"), list);
+
+    expectTypeOf(rule).toExtend<
+      WithMetadata<
+        {},
+        Readonly<{
+          ".container": {
+            tw: "flex" | "items-center";
+            padding: "1rem";
+          };
+        }>
+      >
+    >();
+    expect(rule.body).toEqual([list]);
+  });
+
+  it("handles multiple style property objects", () => {
+    const result = styleList(
+      { color: "red" },
+      { "background-color": "blue" },
+      { margin: "1rem" },
+    );
+
+    expectTypeOf(result).toExtend<
+      WithMetadata<
+        {},
+        { color: "red"; "background-color": "blue"; margin: "1rem" }
+      >
+    >();
+    expect(result.styles).toEqual([
+      { color: "red" },
+      { "background-color": "blue" },
+      { margin: "1rem" },
+    ]);
   });
 });

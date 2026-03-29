@@ -3,6 +3,9 @@ import {
   dsl,
   theme,
   utility,
+  type ThemeConstruct,
+  type ComponentConstruct,
+  type UtilityConstruct,
 } from "@nataliebasille/natcore-css-engine";
 
 const solid = {
@@ -58,7 +61,81 @@ const TOGGLES_SELECTOR = [
 
 const BUTTON_SIZE_DEFAULT = dsl.primitive.length.rem(1);
 
-export default [
+const x = component("btn-group", {
+  defaultVariant: "outline",
+  variants: {
+    solid,
+    soft,
+    outline,
+    ghost: {
+      ...ghost,
+      "--border-radius": dsl.cssvar("--radius-lg"),
+      "--border-inline-width-first-child": dsl.primitive.length.px(1),
+      "--border-inline-width-last-child": dsl.primitive.length.px(1),
+      "--border-inline-width-not-first-last-child": dsl.primitive.length.px(1),
+    },
+  },
+  styles: [
+    "inline-flex",
+
+    {
+      $: {
+        [TOGGLES_SELECTOR.join(", ")]: ["hidden"],
+
+        ["& > *"]: [
+          ...buttonStyles(),
+          {
+            $: {
+              ["&:hover"]: {
+                "background-color": dsl.match.variable("--hover-bg"),
+                color: dsl.match.variable("--hover-fg"),
+              },
+
+              ["&:first-child"]: [
+                "rounded-r-none",
+                "border-r-0",
+                {
+                  "border-radius": dsl.match.variable("--border-radius"),
+                  "border-inline-width": dsl.match.variable(
+                    "--border-inline-width-first-child",
+                  ),
+                },
+              ],
+              ["&:last-child"]: [
+                "rounded-l-none",
+                "border-l-0",
+                {
+                  "border-radius": dsl.match.variable("--border-radius"),
+                  "border-inline-width": dsl.match.variable(
+                    "--border-inline-width-last-child",
+                  ),
+                },
+              ],
+              ["&:not(:first-child):not(:last-child)"]: [
+                "rounded-none",
+                "border-x-0",
+                {
+                  "border-radius": dsl.match.variable("--border-radius"),
+                  "border-inline-width": dsl.match.variable(
+                    "--border-inline-width-not-first-last-child",
+                  ),
+                },
+              ],
+              ["&:has(:checked)"]: {
+                "background-color": dsl.match.variable("--active-bg"),
+                color: dsl.match.variable("--active-fg"),
+              },
+            },
+          },
+        ],
+      },
+    },
+  ],
+});
+
+const y = x.styles[0];
+
+const module = [
   theme("inline", {
     "--btn-padding-inline": dsl.cssvar(
       "--btn-px-override",
@@ -223,3 +300,77 @@ function buttonStyles() {
     },
   ];
 }
+
+export default module;
+
+export type CssTsContent =
+  | ComponentConstruct<string, any, any>
+  | UtilityConstruct<string, any, any>
+  | ThemeConstruct<any, any>
+  | dsl.StyleListAst
+  | dsl.StyleRuleAst
+  | dsl.AtRuleAst;
+
+type ExtractComponents<T extends CssTsContent[]> = Extract<
+  T[number],
+  ComponentConstruct<string, any, any>
+>;
+
+type ExtractModifiers<T extends CssTsContent[]> = Extract<
+  T[number],
+  UtilityConstruct<string, any, any>
+>;
+
+// Finds all CSS variables that can be set externally to customize the module.
+// NOT settable: ThemeConstructs (inline or utility-owned), component variants.
+// SETTABLE: `--` keys found inside construct.styles.
+//
+// `[I in keyof Array]` is avoided because it maps over array method keys ("map",
+// "filter", ...) causing TS to evaluate `ExtractVarsFromStyleBody<Function>`
+// which blows up. Instead, `(infer E)[]` extracts only the element type so the
+// conditional distributes cleanly. Style-rule bodies are not traversed — they are
+// self-referential (StyleRuleBody includes StyleRuleAst) and only consume CSS vars,
+// never declare them.
+//
+// Two plain-property cases exist because BodyBuilder_To_UtilityBody uses
+// ListBuilder_To_StyleListAst for StyleListBuilder elements, which maps
+// StyleProperties to plain objects WITHOUT a $ast wrapper. StyleRuleBodyBuilder
+// elements do get a `{ $ast: "style-list"; styles: [...] }` wrapper, so we
+// handle both shapes.
+type ExtractVarsFromStyleBody<S> =
+  S extends readonly (infer E)[] ? ExtractVarsFromStyleBody<E>
+  : S extends { $ast: "style-list"; styles: readonly (infer P)[] } ?
+    keyof P & `--${string}`
+  : S extends { $ast: string } ?
+    never // all AST nodes skipped — style-rule bodies are self-referential and only consume vars
+  : S extends Record<string, unknown> ?
+    keyof S & `--${string}` // raw StyleProperties plain objects
+  : never;
+
+type ExtractCssVarsFromElement<Item extends CssTsContent> =
+  Item extends { styles: infer S extends any[] } ? ExtractVarsFromStyleBody<S>
+  : never;
+
+export type ExtractCssVars<T extends CssTsContent[]> =
+  ExtractCssVarsFromElement<T[number]>;
+
+type DocMeta<T extends CssTsContent[]> = {
+  description: string;
+  components: Record<ExtractComponents<T>["name"], string>;
+  modifiers: Record<ExtractModifiers<T>["name"], string>;
+  cssvars: Record<ExtractCssVars<T>, string>;
+};
+export const docs: DocMeta<typeof module> = {
+  components: {
+    btn: "The base button component with multiple variants and sizes.",
+  },
+  modifiers: {
+    "btn-size": "Utility for setting the button size.",
+    "btn-icon": "Utility for setting the button icon.",
+  },
+  cssvars: {
+    "--btn-size": "The size of the button.",
+    "--btn-px": "The horizontal padding of the button.",
+    "--btn-py": "The vertical padding of the button.",
+  },
+};

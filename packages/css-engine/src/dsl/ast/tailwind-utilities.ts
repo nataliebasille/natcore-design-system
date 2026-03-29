@@ -705,18 +705,18 @@ export type TailwindUtility =
   | ObjectPosition
   | (string & {}); // Allow any string for custom utilities or future additions
 
-export type TailwindClassAst = AstNode<
+export type TailwindClassAst<U extends TailwindUtility> = AstNode<
   "tailwind-class",
   {
-    value: TailwindUtility;
+    value: U;
   }
 >;
 
-export function tw(value: TailwindUtility): TailwindClassAst {
+export function tw<U extends TailwindUtility>(value: U) {
   return {
     $ast: "tailwind-class",
     value,
-  };
+  } satisfies TailwindClassAst<U>;
 }
 
 /**

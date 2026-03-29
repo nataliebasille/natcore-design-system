@@ -4,10 +4,13 @@ import type { Eager } from "../utils/index.ts";
 
 export type ThemeMode = "static" | "inline" | "root";
 
-export type ThemeConstruct = {
+export type ThemeConstruct<
+  M extends ThemeMode | undefined = undefined,
+  P extends ThemeProperties | undefined = undefined,
+> = {
   $construct: "theme";
-  mode?: ThemeMode;
-  properties: ThemeProperties;
+  mode?: M;
+  properties: P;
 };
 
 export type ThemeProperties = {
@@ -21,15 +24,15 @@ type CombinedThemes<T extends ThemeProperties[]> = Eager<{
 export function theme<M extends ThemeMode, const P extends ThemeProperties>(
   mode: M,
   properties: P,
-): ThemeConstruct & { mode: M; properties: P };
+): ThemeConstruct<M, P>;
 export function theme<const T extends ThemeProperties[]>(
   ...themes: T
-): ThemeConstruct & { mode?: never; properties: CombinedThemes<T> };
+): ThemeConstruct<never, CombinedThemes<T>>;
 
 export function theme(
   first: ThemeMode | ThemeProperties,
   ...rest: ThemeProperties[]
-): ThemeConstruct {
+) {
   return {
     $construct: "theme",
     ...(typeof first === "string" ? { mode: first } : {}),
@@ -38,5 +41,5 @@ export function theme(
       typeof first === "object" ? first : {},
       ...rest,
     ),
-  } satisfies ThemeConstruct;
+  } as ThemeConstruct<any, any>;
 }

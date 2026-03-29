@@ -49,3 +49,5 @@ export type SetPropertiesWhere<T, From, To> =
       [K in keyof T]: ReplaceType<T[K], From, To>;
     }
   : T;
+
+export type WithMetadata<T, M> = T & { readonly __metadata?: M };

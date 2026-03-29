@@ -13,6 +13,7 @@ import {
 } from "./tailwind-utilities.ts";
 import type { TemplateLiteralAst } from "./cssvalue/template-literal.ts";
 import type { SpacingFunctionAst } from "./tailwind-functions/spacing.ts";
+import type { Eager, WithMetadata } from "../../utils/types.ts";
 
 export type {
   TailwindUtility,
@@ -22,6 +23,58 @@ export type {
   LengthValue,
 } from "./tailwind-utilities.ts";
 export { arbitraryValue } from "./tailwind-utilities.ts";
+
+type Styles =
+  | WithMetadata<StyleListAst | StyleRuleAst, unknown>
+  | StyleProperties
+  | TailwindUtility
+  | TailwindClassAst<TailwindUtility>
+  | { $: { [K in Selector]?: Styles | Styles[] } };
+
+type UnionToIntersection<U> =
+  (U extends unknown ? (x: U) => void : never) extends (x: infer I) => void ? I
+  : never;
+
+type ValueOf<T> = T[keyof T];
+
+type NestedStylesMetadata<Nested> =
+  Nested extends Record<PropertyKey, Styles | Styles[]> ?
+    {
+      [K in keyof Nested]: Styles_Metadata<Nested[K]>;
+    }
+  : {};
+
+type MetadataOfStyle<S extends Styles> =
+  S extends WithMetadata<StyleListAst | StyleRuleAst, infer M> ? M
+  : S extends StyleProperties ?
+    Omit<S, "$"> &
+      (S extends { $: infer Nested } ? NestedStylesMetadata<Nested> : {})
+  : S extends { $: infer Nested } ? NestedStylesMetadata<Nested>
+  : {};
+
+type TwOfStyle<S extends Styles> =
+  S extends TailwindUtility ? S
+  : S extends TailwindClassAst<infer Tw> ? Tw
+  : S extends { $: infer Nested } ?
+    Nested extends Record<PropertyKey, Styles | Styles[]> ?
+      TwOf<ValueOf<Nested>>
+    : never
+  : never;
+
+type MetadataOf<T extends Styles | readonly Styles[]> =
+  T extends readonly unknown[] ?
+    UnionToIntersection<MetadataOfStyle<Extract<T[number], Styles>>>
+  : T extends Styles ? MetadataOfStyle<T>
+  : {};
+
+type TwOf<T extends Styles | readonly Styles[]> =
+  T extends readonly Styles[] ? TwOfStyle<T[number]>
+  : T extends Styles ? TwOfStyle<T>
+  : never;
+
+type Styles_Metadata<T extends Styles | readonly Styles[]> = Eager<
+  MetadataOf<T> & ([TwOf<T>] extends [never] ? {} : { tw: TwOf<T> })
+>;
 
 export type StylePropertyValue =
   | CssValue<CssDataType>
@@ -33,11 +86,11 @@ export type StyleProperties = {
   [K in keyof css.StyleProperties]?: StylePropertyValue | StylePropertyValue[];
 };
 
-export type StyleListAst = AstNode<
-  "style-list",
-  { styles: (StyleProperties | TailwindClassAst)[] }
->;
-export type StyleRuleBody = StyleListAst | StyleRuleAst | TailwindClassAst;
+export type StyleRuleBody =
+  | StyleListAst
+  | StyleRuleAst
+  | TailwindClassAst<TailwindUtility>;
+
 export type StyleRuleAst = AstNode<
   "style-rule",
   {
@@ -50,70 +103,15 @@ export type StyleRuleBodyBuilder =
   | StyleListAst
   | StyleRuleAst
   | TailwindUtility
+  | TailwindClassAst<TailwindUtility>
   | (StyleProperties & {
       $?: {
         [K in Selector]?: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
       };
     });
 
-type BodyBuilder_To_StyleRuleBody<T extends StyleRuleBodyBuilder[]> =
-  T extends [infer U, ...infer R extends StyleRuleBodyBuilder[]] ?
-    [
-      ...(U extends TailwindUtility ? [{ $ast: "tailwind-class"; value: U }]
-      : U extends StyleListAst ? [U]
-      : U extends StyleRuleAst ? [U]
-      : U extends { $: infer Nested } ?
-        [
-          {
-            $ast: "style-list";
-            styles: [
-              {
-                -readonly [K in keyof U as K extends "$" ? never : K]: U[K];
-              },
-            ];
-          },
-          ...NestedSelectorsToAst<Nested>,
-        ]
-      : [
-          {
-            $ast: "style-list";
-            styles: [
-              {
-                -readonly [K in keyof U as K extends "$" ? never : K]: U[K];
-              },
-            ];
-          },
-        ]),
-      ...BodyBuilder_To_StyleRuleBody<R>,
-    ]
-  : T extends (infer U)[] ?
-    // Handle array types by converting each possible element
-    (U extends TailwindUtility ? { $ast: "tailwind-class"; value: U }
-    : U extends StyleListAst | StyleRuleAst ? U
-    : U extends { $: any } ? StyleListAst | StyleRuleAst
-    : StyleListAst)[]
-  : [];
-
-type NestedSelectorsToAst<T> =
-  T extends Partial<Record<Selector, StyleRuleBodyBuilder>> ?
-    Array<
-      {
-        [K in keyof T]: T[K] extends StyleRuleBodyBuilder ?
-          {
-            $ast: "style-rule";
-            selector: K;
-            body: BodyBuilder_To_StyleRuleBody<[T[K]]>;
-          }
-        : T[K] extends StyleRuleBodyBuilder[] ?
-          {
-            $ast: "style-rule";
-            selector: K;
-            body: BodyBuilder_To_StyleRuleBody<T[K]>;
-          }
-        : never;
-      }[keyof T]
-    >
-  : [];
+export type StyleRuleAst_WithMetadata<B extends StyleRuleBodyBuilder[]> =
+  WithMetadata<StyleRuleAst, Styles_Metadata<B>>;
 
 /**
  * DSL function to create a rule with type-safe selector and body
@@ -170,44 +168,30 @@ export function styleRule<
   return {
     $ast: "style-rule" as const,
     selector,
-    body: astBody as BodyBuilder_To_StyleRuleBody<B> satisfies StyleRuleBody[],
-  };
+    body: astBody,
+  } as WithMetadata<StyleRuleAst, Styles_Metadata<{ $: { [K in S]: B } }>>;
 }
 
 export type StyleListBuilder =
   | StyleProperties
   | TailwindUtility
-  | TailwindClassAst;
+  | TailwindClassAst<TailwindUtility>;
 
-type ListBuilder_To_StyleListAst<T extends StyleListBuilder[]> =
-  T extends [infer U, ...infer R extends StyleListBuilder[]] ?
-    [
-      ...(U extends TailwindUtility ? [{ $ast: "tailwind-class"; value: U }]
-      : U extends TailwindClassAst ? [U]
-      : U extends StyleProperties ?
-        [
-          {
-            -readonly [K in keyof U]: U[K];
-          },
-        ]
-      : []),
-      ...ListBuilder_To_StyleListAst<R>,
-    ]
-  : T extends (infer U)[] ?
-    // Handle array types by converting each possible element
-    (U extends TailwindUtility ? { $ast: "tailwind-class"; value: U }
-    : U extends TailwindClassAst ? U
-    : U extends StyleProperties ? StyleProperties
-    : never)[]
-  : [];
+export type StyleListAst = AstNode<
+  "style-list",
+  { styles: (StyleProperties | TailwindClassAst<TailwindUtility>)[] }
+>;
+
+export type StyleListAst_WithMetadata<B extends StyleListBuilder[]> =
+  WithMetadata<StyleListAst, Styles_Metadata<B>>;
 
 export function styleList<const B extends StyleListBuilder[]>(...styles: B) {
   return {
     $ast: "style-list" as const,
-    styles: styles.map((s) =>
+    styles: styles.map((s): StyleListAst["styles"][number] =>
       typeof s === "string" ? tw(s)
       : typeof s === "object" && "prefix" in s ? tw(s)
       : s,
-    ) as ListBuilder_To_StyleListAst<B> satisfies StyleListAst["styles"],
-  } satisfies StyleListAst;
+    ),
+  } as StyleListAst_WithMetadata<B>;
 }
