@@ -202,9 +202,9 @@ type ContainsChild<Parent, Child> =
   : false;
 
 export type VisitorContext<
-  Spec extends NormalizedAstSpec,
-  Node extends AstSpecIn<Spec[keyof Spec]>,
-  OutMap extends VisitorOutMap<Spec>,
+  in out Spec extends NormalizedAstSpec,
+  in out Node extends AstSpecIn<Spec[keyof Spec]>,
+  in out OutMap extends VisitorOutMap<Spec>,
 > = {
   parent?: ApplyOutMap<Spec, OutMap, ParentsOf<Spec, Node>>;
   key?: PropertyKey;
@@ -213,10 +213,10 @@ export type VisitorContext<
 };
 
 type VisitorFunctionEnter<
-  Spec extends NormalizedAstSpec,
-  OutMap extends VisitorOutMap<Spec>,
-  Id extends keyof Spec,
-  Out,
+  in out Spec extends NormalizedAstSpec,
+  in out OutMap extends VisitorOutMap<Spec>,
+  in out Id extends keyof Spec,
+  in out Out,
 > = (
   node: AstSpecIn<Spec[Id]>,
   context: VisitorContext<Spec, AstSpecIn<Spec[Id]>, OutMap>,
@@ -229,8 +229,8 @@ type WithSelfDeclared<
 > = OutMap & { [P in K]: AstSpecOut<Spec[K]> };
 
 export type VisitorBuilder<
-  Spec extends NormalizedAstSpec,
-  OutMap extends VisitorOutMap<Spec>,
+  in out Spec extends NormalizedAstSpec,
+  in out OutMap extends VisitorOutMap<Spec>,
 > = {
   // enter+exit
   on<K extends keyof Spec, EnterOut, ExitOut extends AstSpecOut<Spec[K]>>(

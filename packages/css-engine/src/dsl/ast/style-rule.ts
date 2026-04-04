@@ -175,7 +175,7 @@ export function styleRule<
     $ast: "style-rule" as const,
     selector,
     body: astBody,
-  } as WithMetadata<StyleRuleAst, Styles_Metadata<{ $: { [K in S]: B } }>>;
+  } as unknown as WithMetadata<StyleRuleAst, Styles_Metadata<{ $: { [K in S]: B } }>>;
 }
 
 export type StyleListBuilder =
@@ -199,5 +199,5 @@ export function styleList<const B extends StyleListBuilder[]>(...styles: B) {
       : typeof s === "object" && "prefix" in s ? tw(s)
       : s,
     ),
-  } as StyleListAst_WithMetadata<B>;
+  } as unknown as StyleListAst_WithMetadata<B>;
 }

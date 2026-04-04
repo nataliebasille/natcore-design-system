@@ -135,6 +135,13 @@ type TailwindColors =
   | "black"
   | "white";
 
+// Named sub-type so TypeScript can cache the Exclude result instead of
+// re-computing it inline for every color utility (TextColor, BackgroundColor, …)
+type TailwindColorScale = Exclude<
+  TailwindColors,
+  "inherit" | "current" | "transparent" | "black" | "white"
+>;
+
 // Layout utilities
 type LayoutDisplay =
   | "block"
@@ -333,7 +340,7 @@ type TextAlign =
   | "text-end";
 type TextColor =
   | `text-${TailwindColors}`
-  | `text-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`
+  | `text-${TailwindColorScale}-${TailwindNumericScale}`
   | `text-[${string}]`
   | ArbitraryValue<"color", "text">;
 type TextDecoration =
@@ -378,7 +385,7 @@ type WordBreak = "break-normal" | "break-words" | "break-all" | "break-keep";
 // Background
 type BackgroundColor =
   | `bg-${TailwindColors}`
-  | `bg-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`
+  | `bg-${TailwindColorScale}-${TailwindNumericScale}`
   | `bg-[${string}]`
   | ArbitraryValue<"color", "bg">;
 type BackgroundSize = "bg-auto" | "bg-cover" | "bg-contain";
@@ -420,7 +427,7 @@ type BorderWidth =
     >;
 type BorderColor =
   | `border-${TailwindColors}`
-  | `border-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`
+  | `border-${TailwindColorScale}-${TailwindNumericScale}`
   | `border-[${string}]`
   | ArbitraryValue<"color", "border">;
 type BorderStyle =
@@ -436,7 +443,7 @@ type DivideWidth =
   | ArbitraryValue<"length", "divide-x" | "divide-y">;
 type DivideColor =
   | `divide-${TailwindColors}`
-  | `divide-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`;
+  | `divide-${TailwindColorScale}-${TailwindNumericScale}`;
 type OutlineWidth =
   | "outline"
   | "outline-0"
@@ -446,7 +453,7 @@ type OutlineWidth =
   | "outline-8";
 type OutlineColor =
   | `outline-${TailwindColors}`
-  | `outline-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`;
+  | `outline-${TailwindColorScale}-${TailwindNumericScale}`;
 type RingWidth =
   | "ring"
   | "ring-0"
@@ -457,7 +464,7 @@ type RingWidth =
   | "ring-inset";
 type RingColor =
   | `ring-${TailwindColors}`
-  | `ring-${Exclude<TailwindColors, "inherit" | "current" | "transparent" | "black" | "white">}-${TailwindNumericScale}`;
+  | `ring-${TailwindColorScale}-${TailwindNumericScale}`;
 
 // Effects
 type BoxShadow =
