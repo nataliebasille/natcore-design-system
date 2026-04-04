@@ -44,7 +44,7 @@ type NestedStylesMetadata<Nested> =
     }
   : {};
 
-type MetadataOfStyle<S extends Styles> =
+type MetadataOfStyle<S> =
   S extends WithMetadata<StyleListAst | StyleRuleAst, infer M> ? M
   : S extends StyleProperties ?
     Omit<S, "$"> &
@@ -52,8 +52,13 @@ type MetadataOfStyle<S extends Styles> =
   : S extends { $: infer Nested } ? NestedStylesMetadata<Nested>
   : {};
 
-type TwOfStyle<S extends Styles> =
-  S extends TailwindUtility ? S
+type TwOfStyle<S> =
+  // Use fast structural checks instead of distributing against the full ~3980-member
+  // TailwindUtility union. All TailwindUtility string literals are caught by
+  // `extends string`, and all ArbitraryValue<D,P> objects by `extends { prefix: string }`.
+  // Autocomplete is unaffected — it comes from the TailwindUtility parameter types, not here.
+  S extends string ? S
+  : S extends { readonly prefix: string } ? S
   : S extends TailwindClassAst<infer Tw> ? Tw
   : S extends { $: infer Nested } ?
     Nested extends Record<PropertyKey, Styles | Styles[]> ?
@@ -61,18 +66,19 @@ type TwOfStyle<S extends Styles> =
     : never
   : never;
 
-type MetadataOf<T extends Styles | readonly Styles[]> =
-  T extends readonly unknown[] ?
-    UnionToIntersection<MetadataOfStyle<Extract<T[number], Styles>>>
+type MetadataOf<T> =
+  // Use readonly unknown[] instead of readonly Styles[] — same structural gate, O(1) check
+  // instead of O(3979) T[number]-vs-Styles comparison that triggered on every array branch.
+  T extends readonly unknown[] ? UnionToIntersection<MetadataOfStyle<T[number]>>
   : T extends Styles ? MetadataOfStyle<T>
   : {};
 
-type TwOf<T extends Styles | readonly Styles[]> =
-  T extends readonly Styles[] ? TwOfStyle<T[number]>
+type TwOf<T> =
+  T extends readonly unknown[] ? TwOfStyle<T[number]>
   : T extends Styles ? TwOfStyle<T>
   : never;
 
-type Styles_Metadata<T extends Styles | readonly Styles[]> = Eager<
+type Styles_Metadata<T> = Eager<
   MetadataOf<T> & ([TwOf<T>] extends [never] ? {} : { tw: TwOf<T> })
 >;
 

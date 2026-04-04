@@ -705,12 +705,13 @@ export type TailwindUtility =
   | ObjectPosition
   | (string & {}); // Allow any string for custom utilities or future additions
 
-export type TailwindClassAst<U extends TailwindUtility> = AstNode<
-  "tailwind-class",
-  {
-    value: U;
-  }
->;
+export type TailwindClassAst<U extends TailwindUtility = TailwindUtility> =
+  AstNode<
+    "tailwind-class",
+    {
+      value: U;
+    }
+  >;
 
 export function tw<U extends TailwindUtility>(value: U) {
   return {
