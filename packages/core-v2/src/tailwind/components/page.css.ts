@@ -1,4 +1,4 @@
-import { dsl, utility } from "@nataliebasille/natcore-css-engine";
+import { dsl, utility } from "@nataliebasille/css-engine";
 
 export default utility("page-container", "overflow-hidden", {
   width: "100vw",

@@ -6,7 +6,7 @@ import {
   type ThemeConstruct,
   type ComponentConstruct,
   type UtilityConstruct,
-} from "@nataliebasille/natcore-css-engine";
+} from "@nataliebasille/css-engine";
 
 const solid = {
   "--bg": dsl.current(800),

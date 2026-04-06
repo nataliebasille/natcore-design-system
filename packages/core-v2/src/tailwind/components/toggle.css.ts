@@ -1,4 +1,4 @@
-import { component, dsl, theme } from "@nataliebasille/natcore-css-engine";
+import { component, dsl, theme } from "@nataliebasille/css-engine";
 
 const THUMB_SELECTOR = dsl.select.list("&::before", "& > .toggle-thumb");
 const TOGGLE_ON_CONDITION =

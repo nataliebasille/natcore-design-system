@@ -1,4 +1,4 @@
-import { component, dsl, utility } from "@nataliebasille/natcore-css-engine";
+import { component, dsl, utility } from "@nataliebasille/css-engine";
 
 export default [
   component("radial-progress", {

@@ -1,5 +1,5 @@
 import { createCompiler } from "../create-compiler.ts";
-import { compile, dsl } from "@nataliebasille/natcore-css-engine";
+import { compile, dsl } from "@nataliebasille/css-engine";
 import { pathToFileURL } from "node:url";
 import { componentConstructToDsl } from "./component-construct-to-dsl.ts";
 import { dslToCss } from "./dsl-to-css.ts";

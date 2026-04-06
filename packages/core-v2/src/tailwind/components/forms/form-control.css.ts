@@ -1,4 +1,4 @@
-import { component, dsl } from "@nataliebasille/natcore-css-engine";
+import { component, dsl } from "@nataliebasille/css-engine";
 
 const allSiblingInputs = "~ input, ~ select, ~ textarea";
 const allChildInputs = "> input, > select, > textarea";

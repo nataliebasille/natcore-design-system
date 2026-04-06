@@ -1,4 +1,4 @@
-import { component, dsl } from "@nataliebasille/natcore-css-engine";
+import { component, dsl } from "@nataliebasille/css-engine";
 
 export default component("badge", {
   variants: {

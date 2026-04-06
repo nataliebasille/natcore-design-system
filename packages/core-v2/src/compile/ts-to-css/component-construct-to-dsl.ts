@@ -4,7 +4,7 @@ import {
   stylesheetVisitorBuilder,
   type ComponentConstruct,
   type ComponentVariants,
-} from "@nataliebasille/natcore-css-engine";
+} from "@nataliebasille/css-engine";
 import { colorKeyWithoutPalette, renderPalette } from "../../shared/colors.ts";
 
 type StylePropertyValue = dsl.StyleProperties[keyof dsl.StyleProperties];

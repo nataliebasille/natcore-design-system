@@ -5,7 +5,7 @@ import {
   type Palette,
   type Shade,
   type ThemeProperties,
-} from "@nataliebasille/natcore-css-engine";
+} from "@nataliebasille/css-engine";
 import chroma from "chroma-js";
 import * as culori from "culori";
 import { colorKey } from "../../shared/colors.ts";

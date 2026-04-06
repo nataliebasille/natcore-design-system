@@ -3,7 +3,7 @@ import {
   dsl,
   theme,
   utility,
-} from "@nataliebasille/natcore-css-engine";
+} from "@nataliebasille/css-engine";
 
 const COLOR = dsl.current(500);
 

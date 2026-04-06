@@ -67,7 +67,7 @@
     "tailwindcss": "^4.1.16"
   },
   "dependencies": {
-    "@nataliebasille/natcore-css-engine": "workspace:*",
+    "@nataliebasille/css-engine": "workspace:*",
     "@nataliebasille/preview-jsx-runtime": "workspace:*",
     "chroma-js": "^3.2.0",
     "classnames": "^2.5.1",

@@ -1,6 +1,7 @@
 {
-  "name": "@nataliebasille/natcore-css-engine",
+  "name": "@nataliebasille/css-engine",
   "version": "1.0.0",
+  "private": true,
   "description": "CSS engine for Natcore Design System - DSL and transformers for CSS generation",
   "type": "module",
   "exports": {

@@ -2,7 +2,7 @@ import {
   dsl,
   stylesheetVisitorBuilder,
   type UtilityConstruct,
-} from "@nataliebasille/natcore-css-engine";
+} from "@nataliebasille/css-engine";
 import { themeConstructToDsl } from "./theme-construct-to-dsl.ts";
 
 export function utilityConstructToDsl(utilityConstruct: UtilityConstruct) {

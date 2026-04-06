@@ -3,7 +3,7 @@ import {
   SHADES,
   theme,
   utility,
-} from "@nataliebasille/natcore-css-engine";
+} from "@nataliebasille/css-engine";
 import {
   colorKeyWithoutPalette,
   matchColor,

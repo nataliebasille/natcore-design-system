@@ -1,7 +1,7 @@
 // MOVE TO REACT COMPONENT
 export default [];
 
-// import { component, dsl } from "@nataliebasille/natcore-css-engine";
+// import { component, dsl } from "@nataliebasille/css-engine";
 
 // const INLINE_GROUP = {
 //   "--group-display": "inline-flex",

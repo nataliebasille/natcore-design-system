@@ -3,7 +3,7 @@ import {
   stylesheetVisitorBuilder,
   type StylePropertyValue,
   type ThemeConstruct,
-} from "@nataliebasille/natcore-css-engine";
+} from "@nataliebasille/css-engine";
 
 export function themeConstructToDsl(themeConstruct: ThemeConstruct) {
   const themeModePrelude = getThemeMode(themeConstruct);

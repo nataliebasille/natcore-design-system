@@ -1,4 +1,4 @@
-import { component, dsl, utility } from "@nataliebasille/natcore-css-engine";
+import { component, dsl, utility } from "@nataliebasille/css-engine";
 
 const cardSections = dsl.select.list(
   dsl.select.child(dsl.select.parent(), dsl.select.cls("card-header")),

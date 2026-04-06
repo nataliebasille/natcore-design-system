@@ -1,4 +1,4 @@
-import { component, dsl, utility } from "@nataliebasille/natcore-css-engine";
+import { component, dsl, utility } from "@nataliebasille/css-engine";
 
 const tone700Mixed50 = dsl.colorMix(
   "srgb",

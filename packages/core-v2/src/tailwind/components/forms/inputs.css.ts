@@ -1,4 +1,4 @@
-import { dsl } from "@nataliebasille/natcore-css-engine";
+import { dsl } from "@nataliebasille/css-engine";
 import { currentOrDefaultColor } from "../../../shared/colors.ts";
 import { paddingBlock, paddingInline } from "../../../shared/inputs.ts";
 

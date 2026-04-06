@@ -2,7 +2,7 @@ import {
   dsl,
   type ColorAst,
   type Palette,
-} from "@nataliebasille/natcore-css-engine";
+} from "@nataliebasille/css-engine";
 
 export type Shade =
   | 50
