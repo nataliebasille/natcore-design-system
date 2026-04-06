@@ -2,7 +2,7 @@ import {
   renderToMarkup,
   renderToUi,
   type ShowcaseJsxNode,
-} from "@/lib/preview-jsx-runtime";
+} from "@nataliebasille/preview-jsx-runtime";
 import { MarkupSpotlight } from "./code-spotlight";
 
 export function ShowcaseSpotlight({

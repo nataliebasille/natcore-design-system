@@ -3,8 +3,8 @@ import {
   Fragment as ReactFragment,
   type ReactNode,
 } from "react";
-import type { ShowcaseJsxChild, ShowcaseJsxNode } from "./types";
-import { Fragment } from "./jsx-runtime";
+import type { ShowcaseJsxChild, ShowcaseJsxNode } from "./types.ts";
+import { Fragment } from "./jsx-runtime.ts";
 
 export function renderToUi(jsx: ShowcaseJsxChild): ReactNode {
   return renderWithStructure<ReactNode>(jsx, {

@@ -59,6 +59,25 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  internal/preview-jsx-runtime:
+    dependencies:
+      react:
+        specifier: '>=18'
+        version: 19.2.3
+    devDependencies:
+      '@types/node':
+        specifier: ^22.19.0
+        version: 22.19.0
+      rimraf:
+        specifier: ^6.1.0
+        version: 6.1.0
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/core:
     dependencies:
       '@nataliebasille/natcore-css-engine':
@@ -110,6 +129,9 @@ importers:
       '@nataliebasille/natcore-css-engine':
         specifier: workspace:*
         version: link:../css-engine
+      '@nataliebasille/preview-jsx-runtime':
+        specifier: workspace:*
+        version: link:../../internal/preview-jsx-runtime
       chroma-js:
         specifier: ^3.2.0
         version: 3.2.0
@@ -318,6 +340,9 @@ importers:
       '@nataliebasille/natcore-icons':
         specifier: workspace:*
         version: link:../packages/icons
+      '@nataliebasille/preview-jsx-runtime':
+        specifier: workspace:*
+        version: link:../internal/preview-jsx-runtime
       '@tailwindcss/postcss':
         specifier: ^4.1.16
         version: 4.1.16

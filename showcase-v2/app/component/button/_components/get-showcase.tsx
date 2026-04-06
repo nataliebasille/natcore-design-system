@@ -1,4 +1,4 @@
-/** @jsxImportSource @/lib/preview-jsx-runtime */
+/** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
 import type { ButtonControlValues } from "./button-playground-controls";
 

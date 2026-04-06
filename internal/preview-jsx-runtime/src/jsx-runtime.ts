@@ -1,5 +1,5 @@
 import { type JSX as ReactJSX } from "react";
-import type { ShowcaseJsxElementType, ShowcaseJsxNode } from "./types";
+import type { ShowcaseJsxElementType, ShowcaseJsxNode } from "./types.ts";
 
 type ScopedAttributes = Record<string, unknown>;
 

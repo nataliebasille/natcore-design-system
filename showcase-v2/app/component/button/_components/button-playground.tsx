@@ -1,5 +1,5 @@
 import { defaultValues } from "./button-playground-controls";
-import { renderToMarkup } from "@/lib/preview-jsx-runtime";
+import { renderToMarkup } from "@nataliebasille/preview-jsx-runtime";
 import { getButtonPlaygroundShowcase } from "./get-showcase";
 import { codeToHtml } from "shiki/bundle/web";
 import { ButtonPlaygroundClient } from "./button-playground-client";

@@ -1,5 +1,5 @@
 import type * as React from "react";
-import type { Fragment } from "./jsx-runtime";
+import type { Fragment } from "./jsx-runtime.ts";
 
 export type ShowcaseJsxPrimitive = string | number | boolean | null | undefined;
 

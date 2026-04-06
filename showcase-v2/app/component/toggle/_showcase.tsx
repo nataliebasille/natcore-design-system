@@ -1,6 +1,6 @@
-/** @jsxImportSource @/lib/preview-jsx-runtime */
+/** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
-import { uiAttr, type JSX } from "@/lib/preview-jsx-runtime/jsx-runtime";
+import { uiAttr, type JSX } from "@nataliebasille/preview-jsx-runtime/jsx-runtime";
 
 // Solid Palette
 export const SolidPaletteShowcase = () => (

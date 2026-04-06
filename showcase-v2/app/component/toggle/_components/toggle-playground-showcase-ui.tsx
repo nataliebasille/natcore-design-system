@@ -1,7 +1,7 @@
 "use client";
 
 import { usePlayground } from "@/app/_ui/playground/playground-provider";
-import { renderToUi } from "@/lib/preview-jsx-runtime";
+import { renderToUi } from "@nataliebasille/preview-jsx-runtime";
 import type { ToggleControlValues } from "./toggle-playground-controls";
 import { getTogglePlaygroundShowcase } from "./get-showcase";
 

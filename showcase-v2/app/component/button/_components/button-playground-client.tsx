@@ -6,7 +6,7 @@ import {
   defaultValues,
   type ButtonControlValues,
 } from "./button-playground-controls";
-import { renderToMarkup } from "@/lib/preview-jsx-runtime";
+import { renderToMarkup } from "@nataliebasille/preview-jsx-runtime";
 import { getButtonPlaygroundShowcase } from "./get-showcase";
 import { ButtonPlaygroundShowcaseUI } from "./button-playground-showcase-ui";
 

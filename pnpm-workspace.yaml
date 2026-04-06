@@ -1,4 +1,5 @@
 packages:
   - "packages/*"
+  - "internal/*"
   - "showcase" # keep if you want the demo app in the monorepo
   - "showcase-v2"

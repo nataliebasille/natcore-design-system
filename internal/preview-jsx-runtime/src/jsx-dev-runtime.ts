@@ -1,6 +1,5 @@
-// src/lib/my-jsx/jsx-dev-runtime.ts
-import type { ShowcaseJsxElementType, ShowcaseJsxNode } from "./types";
-import { Fragment } from "./jsx-runtime";
+import type { ShowcaseJsxElementType, ShowcaseJsxNode } from "./types.ts";
+import { Fragment } from "./jsx-runtime.ts";
 
 export { Fragment };
 

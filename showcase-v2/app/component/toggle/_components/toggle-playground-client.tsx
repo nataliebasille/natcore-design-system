@@ -6,7 +6,7 @@ import {
   defaultValues,
   type ToggleControlValues,
 } from "./toggle-playground-controls";
-import { renderToMarkup } from "@/lib/preview-jsx-runtime";
+import { renderToMarkup } from "@nataliebasille/preview-jsx-runtime";
 import { getTogglePlaygroundShowcase } from "./get-showcase";
 import { TogglePlaygroundShowcaseUI } from "./toggle-playground-showcase-ui";
 

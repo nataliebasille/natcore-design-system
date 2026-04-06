@@ -1,7 +1,7 @@
 "use client";
 
 import { usePlayground } from "@/app/_ui/playground/playground-provider";
-import { renderToUi } from "@/lib/preview-jsx-runtime";
+import { renderToUi } from "@nataliebasille/preview-jsx-runtime";
 import { getButtonPlaygroundShowcase } from "./get-showcase";
 import type { ButtonControlValues } from "./button-playground-controls";
 

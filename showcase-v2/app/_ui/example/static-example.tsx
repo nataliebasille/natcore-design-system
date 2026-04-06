@@ -1,5 +1,5 @@
-import { renderToMarkup, renderToUi } from "@/lib/preview-jsx-runtime/core";
-import type { ShowcaseJsxChild } from "@/lib/preview-jsx-runtime/types";
+import { renderToMarkup, renderToUi } from "@nataliebasille/preview-jsx-runtime/core";
+import type { ShowcaseJsxChild } from "@nataliebasille/preview-jsx-runtime/types";
 import { fetchFile } from "@/server/fetch-file";
 import { formatCode, type SupportedLanguages } from "@/utlls/format-code";
 import { type PropsWithChildren, type ReactNode } from "react";
