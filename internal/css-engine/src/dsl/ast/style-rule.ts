@@ -116,8 +116,9 @@ export type StyleRuleBodyBuilder =
       };
     });
 
-export type StyleRuleAst_WithMetadata<B extends StyleRuleBodyBuilder[]> =
-  WithMetadata<StyleRuleAst, Styles_Metadata<B>>;
+export type StyleRuleAst_WithMetadata<
+  B extends StyleRuleBodyBuilder[] = never[],
+> = WithMetadata<StyleRuleAst, Styles_Metadata<B>>;
 
 /**
  * DSL function to create a rule with type-safe selector and body
@@ -175,7 +176,10 @@ export function styleRule<
     $ast: "style-rule" as const,
     selector,
     body: astBody,
-  } as unknown as WithMetadata<StyleRuleAst, Styles_Metadata<{ $: { [K in S]: B } }>>;
+  } as unknown as WithMetadata<
+    StyleRuleAst,
+    Styles_Metadata<{ $: { [K in S]: B } }>
+  >;
 }
 
 export type StyleListBuilder =
@@ -188,7 +192,7 @@ export type StyleListAst = AstNode<
   { styles: (StyleProperties | TailwindClassAst<TailwindUtility>)[] }
 >;
 
-export type StyleListAst_WithMetadata<B extends StyleListBuilder[]> =
+export type StyleListAst_WithMetadata<B extends StyleListBuilder[] = never[]> =
   WithMetadata<StyleListAst, Styles_Metadata<B>>;
 
 export function styleList<const B extends StyleListBuilder[]>(...styles: B) {

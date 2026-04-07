@@ -19,7 +19,7 @@
   ],
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
-  "editor.formatOnSaveTimeout": 500,
+  "editor.formatOnSaveTimeout": 2500,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "never"

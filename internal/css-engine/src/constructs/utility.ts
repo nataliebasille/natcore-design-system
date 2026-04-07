@@ -14,9 +14,9 @@ import type { ThemeConstruct } from "./theme.ts";
 export type UtilityBodyBuilder = StyleListBuilder | StyleRuleBodyBuilder;
 
 export type UtilityConstruct<
-  N extends string,
-  T extends ThemeConstruct | undefined,
-  B extends UtilityBodyBuilder[],
+  N extends string = string,
+  T extends ThemeConstruct | undefined = ThemeConstruct | undefined,
+  B extends UtilityBodyBuilder[] = UtilityBodyBuilder[],
 > = {
   $construct: "utility";
   name: N;

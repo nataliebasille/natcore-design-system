@@ -4,8 +4,8 @@ import { Spotlight } from "@/ui/doc/spotlight.tsx";
 import { UtilityReference, UtilityValue } from "@/ui/doc/utility-reference.tsx";
 import { CssFileReference } from "@/app/_ui/doc/construct-reference";
 import { CssApiReference } from "@/app/_ui/doc/api-reference";
-import { TogglePlayground } from "./_components/toggle-playground";
-import toggleCss from "../../../../packages/core-v2/src/tailwind/components/toggle.css.ts";
+import { TogglePlayground } from "./_components/toggle-playground.tsx";
+import toggleCss from "../../../../../packages/core-v2/src/tailwind/components/toggle.css.ts";
 import {
   SolidPaletteShowcase,
   SoftPaletteShowcase,

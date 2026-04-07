@@ -5,8 +5,8 @@ import type { Eager } from "../utils/index.ts";
 export type ThemeMode = "static" | "inline" | "root";
 
 export type ThemeConstruct<
-  M extends ThemeMode | undefined = undefined,
-  P extends ThemeProperties | undefined = undefined,
+  M extends ThemeMode | undefined = ThemeMode | undefined,
+  P extends ThemeProperties | undefined = ThemeProperties,
 > = {
   $construct: "theme";
   mode?: M;

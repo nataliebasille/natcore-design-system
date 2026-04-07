@@ -28,6 +28,7 @@
   ],
   "scripts": {
     "build": "tsx scripts/build.ts",
+    "build:css": "tsx scripts/build-css.ts",
     "dev": "tsx scripts/watch.ts",
     "watch": "tsx scripts/watch.ts",
     "clean": "rimraf dist",

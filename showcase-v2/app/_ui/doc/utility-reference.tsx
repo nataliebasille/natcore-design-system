@@ -54,21 +54,28 @@ type UtilityReferenceProps = {
 };
 
 type UtilityValueProps = {
-  values: string[];
+  values: readonly ReactNode[] | ReactNode;
+  defaultValue?: ReactNode;
   divider?: string;
 };
 
-export const UtilityValue = ({ values, divider = "/" }: UtilityValueProps) => {
+export const UtilityValue = ({
+  values,
+  defaultValue,
+  divider = "/",
+}: UtilityValueProps) => {
   return (
     <>
-      {values.map((value, i) => (
-        <Fragment key={value}>
-          <span>{value}</span>
-          {i < values.length - 1 && (
-            <span className="mx-1 text-on-tone-50-surface/40">{divider}</span>
-          )}
-        </Fragment>
-      ))}
+      {Array.isArray(values) ?
+        values.map((value, i) => (
+          <Fragment key={value}>
+            <span>{value}</span>
+            {i < values.length - 1 && (
+              <span className="mx-1 text-on-tone-50-surface/40">{divider}</span>
+            )}
+          </Fragment>
+        ))
+      : <>{values}</>}
     </>
   );
 };

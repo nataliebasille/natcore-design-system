@@ -61,80 +61,6 @@ const TOGGLES_SELECTOR = [
 
 const BUTTON_SIZE_DEFAULT = dsl.primitive.length.rem(1);
 
-const x = component("btn-group", {
-  defaultVariant: "outline",
-  variants: {
-    solid,
-    soft,
-    outline,
-    ghost: {
-      ...ghost,
-      "--border-radius": dsl.cssvar("--radius-lg"),
-      "--border-inline-width-first-child": dsl.primitive.length.px(1),
-      "--border-inline-width-last-child": dsl.primitive.length.px(1),
-      "--border-inline-width-not-first-last-child": dsl.primitive.length.px(1),
-    },
-  },
-  styles: [
-    "inline-flex",
-
-    {
-      $: {
-        [TOGGLES_SELECTOR.join(", ")]: ["hidden"],
-
-        ["& > *"]: [
-          ...buttonStyles(),
-          {
-            $: {
-              ["&:hover"]: {
-                "background-color": dsl.match.variable("--hover-bg"),
-                color: dsl.match.variable("--hover-fg"),
-              },
-
-              ["&:first-child"]: [
-                "rounded-r-none",
-                "border-r-0",
-                {
-                  "border-radius": dsl.match.variable("--border-radius"),
-                  "border-inline-width": dsl.match.variable(
-                    "--border-inline-width-first-child",
-                  ),
-                },
-              ],
-              ["&:last-child"]: [
-                "rounded-l-none",
-                "border-l-0",
-                {
-                  "border-radius": dsl.match.variable("--border-radius"),
-                  "border-inline-width": dsl.match.variable(
-                    "--border-inline-width-last-child",
-                  ),
-                },
-              ],
-              ["&:not(:first-child):not(:last-child)"]: [
-                "rounded-none",
-                "border-x-0",
-                {
-                  "border-radius": dsl.match.variable("--border-radius"),
-                  "border-inline-width": dsl.match.variable(
-                    "--border-inline-width-not-first-last-child",
-                  ),
-                },
-              ],
-              ["&:has(:checked)"]: {
-                "background-color": dsl.match.variable("--active-bg"),
-                color: dsl.match.variable("--active-fg"),
-              },
-            },
-          },
-        ],
-      },
-    },
-  ],
-});
-
-const y = x.styles[0];
-
 const module = [
   theme("inline", {
     "--btn-padding-inline": dsl.cssvar(
@@ -361,8 +287,12 @@ type DocMeta<T extends CssTsContent[]> = {
   cssvars: Record<ExtractCssVars<T>, string>;
 };
 export const docs: DocMeta<typeof module> = {
+  description:
+    "Button primitives covering standalone buttons, grouped buttons, and size modifiers.",
   components: {
     btn: "The base button component with multiple variants and sizes.",
+    "btn-group":
+      "A grouped button row that shares button variants and active states.",
   },
   modifiers: {
     "btn-size": "Utility for setting the button size.",

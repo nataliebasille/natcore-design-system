@@ -44,6 +44,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "@nataliebasille/preview-jsx-runtime": "workspace:*",
     "csstype": "^3.2.3"
   }
 }

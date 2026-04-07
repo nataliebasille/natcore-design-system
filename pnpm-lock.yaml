@@ -61,6 +61,9 @@ importers:
 
   internal/css-engine:
     dependencies:
+      '@nataliebasille/preview-jsx-runtime':
+        specifier: workspace:*
+        version: link:../preview-jsx-runtime
       csstype:
         specifier: ^3.2.3
         version: 3.2.3
@@ -328,6 +331,9 @@ importers:
       '@iconify-icons/ri':
         specifier: ^1.2.10
         version: 1.2.10
+      '@nataliebasille/css-engine':
+        specifier: workspace:*
+        version: link:../internal/css-engine
       '@nataliebasille/natcore-design-system':
         specifier: workspace:*
         version: link:../packages/core

@@ -1,21 +1,19 @@
 import type {
-  StyleListAst,
   StylePropertyValue,
-  StyleRuleAst,
   StyleRuleBodyBuilder,
   StyleListAst_WithMetadata,
   StyleRuleAst_WithMetadata,
 } from "../dsl/ast/style-rule.ts";
-import { dsl } from "../dsl/public.ts";
+import { dsl, stylesheetVisitorBuilder } from "../dsl/public.ts";
 
 export type ComponentConstruct<
-  N extends string,
-  V extends ComponentVariants,
-  B extends StyleRuleBodyBuilder[],
+  N extends string = string,
+  V extends ComponentVariants = ComponentVariants,
+  B extends StyleRuleBodyBuilder[] = StyleRuleBodyBuilder[],
 > = {
   $construct: "component";
   name: N;
-  styles: StyleListAst_WithMetadata<B> | StyleRuleAst_WithMetadata<B>;
+  styles: (StyleListAst_WithMetadata<B> | StyleRuleAst_WithMetadata<B>)[];
   defaultVariant?: string;
   variants: V;
 };
@@ -71,53 +69,65 @@ export function component<
   >;
 }
 
-function normalizeStyleBuilders<
-  B extends StyleRuleBodyBuilder | StyleRuleBodyBuilder[],
->(builders: B): (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[] {
-  const list = Array.isArray(builders) ? builders : [builders];
+export function isThemeable(componentConstruct: ComponentConstruct) {
+  let themeable = false;
+  stylesheetVisitorBuilder()
+    .on("color", (ast) => {
+      themeable ||= ast.palette === "current";
+      return ast;
+    })
+    .visit([componentConstruct.styles, componentConstruct.variants]);
 
-  return list.flatMap(
-    (
-      builder,
-    ): (StyleListAst_WithMetadata<B> | StyleRuleAst_WithMetadata<B>)[] => {
-      if (
-        typeof builder === "object" &&
-        builder !== null &&
-        "$ast" in builder
-      ) {
-        return [
-          builder as StyleListAst_WithMetadata | StyleRuleAst_WithMetadata,
-        ];
-      }
+  return themeable;
+}
 
-      if (
-        typeof builder === "string" ||
-        (typeof builder === "object" && builder !== null && "prefix" in builder)
-      ) {
-        return [dsl.styleList(builder)];
-      }
+/**
+ * Detects if a component should be generated as @utility component
+ * @param componentConstruct
+ */
+export function hasStaticVariant(componentConstruct: ComponentConstruct) {
+  const themable = isThemeable(componentConstruct);
+  return !themable || !!componentConstruct.defaultVariant;
+}
 
-      const { $, ...styles } = builder as dsl.StyleProperties & {
-        $?: {
-          [K in dsl.Selector]?: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
-        };
+function normalizeStyleBuilders(
+  builders: StyleRuleBodyBuilder | StyleRuleBodyBuilder[],
+): (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[] {
+  const list: StyleRuleBodyBuilder[] =
+    Array.isArray(builders) ? builders : [builders];
+
+  return list.flatMap((builder) => {
+    if (typeof builder === "object" && builder !== null && "$ast" in builder) {
+      return [builder as StyleListAst_WithMetadata | StyleRuleAst_WithMetadata];
+    }
+
+    if (
+      typeof builder === "string" ||
+      (typeof builder === "object" && builder !== null && "prefix" in builder)
+    ) {
+      return [dsl.styleList(builder) as unknown as StyleListAst_WithMetadata];
+    }
+
+    const { $, ...styles } = builder as dsl.StyleProperties & {
+      $?: {
+        [K in dsl.Selector]?: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
       };
+    };
 
-      return [
-        ...(Object.keys(styles).length > 0 ?
-          [dsl.styleList(styles as dsl.StyleProperties)]
-        : []),
-        ...(typeof $ === "object" && $ !== null ?
-          Object.entries($).map(([selector, body]) =>
-            dsl.styleRule(
-              selector as dsl.Selector,
-              ...((!body ? []
-              : Array.isArray(body) ? body
-              : [body]) as StyleRuleBodyBuilder[]),
-            ),
-          )
-        : []),
-      ];
-    },
-  );
+    return [
+      ...(Object.keys(styles).length > 0 ?
+        [dsl.styleList(styles as dsl.StyleProperties)]
+      : []),
+      ...(typeof $ === "object" && $ !== null ?
+        Object.entries($).map(([selector, body]) =>
+          dsl.styleRule(
+            selector as dsl.Selector,
+            ...((!body ? []
+            : Array.isArray(body) ? body
+            : [body]) as StyleRuleBodyBuilder[]),
+          ),
+        )
+      : []),
+    ] as (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[];
+  });
 }
