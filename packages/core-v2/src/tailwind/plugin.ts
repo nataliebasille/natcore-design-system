@@ -2,11 +2,7 @@
 // This plugin is designed specifically for Tailwind CSS 4.0
 
 import plugin from "tailwindcss/plugin";
-import {
-  type ColorSchema,
-  generateColorTheme,
-  generateColorSemanticVariables,
-} from "./colors.ts";
+import { type ColorSchema } from "./colors.ts";
 
 /**
  * Natcore Design System v2 Plugin Configuration

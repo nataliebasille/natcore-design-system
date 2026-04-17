@@ -1,5 +1,4 @@
-import { dsl } from "@nataliebasille/css-engine";
-import { currentOrDefaultColor } from "../../../shared/colors.ts";
+import { dsl, currentOrDefaultColor } from "@nataliebasille/css-engine";
 import { paddingBlock, paddingInline } from "../../../shared/inputs.ts";
 
 export default dsl.layer.base(

@@ -1,5 +1,4 @@
-import { dsl } from "@nataliebasille/css-engine";
-import { currentOrDefaultColor } from "../../../shared/colors.ts";
+import { dsl, currentOrDefaultColor } from "@nataliebasille/css-engine";
 
 const CHEVRON_SIZE = dsl.primitive.length.em(1);
 export default dsl.layer.base(

@@ -3,8 +3,8 @@ import {
   dsl,
   stylesheetVisitorBuilder,
   type CssDataType,
+  applyOpacity,
 } from "@nataliebasille/css-engine";
-import { applyOpacity } from "../../shared/colors.ts";
 
 type TopLevelAst = dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst;
 export function dslToCss(ast: TopLevelAst[]): css.StylesheetAst {

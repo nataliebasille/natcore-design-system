@@ -5,10 +5,10 @@ import {
   type Palette,
   type Shade,
   type ThemeProperties,
+  colorKey,
 } from "@nataliebasille/css-engine";
 import chroma from "chroma-js";
 import * as culori from "culori";
-import { colorKey } from "../../shared/colors.ts";
 
 type Anchors = { c50: string; c500: string; c950: string };
 type RoleBase = { name: Palette; fgOpacity?: number };

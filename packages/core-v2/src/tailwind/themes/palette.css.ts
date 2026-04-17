@@ -3,14 +3,12 @@ import {
   SHADES,
   theme,
   utility,
-} from "@nataliebasille/css-engine";
-import {
   colorKeyWithoutPalette,
   matchColor,
   matchTextColor,
   renderPalette,
   toneKey,
-} from "../../shared/colors.ts";
+} from "@nataliebasille/css-engine";
 
 export default () => [
   theme(

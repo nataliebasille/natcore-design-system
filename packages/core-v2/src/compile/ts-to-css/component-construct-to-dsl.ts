@@ -4,8 +4,9 @@ import {
   stylesheetVisitorBuilder,
   type ComponentConstruct,
   type ComponentVariants,
+  colorKeyWithoutPalette,
+  renderPalette,
 } from "@nataliebasille/css-engine";
-import { colorKeyWithoutPalette, renderPalette } from "../../shared/colors.ts";
 
 type StylePropertyValue = dsl.StyleProperties[keyof dsl.StyleProperties];
 

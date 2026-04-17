@@ -2,9 +2,6 @@ import {
   type AtRuleAst,
   type AtRuleBodyBuilder,
   type AtRuleContent,
-  type ComponentBuilder,
-  type ComponentState,
-  type ControlledVar,
   type DesignSystemAst,
   dsl,
   type Palette,
@@ -14,10 +11,15 @@ import {
   type StyleRuleAst_WithMetadata,
   type StyleRuleBodyBuilder,
   stylesheetVisitorBuilder,
-  type ThemeProperties,
+} from "../dsl/public.ts";
+import {
+  type ComponentBuilder,
+  type ComponentState,
+  type ControlledVar,
   type VarsProperty,
-} from "@nataliebasille/css-engine";
-import { colorKeyWithoutPalette, renderPalette } from "../../shared/colors.ts";
+} from "./component.ts";
+import { type ThemeProperties } from "./theme.ts";
+import { colorKeyWithoutPalette, renderPalette } from "./palette-utils.ts";
 
 class ThemeBag {
   #toScoped: Record<`--${string}`, `--${string}-${string}`>;
