@@ -1,4 +1,4 @@
-import { component, dsl, utility } from "@nataliebasille/css-engine";
+import { component_deprecated, dsl, utility } from "@nataliebasille/css-engine";
 
 const inlineCode = dsl.select.list(
   dsl.select.parent(dsl.select.cls("inline")),
@@ -8,7 +8,7 @@ const inlineCode = dsl.select.list(
 );
 
 export default [
-  component("code", {
+  component_deprecated("code", {
     styles: [
       "block",
       "w-full",

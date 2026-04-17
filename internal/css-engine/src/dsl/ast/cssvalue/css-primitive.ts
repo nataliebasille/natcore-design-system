@@ -133,16 +133,25 @@ type DataTypeToValue<T extends CssDataType> =
   : T extends "*" ? string & {}
   : string & {};
 
-export type CssPrimitiveValue =
-  CssDataType extends infer T ?
-    T extends CssDataType ?
-      DataTypeToValue<T> extends infer V ?
-        V extends any ?
-          { $primitive: T; value: V; toString: () => string }
-        : never
-      : never
-    : never
-  : never;
+export type ConcreteCssDataType =
+  | SupportedArbitraryDataType
+  | SupportedBareDataType;
+
+// Mapped helper: TypeScript eagerly evaluates DataTypeToValue<T> for each
+// concrete key T, producing 18 fully-resolved member types (one per data type)
+// instead of the ~100 anonymous types that the double-distribution
+// `DataTypeToValue<T> extends infer V ? V extends any ? …` previously created.
+// Each member's `value` is concrete (e.g. CssColorValue, not a deferred conditional),
+// so the Eager<> wrapper inside AstNode can still walk the object tree correctly.
+type CssPrimitiveValueMap = {
+  [T in ConcreteCssDataType]: {
+    $primitive: T;
+    value: DataTypeToValue<T>;
+    toString: () => string;
+  };
+};
+
+export type CssPrimitiveValue = CssPrimitiveValueMap[ConcreteCssDataType];
 
 export type ColorPrimitive = Extract<
   CssPrimitiveValue,
@@ -157,15 +166,17 @@ export type NumericPrimitive = Extract<
   | { $primitive: "angle" }
 >;
 
+function toPrimitiveToString(this: { value: any }) {
+  return String(this.value);
+}
+
 // Reusable helper to add toString method to primitives
 function withToString<T extends { $primitive: string; value: any }>(
   primitive: T,
 ): T & { toString: () => string } {
   return {
     ...primitive,
-    toString() {
-      return String(primitive.value);
-    },
+    toString: toPrimitiveToString,
   };
 }
 

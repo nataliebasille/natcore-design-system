@@ -1,6 +1,7 @@
 import { createCompiler } from "../create-compiler.ts";
-import { compile, dsl } from "@nataliebasille/css-engine";
+import { ComponentBuilder, compile, dsl } from "@nataliebasille/css-engine";
 import { pathToFileURL } from "node:url";
+import { componentBuilderToDsl } from "./component-builder-to-dsl.ts";
 import { componentConstructToDsl } from "./component-construct-to-dsl.ts";
 import { dslToCss } from "./dsl-to-css.ts";
 import { themeConstructToDsl } from "./theme-construct-to-dsl.ts";
@@ -40,7 +41,9 @@ export const compileTsToCss = createCompiler({
 
     const transpiledToCssAstContent = contentAsArray.flatMap((content) => {
       return (
-        "$construct" in content ?
+        content instanceof ComponentBuilder ?
+          dslToCss(componentBuilderToDsl(content))
+        : "$construct" in content ?
           content.$construct === "theme" ?
             dslToCss([themeConstructToDsl(content)])
           : content.$construct === "utility" ?

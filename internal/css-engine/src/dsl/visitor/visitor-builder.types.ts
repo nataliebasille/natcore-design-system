@@ -69,8 +69,10 @@ type UpdateNode<
   : // --- arrays: mutable first, then readonly ---
   Node extends (infer E)[] ? ApplyOutMap<Spec, OutMap, E>[]
   : Node extends readonly (infer E)[] ? readonly ApplyOutMap<Spec, OutMap, E>[]
-  : // --- objects ---
-  Node extends Record<string, unknown> ?
+  : // --- objects: only recurse into AST nodes; non-AST objects (e.g. StyleProperties)
+  // pass through unchanged to avoid expanding hundreds of CSS property keys recursively
+  // which would produce a union too complex to represent (TS2590).
+  IsAstNode<Node> extends true ?
     {
       [K in keyof Node]: K extends "$ast" ? Node[K]
       : ApplyOutMap<Spec, OutMap, Node[K]>;

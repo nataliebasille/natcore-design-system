@@ -1,5 +1,5 @@
 import {
-  component,
+  component_deprecated,
   dsl,
   theme,
   utility,
@@ -8,7 +8,7 @@ import {
 const COLOR = dsl.current(500);
 
 export default [
-  component("divider", {
+  component_deprecated("divider", {
     variants: {
       default: {
         "--margin-inline-before": `0 ${dsl.spacing("2")}`,

@@ -1,5 +1,4 @@
 {
-  "debug.javascript.autoAttachFilter": "smart",
   "eslint.enable": true,
   "eslint.useFlatConfig": true,
   "eslint.run": "onType",

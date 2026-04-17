@@ -5,11 +5,17 @@ export type SpacingFunctionAst = FunctionAst<"spacing", { value: string }> & {
 };
 
 export function spacing<V extends SpacingFunctionAst["value"]>(value: V) {
-  return {
-    $ast: "function-spacing",
+  const result = {
+    $ast: "function-spacing" as const,
     value,
-    toString() {
+  };
+  Object.defineProperty(result, "toString", {
+    value() {
       return `--spacing(${value})`;
     },
-  } satisfies SpacingFunctionAst;
+    enumerable: false,
+    configurable: true,
+    writable: true,
+  });
+  return result as typeof result & { toString: () => string };
 }

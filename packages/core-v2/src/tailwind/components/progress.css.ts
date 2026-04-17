@@ -1,7 +1,7 @@
-import { component, dsl, utility } from "@nataliebasille/css-engine";
+import { component_deprecated, dsl, utility } from "@nataliebasille/css-engine";
 
 export default [
-  component("radial-progress", {
+  component_deprecated("radial-progress", {
     variants: {
       default: {
         "--base": dsl.current(500),

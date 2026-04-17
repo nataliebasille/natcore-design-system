@@ -1,133 +1,173 @@
-import type {
-  StylePropertyValue,
-  StyleRuleBodyBuilder,
-  StyleListAst_WithMetadata,
-  StyleRuleAst_WithMetadata,
-} from "../dsl/ast/style-rule.ts";
-import { dsl, stylesheetVisitorBuilder } from "../dsl/public.ts";
+import {
+  type Palette,
+  type StylePropertyValue,
+  type StyleRuleBodyBuilder,
+  type TwArbitraryCandidate,
+  type TwBareCandidate,
+} from "../dsl/public";
+import type { ThemeProperties } from "./theme";
 
-export type ComponentConstruct<
-  N extends string = string,
-  V extends ComponentVariants = ComponentVariants,
-  B extends StyleRuleBodyBuilder[] = StyleRuleBodyBuilder[],
-> = {
-  $construct: "component";
-  name: N;
-  styles: (StyleListAst_WithMetadata<B> | StyleRuleAst_WithMetadata<B>)[];
+export type ControlledVar = {
+  default: StylePropertyValue | StylePropertyValue[];
+  candidates: (
+    | {
+        type: "token";
+        token: string;
+        value: StylePropertyValue | StylePropertyValue[];
+      }
+    | {
+        type: "arbitrary";
+        dataType: TwArbitraryCandidate["dataType"];
+      }
+    | {
+        type: "bare";
+        dataType: TwBareCandidate["dataType"];
+      }
+  )[];
+};
+
+export type VarsProperty = StylePropertyValue | ControlledVar;
+
+export type ComponentState = {
+  name: string;
+  defaultTheme?: Palette;
+  vars: Record<`--${string}`, VarsProperty>;
+  variants: Record<string, ThemeProperties>;
   defaultVariant?: string;
-  variants: V;
+  body: StyleRuleBodyBuilder[];
+  utilities: Record<string, StyleRuleBodyBuilder[]>;
+  parent?: ComponentState;
 };
 
-export type ComponentVariants = Record<
-  string,
-  { [K: `--${string}`]: StylePropertyValue }
-> & {
-  default?: { [K: `--${string}`]: StylePropertyValue };
-};
+export class ComponentBuilder<T extends ComponentState = ComponentState> {
+  readonly state: T;
+  constructor(state: T) {
+    this.state = state;
+  }
 
-type VariantName<T extends ComponentVariants> = Exclude<keyof T, "default"> &
-  string;
+  vars<const P extends ThemeProperties>(vars: P) {
+    return new ComponentBuilder({
+      ...this.state,
+      vars,
+    } as T & { vars: P });
+  }
 
-export type ComponentBuilder<
-  T extends ComponentVariants,
-  B extends StyleRuleBodyBuilder | StyleRuleBodyBuilder[],
-> = {
-  variants?: T;
-  defaultVariant?: NoInfer<VariantName<T>>;
-  styles: B;
-};
+  variant<const V extends string, const P extends ThemeProperties>(
+    name: V,
+    vars: P,
+  ) {
+    return new ComponentBuilder({
+      ...this.state,
+      variants: {
+        ...this.state.variants,
+        [name]: vars,
+      },
+    } as T & { variants: Record<V, P> });
+  }
 
-export function component<
-  N extends string,
-  T extends ComponentVariants,
-  B extends StyleRuleBodyBuilder,
->(name: N, body: ComponentBuilder<T, B>): ComponentConstruct<N, T, [B]>;
+  defaultTheme<P extends Palette>(
+    palette: P,
+  ): ComponentBuilder<Omit<T, "defaultTheme"> & { defaultTheme: P }> {
+    return new ComponentBuilder({
+      ...this.state,
+      defaultTheme: palette,
+    } as Omit<T, "defaultTheme"> & { defaultTheme: P });
+  }
 
-export function component<
-  N extends string,
-  T extends ComponentVariants,
-  B extends StyleRuleBodyBuilder[],
->(name: N, body: ComponentBuilder<T, B>): ComponentConstruct<N, T, B>;
+  defaultVariant<const V extends keyof T["variants"] & string>(variantName: V) {
+    return new ComponentBuilder({
+      ...this.state,
+      defaultVariant: variantName,
+    } as T & { defaultVariant: V });
+  }
 
-export function component<
-  N extends string,
-  T extends ComponentVariants,
-  B extends StyleRuleBodyBuilder | StyleRuleBodyBuilder[],
->(name: N, body: ComponentBuilder<T, B>) {
-  const { styles, variants = {} } = body;
-
-  return {
-    $construct: "component",
-    name,
-    defaultVariant: body.defaultVariant,
-    styles: normalizeStyleBuilders(styles),
-    variants: variants ?? {},
-  } as unknown as ComponentConstruct<
-    N,
-    T,
-    B extends readonly unknown[] ? B : [B]
-  >;
-}
-
-export function isThemeable(componentConstruct: ComponentConstruct) {
-  let themeable = false;
-  stylesheetVisitorBuilder()
-    .on("color", (ast) => {
-      themeable ||= ast.palette === "current";
-      return ast;
-    })
-    .visit([componentConstruct.styles, componentConstruct.variants]);
-
-  return themeable;
-}
-
-/**
- * Detects if a component should be generated as @utility component
- * @param componentConstruct
- */
-export function hasStaticVariant(componentConstruct: ComponentConstruct) {
-  const themable = isThemeable(componentConstruct);
-  return !themable || !!componentConstruct.defaultVariant;
-}
-
-function normalizeStyleBuilders(
-  builders: StyleRuleBodyBuilder | StyleRuleBodyBuilder[],
-): (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[] {
-  const list: StyleRuleBodyBuilder[] =
-    Array.isArray(builders) ? builders : [builders];
-
-  return list.flatMap((builder) => {
-    if (typeof builder === "object" && builder !== null && "$ast" in builder) {
-      return [builder as StyleListAst_WithMetadata | StyleRuleAst_WithMetadata];
-    }
-
-    if (
-      typeof builder === "string" ||
-      (typeof builder === "object" && builder !== null && "prefix" in builder)
-    ) {
-      return [dsl.styleList(builder) as unknown as StyleListAst_WithMetadata];
-    }
-
-    const { $, ...styles } = builder as dsl.StyleProperties & {
-      $?: {
-        [K in dsl.Selector]?: StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
+  controlled<
+    const V extends keyof T["vars"],
+    const C extends ControlledVar["candidates"],
+  >(variable: V, ...candidates: C) {
+    return new ComponentBuilder({
+      ...this.state,
+      vars: {
+        ...this.state.vars,
+        [variable]: {
+          default: this.state["vars"][variable as `--${string}`],
+          candidates,
+        },
+      },
+    } as Omit<T, "vars"> & {
+      vars: Omit<T["vars"], V> & {
+        [K in V]: {
+          default: T["vars"][K];
+          candidates: C;
+        };
       };
-    };
+    });
+  }
 
-    return [
-      ...(Object.keys(styles).length > 0 ?
-        [dsl.styleList(styles as dsl.StyleProperties)]
-      : []),
-      ...(typeof $ === "object" && $ !== null ?
-        Object.entries($).map(([selector, body]) =>
-          dsl.styleRule(
-            selector as dsl.Selector,
-            ...((!body ? []
-            : Array.isArray(body) ? body
-            : [body]) as StyleRuleBodyBuilder[]),
-          ),
-        )
-      : []),
-    ] as (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[];
+  body<const B extends StyleRuleBodyBuilder[]>(...styles: B) {
+    return new ComponentBuilder({
+      ...this.state,
+      body: styles,
+    } as T & { body: B });
+  }
+
+  derive<const N extends string, C extends ComponentState>(
+    childName: N,
+    configure: (
+      child: ComponentBuilder<{
+        name: N;
+        vars: Record<`--${string}`, VarsProperty>;
+        variants: T["variants"];
+        body: StyleRuleBodyBuilder[];
+        parent: ComponentState;
+        utilities: Record<string, StyleRuleBodyBuilder[]>;
+      }>,
+    ) => ComponentBuilder<C>,
+  ): ComponentBuilder<C> {
+    const childBuilder = new ComponentBuilder({
+      name: childName,
+      vars: {},
+      variants: {},
+      body: [],
+      parent: this.state as ComponentState,
+      utilities: {},
+    } as {
+      name: N;
+      vars: Record<`--${string}`, VarsProperty>;
+      variants: T["variants"];
+      body: StyleRuleBodyBuilder[];
+      parent: ComponentState;
+      utilities: Record<string, StyleRuleBodyBuilder[]>;
+    });
+
+    return configure(childBuilder);
+  }
+
+  utility<const U extends string, const B extends StyleRuleBodyBuilder[]>(
+    name: U,
+    ...styles: B
+  ) {
+    const existingUtilities = this.state.utilities[name] || [];
+    const updatedUtilities = [...existingUtilities, ...styles];
+    return new ComponentBuilder({
+      ...this.state,
+      utilities: {
+        ...this.state.utilities,
+        [name]: updatedUtilities,
+      },
+    } as T & {
+      utilities: Omit<T["utilities"], U> &
+        Record<U, [...T["utilities"][U], ...B]>;
+    });
+  }
+}
+
+export function component<const N extends string>(name: N) {
+  return new ComponentBuilder({
+    name,
+    vars: {},
+    variants: {},
+    body: [],
+    utilities: {},
   });
 }

@@ -45,7 +45,14 @@ type NestedStylesMetadata<Nested> =
   : {};
 
 type MetadataOfStyle<S> =
-  S extends WithMetadata<StyleListAst | StyleRuleAst, infer M> ? M
+  // Fast O(1) short-circuits for TailwindUtility strings and ArbitraryValue prefix-objects.
+  // When TypeScript computes variance for generic components it instantiates MetadataOfStyle
+  // with the full Styles union (~3979 members). Without short-circuits every member must
+  // traverse all branches below, producing thousands of comparisons. Both branches return {}
+  // for these cases anyway, so the result is identical — skipping the O(3979) distribution.
+  S extends string ? {}
+  : S extends { readonly prefix: string } ? {}
+  : S extends WithMetadata<StyleListAst | StyleRuleAst, infer M> ? M
   : S extends StyleProperties ?
     Omit<S, "$"> &
       (S extends { $: infer Nested } ? NestedStylesMetadata<Nested> : {})
@@ -70,6 +77,11 @@ type MetadataOf<T> =
   // Use readonly unknown[] instead of readonly Styles[] — same structural gate, O(1) check
   // instead of O(3979) T[number]-vs-Styles comparison that triggered on every array branch.
   T extends readonly unknown[] ? UnionToIntersection<MetadataOfStyle<T[number]>>
+  : // Short-circuit TailwindUtility strings and ArbitraryValue prefix-objects before
+  // the expensive `T extends Styles` check. MetadataOfStyle returns {} for both of
+  // these branches anyway, so the result is identical — skipping the O(3979) check.
+  T extends string ? {}
+  : T extends { readonly prefix: string } ? {}
   : T extends Styles ? MetadataOfStyle<T>
   : {};
 
@@ -182,7 +194,12 @@ export function styleRule<
   >;
 }
 
+// `string & {}` is listed first so TypeScript's assignability check short-circuits
+// immediately for string-literal inputs instead of walking TailwindUtility's
+// ~3979-member union. TailwindUtility ⊆ (string & {}), so all string utilities
+// are still accepted; TailwindUtility is kept for IntelliSense completions.
 export type StyleListBuilder =
+  | (string & {})
   | StyleProperties
   | TailwindUtility
   | TailwindClassAst<TailwindUtility>;
@@ -195,6 +212,19 @@ export type StyleListAst = AstNode<
 export type StyleListAst_WithMetadata<B extends StyleListBuilder[] = never[]> =
   WithMetadata<StyleListAst, Styles_Metadata<B>>;
 
+// Overload 1 — single-string fast path.
+// When the caller passes exactly one string (including template-literal unions
+// such as `palette-${Palette}`), TypeScript uses this overload and returns the
+// plain `StyleListAst_WithMetadata` without instantiating the costly
+// `Styles_Metadata<[union-of-7-strings]>` generic.  This prevents TS2590
+// ("Expression produces a union type that is too complex to represent") that
+// would otherwise occur because inference tries matching the string union
+// against the full ~3979-member TailwindUtility constrained on `const B`.
+export function styleList(style: string): StyleListAst_WithMetadata<never[]>;
+// Overload 2 — generic with full metadata (StyleProperties CSS-var keys, tw names).
+export function styleList<const B extends StyleListBuilder[]>(
+  ...styles: B
+): StyleListAst_WithMetadata<B>;
 export function styleList<const B extends StyleListBuilder[]>(...styles: B) {
   return {
     $ast: "style-list" as const,

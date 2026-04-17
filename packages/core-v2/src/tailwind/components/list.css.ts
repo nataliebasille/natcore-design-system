@@ -1,6 +1,6 @@
-import { component, dsl } from "@nataliebasille/css-engine";
+import { component_deprecated, dsl } from "@nataliebasille/css-engine";
 
-export default component("list", {
+export default component_deprecated("list", {
   variants: {
     default: {
       "--item-hover-bg": dsl.current(200),

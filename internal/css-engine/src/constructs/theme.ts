@@ -1,5 +1,5 @@
 import { css } from "../css/index.ts";
-import type { StyleProperties } from "../dsl/public.ts";
+import type { StylePropertyValue } from "../dsl/public.ts";
 import type { Eager } from "../utils/index.ts";
 
 export type ThemeMode = "static" | "inline" | "root";
@@ -14,7 +14,7 @@ export type ThemeConstruct<
 };
 
 export type ThemeProperties = {
-  [K in keyof css.ThemeProperties]: StyleProperties[keyof StyleProperties];
+  [K in keyof css.ThemeProperties]: StylePropertyValue | StylePropertyValue[];
 };
 
 type CombinedThemes<T extends ThemeProperties[]> = Eager<{

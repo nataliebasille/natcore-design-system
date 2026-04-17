@@ -1,6 +1,6 @@
-import { component, dsl } from "@nataliebasille/css-engine";
+import { component_deprecated, dsl } from "@nataliebasille/css-engine";
 
-export default component("badge", {
+export default component_deprecated("badge", {
   variants: {
     solid: {
       "--bg": dsl.current(700),

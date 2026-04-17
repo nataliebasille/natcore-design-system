@@ -106,6 +106,8 @@ export type AtRuleBodyBuilder =
   | StyleRuleBodyBuilder
   | StyleListBuilder;
 
+export type AtRuleHelper = (...rules: AtRuleBodyBuilder[]) => AtRuleAst;
+
 /**
  * Generic at-rule constructor - with prelude
  */
@@ -355,20 +357,26 @@ breakpoint.aspectRatio = (value: string) => breakpoint("aspect-ratio", value);
 /**
  * Common environment preference helpers - create media queries with prefers-*
  */
-export const prefersDark = (...rules: AtRuleBodyBuilder[]) =>
-  mediaEnv("color-scheme", "dark", ...rules);
+export const prefersDark: (...rules: AtRuleBodyBuilder[]) => AtRuleAst = (
+  ...rules
+) => mediaEnv("color-scheme", "dark", ...rules);
 
-export const prefersLight = (...rules: AtRuleBodyBuilder[]) =>
-  mediaEnv("color-scheme", "light", ...rules);
+export const prefersLight: (...rules: AtRuleBodyBuilder[]) => AtRuleAst = (
+  ...rules
+) => mediaEnv("color-scheme", "light", ...rules);
 
-export const prefersReducedMotion = (...rules: AtRuleBodyBuilder[]) =>
-  mediaEnv("reduced-motion", "reduce", ...rules);
+export const prefersReducedMotion: (
+  ...rules: AtRuleBodyBuilder[]
+) => AtRuleAst = (...rules) => mediaEnv("reduced-motion", "reduce", ...rules);
 
-export const prefersHighContrast = (...rules: AtRuleBodyBuilder[]) =>
-  mediaEnv("contrast", "high", ...rules);
+export const prefersHighContrast: (
+  ...rules: AtRuleBodyBuilder[]
+) => AtRuleAst = (...rules) => mediaEnv("contrast", "high", ...rules);
 
-export const supportsHover = (...rules: AtRuleBodyBuilder[]) =>
-  mediaEnv("hover", "hover", ...rules);
+export const supportsHover: (...rules: AtRuleBodyBuilder[]) => AtRuleAst = (
+  ...rules
+) => mediaEnv("hover", "hover", ...rules);
 
-export const supportsFinePointer = (...rules: AtRuleBodyBuilder[]) =>
-  mediaEnv("pointer", "fine", ...rules);
+export const supportsFinePointer: (
+  ...rules: AtRuleBodyBuilder[]
+) => AtRuleAst = (...rules) => mediaEnv("pointer", "fine", ...rules);

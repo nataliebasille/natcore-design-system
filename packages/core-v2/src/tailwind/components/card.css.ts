@@ -1,4 +1,4 @@
-import { component, dsl, utility } from "@nataliebasille/css-engine";
+import { component_deprecated, dsl, utility } from "@nataliebasille/css-engine";
 
 const cardSections = dsl.select.list(
   dsl.select.child(dsl.select.parent(), dsl.select.cls("card-header")),
@@ -7,7 +7,7 @@ const cardSections = dsl.select.list(
 );
 
 export default [
-  component("card", {
+  component_deprecated("card", {
     variants: {
       solid: {
         "--bg": dsl.current(700),

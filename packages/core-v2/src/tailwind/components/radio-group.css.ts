@@ -1,7 +1,7 @@
 // MOVE TO REACT COMPONENT
 export default [];
 
-// import { component, dsl } from "@nataliebasille/css-engine";
+// import { component_deprecated, dsl } from "@nataliebasille/css-engine";
 
 // const INLINE_GROUP = {
 //   "--group-display": "inline-flex",
@@ -11,7 +11,7 @@ export default [];
 //   "--group-radius": dsl.cssvar("--radius-lg"),
 // };
 
-// export default component("radio-group", {
+// export default component_deprecated("radio-group", {
 //   variants: {
 //     solid: {
 //       ...INLINE_GROUP,

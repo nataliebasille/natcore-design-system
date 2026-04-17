@@ -1,4 +1,4 @@
-import { component, dsl, theme } from "@nataliebasille/css-engine";
+import { component_deprecated, dsl, theme } from "@nataliebasille/css-engine";
 
 const THUMB_SELECTOR = dsl.select.list("&::before", "& > .toggle-thumb");
 const TOGGLE_ON_CONDITION =
@@ -10,7 +10,7 @@ export default [
     "--toggle-h": dsl.primitive.length.rem(1.75),
     "--toggle-p": dsl.calc`${dsl.cssvar("--toggle-h")} * ${dsl.primitive.number(0.125)}`,
   }),
-  component("toggle", {
+  component_deprecated("toggle", {
     variants: {
       solid: {
         "--track": dsl.current(600),

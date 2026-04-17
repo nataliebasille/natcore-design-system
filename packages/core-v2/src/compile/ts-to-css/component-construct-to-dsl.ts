@@ -21,7 +21,7 @@ export function componentConstructToDsl(
   } = componentConstruct.variants;
   const hasVariants = Object.keys(dynamicVariants).length > 0;
   // If there are no variant then default to static generation.
-  // If there is a default variant, we can generate a static version of the component for it.
+  // If there is a default variant, we can generate a static version of the component_deprecated for it.
   const shouldGenerateStatic = !hasVariants || !!defaultVariant;
   return [
     ...(shouldGenerateStatic ?

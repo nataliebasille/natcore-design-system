@@ -1,4 +1,4 @@
-import { component, dsl, utility } from "@nataliebasille/css-engine";
+import { component_deprecated, dsl, utility } from "@nataliebasille/css-engine";
 
 const tone700Mixed50 = dsl.colorMix(
   "srgb",
@@ -102,7 +102,7 @@ export default [
     },
   ),
 
-  component("tabs-style", {
+  component_deprecated("tabs-style", {
     variants: {
       underline: {
         "--text-color": tone700Mixed50,
@@ -134,12 +134,8 @@ export default [
           "--tabs-hover-border-color": dsl.match.variable(
             "--hover-border-color",
           ),
-          "--tabs-hover-font-weight": dsl.match.variable(
-            "--hover-font-weight",
-          ),
-          "--tabs-hover-text-color": dsl.match.variable(
-            "--hover-text-color",
-          ),
+          "--tabs-hover-font-weight": dsl.match.variable("--hover-font-weight"),
+          "--tabs-hover-text-color": dsl.match.variable("--hover-text-color"),
           "--tabs-active-border-width": dsl.match.variable(
             "--active-border-width",
           ),
@@ -152,9 +148,7 @@ export default [
           "--tabs-active-font-weight": dsl.match.variable(
             "--active-font-weight",
           ),
-          "--tabs-active-text-color": dsl.match.variable(
-            "--active-text-color",
-          ),
+          "--tabs-active-text-color": dsl.match.variable("--active-text-color"),
 
           "--tabs-divider-border-width": dsl.match.variable(
             "--divider-border-width",

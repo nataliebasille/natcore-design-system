@@ -1,4 +1,4 @@
-import { component, dsl } from "@nataliebasille/css-engine";
+import { component_deprecated, dsl } from "@nataliebasille/css-engine";
 
 const allSiblingInputs = "~ input, ~ select, ~ textarea";
 const allChildInputs = "> input, > select, > textarea";
@@ -7,7 +7,7 @@ const bg = dsl.current(50);
 const fg = dsl.currentText(50, 0.8);
 const border = dsl.current(300);
 
-export default component("form-control", {
+export default component_deprecated("form-control", {
   styles: [
     "grid",
     "transition-all",

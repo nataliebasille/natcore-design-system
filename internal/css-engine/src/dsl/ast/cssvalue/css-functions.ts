@@ -103,14 +103,28 @@ function valueToString(value: any): string {
 // Reusable helper to add toString method to CSS functions
 function withToString<T extends { $function: string }>(
   value: T,
-  toStringFn: (v: T) => string,
+  toStringFn: (this: T) => string,
 ): T & { toString: () => string } {
   return {
     ...value,
-    toString() {
-      return toStringFn(this as T);
-    },
+    toString: toStringFn,
   };
+}
+
+function calcToString(this: {
+  $function: "calc";
+  strings: string[];
+  values: any[];
+}) {
+  let result = "calc(";
+  for (let i = 0; i < this.strings.length; i++) {
+    result += this.strings[i];
+    if (i < this.values.length) {
+      result += valueToString(this.values[i]);
+    }
+  }
+  result += ")";
+  return result;
 }
 
 export function calc(
@@ -125,18 +139,12 @@ export function calc(
       strings: Array.from(strings),
       values,
     },
-    (f) => {
-      let result = "calc(";
-      for (let i = 0; i < f.strings.length; i++) {
-        result += f.strings[i];
-        if (i < f.values.length) {
-          result += valueToString(f.values[i]);
-        }
-      }
-      result += ")";
-      return result;
-    },
+    calcToString,
   );
+}
+
+function minToString(this: { $function: "min"; values: any[] }) {
+  return `min(${this.values.map(valueToString).join(", ")})`;
 }
 
 export function min(
@@ -149,8 +157,12 @@ export function min(
       $function: "min" as const,
       values,
     },
-    (f) => `min(${f.values.map(valueToString).join(", ")})`,
+    minToString,
   );
+}
+
+function maxToString(this: { $function: "max"; values: any[] }) {
+  return `max(${this.values.map(valueToString).join(", ")})`;
 }
 
 export function max(
@@ -163,8 +175,17 @@ export function max(
       $function: "max" as const,
       values,
     },
-    (f) => `max(${f.values.map(valueToString).join(", ")})`,
+    maxToString,
   );
+}
+
+function clampToString(this: {
+  $function: "clamp";
+  min: any;
+  preferred: any;
+  max: any;
+}) {
+  return `clamp(${valueToString(this.min)}, ${valueToString(this.preferred)}, ${valueToString(this.max)})`;
 }
 
 export function clamp(
@@ -179,9 +200,16 @@ export function clamp(
       preferred,
       max,
     },
-    (f) =>
-      `clamp(${valueToString(f.min)}, ${valueToString(f.preferred)}, ${valueToString(f.max)})`,
+    clampToString,
   );
+}
+
+function lightDarkToString(this: {
+  $function: "light-dark";
+  light: any;
+  dark: any;
+}) {
+  return `light-dark(${valueToString(this.light)}, ${valueToString(this.dark)})`;
 }
 
 export function lightDark(light: CssValue<"color">, dark: CssValue<"color">) {
@@ -191,8 +219,21 @@ export function lightDark(light: CssValue<"color">, dark: CssValue<"color">) {
       light,
       dark,
     },
-    (f) => `light-dark(${valueToString(f.light)}, ${valueToString(f.dark)})`,
+    lightDarkToString,
   );
+}
+
+function rgbToString(this: {
+  $function: "rgb";
+  r: any;
+  g: any;
+  b: any;
+  alpha?: any;
+}) {
+  const rgb = `${valueToString(this.r)} ${valueToString(this.g)} ${valueToString(this.b)}`;
+  return this.alpha ?
+      `rgb(${rgb} / ${valueToString(this.alpha)})`
+    : `rgb(${rgb})`;
 }
 
 export function rgb(
@@ -209,13 +250,21 @@ export function rgb(
       b,
       alpha,
     },
-    (f) => {
-      const rgb = `${valueToString(f.r)} ${valueToString(f.g)} ${valueToString(f.b)}`;
-      return f.alpha ?
-          `rgb(${rgb} / ${valueToString(f.alpha)})`
-        : `rgb(${rgb})`;
-    },
+    rgbToString,
   );
+}
+
+function hslToString(this: {
+  $function: "hsl";
+  h: any;
+  s: any;
+  l: any;
+  alpha?: any;
+}) {
+  const hsl = `${valueToString(this.h)} ${valueToString(this.s)} ${valueToString(this.l)}`;
+  return this.alpha ?
+      `hsl(${hsl} / ${valueToString(this.alpha)})`
+    : `hsl(${hsl})`;
 }
 
 export function hsl(
@@ -232,13 +281,25 @@ export function hsl(
       l,
       alpha,
     },
-    (f) => {
-      const hsl = `${valueToString(f.h)} ${valueToString(f.s)} ${valueToString(f.l)}`;
-      return f.alpha ?
-          `hsl(${hsl} / ${valueToString(f.alpha)})`
-        : `hsl(${hsl})`;
-    },
+    hslToString,
   );
+}
+
+function colorMixToString(this: {
+  $function: "color-mix";
+  colorspace: ColorMixColorspace;
+  base: { color: any; percentage?: any };
+  mix: { color: any; percentage?: any };
+}) {
+  const baseStr =
+    this.base.percentage ?
+      `${valueToString(this.base.color)} ${valueToString(this.base.percentage)}`
+    : valueToString(this.base.color);
+  const mixStr =
+    this.mix.percentage ?
+      `${valueToString(this.mix.color)} ${valueToString(this.mix.percentage)}`
+    : valueToString(this.mix.color);
+  return `color-mix(in ${this.colorspace}, ${baseStr}, ${mixStr})`;
 }
 
 export function colorMix(
@@ -259,18 +320,12 @@ export function colorMix(
       base,
       mix,
     },
-    (f) => {
-      const baseStr =
-        f.base.percentage ?
-          `${valueToString(f.base.color)} ${valueToString(f.base.percentage)}`
-        : valueToString(f.base.color);
-      const mixStr =
-        f.mix.percentage ?
-          `${valueToString(f.mix.color)} ${valueToString(f.mix.percentage)}`
-        : valueToString(f.mix.color);
-      return `color-mix(in ${f.colorspace}, ${baseStr}, ${mixStr})`;
-    },
+    colorMixToString,
   );
+}
+
+function translateXToString(this: { $function: "translateX"; value: any }) {
+  return `translateX(${valueToString(this.value)})`;
 }
 
 export function translateX(value: CssValue<"length" | "percentage">) {
@@ -279,6 +334,6 @@ export function translateX(value: CssValue<"length" | "percentage">) {
       $function: "translateX" as const,
       value,
     },
-    (f) => `translateX(${valueToString(f.value)})`,
+    translateXToString,
   );
 }
