@@ -448,7 +448,7 @@ describe("derive", () => {
       const result = componentBuilderToDsl(
         component("btn")
           .vars({ "--color": "red", "--size": "1rem" })
-          .derive("btn-group", (child) =>
+          .derive("group", (child) =>
             child.vars({
               "--bg": "white",
             }),
@@ -472,7 +472,7 @@ describe("derive", () => {
       const result = componentBuilderToDsl(
         component("btn")
           .vars({ "--color": "red", "--size": "1rem" })
-          .derive("btn-group", (child) =>
+          .derive("group", (child) =>
             child
               .vars({
                 "--bg": "white",
@@ -512,7 +512,7 @@ describe("derive", () => {
           .body({
             color: dsl.cssvar("--color"),
           })
-          .derive("btn-group", (child) =>
+          .derive("group", (child) =>
             child
               .vars({
                 "--color": "blue",
@@ -550,7 +550,7 @@ describe("derive", () => {
           .body({
             color: dsl.cssvar("--color"),
           })
-          .derive("btn-group", (child) =>
+          .derive("group", (child) =>
             child
               .vars({
                 "--color": "blue",
@@ -589,7 +589,7 @@ describe("derive", () => {
           .body({
             color: dsl.cssvar("--color"),
           })
-          .derive("btn-group", (child) =>
+          .derive("group", (child) =>
             child
               .variant("solid", { "--color": "green" })
               .variant("soft", { "--bg": "transparent" })
@@ -618,7 +618,7 @@ describe("derive", () => {
       const result = componentBuilderToDsl(
         component("btn")
           .variant("solid", { "--color": "blue" })
-          .derive("btn-group", (child) =>
+          .derive("group", (child) =>
             child.body({
               color: dsl.cssvar("--color"),
             }),
@@ -649,7 +649,7 @@ describe("derive", () => {
       const result = componentBuilderToDsl(
         component("btn")
           .variant("solid", { "--color": "blue" })
-          .derive("btn-group", (child) =>
+          .derive("group", (child) =>
             child
               .variant("solid", { "--color": "green" })
               .defaultVariant("solid")
@@ -956,7 +956,7 @@ describe("controlled vars", () => {
         .vars({ "--size": "1rem" })
         .controlled("--size", { type: "arbitrary", dataType: "length" })
         .body({ padding: dsl.cssvar("--size") })
-        .derive("btn-group", (child) =>
+        .derive("group", (child) =>
           child.body({
             padding: dsl.cssvar("--size"),
           }),

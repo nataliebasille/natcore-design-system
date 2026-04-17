@@ -178,8 +178,11 @@ class ComponentStateRef {
   #themeBag: ThemeBag;
 
   constructor(state: ComponentState) {
-    this.#state = state;
-    this.#themeBag = new ThemeBag(state);
+    const effectiveName = resolveComponentName(state);
+    const effectiveState =
+      effectiveName !== state.name ? { ...state, name: effectiveName } : state;
+    this.#state = effectiveState;
+    this.#themeBag = new ThemeBag(effectiveState);
   }
 
   #body: (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[] | null =
@@ -650,4 +653,11 @@ function isControlledVar(
 
 function camelCase(str: string) {
   return str.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+}
+
+function resolveComponentName(state: ComponentState): string {
+  if (state.parent) {
+    return `${resolveComponentName(state.parent)}-${state.name}`;
+  }
+  return state.name;
 }

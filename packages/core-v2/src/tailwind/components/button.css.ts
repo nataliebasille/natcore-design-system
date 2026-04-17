@@ -99,7 +99,7 @@ const module = [
       "aspect-square",
       "rounded-full",
     )
-    .derive("btn-group", (child) =>
+    .derive("group", (child) =>
       child
         .variant("ghost", {
           "--border-radius": dsl.cssvar("--radius-lg"),
