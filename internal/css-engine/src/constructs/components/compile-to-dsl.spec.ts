@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { componentBuilderToDsl } from "./component-builder-to-dsl.ts";
-import { dsl, PALETTE } from "../dsl/public.ts";
-import { component } from "./component.ts";
-import { colorKeyWithoutPalette, renderPalette } from "./palette-utils.ts";
+import { componentBuilderToDsl } from "./compile-to-dsl.ts";
+import { dsl, PALETTE } from "../../dsl/public.ts";
+import { component } from "./component-builder.ts";
+import { colorKeyWithoutPalette, renderPalette } from "../palette-utils.ts";
 
 describe("vars", () => {
   it("scopes vars to the component", () => {

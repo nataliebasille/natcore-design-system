@@ -1,43 +1,6 @@
-import {
-  type Palette,
-  type StylePropertyValue,
-  type StyleRuleBodyBuilder,
-  type TwArbitraryCandidate,
-  type TwBareCandidate,
-} from "../dsl/public";
-import type { ThemeProperties } from "./theme";
-
-export type ControlledVar = {
-  default: StylePropertyValue | StylePropertyValue[];
-  candidates: (
-    | {
-        type: "token";
-        token: string;
-        value: StylePropertyValue | StylePropertyValue[];
-      }
-    | {
-        type: "arbitrary";
-        dataType: TwArbitraryCandidate["dataType"];
-      }
-    | {
-        type: "bare";
-        dataType: TwBareCandidate["dataType"];
-      }
-  )[];
-};
-
-export type VarsProperty = StylePropertyValue | ControlledVar;
-
-export type ComponentState = {
-  name: string;
-  defaultTheme?: Palette;
-  vars: Record<`--${string}`, VarsProperty>;
-  variants: Record<string, ThemeProperties>;
-  defaultVariant?: string;
-  body: StyleRuleBodyBuilder[];
-  utilities: Record<string, StyleRuleBodyBuilder[]>;
-  parent?: ComponentState;
-};
+import { type Palette, type StyleRuleBodyBuilder } from "../../dsl/public";
+import type { ThemeProperties } from "../theme";
+import type { ComponentState, ControlledVar, VarsProperty } from "./types";
 
 export class ComponentBuilder<T extends ComponentState = ComponentState> {
   readonly state: T;
@@ -94,14 +57,16 @@ export class ComponentBuilder<T extends ComponentState = ComponentState> {
           candidates,
         },
       },
-    } as Omit<T, "vars"> & {
-      vars: Omit<T["vars"], V> & {
-        [K in V]: {
-          default: T["vars"][K];
-          candidates: C;
-        };
+    } as unknown as Omit<T, "vars"> & {
+      vars: {
+        [K in keyof T["vars"]]: K extends V ?
+          {
+            default: T["vars"][K];
+            candidates: C;
+          }
+        : T["vars"][K];
       };
-    });
+    } & T);
   }
 
   body<const B extends StyleRuleBodyBuilder[]>(...styles: B) {
@@ -116,31 +81,24 @@ export class ComponentBuilder<T extends ComponentState = ComponentState> {
     configure: (
       child: ComponentBuilder<{
         name: N;
-        vars: Record<`--${string}`, VarsProperty>;
-        variants: T["variants"];
-        body: StyleRuleBodyBuilder[];
-        parent: ComponentState;
-        utilities: Record<string, StyleRuleBodyBuilder[]>;
+        vars: {};
+        variants: {};
+        body: [];
+        parent: T;
+        utilities: {};
       }>,
     ) => ComponentBuilder<C>,
-  ): ComponentBuilder<C> {
+  ) {
     const childBuilder = new ComponentBuilder({
       name: childName,
       vars: {},
       variants: {},
       body: [],
-      parent: this.state as ComponentState,
+      parent: this.state,
       utilities: {},
-    } as {
-      name: N;
-      vars: Record<`--${string}`, VarsProperty>;
-      variants: T["variants"];
-      body: StyleRuleBodyBuilder[];
-      parent: ComponentState;
-      utilities: Record<string, StyleRuleBodyBuilder[]>;
     });
 
-    return configure(childBuilder);
+    return configure(childBuilder) as ComponentBuilder<C & { parent: T }>;
   }
 
   utility<const U extends string, const B extends StyleRuleBodyBuilder[]>(
