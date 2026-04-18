@@ -118,7 +118,7 @@ export class ThemeBag {
   }
 
   #getScopedName(state: ComponentState, varName: `--${string}`) {
-    return `--${this.#resolvedName}-${varName.slice(2)}` as const;
+    return `--${resolveComponentName(state)}-${varName.slice(2)}` as const;
   }
 
   #addStateVars(state: ComponentState) {

@@ -2,6 +2,11 @@ import { type Palette, type StyleRuleBodyBuilder } from "../../dsl/public";
 import type { ThemeProperties } from "../theme";
 import type { ComponentState, ControlledVar, VarsProperty } from "./types";
 
+type DefinedVariants<T extends ComponentState> =
+  T extends { parent: infer P extends ComponentState } ?
+    keyof T["variants"] | DefinedVariants<P>
+  : keyof T["variants"];
+
 export class ComponentBuilder<T extends ComponentState = ComponentState> {
   readonly state: T;
   constructor(state: T) {
@@ -37,7 +42,7 @@ export class ComponentBuilder<T extends ComponentState = ComponentState> {
     } as Omit<T, "defaultTheme"> & { defaultTheme: P });
   }
 
-  defaultVariant<const V extends keyof T["variants"] & string>(variantName: V) {
+  defaultVariant<const V extends DefinedVariants<T>>(variantName: V) {
     return new ComponentBuilder({
       ...this.state,
       defaultVariant: variantName,
