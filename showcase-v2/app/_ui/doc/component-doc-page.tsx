@@ -6,105 +6,63 @@ import {
   type StyleRuleAst_WithMetadata,
   isThemeable,
   PALETTE,
+  ComponentBuilder,
+  type ComponentState,
+  type ComponentDocMeta,
+  createDoc,
+  type Pattern,
+  type PatternValue,
 } from "@nataliebasille/css-engine";
 import type { ShowcaseJsxNode } from "@nataliebasille/preview-jsx-runtime/types";
 import { DocPage, DocSection } from "./DocPage";
 import { Spotlight } from "./spotlight";
-import { DisplayPattern, type Pattern } from "./display-pattern";
-import { UtilityReference, UtilityValue } from "./utility-reference";
+import { DisplayPattern } from "./display-pattern";
+import {
+  ApiGroup,
+  ApiRow,
+  TagBadge,
+  UtilityReference,
+  UtilityValue,
+  type UtilityTag,
+} from "./utility-reference";
+import type { ReactNode } from "react";
 
-type CssVarsFromMetadata<S> =
-  S extends { readonly __metadata?: infer M } ? Extract<keyof M, `--${string}`>
-  : never;
-
-type ExtractCssVars<T> =
-  T extends ThemeConstruct ? never
-  : T extends ComponentConstruct ? CssVarsFromMetadata<T["styles"]>
-  : T extends UtilityConstruct ? CssVarsFromMetadata<T["styles"][number]>
-  : T extends readonly (infer E)[] ? ExtractCssVars<E>
-  : never;
-
-type ModuleLike =
-  | ComponentConstruct
-  | UtilityConstruct
-  | ThemeConstruct
-  | StyleListAst_WithMetadata
-  | StyleRuleAst_WithMetadata;
-
-type ComponentDocMeta<T extends ModuleLike> = {
-  name: string;
-  description: string;
-  spotlights?: Partial<
-    Record<keyof Extract<T, ComponentConstruct>["variants"], ShowcaseJsxNode>
-  >;
+type ComponentDocPageProps<B extends ComponentBuilder> = {
+  module: B;
+  meta: ComponentDocMeta<B>;
+  content: {
+    atAGlance?: React.ReactNode;
+    playground: React.ReactNode;
+  };
 };
 
-type DocMeta<T extends ModuleLike> = {
-  atAGlance?: React.ReactNode;
-  playground: React.ReactNode;
-  components: Record<
-    Extract<T, ComponentConstruct>["name"],
-    ComponentDocMeta<T>
-  >;
-  modifiers?: Partial<
-    Record<Extract<T, UtilityConstruct>["name"], ModifierDocEntry>
-  >;
-  cssvars?: Partial<Record<ExtractCssVars<T>, CssVarDocEntry>>;
-};
-
-type ComponentDocEntry = ComponentDocMeta<ModuleLike> & {
-  pattern: Pattern;
-  composesWith: Pattern[];
-};
-
-type ModifierDocEntry = {
-  name: string;
-  description: string;
-};
-
-type CssVarDocEntry = {
-  description: string;
-  default: string;
-};
-
-type ResolvedDocMeta = {
-  atAGlance?: React.ReactNode;
-  playground: React.ReactNode;
-  components: ComponentDocEntry[];
-  modifiers: Partial<Record<string, ModifierDocEntry>>;
-  cssvars: Partial<Record<string, CssVarDocEntry>>;
-};
-
-type ComponentDocPageProps<M extends ModuleLike = ModuleLike> = {
-  title: string;
-  description: string;
-  module: M[];
-  doc: DocMeta<M>;
-};
-
-export function ComponentDocPage<M extends ModuleLike>({
-  title,
-  description,
+export function ComponentDocPage<B extends ComponentBuilder>({
   module,
-  doc,
-}: ComponentDocPageProps<M>) {
-  const docs = createDocs(module, doc);
+  meta,
+  content,
+}: ComponentDocPageProps<B>) {
+  const resolvedDoc = createDoc(module, meta);
 
   return (
-    <DocPage title={title} description={description}>
-      {docs.atAGlance && (
+    <DocPage title={resolvedDoc.title} description={resolvedDoc.description}>
+      {content.atAGlance && (
         <DocSection title="At a glance">
-          <Spotlight>{docs.atAGlance}</Spotlight>
+          <Spotlight>{content.atAGlance}</Spotlight>
         </DocSection>
       )}
 
-      <DocSection title="Playground">{docs.playground}</DocSection>
+      <DocSection title="Playground">{content.playground}</DocSection>
 
-      {docs.components.map((component) => (
-        <DocSection key={component.name} title={component.name}>
+      {Object.entries(resolvedDoc.components ?? {}).map(([key, component]) => (
+        <DocSection key={key} title={component.name}>
           <UtilityReference
             description={component.description}
-            tags={["component"]}
+            tags={[
+              "component",
+              ...(component.composesWith.length > 0 ?
+                (["composable"] as const)
+              : []),
+            ]}
             table={[
               {
                 label: "Pattern",
@@ -116,8 +74,8 @@ export function ComponentDocPage<M extends ModuleLike>({
                     label: capitalize(component.pattern.value.name),
                     content: (
                       <UtilityValue
-                        values={component.pattern.value.values}
-                        defaultValue={component.pattern.value.defaultValue}
+                        values={patternValueToNodes(component.pattern.value)}
+                        defaultValue={component.pattern.value.default}
                       />
                     ),
                   },
@@ -129,7 +87,7 @@ export function ComponentDocPage<M extends ModuleLike>({
                     label: capitalize(component.pattern.modifier.name),
                     content: (
                       <UtilityValue
-                        values={component.pattern.modifier.values}
+                        values={patternValueToNodes(component.pattern.modifier)}
                       />
                     ),
                   },
@@ -141,9 +99,13 @@ export function ComponentDocPage<M extends ModuleLike>({
                     label: "Composes with",
                     content: (
                       <UtilityValue
-                        values={component.composesWith.map((x) => (
-                          <DisplayPattern key={x.root} pattern={x} />
-                        ))}
+                        values={component.composesWith.map((x) =>
+                          resolvedDoc.utilities[x.id]?.pattern ?
+                            <DisplayPattern
+                              pattern={resolvedDoc.utilities[x.id]!.pattern}
+                            />
+                          : null,
+                        )}
                         divider="+"
                       />
                     ),
@@ -154,169 +116,286 @@ export function ComponentDocPage<M extends ModuleLike>({
           />
         </DocSection>
       ))}
+
+      {Object.entries(resolvedDoc.utilities ?? {}).map(([key, utility]) => (
+        <DocSection key={key} title={utility.name}>
+          <UtilityReference
+            description={utility.description}
+            tags={[
+              "modifier",
+              ...(utility.composesWith.length > 0 ?
+                (["composable"] as const)
+              : []),
+            ]}
+            table={[
+              {
+                label: "Pattern",
+                content: <DisplayPattern pattern={utility.pattern} />,
+              },
+              ...(utility.pattern.value ?
+                [
+                  {
+                    label: capitalize(utility.pattern.value.name),
+                    content: (
+                      <UtilityValue
+                        values={patternValueToNodes(utility.pattern.value)}
+                        defaultValue={utility.pattern.value.default}
+                      />
+                    ),
+                  },
+                ]
+              : []),
+              ...(utility.pattern.modifier ?
+                [
+                  {
+                    label: capitalize(utility.pattern.modifier.name),
+                    content: (
+                      <UtilityValue
+                        values={patternValueToNodes(utility.pattern.modifier)}
+                      />
+                    ),
+                  },
+                ]
+              : []),
+              ...(utility.composesWith.length > 0 ?
+                [
+                  {
+                    label: "Composes with",
+                    content: (
+                      <UtilityValue
+                        values={utility.composesWith.map((x) =>
+                          resolvedDoc.utilities[x.id]?.pattern ?
+                            <DisplayPattern
+                              pattern={resolvedDoc.utilities[x.id]!.pattern}
+                            />
+                          : null,
+                        )}
+                        divider="+"
+                      />
+                    ),
+                  },
+                ]
+              : []),
+            ]}
+          />
+        </DocSection>
+      ))}
+
+      <div className="divider"></div>
+
+      <DocSection title="API Reference">
+        <div className="space-y-8">
+          {/* ── Classes ── */}
+          {(Object.keys(resolvedDoc.components).length > 0 ||
+            Object.keys(resolvedDoc.utilities).length > 0) && (
+            <ApiGroup label="Classes">
+              {Object.entries(resolvedDoc.components).map(([key, meta]) => {
+                return (
+                  <TaggedApiRow
+                    key={meta.name}
+                    tag="component"
+                    label={<DisplayPattern pattern={meta.pattern} />}
+                  >
+                    <div className="mb-2 text-xs text-on-tone-50-surface/70">
+                      {meta.description}
+                    </div>
+
+                    <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-1 text-xs desktop:mt-2">
+                      <span className="text-on-tone-50-surface/60">
+                        Variant
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        <UtilityValue
+                          values={patternValueToNodes(meta.pattern.value)}
+                        />
+                      </div>
+                      <span className="text-on-tone-50-surface/60">
+                        Palette
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        <UtilityValue
+                          values={patternValueToNodes(meta.pattern.modifier)}
+                        />
+                      </div>
+                    </div>
+                  </TaggedApiRow>
+                );
+              })}
+              {Object.entries(resolvedDoc.utilities).map(([key, meta]) => {
+                return (
+                  <TaggedApiRow
+                    key={meta.name}
+                    tag="modifier"
+                    label={<DisplayPattern pattern={meta.pattern} />}
+                  >
+                    <div className="mb-2 text-xs text-on-tone-50-surface/70">
+                      {meta.description}
+                    </div>
+
+                    {/* {meta.modifiers.length > 0 && (
+                      <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-1 text-xs">
+                        <span className="text-on-tone-50-surface/60">
+                          {capitalize(seg)}
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          <UtilityValue values={meta.modifiers} />
+                        </div>
+                      </div>
+                    )} */}
+                  </TaggedApiRow>
+                );
+              })}
+            </ApiGroup>
+          )}
+
+          {/* ── CSS Variables ── */}
+          {/* {hasVars && (
+            <ApiGroup label="CSS Variables">
+              {allVars.map((v) => {
+                const extra = cssVarInfoMap.get(v.name);
+                return (
+                  <TaggedApiRow
+                    key={v.name}
+                    tag="css-variable"
+                    label={<span className="font-mono text-sm">{v.name}</span>}
+                  >
+                    <span className="flex flex-col items-start gap-1.5 text-xs">
+                      {extra?.description && (
+                        <span className="text-on-tone-50-surface/80">
+                          {extra.description}
+                        </span>
+                      )}
+                      {v.default && (
+                        <span className="flex gap-1">
+                          <span className="text-on-tone-50-surface/60">
+                            Default:{" "}
+                          </span>
+                          <span className="text-tone-500-accent">
+                            {v.default}
+                          </span>
+                        </span>
+                      )}
+                    </span>
+                  </TaggedApiRow>
+                );
+              })}
+              {standaloneVars.map((v) => (
+                <TaggedApiRow
+                  key={v.name}
+                  tag="css-variable"
+                  label={<span className="font-mono text-sm">{v.name}</span>}
+                >
+                  <span className="flex flex-col items-start gap-1.5 text-xs">
+                    {v.description && (
+                      <span className="text-on-tone-50-surface/80">
+                        {v.description}
+                      </span>
+                    )}
+                    {v.default && (
+                      <span className="flex gap-1">
+                        <span className="text-on-tone-50-surface/60">
+                          Default:{" "}
+                        </span>
+                        <span className="text-tone-500-accent">
+                          {v.default}
+                        </span>
+                      </span>
+                    )}
+                  </span>
+                </TaggedApiRow>
+              ))}
+            </ApiGroup>
+          )} */}
+
+          {/* ── Slot Classes ── */}
+          {/* {slots && slots.length > 0 && (
+            <ApiGroup label="Slot Classes">
+              {slots.map((s) => (
+                <TaggedApiRow
+                  key={s.name}
+                  tag="slot"
+                  label={<span className="font-mono text-sm">{s.name}</span>}
+                >
+                  {s.description && (
+                    <span className="text-on-tone-50-surface/80">
+                      {s.description}
+                    </span>
+                  )}
+                </TaggedApiRow>
+              ))}
+            </ApiGroup>
+          )} */}
+
+          {/* ── Variants ── */}
+          {/* {customVariants.length > 0 && (
+            <ApiGroup label="Variants">
+              {customVariants.map((v) => {
+                const extra = variantInfoMap.get(v.name);
+                return (
+                  <ApiRow
+                    key={v.name}
+                    label={<span className="font-mono text-sm">{v.name}:</span>}
+                  >
+                    <span className="flex flex-col gap-0.5 text-xs">
+                      {v.condition && (
+                        <>
+                          <span className="text-on-tone-50-surface/60">
+                            Selector:{" "}
+                          </span>
+                          <span className="break-all text-tone-500-accent">
+                            {v.condition}
+                          </span>
+                        </>
+                      )}
+                      {extra?.description && (
+                        <span className="mt-1 text-on-tone-50-surface/80">
+                          {extra.description}
+                        </span>
+                      )}
+                    </span>
+                  </ApiRow>
+                );
+              })}
+            </ApiGroup>
+          )} */}
+        </div>
+      </DocSection>
     </DocPage>
   );
 }
 
-function createDocs(
-  module: ModuleLike[],
-  meta: DocMeta<ModuleLike>,
-): ResolvedDocMeta {
-  const components = module.filter(isComponentConstruct);
-  const utilities = module.filter(isUtilityConstruct);
-  const cssVars = new Set<string>();
-
-  const componentMap = new Map<
-    Pattern,
-    {
-      name: string;
-      description: string;
-      spotlights?: Partial<Record<string, ShowcaseJsxNode>>;
-      cssvars: string[];
+const TaggedApiRow = ({
+  tag,
+  label,
+  children,
+}: {
+  tag: UtilityTag;
+  label: ReactNode;
+  children?: ReactNode;
+}) => (
+  <ApiRow
+    label={
+      <div className="flex flex-col items-start gap-2 max-desktop:pb-2">
+        <TagBadge tag={tag} className="desktop:hidden" />
+        {label}
+      </div>
     }
-  >();
-
-  for (const construct of components) {
-    const themeable = isThemeable(construct);
-    const hasVariants = Object.keys(construct.variants).length > 0;
-    const componentMeta = meta.components![construct.name]!;
-    const pattern: Pattern = {
-      root: construct.name,
-      value:
-        hasVariants ?
-          {
-            name: "variant",
-            values: Object.keys(construct.variants),
-            defaultValue: construct.defaultVariant,
-          }
-        : undefined,
-      modifier:
-        themeable ?
-          {
-            name: "palette",
-            values: PALETTE,
-          }
-        : undefined,
-    };
-
-    componentMap.set(pattern, {
-      ...componentMeta,
-      cssvars: findSetVariables(construct),
-    });
-  }
-
-  for (const construct of utilities) {
-    for (const variableName of findSetVariables(construct)) {
-      cssVars.add(variableName);
-    }
-  }
-
-  const componentDocs = [...componentMap.entries()].map(
-    ([pattern, { cssvars, ...docData }]) =>
-      ({
-        ...docData,
-        pattern,
-        composesWith: [],
-      }) satisfies ComponentDocEntry,
-  );
-
-  const modifierEntries = createModifierDocs(utilities, meta);
-  const cssVarEntries = createCssVarDocs(cssVars, meta);
-
-  return {
-    atAGlance: meta.atAGlance,
-    playground: meta.playground,
-    components: componentDocs,
-    modifiers: {
-      ...modifierEntries,
-      ...meta.modifiers,
-    },
-    cssvars: {
-      ...cssVarEntries,
-      ...meta.cssvars,
-    },
-  };
-}
-
-function createModifierDocs<M extends ModuleLike>(
-  modifiers: UtilityConstruct[],
-  meta: DocMeta<M>,
-): ResolvedDocMeta["modifiers"] {
-  return Object.fromEntries(
-    modifiers.map((construct) => [
-      construct.name,
-      meta.modifiers?.[
-        construct.name as Extract<M, UtilityConstruct>["name"]
-      ] ?? {
-        name: construct.name,
-        description: "",
-      },
-    ]),
-  ) as ResolvedDocMeta["modifiers"];
-}
-
-function createCssVarDocs<M extends ModuleLike>(
-  cssVars: Set<string>,
-  meta: DocMeta<M>,
-): ResolvedDocMeta["cssvars"] {
-  return Object.fromEntries(
-    [...cssVars].map((variableName) => [
-      variableName,
-      meta.cssvars?.[variableName as ExtractCssVars<M>] ?? {
-        description: "",
-        default: "",
-      },
-    ]),
-  ) as ResolvedDocMeta["cssvars"];
-}
-
-function isComponentConstruct(value: ModuleLike): value is ComponentConstruct {
-  return "$construct" in value && value.$construct === "component";
-}
-
-function isUtilityConstruct(value: ModuleLike): value is UtilityConstruct {
-  return "$construct" in value && value.$construct === "utility";
-}
-
-function collectSetVariables(value: unknown, target: Set<string>) {
-  if (!value || typeof value !== "object") {
-    return;
-  }
-
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      collectSetVariables(item, target);
-    }
-    return;
-  }
-
-  for (const [key, nestedValue] of Object.entries(
-    value as Record<string, unknown>,
-  )) {
-    if (key.startsWith("--")) {
-      target.add(key);
-    }
-
-    collectSetVariables(nestedValue, target);
-  }
-}
-
-export function findSetVariables(
-  construct: ComponentConstruct | UtilityConstruct,
-): `--${string}`[] {
-  const variables = new Set<string>();
-
-  collectSetVariables(construct.styles, variables);
-
-  if (construct.$construct === "component") {
-    collectSetVariables(construct.variants, variables);
-  } else if (construct.theme?.mode !== "inline") {
-    collectSetVariables(construct.theme?.properties, variables);
-  }
-
-  return [...variables].sort() as `--${string}`[];
-}
+  >
+    <TagBadge tag={tag} className="max-desktop:hidden" />
+    {children}
+  </ApiRow>
+);
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function patternValueToNodes(value: PatternValue | undefined) {
+  if (!value) return [];
+
+  return value.tokens.flatMap((t) =>
+    typeof t === "string" ? t
+    : t.type === "arbitrary" ? <span className="font-mono">[{t.dataType}]</span>
+    : <span className="font-mono">{t.dataType}</span>,
+  );
 }

@@ -68,7 +68,7 @@ export const UtilityValue = ({
     <>
       {Array.isArray(values) ?
         values.map((value, i) => (
-          <Fragment key={value}>
+          <Fragment key={i}>
             <span>{value}</span>
             {i < values.length - 1 && (
               <span className="mx-1 text-on-tone-50-surface/40">{divider}</span>

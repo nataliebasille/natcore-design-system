@@ -26,15 +26,23 @@ import { VarReferenceMap } from "./var-reference-map";
 
 type ExtractVarName<T extends `--${string}`> =
   T extends `--${infer Name}` ? Name : never;
+
 type DefinedComponentKeys<T extends ComponentState> =
   T extends { parent: infer P extends ComponentState } ?
     T["name"] | DefinedComponentKeys<P>
   : T["name"];
 
-type ExtractControlledVars<T extends ComponentState> = keyof {
-  [K in keyof T["vars"] as T["vars"][K] extends ControlledVar ? K
-  : never]: T["vars"][K];
-};
+type ExtractControlledVars<T extends ComponentState> =
+  T extends { parent: infer P extends ComponentState } ?
+    | keyof {
+        [K in keyof T["vars"] as T["vars"][K] extends ControlledVar ? K
+        : never]: T["vars"][K];
+      }
+    | ExtractControlledVars<P>
+  : keyof {
+      [K in keyof T["vars"] as T["vars"][K] extends ControlledVar ? K
+      : never]: T["vars"][K];
+    };
 
 type DefinedUtilityKeys<T extends ComponentState> =
   T extends { parent: infer P extends ComponentState } ?
@@ -45,11 +53,11 @@ type DefinedUtilityKeys<T extends ComponentState> =
 
 type DefinedCssVars<T extends ComponentState> =
   T extends { parent: infer P extends ComponentState } ?
-    Exclude<keyof T["vars"], ExtractControlledVars<T>> | DefinedCssVars<P>
-  : Exclude<keyof T["vars"], ExtractControlledVars<T>>;
+    keyof T["vars"] | DefinedCssVars<P>
+  : keyof T["vars"];
 
 export type ComponentDocMeta<T extends ComponentBuilder> = {
-  name: string;
+  title: string;
   description: string;
 } & (T extends ComponentBuilder<infer S extends ComponentState> ?
   {
@@ -68,13 +76,7 @@ export type ComponentDocMeta<T extends ComponentBuilder> = {
         [K in DefinedUtilityKeys<S>]: {
           name: string;
           description: string;
-        } & (`--${K}` extends ExtractControlledVars<S> ?
-          {
-            patternKey: string;
-          }
-        : {
-            patternKey?: never;
-          });
+        };
       };
     }) &
     (ExtendsNever<DefinedCssVars<S>> extends true ?
@@ -92,7 +94,7 @@ export type ComposesWith = {
 };
 
 export type ComponentDoc = {
-  name: string;
+  title: string;
   description: string;
   components: Record<
     string,
@@ -122,7 +124,7 @@ export type ComponentDoc = {
 export function createDoc<T extends ComponentBuilder>(
   builder: T,
   meta: ComponentDocMeta<T>,
-) {
+): ComponentDoc {
   const { state } = builder;
   const varReferenceMap = new VarReferenceMap();
   const components: ComponentDoc["components"] = {};
@@ -133,9 +135,10 @@ export function createDoc<T extends ComponentBuilder>(
     const componentName = resolveComponentName(current);
     for (const [varName, varValue] of Object.entries(current.vars)) {
       if (isControlledVar(varValue)) {
-        const utilityName = `${componentName}-${varName.slice(2)}`;
+        const varKey = varName.slice(2) as keyof typeof meta.utilities;
+        const utilityName = `${componentName}-${varKey}`;
 
-        varReferenceMap.addUtility(utilityName, [
+        varReferenceMap.addUtility(varKey, [
           {
             [varName]: [
               varValue.default,
@@ -146,15 +149,14 @@ export function createDoc<T extends ComponentBuilder>(
           },
         ]);
 
-        const varKey = varName.slice(2) as keyof typeof meta.utilities;
-        const { patternKey = "", ...rest } = meta.utilities[varKey]!;
+        const utilityMeta = meta.utilities[varKey]!;
 
-        utilities[utilityName] = {
-          ...rest,
+        utilities[varKey] = {
+          ...utilityMeta,
           pattern: createPattern(
             utilityName,
             {
-              name: patternKey,
+              name: varKey,
               tokens: varValue.candidates.map((c) =>
                 c.type === "token" ? c.token : c,
               ),
@@ -204,7 +206,7 @@ export function createDoc<T extends ComponentBuilder>(
           {
             name: "variant",
             default: variants.default,
-            tokens: Object.keys(variants.own),
+            tokens: Object.keys({ ...variants.inherited, ...variants.own }),
           }
         : undefined,
         themeable.state === true ?
@@ -222,7 +224,7 @@ export function createDoc<T extends ComponentBuilder>(
   });
 
   return {
-    name: meta.name,
+    title: meta.title,
     description: meta.description,
     components,
     utilities,

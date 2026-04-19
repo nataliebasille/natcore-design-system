@@ -2,9 +2,8 @@ import type {
   TwArbitraryCandidate,
   TwBareCandidate,
 } from "../dsl/ast/cssvalue/match-value";
-import type { ControlledVar } from "./components/types";
 
-type PatternValueToken =
+export type PatternValueToken =
   | string
   | {
       type: "arbitrary";
@@ -15,7 +14,7 @@ type PatternValueToken =
       dataType: TwBareCandidate["dataType"];
     };
 
-type PatternValue = {
+export type PatternValue = {
   name: string;
   default?: string;
   tokens: ReadonlyArray<PatternValueToken>;

@@ -6,6 +6,7 @@ import type {
 import { dsl, stylesheetVisitorBuilder } from "../../dsl/public";
 import type { ComponentState } from "./public";
 import { ThemeBag } from "./theme-bag";
+import type { ThemeProperties } from "../theme";
 
 export function normalizeStyleBuilders(
   builders: StyleRuleBodyBuilder[],
@@ -67,22 +68,45 @@ export function themeableDefinition(state: ComponentState) {
 
 export function variantDefinition(state: ComponentState) {
   const themeBag = new ThemeBag(state);
-  let hasVariantRefs = false;
+  const variantVarsInBody = new Set<`--${string}`>();
 
   stylesheetVisitorBuilder()
     .on("css-var", (ast) => {
-      hasVariantRefs ||= themeBag.isVariantVar(ast.name as `--${string}`);
+      if (themeBag.isVariantVar(ast.name as `--${string}`)) {
+        variantVarsInBody.add(ast.name as `--${string}`);
+      }
       return ast;
     })
     .visit(state.body);
 
-  return hasVariantRefs ?
-      ({
-        state: true,
-        own: state.variants,
-        default: state.defaultVariant,
-      } as const)
-    : ({ state: false } as const);
+  if (variantVarsInBody.size === 0) {
+    return { state: false } as const;
+  }
+
+  const inheritedVariants: Record<string, ThemeProperties> = {};
+  let defaultVariant = state.defaultVariant;
+  let current = state.parent;
+
+  while (current) {
+    defaultVariant ??= current.defaultVariant;
+    for (const [variantName, vars] of Object.entries(current.variants)) {
+      if (
+        Object.keys(vars).some((k) =>
+          variantVarsInBody.has(k as `--${string}`),
+        )
+      ) {
+        inheritedVariants[variantName] ??= vars;
+      }
+    }
+    current = current.parent;
+  }
+
+  return {
+    state: true,
+    own: state.variants,
+    inherited: inheritedVariants,
+    default: defaultVariant,
+  } as const;
 }
 
 function isComponentThemeable(state: ComponentState): boolean {

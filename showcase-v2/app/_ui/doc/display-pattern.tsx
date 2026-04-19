@@ -1,16 +1,4 @@
-export type Pattern = {
-  root: string;
-  value?: {
-    name: string;
-    values: readonly string[];
-    defaultValue?: string;
-  };
-  modifier?: {
-    name: string;
-    values: readonly string[];
-    defaultValue?: string;
-  };
-};
+import type { Pattern } from "@nataliebasille/css-engine";
 
 export function DisplayPattern({ pattern }: { pattern: Pattern }) {
   const { root, value, modifier } = pattern;

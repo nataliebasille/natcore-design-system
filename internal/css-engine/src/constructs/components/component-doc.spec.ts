@@ -7,12 +7,12 @@ describe("createDoc", () => {
   describe("top-level metadata", () => {
     it("includes name and description from meta", () => {
       const result = createDoc(component("btn"), {
-        name: "Button",
+        title: "Button",
         description: "A clickable button component",
         components: { btn: { name: "Button", description: "Base button" } },
       });
 
-      expect(result.name).toBe("Button");
+      expect(result.title).toBe("Button");
       expect(result.description).toBe("A clickable button component");
     });
   });
@@ -20,7 +20,7 @@ describe("createDoc", () => {
   describe("components", () => {
     it("registers the root component with name, description, and pattern", () => {
       const result = createDoc(component("btn"), {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base button" } },
       });
@@ -38,7 +38,7 @@ describe("createDoc", () => {
       const builder = component("btn").derive("icon", (b) => b);
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: {
           btn: { name: "Button", description: "Base" },
@@ -60,7 +60,7 @@ describe("createDoc", () => {
         .body({ color: dsl.cssvar("--color") });
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
       });
@@ -81,7 +81,7 @@ describe("createDoc", () => {
         .body({ color: dsl.current(500) });
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
       });
@@ -95,7 +95,7 @@ describe("createDoc", () => {
 
     it("component pattern has no modifier when not themeable", () => {
       const result = createDoc(component("btn").body({ display: "flex" }), {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
       });
@@ -109,7 +109,7 @@ describe("createDoc", () => {
         .body({ width: dsl.cssvar("--btn-size") });
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         utilities: { sm: { name: "Small", description: "Small size" } },
@@ -130,7 +130,7 @@ describe("createDoc", () => {
       });
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         cssvars: {
@@ -158,7 +158,7 @@ describe("createDoc", () => {
       });
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         // only --size documented; --color intentionally absent
@@ -181,7 +181,7 @@ describe("createDoc", () => {
       });
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         utilities: {
@@ -201,7 +201,7 @@ describe("createDoc", () => {
       const builder = component("btn").utility("disabled", { opacity: "0.5" });
 
       createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         // @ts-expect-error - 'disabled' must be present in utilities meta
@@ -215,7 +215,7 @@ describe("createDoc", () => {
         .utility("full", { width: dsl.cssvar("--btn-size") });
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         utilities: {
@@ -242,15 +242,17 @@ describe("createDoc", () => {
         );
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         utilities: {
           size: {
             name: "Size",
             description: "Controls button size",
-            patternKey: "size",
           },
+        },
+        cssvars: {
+          "--size": "Controls the size of the button",
         },
       });
 
@@ -270,15 +272,17 @@ describe("createDoc", () => {
         );
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         utilities: {
           size: {
             name: "Size",
             description: "Controls button size",
-            patternKey: "size",
           },
+        },
+        cssvars: {
+          "--size": "Controls the size of the button",
         },
       });
 
@@ -294,15 +298,17 @@ describe("createDoc", () => {
         .controlled("--size", { type: "arbitrary", dataType: "length" });
 
       const result = createDoc(builder, {
-        name: "Button",
+        title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         utilities: {
           size: {
             name: "Size",
             description: "Controls button size",
-            patternKey: "size",
           },
+        },
+        cssvars: {
+          "--size": "Controls the size of the button",
         },
       });
 
