@@ -3,7 +3,7 @@ import { Spotlight } from "./spotlight";
 
 type MarkupSpotlightProps = {
   className?: string;
-  title?: string;
+  title?: React.ReactNode;
   preview: React.ReactNode;
   markup: string;
   description?: string;

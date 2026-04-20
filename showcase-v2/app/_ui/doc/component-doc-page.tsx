@@ -1,22 +1,14 @@
 import {
-  type ComponentConstruct,
-  type UtilityConstruct,
-  type ThemeConstruct,
-  type StyleListAst_WithMetadata,
-  type StyleRuleAst_WithMetadata,
-  isThemeable,
-  PALETTE,
   ComponentBuilder,
-  type ComponentState,
-  type ComponentDocMeta,
   createDoc,
-  type Pattern,
+  type ComponentDocMeta,
   type PatternValue,
 } from "@nataliebasille/css-engine";
-import type { ShowcaseJsxNode } from "@nataliebasille/preview-jsx-runtime/types";
-import { DocPage, DocSection } from "./DocPage";
-import { Spotlight } from "./spotlight";
+import type { ReactNode } from "react";
 import { DisplayPattern } from "./display-pattern";
+import { DocPage } from "./DocPage";
+import { DocSection } from "./DocPage.client";
+import { Spotlight } from "./spotlight";
 import {
   ApiGroup,
   ApiRow,
@@ -25,7 +17,6 @@ import {
   UtilityValue,
   type UtilityTag,
 } from "./utility-reference";
-import type { ReactNode } from "react";
 
 type ComponentDocPageProps<B extends ComponentBuilder> = {
   module: B;

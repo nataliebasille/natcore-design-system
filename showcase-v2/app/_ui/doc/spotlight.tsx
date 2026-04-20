@@ -7,12 +7,12 @@ export const Spotlight = (
   return (
     <div
       className={twMerge(
-        "card-outline bg-tone-50 text-on-tone-50 p-4",
+        "card-outline bg-tone-50 p-4 text-on-tone-50",
         props.className,
       )}
     >
       {props.title && (
-        <div className="text-on-tone-50/60 mb-2 uppercase text-sm tracking-widest font-bold">
+        <div className="mb-2 text-sm font-bold tracking-widest text-on-tone-50/60 uppercase">
           {props.title}
         </div>
       )}

@@ -185,7 +185,9 @@ describe("createDoc", () => {
         title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
-        utilities: { size: { name: "Size", description: "Controls button size" } },
+        utilities: {
+          size: { name: "Size", description: "Controls button size" },
+        },
         cssvars: { "--size": "Controls the size of the button" },
       });
 
@@ -199,18 +201,31 @@ describe("createDoc", () => {
     it("controlled vars appear before non-controlled vars in cssvars", () => {
       const builder = component("btn")
         .vars({ "--size": "1rem", "--color": "blue" })
-        .controlled("--size", { type: "token", token: "sm", value: "0.875rem" });
+        .controlled("--size", {
+          type: "token",
+          token: "sm",
+          value: "0.875rem",
+        });
 
       const result = createDoc(builder, {
         title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
-        utilities: { size: { name: "Size", description: "Controls button size" } },
-        cssvars: { "--size": "Controls the size", "--color": "Controls the color" },
+        utilities: {
+          size: { name: "Size", description: "Controls button size" },
+        },
+        cssvars: {
+          "--size": "Controls the size",
+          "--color": "Controls the color",
+        },
       });
 
-      const sizeIdx = result.cssvars.findIndex((v) => v.varName === "--btn-size");
-      const colorIdx = result.cssvars.findIndex((v) => v.varName === "--btn-color");
+      const sizeIdx = result.cssvars.findIndex(
+        (v) => v.varName === "--btn-size",
+      );
+      const colorIdx = result.cssvars.findIndex(
+        (v) => v.varName === "--btn-color",
+      );
       expect(sizeIdx).toBeLessThan(colorIdx);
     });
   });

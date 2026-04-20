@@ -4,7 +4,8 @@ import {
 } from "@/server/get-tailwind-modules";
 import { ComponentDocPage } from "@/ui/doc/component-doc-page";
 import { DisplayPattern } from "@/ui/doc/display-pattern";
-import { DocPage, DocSection } from "@/ui/doc/DocPage";
+import { DocPage } from "@/ui/doc/DocPage";
+import { DocSection } from "@/ui/doc/DocPage.client";
 import { ShowcaseSpotlight } from "@/ui/doc/showcase-spotlight";
 import { Spotlight } from "@/ui/doc/spotlight";
 import {
@@ -24,7 +25,7 @@ import {
 } from "@nataliebasille/css-engine";
 import { renderToUi } from "@nataliebasille/preview-jsx-runtime";
 import { notFound } from "next/navigation";
-import { Fragment, type ReactNode } from "react";
+import { Fragment, type PropsWithChildren, type ReactNode } from "react";
 
 export async function generateStaticParams() {
   const modules = await listTailwindModules();
@@ -54,15 +55,15 @@ export default async function DesignItemPage({
   return (
     <DocPage title={resolvedDoc.title} description={resolvedDoc.description}>
       {moduleDoc.meta.atAGlance && (
-        <DocSection title="At a glance">
+        <DesignItemPageSection title="At a glance">
           <Spotlight>{renderToUi(moduleDoc.meta.atAGlance)}</Spotlight>
-        </DocSection>
+        </DesignItemPageSection>
       )}
-
-      <DocSection title="Playground">
+      <DesignItemPageSection title="Playground">
         <Playground />
-      </DocSection>
-
+      </DesignItemPageSection>
+      <div className="divider"></div>
+      es
       {Object.entries(resolvedDoc.components ?? {}).map(([key, component]) => (
         <EntitySection
           key={key}
@@ -76,7 +77,6 @@ export default async function DesignItemPage({
           tags={["component"]}
         />
       ))}
-
       {Object.entries(resolvedDoc.utilities ?? {}).map(([key, utility]) => (
         <EntitySection
           key={key}
@@ -90,10 +90,8 @@ export default async function DesignItemPage({
           tags={["modifier"]}
         />
       ))}
-
       <div className="divider"></div>
-
-      <DocSection title="API Reference">
+      <DesignItemPageSection title="API Reference">
         <div className="space-y-8">
           {/* ── Classes ── */}
           {(Object.keys(resolvedDoc.components).length > 0 ||
@@ -279,8 +277,26 @@ export default async function DesignItemPage({
             </ApiGroup>
           )} */}
         </div>
-      </DocSection>
+      </DesignItemPageSection>
     </DocPage>
+  );
+}
+
+function DesignItemPageSection({
+  children,
+  title,
+  description,
+}: PropsWithChildren<{ title: string; description?: string }>) {
+  return (
+    <div className="mt-6 mb-8 card-soft">
+      <DocSection
+        className="card-content"
+        title={title}
+        description={description}
+      >
+        {children}
+      </DocSection>
+    </div>
   );
 }
 
@@ -308,7 +324,7 @@ function EntitySection({
       .filter((x) => !!x) ?? [];
 
   return (
-    <DocSection title={entity.name}>
+    <DesignItemPageSection title={entity.name}>
       <UtilityReference
         description={entity.description}
         tags={[
@@ -364,14 +380,19 @@ function EntitySection({
       />
 
       {entityMeta.showcases?.map((showcase, i) => (
-        <StaticExample.FromShowcaseJsx
+        <DocSection
+          className="mt-2 uppercase"
           key={i}
-          title={showcase.title}
+          title={showcase.title ?? ""}
           description={showcase.description}
-          source={showcase.content}
-        />
+        >
+          <StaticExample.FromShowcaseJsx
+            description={showcase.description}
+            source={showcase.content}
+          />
+        </DocSection>
       ))}
-    </DocSection>
+    </DesignItemPageSection>
   );
 }
 
