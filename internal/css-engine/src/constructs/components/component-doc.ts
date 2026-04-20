@@ -1,20 +1,11 @@
-import {
-  dsl,
-  PALETTE,
-  stylesheetVisitorBuilder,
-  type DesignSystemAst,
-  type StylePropertyValue,
-  type StyleRuleBodyBuilder,
-} from "../../dsl/public";
+import { PALETTE } from "../../dsl/public";
 import type { ExtendsNever } from "../../utils";
 import { createPattern, type Pattern } from "../pattern";
-import { component, type ComponentBuilder } from "./component-builder";
-import { ComponentStateRef } from "./component-state-ref";
+import { type ComponentBuilder } from "./component-builder";
 import {
   isControlledVar,
   type ComponentState,
   type ControlledVar,
-  type VarsProperty,
 } from "./types";
 import {
   resolveComponentName,
@@ -151,6 +142,12 @@ export function createDoc<T extends ComponentBuilder>(
 
         const utilityMeta = meta.utilities[varKey]!;
 
+        cssvars.push({
+          varName: `--${utilityName}`,
+          description: meta.cssvars[varName as keyof typeof meta.cssvars] || "",
+          defaultValue: `${varValue.default}`,
+        });
+
         utilities[varKey] = {
           ...utilityMeta,
           pattern: createPattern(
@@ -167,7 +164,7 @@ export function createDoc<T extends ComponentBuilder>(
         };
       } else {
         cssvars.push({
-          varName,
+          varName: `--${componentName}-${varName.slice(2)}`,
           description: meta.cssvars[varName as keyof typeof meta.cssvars] || "",
           defaultValue: `${varValue}`,
         });
@@ -176,20 +173,17 @@ export function createDoc<T extends ComponentBuilder>(
       }
     }
 
-    for (const [utilityName, body] of Object.entries(current.utilities)) {
-      const id = `${componentName}-${utilityName}`;
+    for (const [id, body] of Object.entries(current.utilities)) {
+      const utilityName = `${componentName}-${id}`;
 
       utilities[id] = {
-        name:
-          meta.utilities[utilityName as keyof typeof meta.utilities]?.name ||
-          utilityName,
+        name: meta.utilities[id as keyof typeof meta.utilities]?.name || id,
         description:
-          meta.utilities[utilityName as keyof typeof meta.utilities]
-            ?.description || "",
-        pattern: createPattern(id, undefined, undefined),
+          meta.utilities[id as keyof typeof meta.utilities]?.description || "",
+        pattern: createPattern(utilityName, undefined, undefined),
         composesWith: varReferenceMap
           .composesWith(body)
-          .map((id) => ({ type: "utility", id })),
+          .map((id) => ({ type: "utility", id: `${componentName}-${id}` })),
       };
 
       varReferenceMap.addUtility(id, body);
@@ -198,7 +192,7 @@ export function createDoc<T extends ComponentBuilder>(
     const themeable = themeableDefinition(current);
     const variants = variantDefinition(current);
 
-    components[componentName] = {
+    components[current.name] = {
       ...meta.components[current.name as keyof typeof meta.components]!,
       pattern: createPattern(
         componentName,

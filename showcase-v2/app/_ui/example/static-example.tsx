@@ -1,4 +1,7 @@
-import { renderToMarkup, renderToUi } from "@nataliebasille/preview-jsx-runtime/core";
+import {
+  renderToMarkup,
+  renderToUi,
+} from "@nataliebasille/preview-jsx-runtime/core";
 import type { ShowcaseJsxChild } from "@nataliebasille/preview-jsx-runtime/types";
 import { fetchFile } from "@/server/fetch-file";
 import { formatCode, type SupportedLanguages } from "@/utlls/format-code";
@@ -6,7 +9,11 @@ import { type PropsWithChildren, type ReactNode } from "react";
 import { codeToHtml } from "shiki/bundle/web";
 import { MarkupSpotlight } from "../doc/code-spotlight";
 
-export type BaseExampleProps = { className?: string; title?: string };
+export type BaseExampleProps = {
+  className?: string;
+  title?: string;
+  description?: string;
+};
 export type ExampleLoader = Promise<{ markup: string; content: ReactNode }>;
 
 type ExampleFromFileProps = BaseExampleProps & {
@@ -22,6 +29,7 @@ type ExampleFromShowcaseJsxProps = BaseExampleProps & {
 export const StaticExample = async ({
   loader,
   title,
+  description,
   className,
   language = "html",
 }: BaseExampleProps & {
@@ -33,6 +41,7 @@ export const StaticExample = async ({
   return (
     <MarkupSpotlight
       title={title}
+      description={description}
       preview={content}
       markup={markup}
       className={className}
@@ -89,28 +98,35 @@ StaticExample.FromFile = ({
 StaticExample.FromShowcaseJsx = ({
   title,
   source,
+  description,
   className,
   language,
 }: ExampleFromShowcaseJsxProps) => {
   return (
     <StaticExample
       title={title}
+      description={description}
       className={className}
       language="html"
       loader={(async () => {
         const content = renderToUi(source);
         const rawMarkup = renderToMarkup(source);
-        const formattedMarkup = await formatCode(rawMarkup, "html");
-        const markup = await codeToHtml(formattedMarkup, {
-          lang: "html",
-          theme: "github-dark",
-          structure: "inline",
-        });
+        const markup = await toHighlightedMarkup(rawMarkup);
         return { markup, content };
       })()}
     />
   );
 };
+
+async function toHighlightedMarkup(rawMarkup: string): Promise<string> {
+  "use cache";
+  const formattedMarkup = await formatCode(rawMarkup, "html");
+  return codeToHtml(formattedMarkup, {
+    lang: "html",
+    theme: "github-dark",
+    structure: "inline",
+  });
+}
 
 function inferLanguage(filePath: string): SupportedLanguages {
   const ext = filePath.split(".").pop()?.toLowerCase();

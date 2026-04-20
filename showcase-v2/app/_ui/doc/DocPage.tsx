@@ -115,7 +115,8 @@ export const DocSection = ({
 
           <Heading id={title} className="mt-0! scroll-mt-20 tracking-tighter">
             {title}
-          </Heading>
+          </Heading>mk p.,
+          l.
         </div>
 
         {description && <Description>{description}</Description>}

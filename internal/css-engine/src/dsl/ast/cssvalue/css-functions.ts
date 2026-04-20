@@ -1,4 +1,4 @@
-import type { CssValue } from "./public.ts";
+import type { CssValue, CssVarAst } from "./public.ts";
 
 /**
  * Valid colorspaces for color-mix() function
@@ -94,9 +94,18 @@ export type CssFunction =
 
 // Helper to convert value to string
 function valueToString(value: any): string {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    (value as CssVarAst).$ast === "css-var"
+  ) {
+    return `var(${(value as CssVarAst).name})`;
+  }
+
   if (typeof value === "object" && value !== null && "toString" in value) {
     return value.toString();
   }
+
   return String(value);
 }
 

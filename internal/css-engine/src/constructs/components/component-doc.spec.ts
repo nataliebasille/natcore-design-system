@@ -140,12 +140,12 @@ describe("createDoc", () => {
       });
 
       expect(result.cssvars).toContainEqual({
-        varName: "--size",
+        varName: "--btn-size",
         description: "Controls the size of the button",
         defaultValue: "1rem",
       });
       expect(result.cssvars).toContainEqual({
-        varName: "--color",
+        varName: "--btn-color",
         description: "Controls the text color",
         defaultValue: "blue",
       });
@@ -166,10 +166,52 @@ describe("createDoc", () => {
       });
 
       expect(result.cssvars).toContainEqual({
-        varName: "--color",
+        varName: "--btn-color",
         description: "",
         defaultValue: "blue",
       });
+    });
+
+    it("controlled var appears in cssvars with prefixed varName and its default value", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem" })
+        .controlled(
+          "--size",
+          { type: "token", token: "sm", value: "0.875rem" },
+          { type: "token", token: "lg", value: "1.5rem" },
+        );
+
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: { btn: { name: "Button", description: "Base" } },
+        utilities: { size: { name: "Size", description: "Controls button size" } },
+        cssvars: { "--size": "Controls the size of the button" },
+      });
+
+      expect(result.cssvars).toContainEqual({
+        varName: "--btn-size",
+        description: "Controls the size of the button",
+        defaultValue: "1rem",
+      });
+    });
+
+    it("controlled vars appear before non-controlled vars in cssvars", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem", "--color": "blue" })
+        .controlled("--size", { type: "token", token: "sm", value: "0.875rem" });
+
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: { btn: { name: "Button", description: "Base" } },
+        utilities: { size: { name: "Size", description: "Controls button size" } },
+        cssvars: { "--size": "Controls the size", "--color": "Controls the color" },
+      });
+
+      const sizeIdx = result.cssvars.findIndex((v) => v.varName === "--btn-size");
+      const colorIdx = result.cssvars.findIndex((v) => v.varName === "--btn-color");
+      expect(sizeIdx).toBeLessThan(colorIdx);
     });
   });
 

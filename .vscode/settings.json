@@ -37,6 +37,8 @@
     "**/out/**": true,
     "**/pnpm-lock.yaml": true
   },
+  "debug.javascript.autoAttachFilter": "always",
+  "terminal.integrated.shellIntegration.enabled": true,
   "prettier.configPath": ".prettierrc.vscode.cjs",
   "prettier.ignorePath": ".prettierignore",
   "prettier.requireConfig": true,
