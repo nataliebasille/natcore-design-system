@@ -15,6 +15,7 @@ export type ComponentState = {
   vars: Record<`--${string}`, VarsProperty>;
   variants: Record<string, ThemeProperties>;
   defaultVariant?: string;
+  slots: string[];
   body: StyleRuleBodyBuilder[];
   utilities: Record<string, StyleRuleBodyBuilder[]>;
   parent?: ComponentState;

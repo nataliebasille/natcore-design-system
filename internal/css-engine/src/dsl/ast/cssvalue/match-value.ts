@@ -11,19 +11,22 @@ type TwCandiate<Name, Args extends Record<string, unknown>> =
 
 export type TwVariableCandidate = TwCandiate<"variable", { root: VarLiteral }>;
 
-export type TwArbitraryCandidate =
-  SupportedArbitraryDataType | "*" extends infer T ?
-    T extends string ?
-      TwCandiate<"arbitrary", { dataType: T }>
-    : never
-  : never;
+type TwArbitraryCandidateMap = {
+  [T in SupportedArbitraryDataType | "*"]: TwCandiate<
+    "arbitrary",
+    { dataType: T }
+  >;
+};
 
-export type TwBareCandidate =
-  SupportedBareDataType extends infer T ?
-    T extends string ?
-      TwCandiate<"bare", { dataType: T }>
-    : never
-  : never;
+type TwBareCandidateMap = {
+  [T in SupportedBareDataType]: TwCandiate<"bare", { dataType: T }>;
+};
+
+export type TwArbitraryCandidate = TwArbitraryCandidateMap[
+  | SupportedArbitraryDataType
+  | "*"];
+
+export type TwBareCandidate = TwBareCandidateMap[SupportedBareDataType];
 
 export type TwValueCandidate<D extends CssDataType> =
   | TwVariableCandidate

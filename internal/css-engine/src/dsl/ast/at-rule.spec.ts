@@ -22,6 +22,7 @@ import {
 } from "./at-rule.ts";
 import { styleRule, styleList, arbitraryValue } from "./style-rule.ts";
 import { select } from "./selector.ts";
+import { rgb } from "./public.ts";
 
 describe("at-rule tests", () => {
   describe("atRule()", () => {
@@ -130,13 +131,13 @@ describe("at-rule tests", () => {
       const result = atRule(
         "media",
         "(min-width: 768px)",
-        arbitraryValue("bg", "#101010"),
+        arbitraryValue("bg", rgb(16, 16, 16)),
       );
 
       expect(result.rules).toEqual([
         {
           $ast: "tailwind-class",
-          value: arbitraryValue("bg", "#101010"),
+          value: arbitraryValue("bg", rgb(16, 16, 16)),
         },
       ]);
       expect(result.rules[0]?.$ast).toBe("tailwind-class");
@@ -250,7 +251,7 @@ describe("at-rule tests", () => {
   describe("supports()", () => {
     it("creates supports query with property and value", () => {
       const rule = styleRule(select.cls("grid"), { display: "grid" });
-      const result = supports("display", "grid", rule);
+      const result = supports({ display: "grid" }, rule);
 
       expect(result).toEqual({
         $ast: "at-rule",
@@ -264,7 +265,7 @@ describe("at-rule tests", () => {
       const rule = styleRule(select.cls("transform"), {
         transform: "translateZ(0)",
       });
-      const result = supports("transform-3d", undefined, rule);
+      const result = supports("transform-3d", rule);
 
       expect(result.prelude).toBe("(transform-3d)");
     });
@@ -443,7 +444,7 @@ describe("at-rule tests", () => {
         gridTemplateColumns: "repeat(3, 1fr)",
       });
       const mediaQuery = media("min-width", "1024px", innerRule);
-      const supportsQuery = supports("display", "grid", mediaQuery);
+      const supportsQuery = supports("display", mediaQuery);
 
       expect(supportsQuery.rules[0]).toBe(mediaQuery);
       expect(supportsQuery.name).toBe("supports");

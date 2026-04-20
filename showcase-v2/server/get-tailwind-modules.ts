@@ -1,7 +1,8 @@
 import "server-only";
 import { readdir, stat } from "node:fs/promises";
 import {
-  ComponentBuilder,
+  type ComponentBuilder,
+  isComponentBuilder,
   createDoc,
   type ComponentState,
 } from "@nataliebasille/css-engine";
@@ -37,7 +38,7 @@ export async function listTailwindModules(): Promise<TailwindModuleEntry[]> {
       `../../packages/core-v2/src/tailwind/${name.slice(1, -3)}.ts`
     )) as { default?: unknown };
 
-    if (imported.default instanceof ComponentBuilder) {
+    if (isComponentBuilder(imported.default)) {
       results.push(entry);
     }
   }
@@ -61,7 +62,7 @@ export async function getModuleDoc(entry: TailwindModuleEntry) {
 
     if (
       !module?.default ||
-      !(module.default instanceof ComponentBuilder) ||
+      !isComponentBuilder(module.default) ||
       !meta?.default ||
       !playground?.default
     ) {

@@ -1,9 +1,53 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { createDoc } from "./component-doc.ts";
 import { component } from "./component-builder.ts";
 import { dsl, PALETTE } from "../../dsl/public.ts";
 
 describe("createDoc", () => {
+  describe("builder state typings", () => {
+    it("preserves typed builder state across chained calls", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem" })
+        .variant("primary", { "--color": "blue" })
+        .defaultVariant("primary")
+        .controlled("--size", {
+          type: "token",
+          token: "sm",
+          value: "0.875rem",
+        })
+        .utility("icon", { display: "inline-flex" })
+        .body({ padding: dsl.cssvar("--size") });
+
+      expectTypeOf(builder.state.name).toEqualTypeOf<"btn">();
+      expectTypeOf(builder.state.defaultVariant).toEqualTypeOf<"primary">();
+      expectTypeOf(
+        builder.state.variants.primary["--color"],
+      ).toEqualTypeOf<"blue">();
+      expectTypeOf(builder.state.vars["--size"].candidates).toExtend<
+        [
+          {
+            type: "token";
+            token: "sm";
+            value: "0.875rem";
+          },
+        ]
+      >();
+      expectTypeOf(builder.state.utilities).toHaveProperty("icon");
+    });
+
+    it("preserves parent state typing for derived builders", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem" })
+        .derive("icon", (child) =>
+          child.body({ padding: dsl.cssvar("--size") }),
+        );
+
+      expectTypeOf(builder.state.name).toEqualTypeOf<"icon">();
+      expectTypeOf(builder.state.parent.name).toEqualTypeOf<"btn">();
+      expectTypeOf(builder.state.parent.vars["--size"]).toEqualTypeOf<"1rem">();
+    });
+  });
+
   describe("top-level metadata", () => {
     it("includes name and description from meta", () => {
       const result = createDoc(component("btn"), {
@@ -47,7 +91,7 @@ describe("createDoc", () => {
       });
 
       expect(result.components["btn"]).toMatchObject({ name: "Button" });
-      expect(result.components["btn-icon"]).toMatchObject({
+      expect(result.components["icon"]).toMatchObject({
         name: "Button Icon",
       });
     });
@@ -117,7 +161,7 @@ describe("createDoc", () => {
 
       expect(result.components["btn"]!.composesWith).toContainEqual({
         type: "utility",
-        id: "btn-sm",
+        id: "sm",
       });
     });
   });
@@ -246,7 +290,7 @@ describe("createDoc", () => {
         },
       });
 
-      expect(result.utilities["btn-disabled"]).toMatchObject({
+      expect(result.utilities["disabled"]).toMatchObject({
         name: "Disabled",
         description: "Disables the button",
         pattern: { root: "btn-disabled" },
@@ -281,7 +325,7 @@ describe("createDoc", () => {
         },
       });
 
-      expect(result.utilities["btn-full"]!.composesWith).toContainEqual({
+      expect(result.utilities["full"]!.composesWith).toContainEqual({
         type: "utility",
         id: "btn-sm",
       });
@@ -313,7 +357,7 @@ describe("createDoc", () => {
         },
       });
 
-      expect(result.utilities["btn-size"]).toMatchObject({
+      expect(result.utilities["size"]).toMatchObject({
         name: "Size",
         description: "Controls button size",
       });
@@ -343,7 +387,7 @@ describe("createDoc", () => {
         },
       });
 
-      expect(result.utilities["btn-size"]!.pattern).toEqual({
+      expect(result.utilities["size"]!.pattern).toEqual({
         root: "btn-size",
         value: { name: "size", tokens: ["sm", "lg"] },
       });
@@ -369,7 +413,7 @@ describe("createDoc", () => {
         },
       });
 
-      expect(result.utilities["btn-size"]!.pattern).toEqual({
+      expect(result.utilities["size"]!.pattern).toEqual({
         root: "btn-size",
         value: {
           name: "size",

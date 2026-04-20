@@ -23,10 +23,11 @@ describe("css compiler", () => {
   });
 
   test("compiles nested style blocks", () => {
-    const ast = styleBlock(".container", [
+    const ast = styleBlock(
+      ".container",
       styleList({ padding: "20px" }),
       styleBlock(".header", styleList({ "font-size": "24px" })),
-    ]);
+    );
 
     const result = compile(ast);
 
@@ -188,11 +189,12 @@ describe("css compiler", () => {
   });
 
   test("compiles style block with array of nested blocks", () => {
-    const ast = styleBlock(".card", [
+    const ast = styleBlock(
+      ".card",
       styleList({ background: "white", padding: "1rem" }),
       styleBlock(".title", styleList({ "font-size": "1.5rem" })),
       styleBlock(".content", styleList({ "margin-top": "0.5rem" })),
-    ]);
+    );
 
     const result = compile(ast);
 
