@@ -62,8 +62,9 @@ export default async function DesignItemPage({
       <DesignItemPageSection title="Playground">
         <Playground />
       </DesignItemPageSection>
+
       <div className="divider"></div>
-      es
+
       {Object.entries(resolvedDoc.components ?? {}).map(([key, component]) => (
         <EntitySection
           key={key}
@@ -381,15 +382,12 @@ function EntitySection({
 
       {entityMeta.showcases?.map((showcase, i) => (
         <DocSection
-          className="mt-2 uppercase"
+          className="mt-4"
           key={i}
           title={showcase.title ?? ""}
-          description={showcase.description}
+          description={<div className="mb-2">{showcase.description}</div>}
         >
-          <StaticExample.FromShowcaseJsx
-            description={showcase.description}
-            source={showcase.content}
-          />
+          <StaticExample.FromShowcaseJsx source={showcase.content} />
         </DocSection>
       ))}
     </DesignItemPageSection>

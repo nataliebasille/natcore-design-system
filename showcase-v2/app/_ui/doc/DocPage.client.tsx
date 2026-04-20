@@ -42,7 +42,7 @@ const Description = ({
   return (
     <span
       className={twMerge(
-        "my-4 block tracking-tight text-tone-950-surface/60",
+        "block tracking-tight text-tone-950-surface/60",
         className,
       )}
     >
