@@ -18,7 +18,7 @@ import {
 } from "@/ui/doc/utility-reference";
 import { StaticExample } from "@/ui/example/static-example";
 import {
-  ComponentBuilder,
+  type ComponentBuilder,
   createDoc,
   type ComponentDoc,
   type PatternValue,
