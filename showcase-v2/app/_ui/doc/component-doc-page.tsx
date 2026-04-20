@@ -1,5 +1,5 @@
 import {
-  ComponentBuilder,
+  type ComponentBuilder,
   createDoc,
   type ComponentDocMeta,
   type PatternValue,
