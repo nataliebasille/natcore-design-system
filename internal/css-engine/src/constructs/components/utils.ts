@@ -1,22 +1,30 @@
 import type {
   StyleListAst_WithMetadata,
-  StyleRuleAst_WithMetadata,
   StyleRuleBodyBuilder,
 } from "../../dsl/ast/style-rule";
 import { dsl, stylesheetVisitorBuilder } from "../../dsl/public";
+import type { ThemeProperties } from "../theme";
 import type { ComponentState } from "./public";
 import { ThemeBag } from "./theme-bag";
-import type { ThemeProperties } from "../theme";
+import type { ComponentSlot } from "./types";
+
+const SLOT_REGEX = /::slotted\(\s*([^)]+?)\s*\)/g;
 
 export function normalizeStyleBuilders(
+  state: ComponentState,
   builders: StyleRuleBodyBuilder[],
-): (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[] {
+) {
   const list: StyleRuleBodyBuilder[] =
     Array.isArray(builders) ? builders : [builders];
 
-  return list.flatMap((builder) => {
-    if (typeof builder === "object" && builder !== null && "$ast" in builder) {
-      return [builder as StyleListAst_WithMetadata | StyleRuleAst_WithMetadata];
+  const body = list.flatMap((builder) => {
+    if (
+      typeof builder === "object" &&
+      builder !== null &&
+      "$ast" in builder &&
+      builder.$ast !== "tailwind-class"
+    ) {
+      return [builder];
     }
 
     if (
@@ -46,8 +54,27 @@ export function normalizeStyleBuilders(
           ),
         )
       : []),
-    ] as (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[];
+    ];
   });
+
+  const slots = getSlots(state);
+
+  return Object.keys(slots).length === 0 ?
+      body
+    : stylesheetVisitorBuilder()
+        .on("style-rule", (ast) => {
+          const selector = ast.selector.replace(
+            SLOT_REGEX,
+            (_match, slotName: string) => {
+              return resolveSlotSelector(slotName.trim(), slots);
+            },
+          );
+
+          ast.selector = selector as dsl.Selector;
+
+          return ast;
+        })
+        .visit(body);
 }
 
 export function resolveComponentName(state: ComponentState): string {
@@ -91,9 +118,7 @@ export function variantDefinition(state: ComponentState) {
     defaultVariant ??= current.defaultVariant;
     for (const [variantName, vars] of Object.entries(current.variants)) {
       if (
-        Object.keys(vars).some((k) =>
-          variantVarsInBody.has(k as `--${string}`),
-        )
+        Object.keys(vars).some((k) => variantVarsInBody.has(k as `--${string}`))
       ) {
         inheritedVariants[variantName] ??= vars;
       }
@@ -155,4 +180,28 @@ export function traverseTopDown(
   for (const state of stateStack) {
     callback(state);
   }
+}
+
+export function getSlots(state: ComponentState) {
+  let slotsMap: ComponentState["slots"] = {};
+
+  traverseBottomUp(state, (s) => {
+    slotsMap = Object.assign(slotsMap, s.slots);
+  });
+
+  return slotsMap;
+}
+
+export function resolveSlotSelector(
+  slotName: string,
+  slots: Record<string, ComponentSlot>,
+) {
+  const slot = slots[slotName];
+  const selector = slot?.selector;
+
+  return (
+    selector === "class" ? `.${slotName}`
+    : selector === "data-attr" ? `[data-slot="${slotName}"]`
+    : (selector ?? slotName)
+  );
 }

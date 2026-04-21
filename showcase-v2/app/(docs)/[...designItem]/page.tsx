@@ -2,11 +2,9 @@ import {
   getModuleDoc,
   listTailwindModules,
 } from "@/server/get-tailwind-modules";
-import { ComponentDocPage } from "@/ui/doc/component-doc-page";
 import { DisplayPattern } from "@/ui/doc/display-pattern";
 import { DocPage } from "@/ui/doc/DocPage";
 import { DocSection } from "@/ui/doc/DocPage.client";
-import { ShowcaseSpotlight } from "@/ui/doc/showcase-spotlight";
 import { Spotlight } from "@/ui/doc/spotlight";
 import {
   ApiGroup,
@@ -23,9 +21,12 @@ import {
   type ComponentDoc,
   type PatternValue,
 } from "@nataliebasille/css-engine";
-import { renderToUi } from "@nataliebasille/preview-jsx-runtime";
+import {
+  renderToUi,
+  type ShowcaseJsxChild,
+} from "@nataliebasille/preview-jsx-runtime";
 import { notFound } from "next/navigation";
-import { Fragment, type PropsWithChildren, type ReactNode } from "react";
+import { type PropsWithChildren, type ReactNode } from "react";
 
 export async function generateStaticParams() {
   const modules = await listTailwindModules();
@@ -51,6 +52,7 @@ export default async function DesignItemPage({
 
   const Playground = moduleDoc.playground;
   const resolvedDoc = createDoc(moduleDoc.module, moduleDoc.meta);
+  const sections = moduleDoc.meta.sections ?? [];
 
   return (
     <DocPage title={resolvedDoc.title} description={resolvedDoc.description}>
@@ -91,6 +93,16 @@ export default async function DesignItemPage({
           tags={["modifier"]}
         />
       ))}
+      {sections.map((section, index) => (
+        <StandaloneSection
+          key={`${section.title}-${index}`}
+          section={section}
+        />
+      ))}
+      {resolvedDoc.slots && <DerivedSlotsSection section={resolvedDoc.slots} />}
+      {resolvedDoc.customVariants && (
+        <DerivedCustomVariantsSection section={resolvedDoc.customVariants} />
+      )}
       <div className="divider"></div>
       <DesignItemPageSection title="API Reference">
         <div className="space-y-8">
@@ -144,6 +156,55 @@ export default async function DesignItemPage({
             </ApiGroup>
           )}
 
+          {resolvedDoc.slots && resolvedDoc.slots.entries.length > 0 && (
+            <ApiGroup label="Slots">
+              {resolvedDoc.slots.entries.map((slot) => (
+                <ApiReferenceRow
+                  key={slot.name}
+                  tag="slot"
+                  label={<span className="font-mono text-sm">{slot.name}</span>}
+                  description={
+                    resolvedDoc.slots?.description ||
+                    "Add the slot selector to a child element to replace the default rendered part."
+                  }
+                >
+                  <div className="mt-2 flex gap-1 text-xs text-on-tone-50-surface/60">
+                    <span className="font-bold">selector:</span>
+                    <span className="font-mono tracking-wider text-tone-500-accent">
+                      {slot.selector}
+                    </span>
+                  </div>
+                </ApiReferenceRow>
+              ))}
+            </ApiGroup>
+          )}
+
+          {resolvedDoc.customVariants &&
+            resolvedDoc.customVariants.entries.length > 0 && (
+              <ApiGroup label="Custom Variants">
+                {resolvedDoc.customVariants.entries.map((variant) => (
+                  <ApiReferenceRow
+                    key={variant.name}
+                    tag="custom-variant"
+                    label={
+                      <span className="font-mono text-sm">{variant.name}:</span>
+                    }
+                    description={
+                      resolvedDoc.customVariants?.description ||
+                      "Custom variant derived from component state selectors."
+                    }
+                  >
+                    <div className="mt-2 flex gap-1 text-xs text-on-tone-50-surface/60">
+                      <span className="font-bold">selector:</span>
+                      <span className="font-mono tracking-wider break-all text-tone-500-accent">
+                        {variant.selector}
+                      </span>
+                    </div>
+                  </ApiReferenceRow>
+                ))}
+              </ApiGroup>
+            )}
+
           {Object.keys(resolvedDoc.cssvars ?? {}).length > 0 && (
             <ApiGroup label="CSS Variables">
               {Object.entries(resolvedDoc.cssvars).map(([key, cssVar]) => (
@@ -167,116 +228,6 @@ export default async function DesignItemPage({
               ))}
             </ApiGroup>
           )}
-          {/* ── CSS Variables ── */}
-          {/* {hasVars && (
-            <ApiGroup label="CSS Variables">
-              {allVars.map((v) => {
-                const extra = cssVarInfoMap.get(v.name);
-                return (
-                  <TaggedApiRow
-                    key={v.name}
-                    tag="css-variable"
-                    label={<span className="font-mono text-sm">{v.name}</span>}
-                  >
-                    <span className="flex flex-col items-start gap-1.5 text-xs">
-                      {extra?.description && (
-                        <span className="text-on-tone-50-surface/80">
-                          {extra.description}
-                        </span>
-                      )}
-                      {v.default && (
-                        <span className="flex gap-1">
-                          <span className="text-on-tone-50-surface/60">
-                            Default:{" "}
-                          </span>
-                          <span className="text-tone-500-accent">
-                            {v.default}
-                          </span>
-                        </span>
-                      )}
-                    </span>
-                  </TaggedApiRow>
-                );
-              })}
-              {standaloneVars.map((v) => (
-                <TaggedApiRow
-                  key={v.name}
-                  tag="css-variable"
-                  label={<span className="font-mono text-sm">{v.name}</span>}
-                >
-                  <span className="flex flex-col items-start gap-1.5 text-xs">
-                    {v.description && (
-                      <span className="text-on-tone-50-surface/80">
-                        {v.description}
-                      </span>
-                    )}
-                    {v.default && (
-                      <span className="flex gap-1">
-                        <span className="text-on-tone-50-surface/60">
-                          Default:{" "}
-                        </span>
-                        <span className="text-tone-500-accent">
-                          {v.default}
-                        </span>
-                      </span>
-                    )}
-                  </span>
-                </TaggedApiRow>
-              ))}
-            </ApiGroup>
-          )} */}
-
-          {/* ── Slot Classes ── */}
-          {/* {slots && slots.length > 0 && (
-            <ApiGroup label="Slot Classes">
-              {slots.map((s) => (
-                <TaggedApiRow
-                  key={s.name}
-                  tag="slot"
-                  label={<span className="font-mono text-sm">{s.name}</span>}
-                >
-                  {s.description && (
-                    <span className="text-on-tone-50-surface/80">
-                      {s.description}
-                    </span>
-                  )}
-                </TaggedApiRow>
-              ))}
-            </ApiGroup>
-          )} */}
-
-          {/* ── Variants ── */}
-          {/* {customVariants.length > 0 && (
-            <ApiGroup label="Variants">
-              {customVariants.map((v) => {
-                const extra = variantInfoMap.get(v.name);
-                return (
-                  <ApiRow
-                    key={v.name}
-                    label={<span className="font-mono text-sm">{v.name}:</span>}
-                  >
-                    <span className="flex flex-col gap-0.5 text-xs">
-                      {v.condition && (
-                        <>
-                          <span className="text-on-tone-50-surface/60">
-                            Selector:{" "}
-                          </span>
-                          <span className="break-all text-tone-500-accent">
-                            {v.condition}
-                          </span>
-                        </>
-                      )}
-                      {extra?.description && (
-                        <span className="mt-1 text-on-tone-50-surface/80">
-                          {extra.description}
-                        </span>
-                      )}
-                    </span>
-                  </ApiRow>
-                );
-              })}
-            </ApiGroup>
-          )} */}
         </div>
       </DesignItemPageSection>
     </DocPage>
@@ -384,6 +335,100 @@ function EntitySection({
         <DocSection
           className="mt-4"
           key={i}
+          title={showcase.title ?? ""}
+          description={<div className="mb-2">{showcase.description}</div>}
+        >
+          <StaticExample.FromShowcaseJsx source={showcase.content} />
+        </DocSection>
+      ))}
+    </DesignItemPageSection>
+  );
+}
+
+function StandaloneSection({ section }: { section: DocStandaloneSection }) {
+  return (
+    <DesignItemPageSection
+      title={section.title}
+      description={section.description}
+    >
+      {((section.tags && section.tags.length > 0) ||
+        (section.table && section.table.length > 0)) && (
+        <UtilityReference
+          tags={section.tags}
+          description={undefined}
+          table={
+            section.table?.map((row) => ({
+              label: row.label,
+              content: renderToUi(row.content as ShowcaseJsxChild),
+            })) ?? []
+          }
+        />
+      )}
+
+      {section.showcases?.map((showcase, index) => (
+        <DocSection
+          className="mt-4"
+          key={index}
+          title={showcase.title ?? ""}
+          description={<div className="mb-2">{showcase.description}</div>}
+        >
+          <StaticExample.FromShowcaseJsx source={showcase.content} />
+        </DocSection>
+      ))}
+    </DesignItemPageSection>
+  );
+}
+
+function DerivedSlotsSection({
+  section,
+}: {
+  section: NonNullable<ComponentDoc["slots"]>;
+}) {
+  return (
+    <DesignItemPageSection title={section.title}>
+      <UtilityReference
+        tags={["slot"]}
+        description={section.description}
+        table={section.entries.map((slot) => ({
+          label: slot.name,
+          content: renderToUi(slot.selector),
+        }))}
+      />
+
+      {section.showcases?.map((showcase, index) => (
+        <DocSection
+          className="mt-4"
+          key={index}
+          title={showcase.title ?? ""}
+          description={<div className="mb-2">{showcase.description}</div>}
+        >
+          <StaticExample.FromShowcaseJsx source={showcase.content} />
+        </DocSection>
+      ))}
+    </DesignItemPageSection>
+  );
+}
+
+function DerivedCustomVariantsSection({
+  section,
+}: {
+  section: NonNullable<ComponentDoc["customVariants"]>;
+}) {
+  return (
+    <DesignItemPageSection title={section.title}>
+      <UtilityReference
+        tags={["custom-variant"]}
+        description={section.description}
+        table={section.entries.map((variant) => ({
+          label: `${variant.name}:`,
+          content: renderToUi(variant.selector),
+        }))}
+      />
+
+      {section.showcases?.map((showcase, index) => (
+        <DocSection
+          className="mt-4"
+          key={index}
           title={showcase.title ?? ""}
           description={<div className="mb-2">{showcase.description}</div>}
         >

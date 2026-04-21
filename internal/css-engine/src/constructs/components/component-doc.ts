@@ -1,4 +1,5 @@
 import { PALETTE } from "../../dsl/public";
+import type { ShowcaseJsxNode } from "@nataliebasille/preview-jsx-runtime";
 import type { ExtendsNever } from "../../utils";
 import { createPattern, type Pattern } from "../pattern";
 import { type ComponentBuilder } from "./component-builder";
@@ -8,7 +9,9 @@ import {
   type ControlledVar,
 } from "./types";
 import {
+  getSlots,
   resolveComponentName,
+  resolveSlotSelector,
   themeableDefinition,
   traverseTopDown,
   variantDefinition,
@@ -84,6 +87,30 @@ export type ComposesWith = {
   id: string;
 };
 
+export type DocShowcase = {
+  title?: string;
+  description?: string;
+  content: ShowcaseJsxNode;
+};
+
+export type DerivedDocSectionMeta = {
+  title?: string;
+  description?: string;
+  showcases?: DocShowcase[];
+};
+
+type DerivedDocEntry = {
+  name: string;
+  selector: string;
+};
+
+type DerivedDocSection = {
+  title: string;
+  description?: string;
+  showcases?: DocShowcase[];
+  entries: DerivedDocEntry[];
+};
+
 export type ComponentDoc = {
   title: string;
   description: string;
@@ -110,20 +137,43 @@ export type ComponentDoc = {
     description: string;
     defaultValue?: string;
   }[];
+  slots?: DerivedDocSection;
+  customVariants?: DerivedDocSection;
 };
 
-export function createDoc<T extends ComponentBuilder>(
-  builder: T,
-  meta: ComponentDocMeta<T>,
-): ComponentDoc {
+export function createDoc<
+  T extends ComponentBuilder,
+  M extends ComponentDocMeta<T> & {
+    slots?: DerivedDocSectionMeta;
+    customVariants?: DerivedDocSectionMeta;
+  },
+>(builder: T, meta: M): ComponentDoc {
   const { state } = builder;
   const varReferenceMap = new VarReferenceMap();
   const components: ComponentDoc["components"] = {};
   const utilities: ComponentDoc["utilities"] = {};
   const cssvars: ComponentDoc["cssvars"] = [];
+  const slotEntries: DerivedDocEntry[] = [];
+  const customVariantEntries: DerivedDocEntry[] = [];
+
+  const resolvedSlots = getSlots(state);
+  for (const [name] of Object.entries(resolvedSlots)) {
+    slotEntries.push({
+      name,
+      selector: resolveSlotSelector(name, resolvedSlots),
+    });
+  }
 
   traverseTopDown(state, (current) => {
     const componentName = resolveComponentName(current);
+
+    for (const [name, selector] of Object.entries(current.guards)) {
+      customVariantEntries.push({
+        name: `${componentName}-${name}`,
+        selector: String(selector),
+      });
+    }
+
     for (const [varName, varValue] of Object.entries(current.vars)) {
       if (isControlledVar(varValue)) {
         const varKey = varName.slice(2) as keyof typeof meta.utilities;
@@ -223,5 +273,33 @@ export function createDoc<T extends ComponentBuilder>(
     components,
     utilities,
     cssvars,
+    ...(slotEntries.length > 0 ?
+      {
+        slots: {
+          title:
+            meta.slots?.title ??
+            (slotEntries.length === 1 ?
+              `${capitalize(slotEntries[0]!.name)} Slot`
+            : "Slots"),
+          description: meta.slots?.description,
+          showcases: meta.slots?.showcases,
+          entries: slotEntries,
+        },
+      }
+    : {}),
+    ...(customVariantEntries.length > 0 ?
+      {
+        customVariants: {
+          title: meta.customVariants?.title ?? "Custom Variants",
+          description: meta.customVariants?.description,
+          showcases: meta.customVariants?.showcases,
+          entries: customVariantEntries,
+        },
+      }
+    : {}),
   };
+}
+
+function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

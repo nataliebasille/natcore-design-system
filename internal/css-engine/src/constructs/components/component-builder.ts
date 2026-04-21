@@ -1,6 +1,15 @@
-import { type Palette, type StyleRuleBodyBuilder } from "../../dsl/public";
+import {
+  type Palette,
+  type Selector,
+  type StyleRuleBodyBuilder,
+} from "../../dsl/public";
 import type { ThemeProperties } from "../theme";
-import type { ComponentState, ControlledVar, VarsProperty } from "./types";
+import type {
+  ComponentSlot,
+  ComponentState,
+  ControlledVar,
+  VarsProperty,
+} from "./types";
 
 type DefinedVariants<T extends ComponentState> =
   T extends { parent: infer P extends ComponentState } ?
@@ -13,12 +22,13 @@ type UpdateState<T extends ComponentState, Next> = Omit<T, keyof Next> & Next;
 
 type ChildState<N extends string, T extends ComponentState> = {
   name: N;
+  parent: T;
   vars: {};
   variants: {};
-  body: [];
-  parent: T;
   utilities: {};
-  slots: string[];
+  guards: {};
+  slots: {};
+  body: [];
 };
 
 type VarDefault<V extends VarsProperty> =
@@ -42,6 +52,15 @@ type UtilityMap<
   U extends string,
   B extends StyleRuleBodyBuilder[],
 > = Omit<T["utilities"], U> & Record<U, [...T["utilities"][U], ...B]>;
+
+type BodyBuilderProps<T extends ComponentState> =
+  T["slots"] extends [] ? {}
+  : {
+      slot(name: T["slots"][string]): Selector;
+    };
+type BodyBuilder<T extends ComponentState> = (
+  props: BodyBuilderProps<T>,
+) => StyleRuleBodyBuilder | StyleRuleBodyBuilder[];
 
 export type ComponentBuilder<T extends ComponentState = ComponentState> = {
   state: T;
@@ -67,9 +86,35 @@ export type ComponentBuilder<T extends ComponentState = ComponentState> = {
     variable: V,
     ...candidates: C
   ): ComponentBuilder<UpdateState<T, { vars: ControlledVars<T, V, C> }>>;
+  slot<N extends string>(
+    name: N,
+  ): ComponentBuilder<
+    UpdateState<
+      T,
+      { slots: T["slots"] & Record<N, { selector: ComponentSlot }> }
+    >
+  >;
+  slot<N extends string>(
+    name: N,
+    selector: ComponentSlot["selector"],
+  ): ComponentBuilder<
+    UpdateState<
+      T,
+      { slots: T["slots"] & Record<N, { selector: ComponentSlot["selector"] }> }
+    >
+  >;
+  guard<const G extends string>(
+    name: G,
+    conditionSelector: Selector,
+  ): ComponentBuilder<
+    UpdateState<T, { guards: T["guards"] & Record<G, Selector> }>
+  >;
   body<const B extends StyleRuleBodyBuilder[]>(
     ...styles: B
   ): ComponentBuilder<UpdateState<T, { body: B }>>;
+  body(
+    builder: BodyBuilder<T>,
+  ): ComponentBuilder<UpdateState<T, { body: StyleRuleBodyBuilder[] }>>;
   derive<const N extends string, C extends ComponentState>(
     childName: N,
     configure: (
@@ -109,9 +154,7 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
     } as unknown as UpdateState<T, { variants: T["variants"] & Record<V, P> }>);
   }
 
-  defaultTheme<P extends Palette>(
-    palette: P,
-  ): ComponentBuilder<UpdateState<T, { defaultTheme: P }>> {
+  defaultTheme<P extends Palette>(palette: P) {
     return new ComponentBuilderImpl({
       ...this.state,
       defaultTheme: palette,
@@ -141,32 +184,47 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
     } as unknown as UpdateState<T, { vars: ControlledVars<T, V, C> }>);
   }
 
-  body<const B extends StyleRuleBodyBuilder[]>(...styles: B) {
+  guard<const G extends string>(name: G, conditionSelector: Selector) {
     return new ComponentBuilderImpl({
       ...this.state,
-      body: styles,
-    } as UpdateState<T, { body: B }>);
+      guards: {
+        ...this.state.guards,
+        [name]: conditionSelector,
+      },
+    } as unknown as UpdateState<
+      T,
+      { guards: T["guards"] & Record<G, Selector> }
+    >);
   }
 
-  derive<const N extends string, C extends ComponentState>(
-    childName: N,
-    configure: (
-      child: ComponentBuilder<ChildState<N, T>>,
-    ) => ComponentBuilder<C>,
-  ): ComponentBuilder<UpdateState<C, { parent: T }>> {
-    const childBuilder = new ComponentBuilderImpl({
-      name: childName,
-      vars: {},
-      variants: {},
-      body: [],
-      parent: this.state,
-      utilities: {},
-      slots: [] as string[],
-    } as ChildState<N, T>);
+  slot<const S extends string>(
+    name: S,
+    selector: ComponentSlot["selector"] = "data-attr",
+  ) {
+    return new ComponentBuilderImpl({
+      ...this.state,
+      slots: {
+        ...this.state.slots,
+        [name]: { selector },
+      },
+    } as unknown as UpdateState<
+      T,
+      { slots: T["slots"] & Record<S, { selector: ComponentSlot["selector"] }> }
+    >);
+  }
 
-    return configure(childBuilder) as unknown as ComponentBuilder<
-      UpdateState<C, { parent: T }>
-    >;
+  body(
+    builderOrFirstStyle: BodyBuilder<T> | StyleRuleBodyBuilder,
+    ...styles: StyleRuleBodyBuilder[]
+  ) {
+    const bodyStyles =
+      typeof builderOrFirstStyle === "function" ?
+        builderOrFirstStyle({ slot: (name) => `::slotted(${name})` })
+      : [builderOrFirstStyle, ...styles];
+    return new ComponentBuilderImpl({
+      ...this.state,
+      body: bodyStyles,
+    } as UpdateState<T, { body: StyleRuleBodyBuilder[] }>);
   }
 
   utility<const U extends string, const B extends StyleRuleBodyBuilder[]>(
@@ -183,6 +241,28 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
       },
     } as unknown as UpdateState<T, { utilities: UtilityMap<T, U, B> }>);
   }
+
+  derive<const N extends string, C extends ComponentState>(
+    childName: N,
+    configure: (
+      child: ComponentBuilder<ChildState<N, T>>,
+    ) => ComponentBuilder<C>,
+  ) {
+    const childBuilder = new ComponentBuilderImpl({
+      name: childName,
+      vars: {},
+      variants: {},
+      body: [],
+      parent: this.state,
+      utilities: {},
+      slots: {},
+      guards: {},
+    } as ChildState<N, T>);
+
+    return configure(
+      childBuilder as ComponentBuilder<ChildState<N, T>>,
+    ) as unknown as ComponentBuilder<UpdateState<C, { parent: T }>>;
+  }
 }
 
 export function component<const N extends string>(name: N) {
@@ -192,7 +272,8 @@ export function component<const N extends string>(name: N) {
     variants: {},
     body: [],
     utilities: {},
-    slots: [] as string[],
+    slots: {},
+    guards: {},
   } as Omit<
     ChildState<N, ComponentState>,
     "parent"

@@ -40,6 +40,7 @@ export const ApiRow = ({
 export type UtilityTag =
   | "utility"
   | "modifier"
+  | "custom-variant"
   | "composable"
   | "component"
   | "slot"
@@ -83,6 +84,7 @@ export const UtilityValue = ({
 const TAG_CLASSES: Record<UtilityTag, string> = {
   component: "badge-solid/primary",
   modifier: "badge-soft/primary",
+  "custom-variant": "badge-soft/secondary",
   composable: "badge-solid/secondary",
   utility: "badge-solid/surface",
   slot: "badge-soft/accent",

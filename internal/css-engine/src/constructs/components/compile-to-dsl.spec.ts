@@ -695,6 +695,140 @@ describe("controlled vars", () => {
           x.prelude === "btn-size-*",
       ),
     ).toBe(true);
+
+    describe("slots", () => {
+      it("rewrites class slots used in nested selectors", () => {
+        const result = componentBuilderToDsl(
+          component("btn")
+            .slot("icon", "class")
+            .body(({ slot }) => ({
+              $: {
+                [`& > ${slot("icon")}`]: {
+                  color: "red",
+                },
+              },
+            })),
+        );
+
+        expect(
+          result.find(
+            (x) =>
+              x.$ast === "at-rule" && x.name === "utility" && x.prelude === "btn",
+          ),
+        ).toEqual(
+          dsl.atRule(
+            "utility",
+            "btn",
+            dsl.layer.components(
+              dsl.styleRule("& > .icon", {
+                color: "red",
+              }),
+            ),
+          ),
+        );
+      });
+
+      it("rewrites data attribute slots used in nested selectors", () => {
+        const result = componentBuilderToDsl(
+          component("btn")
+            .slot("icon", "data-attr")
+            .body(({ slot }) => ({
+              $: {
+                [`&:has(${slot("icon")})`]: {
+                  color: "red",
+                },
+              },
+            })),
+        );
+
+        expect(
+          result.find(
+            (x) =>
+              x.$ast === "at-rule" && x.name === "utility" && x.prelude === "btn",
+          ),
+        ).toEqual(
+          dsl.atRule(
+            "utility",
+            "btn",
+            dsl.layer.components(
+              dsl.styleRule('&:has([data-slot="icon"])', {
+                color: "red",
+              }),
+            ),
+          ),
+        );
+      });
+
+      it("lets derived components reference slots declared on the parent", () => {
+        const result = componentBuilderToDsl(
+          component("btn")
+            .slot("icon", "class")
+            .derive("group", (child) =>
+              child.body(({ slot }) => ({
+                $: {
+                  [`& > ${slot("icon")}`]: {
+                    color: "red",
+                  },
+                },
+              })),
+            ),
+        );
+
+        expect(
+          result.find(
+            (x) =>
+              x.$ast === "at-rule" &&
+              x.name === "utility" &&
+              x.prelude === "btn-group",
+          ),
+        ).toEqual(
+          dsl.atRule(
+            "utility",
+            "btn-group",
+            dsl.layer.components(
+              dsl.styleRule("& > .icon", {
+                color: "red",
+              }),
+            ),
+          ),
+        );
+      });
+    });
+
+    describe("guards", () => {
+      it("emits custom variants for component guards", () => {
+        const result = componentBuilderToDsl(
+          component("btn")
+            .guard("open", "&[data-open='true']")
+            .guard("disabled", "&[aria-disabled='true']"),
+        );
+
+        expect(
+          result.filter((x) => x.$ast === "at-rule" && x.name === "custom-variant"),
+        ).toEqual([
+          dsl.atRule("custom-variant", "btn-open (&[data-open='true'])"),
+          dsl.atRule("custom-variant", "btn-disabled (&[aria-disabled='true'])"),
+        ]);
+      });
+
+      it("emits parent and child guard variants with scoped names", () => {
+        const result = componentBuilderToDsl(
+          component("btn")
+            .guard("open", "&[data-open='true']")
+            .derive("group", (child) =>
+              child.guard("active", "&[data-active='true']"),
+            ),
+        );
+
+        expect(
+          result.filter((x) => x.$ast === "at-rule" && x.name === "custom-variant"),
+        ).toEqual([
+          dsl.atRule("custom-variant", "btn-open (&[data-open='true'])"),
+          dsl.atRule("custom-variant", "btn-group-active (&[data-active='true'])"),
+        ]);
+      });
+    });
+
   });
 
   it("token candidates produce a match.variable in utility", () => {

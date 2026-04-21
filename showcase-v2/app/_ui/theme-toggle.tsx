@@ -99,7 +99,7 @@ function MobileThemeToggle({ className }: { className?: string }) {
         checked={isDark}
         onChange={cycleTheme}
       />
-      <span className="toggle-thumb flex items-center justify-center">
+      <span data-slot="thumb" className="flex items-center justify-center">
         {isDark ?
           <MoonIcon suppressHydrationWarning className="h-3 w-3" />
         : <SunIcon suppressHydrationWarning className="h-3 w-3" />}

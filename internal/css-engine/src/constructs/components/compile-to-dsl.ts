@@ -213,7 +213,21 @@ const utilitiesGenerator: GeneratorReduceFn = (acc, curr) => {
   Object.entries(curr.utilities).forEach(([utilityName, body]) => {
     const fullUtilityName = `${curr.name}-${utilityName}`;
     acc.body.push(
-      dsl.atRule("utility", fullUtilityName, ...normalizeStyleBuilders(body)),
+      dsl.atRule(
+        "utility",
+        fullUtilityName,
+        ...normalizeStyleBuilders(curr.state, body),
+      ),
+    );
+  });
+
+  return acc;
+};
+
+const guardsGenerator: GeneratorReduceFn = (acc, curr) => {
+  Object.entries(curr.guards).forEach(([guardName, selector]) => {
+    acc.body.push(
+      dsl.atRule("custom-variant", `${curr.name}-${guardName} (${selector})`),
     );
   });
 
@@ -228,6 +242,7 @@ const generators: GeneratorReduceFn[] = [
   staticComponentGenerator,
   controlledVarGenerator,
   utilitiesGenerator,
+  guardsGenerator,
 ];
 
 export function componentBuilderToDsl({

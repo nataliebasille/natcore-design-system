@@ -1,7 +1,10 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import type { ShowcaseJsxNode } from "@nataliebasille/preview-jsx-runtime";
 import { createDoc } from "./component-doc.ts";
 import { component } from "./component-builder.ts";
 import { dsl, PALETTE } from "../../dsl/public.ts";
+
+const showcaseNode = {} as ShowcaseJsxNode;
 
 describe("createDoc", () => {
   describe("builder state typings", () => {
@@ -420,6 +423,95 @@ describe("createDoc", () => {
           tokens: [{ type: "arbitrary", dataType: "length" }],
         },
       });
+    });
+  });
+
+  describe("slots and custom variants", () => {
+    it("derives slot selectors from component state", () => {
+      const builder = component("toggle")
+        .slot("thumb", "data-attr")
+        .slot("icon", "class");
+
+      const result = createDoc(builder, {
+        title: "Toggle",
+        description: "...",
+        components: { toggle: { name: "Toggle", description: "Base" } },
+      });
+
+      expect(result.slots).toEqual({
+        title: "Slots",
+        description: undefined,
+        showcases: undefined,
+        entries: [
+          { name: "thumb", selector: '[data-slot="thumb"]' },
+          { name: "icon", selector: ".icon" },
+        ],
+      });
+    });
+
+    it("derives custom variants from component guards", () => {
+      const builder = component("toggle")
+        .guard("on", "[aria-checked='true']")
+        .guard("off", "&:not([aria-checked='true'])");
+
+      const result = createDoc(builder, {
+        title: "Toggle",
+        description: "...",
+        components: { toggle: { name: "Toggle", description: "Base" } },
+      });
+
+      expect(result.customVariants).toEqual({
+        title: "Custom Variants",
+        description: undefined,
+        showcases: undefined,
+        entries: [
+          { name: "toggle-on", selector: "[aria-checked='true']" },
+          { name: "toggle-off", selector: "&:not([aria-checked='true'])" },
+        ],
+      });
+    });
+
+    it("preserves authored descriptions and showcases for derived sections", () => {
+      const builder = component("toggle")
+        .slot("thumb", "data-attr")
+        .guard("on", "[aria-checked='true']");
+
+      const result = createDoc(builder, {
+        title: "Toggle",
+        description: "...",
+        components: { toggle: { name: "Toggle", description: "Base" } },
+        slots: {
+          title: "Thumb Slot",
+          description: "Replace the default thumb with a slotted child.",
+          showcases: [
+            {
+              title: "Custom Thumb",
+              description: "Shows a slotted thumb.",
+              content: showcaseNode,
+            },
+          ],
+        },
+        customVariants: {
+          description: "State selectors exposed as custom variants.",
+          showcases: [
+            {
+              title: "State Styling",
+              content: showcaseNode,
+            },
+          ],
+        },
+      });
+
+      expect(result.slots).toMatchObject({
+        title: "Thumb Slot",
+        description: "Replace the default thumb with a slotted child.",
+      });
+      expect(result.slots?.showcases).toHaveLength(1);
+      expect(result.customVariants).toMatchObject({
+        title: "Custom Variants",
+        description: "State selectors exposed as custom variants.",
+      });
+      expect(result.customVariants?.showcases).toHaveLength(1);
     });
   });
 });

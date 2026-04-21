@@ -5,11 +5,12 @@ import type {
 } from "../../dsl/ast/style-rule";
 import { stylesheetVisitorBuilder } from "../../dsl/ast/stylesheet-visitor-builder";
 import { ThemeBag } from "./theme-bag";
-import type { ComponentState } from "./types";
+import type { ComponentSlot, ComponentState } from "./types";
 import {
   normalizeStyleBuilders,
   resolveComponentName,
   themeableDefinition,
+  traverseBottomUp,
 } from "./utils";
 
 export class ComponentStateRef {
@@ -24,12 +25,16 @@ export class ComponentStateRef {
     this.#themeBag = new ThemeBag(this.#state);
   }
 
+  get state() {
+    return this.#state;
+  }
+
   #body: (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[] | null =
     null;
 
   get body() {
     if (!this.#body) {
-      this.#body = normalizeStyleBuilders(this.#state.body);
+      this.#body = normalizeStyleBuilders(this.#state, this.#state.body);
     }
 
     return this.#body;
@@ -108,7 +113,36 @@ export class ComponentStateRef {
     return this.#variants;
   }
 
+  get guards() {
+    return this.#state.guards;
+  }
+
   get utilities() {
     return this.#state.utilities;
+  }
+
+  #slots:
+    | {
+        hasSlots: true;
+        slots: Record<string, { selector: ComponentSlot["selector"] }>;
+      }
+    | {
+        hasSlots: false;
+      } = { hasSlots: false };
+  get slots() {
+    if (!this.#slots) {
+      let slots = {} as Record<string, { selector: ComponentSlot["selector"] }>;
+
+      traverseBottomUp(this.#state, (state) => {
+        slots = Object.assign(slots, state.slots);
+      });
+
+      this.#slots =
+        Object.keys(slots).length > 0 ?
+          { hasSlots: true, slots }
+        : { hasSlots: false };
+    }
+
+    return this.#slots;
   }
 }

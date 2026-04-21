@@ -7,7 +7,12 @@ import type {
   StylePropertyValue,
   StyleRuleBodyBuilder,
 } from "../../dsl/ast/style-rule";
+import type { Selector } from "../../dsl/public";
 import type { ThemeProperties } from "../theme";
+
+export type ComponentSlot = {
+  selector: "data-attr" | "class" | Selector;
+};
 
 export type ComponentState = {
   name: string;
@@ -15,9 +20,10 @@ export type ComponentState = {
   vars: Record<`--${string}`, VarsProperty>;
   variants: Record<string, ThemeProperties>;
   defaultVariant?: string;
-  slots: string[];
-  body: StyleRuleBodyBuilder[];
+  slots: Record<string, ComponentSlot>;
   utilities: Record<string, StyleRuleBodyBuilder[]>;
+  guards: Record<string, Selector>;
+  body: StyleRuleBodyBuilder[];
   parent?: ComponentState;
 };
 
