@@ -119,7 +119,6 @@ StaticExample.FromShowcaseJsx = ({
 };
 
 async function toHighlightedMarkup(rawMarkup: string): Promise<string> {
-  "use cache";
   const formattedMarkup = await formatCode(rawMarkup, "html");
   return codeToHtml(formattedMarkup, {
     lang: "html",

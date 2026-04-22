@@ -1,5 +1,3 @@
-"use cache";
-
 import { defaultValues } from "./button-playground-controls";
 import { renderToMarkup } from "@nataliebasille/preview-jsx-runtime";
 import { getButtonPlaygroundShowcase } from "./get-showcase";

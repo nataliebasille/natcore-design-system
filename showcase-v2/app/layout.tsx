@@ -7,8 +7,9 @@ import {
 import "./globals.css";
 import { Roboto } from "next/font/google";
 import { ThemeProvider } from "./_ui/theme-provider";
-import { headers } from "next/headers";
 import { SidebarProvider } from "./_ui/sidebar/sidebar-provider";
+import { listTailwindModules } from "@/server/get-tailwind-modules";
+import { capitalize } from "@/utlls/capitalize";
 
 const roboto = Roboto({ subsets: ["latin"] });
 
@@ -24,6 +25,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const links = await getLinks();
   return (
     <html lang="en" className={roboto.className} suppressHydrationWarning>
       <head>
@@ -44,16 +46,7 @@ export default async function RootLayout({
 
               <SidebarGroup header="Core"></SidebarGroup>
 
-              <SidebarGroup header="Components">
-                <SidebarLink href="/component/button">Button</SidebarLink>
-                <SidebarLink href="/component/radio-group">
-                  Radio Group
-                </SidebarLink>
-                <SidebarLink href="/component/toggle">Toggle</SidebarLink>
-                <SidebarLink href="/component/card">Card</SidebarLink>
-                <SidebarLink href="/component/modal">Modal</SidebarLink>
-                <SidebarLink href="/component/tabs">Tabs</SidebarLink>
-              </SidebarGroup>
+              {renderSidebarLinks(links)}
             </Sidebar>
             <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-tone-50-surface px-4 max-tablet:col-span-2">
               {children}
@@ -63,4 +56,76 @@ export default async function RootLayout({
       </body>
     </html>
   );
+}
+
+function renderSidebarLinks(links: Links) {
+  return Object.entries(links).map(([key, value]) => {
+    if (value.type === "link") {
+      return (
+        <SidebarLink key={key} href={value.link}>
+          {value.name}
+        </SidebarLink>
+      );
+    }
+
+    if (value.type === "group") {
+      return (
+        <SidebarGroup key={key} header={value.name}>
+          {renderSidebarLinks(value.links)}
+        </SidebarGroup>
+      );
+    }
+  });
+}
+
+async function getLinks() {
+  const tailwindModules = await listTailwindModules();
+
+  return groupModules(tailwindModules);
+}
+
+type Links = Record<
+  string,
+  | { type: "link"; name: string; link: string }
+  | { type: "group"; name: string; links: Links }
+>;
+
+function groupModules(
+  modules: Awaited<ReturnType<typeof listTailwindModules>>,
+  basePath = "",
+): Links {
+  const grouped = Object.groupBy(modules, (module) => module.category[0] ?? "");
+
+  const { "": top, ...childGroups } = grouped;
+  return {
+    ...(top?.reduce((acc, module) => {
+      acc[module.name] = {
+        type: "link",
+        link: `${basePath}/${module.name}`,
+        name: capitalize(module.name),
+      };
+
+      return acc;
+    }, {} as Links) ?? {}),
+
+    ...Object.fromEntries(
+      Object.entries(childGroups).map(
+        ([category, modules]) =>
+          [
+            capitalize(category),
+            {
+              type: "group",
+              name: capitalize(category),
+              links: groupModules(
+                modules?.map((m) => ({
+                  category: m.category.slice(1),
+                  name: m.name,
+                })) ?? [],
+                `${basePath}/${category}`,
+              ),
+            },
+          ] as const,
+      ),
+    ),
+  } satisfies Links;
 }

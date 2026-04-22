@@ -1,5 +1,3 @@
-"use cache";
-
 import { defaultValues } from "./toggle-playground-controls";
 import { renderToMarkup } from "@nataliebasille/preview-jsx-runtime";
 import { getTogglePlaygroundShowcase } from "./get-showcase";
