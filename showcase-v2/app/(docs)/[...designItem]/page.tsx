@@ -241,13 +241,11 @@ function DesignItemPageSection({
 }: PropsWithChildren<{ title: string; description?: string }>) {
   return (
     <div className="mt-6 mb-8 card-soft">
-      <DocSection
-        className="card-content"
-        title={title}
-        description={description}
-      >
-        {children}
-      </DocSection>
+      <div data-slot="content">
+        <DocSection title={title} description={description}>
+          {children}
+        </DocSection>
+      </div>
     </div>
   );
 }

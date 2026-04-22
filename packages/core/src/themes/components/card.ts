@@ -1,5 +1,4 @@
- 
-import type {  PluginAPI } from "../helpers.ts";
+import type { PluginAPI } from "../helpers.ts";
 import { createVariants } from "../colors.ts";
 
 const cardVariants = createVariants("card", { defaultColor: "surface" });
