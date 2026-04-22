@@ -17,7 +17,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm --filter @nataliebasille/preview-jsx-runtime build && tsup",
     "dev": "tsup --watch",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
