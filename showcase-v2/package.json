@@ -3,9 +3,9 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "prebuild": "pnpm --filter @nataliebasille/natcore-design-system-v2 build:css",
+    "prebuild": "pnpm --filter @nataliebasille/css-engine build && pnpm --filter @nataliebasille/natcore-design-system-v2 build:css",
     "build": "pnpm --filter @nataliebasille/natcore-* build && next build",
-    "predev": "pnpm --filter @nataliebasille/natcore-design-system-v2 build:css && node -e \"require('node:fs').rmSync('.next', { recursive: true, force: true })\"",
+    "predev": "pnpm --filter @nataliebasille/css-engine build && pnpm --filter @nataliebasille/natcore-design-system-v2 build:css && node -e \"require('node:fs').rmSync('.next', { recursive: true, force: true })\"",
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint",

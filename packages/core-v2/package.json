@@ -27,10 +27,10 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsx scripts/build.ts",
-    "build:css": "tsx scripts/build-css.ts",
-    "dev": "tsx scripts/watch.ts",
-    "watch": "tsx scripts/watch.ts",
+    "build": "node --conditions=source --import tsx scripts/build.ts",
+    "build:css": "node --conditions=source --import tsx scripts/build-css.ts",
+    "dev": "node --conditions=source --import tsx scripts/watch.ts",
+    "watch": "node --conditions=source --import tsx scripts/watch.ts",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
     "test": "vitest run",

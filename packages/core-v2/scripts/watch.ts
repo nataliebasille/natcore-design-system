@@ -88,8 +88,10 @@ async function runCompileToDist(dist: string, files: string[]) {
   return new Promise<void>((resolve, reject) => {
     const runner = path.join(import.meta.dirname, "run-compile.ts");
     const child = spawn(
-      "npx",
+      process.execPath,
       [
+        "--conditions=source",
+        "--import",
         "tsx",
         runner,
         "--dist",
@@ -99,7 +101,7 @@ async function runCompileToDist(dist: string, files: string[]) {
         "--files",
         files.join(","),
       ],
-      { stdio: "inherit", shell: true },
+      { stdio: "inherit" },
     );
 
     child.on("exit", (code) => {
