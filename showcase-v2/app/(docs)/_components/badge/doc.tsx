@@ -37,11 +37,6 @@ export default {
       ],
     },
   },
-  cssvars: {
-    "--bg": "Background color resolved by the selected badge variant.",
-    "--fg": "Foreground text color resolved by the selected badge variant.",
-    "--border": "Border color resolved by the selected badge variant.",
-  },
 } satisfies Documentation<
   typeof import("../../../../../packages/core-v2/src/tailwind/components/badge.css.ts").default
 >;
