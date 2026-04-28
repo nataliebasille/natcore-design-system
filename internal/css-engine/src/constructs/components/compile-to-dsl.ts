@@ -2,8 +2,10 @@ import {
   type AtRuleAst,
   type AtRuleBodyBuilder,
   type AtRuleContent,
+  type CssDataType,
   type DesignSystemAst,
   dsl,
+  type MatchValueAst,
   type Palette,
   PALETTE,
   type StyleListAst_WithMetadata,
@@ -77,41 +79,63 @@ const variantVarsGenerator: GeneratorReduceFn = (acc, curr) => {
 };
 
 const staticComponentGenerator: GeneratorReduceFn = (acc, curr) => {
-  appendComponentIfExists(
-    acc.body,
-    curr.name,
-    !curr.themeable.state && !curr.variants.state ?
-      curr.body
-    : [
-        !!curr.themeable.default &&
-          !!curr.variants.default &&
-          `${curr.name}-${curr.variants.default}/${curr.themeable.default}`,
+  if (
+    (!curr.themeable.isThemeable || !curr.themeable.default) &&
+    (!curr.variants.hasVariants || curr.variants.selection.mode === "optional")
+  ) {
+    // Standalone static component. Has it's own body
+    appendComponentIfExists(
+      acc.body,
+      curr.name,
+      curr.variants.hasVariants && curr.variants.selection.mode === "optional" ?
+        resolveOptionalVariantReferences(curr, curr.body)
+      : curr.body,
+    );
+  } else {
+    // A static component that references a dynamic component needs to be generated
+    // when the component has a default theme or variant.
 
-        !curr.themeable.state &&
-          !!curr.variants.default &&
-          `${curr.name}-${curr.variants.default}`,
-
-        !!curr.themeable.default &&
-          !curr.variants.state &&
-          `${curr.name}/${curr.themeable.default}`,
-      ],
-  );
+    appendComponentIfExists(acc.body, curr.name, [
+      curr.themeable.default ?
+        !curr.variants.hasVariants ? `${curr.name}/${curr.themeable.default}`
+        : curr.variants.selection.mode === "default" ?
+          `${curr.name}-${curr.variants.selection.key}/${curr.themeable.default}`
+        : curr.variants.selection.mode === "optional" ?
+          `${curr.name}/${curr.themeable.default}`
+        : null
+      : (
+        curr.themeable.isThemeable === false &&
+        curr.variants.selection?.mode === "default"
+      ) ?
+        `${curr.name}-${curr.variants.selection.key}`
+      : null,
+    ]);
+  }
 
   return acc;
 };
 
 const themeableStaticComponentsGenerator: GeneratorReduceFn = (acc, curr) => {
-  if (!curr.themeable.state) return acc;
+  if (!curr.themeable.isThemeable) return acc;
 
   for (const palette of PALETTE) {
     appendComponentIfExists(
       acc.body,
       `${curr.name}/${palette}`,
-      !curr.variants.state ?
+      !curr.variants.hasVariants ?
         [`palette-${palette}`, ...applyCurrentPalette(palette, curr.body)]
+      : curr.variants.selection.mode === "optional" ?
+        [
+          `palette-${palette}`,
+          ...resolveOptionalVariantReferences(
+            curr,
+            applyCurrentPalette(palette, curr.body),
+          ),
+        ]
       : [
-          !!curr.variants.default &&
-            `${curr.name}-${curr.variants.default}/${palette}`,
+          curr.variants.selection?.mode === "default" ?
+            `${curr.name}-${curr.variants.selection.key}/${palette}`
+          : null,
         ],
     );
   }
@@ -120,9 +144,9 @@ const themeableStaticComponentsGenerator: GeneratorReduceFn = (acc, curr) => {
 };
 
 const dynamicComponentGenerator: GeneratorReduceFn = (acc, curr) => {
-  if (curr.variants.state) {
+  if (curr.variants.hasVariants) {
     appendComponentIfExists(acc.body, `${curr.name}-*`, [
-      curr.themeable.state &&
+      curr.themeable.isThemeable &&
         renderPalette((color) =>
           dsl.match.asModifier(
             dsl.match.variable(
@@ -132,7 +156,7 @@ const dynamicComponentGenerator: GeneratorReduceFn = (acc, curr) => {
         ),
       ...stylesheetVisitorBuilder()
         .on("css-var", (ast) => {
-          if (curr.themeBag.isVariantVar(ast.name as `--${string}`)) {
+          if (curr.themeBag.getVariantVar(ast.name as `--${string}`)) {
             return dsl.match.variable(ast.name as `--${string}`);
           }
 
@@ -149,52 +173,28 @@ const dynamicComponentGenerator: GeneratorReduceFn = (acc, curr) => {
 
 const controlledVarGenerator: GeneratorReduceFn = (acc, curr) => {
   curr.themeBag.controlledVars.forEach(({ scopedVarName, value }) => {
-    const [tokenCandidates, otherCandidates] = value.candidates.reduce(
-      (acc, candidate) => {
-        if (candidate.type === "token") {
-          acc[0].push(candidate);
-        } else {
-          acc[1].push(candidate);
-        }
-        return acc;
-      },
-      [
-        [] as Extract<ControlledVar["candidates"][number], { type: "token" }>[],
-        [] as Exclude<ControlledVar["candidates"][number], { type: "token" }>[],
-      ],
-    );
+    const matchers: MatchValueAst<CssDataType>[] = [];
+
+    value.candidates.forEach((candidate) => {
+      if ("$ast" in candidate && candidate.$ast === "match-value") {
+        matchers.push(candidate as MatchValueAst<CssDataType>);
+      } else {
+        acc.themes.inline = {
+          ...acc.themes.inline,
+          ...Object.fromEntries(
+            Object.entries(candidate).map(
+              ([key, value]) => [`${scopedVarName}-${key}`, value] as const,
+            ),
+          ),
+        };
+
+        matchers.push(dsl.match.variable(scopedVarName));
+      }
+    });
 
     if (value.default) {
       acc.themes.default[scopedVarName] = value.default;
     }
-
-    acc.themes.inline = {
-      ...acc.themes.inline,
-      ...Object.fromEntries(
-        tokenCandidates.map(
-          (candidate) =>
-            [`${scopedVarName}-${candidate.token}`, candidate.value] as const,
-        ),
-      ),
-    };
-
-    const matchers = [
-      ...(tokenCandidates.length > 0 ?
-        [dsl.match.variable(scopedVarName)]
-      : []),
-
-      ...otherCandidates.map((candidate) => {
-        if (candidate.type === "arbitrary") {
-          return dsl.match.arbitrary[
-            camelCase(candidate.dataType) as keyof typeof dsl.match.arbitrary
-          ]();
-        }
-
-        return dsl.match.bare[
-          camelCase(candidate.dataType) as keyof typeof dsl.match.bare
-        ]();
-      }),
-    ];
 
     if (matchers.length > 0) {
       acc.body.push(
@@ -306,7 +306,7 @@ function componentStateToDsl(
 function appendComponentIfExists(
   body: DesignSystemAst[],
   componentName: string,
-  componentBody: (AtRuleBodyBuilder | false)[],
+  componentBody: (AtRuleBodyBuilder | false | undefined | null)[],
 ) {
   const filtered = componentBody.filter((x): x is AtRuleBodyBuilder => !!x);
   if (filtered.length > 0) {
@@ -332,6 +332,155 @@ function applyCurrentPalette(
       };
     })
     .visit(body);
+}
+
+function resolveOptionalVariantReferences(
+  curr: ComponentStateRef,
+  body: (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[],
+) {
+  if (
+    !curr.variants.hasVariants ||
+    curr.variants.selection.mode !== "optional"
+  ) {
+    return body;
+  }
+
+  return stylesheetVisitorBuilder()
+    .on("style-list", (ast) => {
+      const styles = ast.styles.reduce<Array<(typeof ast.styles)[number]>>(
+        (acc, style) => {
+          if ("$ast" in style) {
+            acc.push(style);
+            return acc;
+          }
+
+          const entries = Object.entries(style).flatMap(([key, value]) => {
+            const nextValue = rewriteOptionalVariantValue(curr, value);
+
+            return nextValue === undefined ? [] : [[key, nextValue] as const];
+          });
+
+          if (entries.length > 0) {
+            acc.push(Object.fromEntries(entries) as typeof style);
+          }
+
+          return acc;
+        },
+        [],
+      );
+
+      return {
+        ...ast,
+        styles,
+      };
+    })
+    .on("style-rule", (ast) => {
+      return {
+        ...ast,
+        body: ast.body.filter((entry) => !isEmptyStyleRuleBody(entry)),
+      };
+    })
+    .visit(body)
+    .filter((entry) => !isEmptyStyleNode(entry));
+}
+
+function rewriteOptionalVariantValue(
+  curr: ComponentStateRef,
+  value: StylePropertyValue | StylePropertyValue[] | undefined,
+) {
+  const rewritten = rewriteOptionalVariantNode(curr, value);
+
+  return rewritten === OPTIONAL_VARIANT_OMIT ? undefined : rewritten;
+}
+
+const OPTIONAL_VARIANT_OMIT = Symbol("optional-variant-omit");
+
+function rewriteOptionalVariantNode(
+  curr: ComponentStateRef,
+  value: unknown,
+): unknown | typeof OPTIONAL_VARIANT_OMIT {
+  if (value === undefined || value === null) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    const rewritten = value.map((entry) =>
+      rewriteOptionalVariantNode(curr, entry),
+    );
+
+    return rewritten.some((entry) => entry === OPTIONAL_VARIANT_OMIT) ?
+        OPTIONAL_VARIANT_OMIT
+      : rewritten;
+  }
+
+  if (typeof value !== "object") {
+    return value;
+  }
+
+  if ("$ast" in value) {
+    if (value.$ast === "css-var") {
+      const cssVar = value as dsl.CssVarAst;
+      const variantVar = curr.themeBag.getVariantVar(
+        cssVar.name as `--${string}`,
+      );
+
+      if (!variantVar) {
+        if (cssVar.fallback === undefined) {
+          return cssVar;
+        }
+
+        const fallback = rewriteOptionalVariantNode(curr, cssVar.fallback);
+        return fallback === OPTIONAL_VARIANT_OMIT ?
+            OPTIONAL_VARIANT_OMIT
+          : { ...cssVar, fallback };
+      }
+
+      return variantVar.default ?? OPTIONAL_VARIANT_OMIT;
+    }
+
+    if (value.$ast === "match-value") {
+      const matchValue = value as MatchValueAst<CssDataType>;
+      const variableCandidate = matchValue.candidates.find(
+        (candidate) => candidate.$twCandidate === "variable",
+      );
+
+      if (!variableCandidate) {
+        return matchValue;
+      }
+
+      const variantVar = curr.themeBag.getVariantVar(
+        variableCandidate.root as `--${string}`,
+      );
+
+      return variantVar?.default ?? OPTIONAL_VARIANT_OMIT;
+    }
+  }
+
+  const rewrittenEntries = Object.entries(value).map(([key, entry]) => {
+    const rewrittenEntry = rewriteOptionalVariantNode(curr, entry);
+
+    return [key, rewrittenEntry] as const;
+  });
+
+  return rewrittenEntries.some(([, entry]) => entry === OPTIONAL_VARIANT_OMIT) ?
+      OPTIONAL_VARIANT_OMIT
+    : Object.fromEntries(rewrittenEntries);
+}
+
+function isEmptyStyleNode(entry: dsl.StyleListAst | dsl.StyleRuleAst) {
+  if (entry.$ast === "style-list") {
+    return entry.styles.length === 0;
+  }
+
+  return entry.body.length === 0;
+}
+
+function isEmptyStyleRuleBody(entry: dsl.StyleRuleBody) {
+  if (entry.$ast === "tailwind-class") {
+    return false;
+  }
+
+  return isEmptyStyleNode(entry);
 }
 
 function wrapComponentLayer(

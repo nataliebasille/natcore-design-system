@@ -145,6 +145,7 @@ export default async function DesignItemPage({
                               values={patternValueToNodes(
                                 meta.pattern.modifier,
                               )}
+                              defaultValue={meta.pattern.modifier.default}
                             />
                           </div>
                         </>
@@ -217,7 +218,7 @@ export default async function DesignItemPage({
                   description={cssVar.description}
                 >
                   {cssVar.defaultValue && (
-                    <div className="mt-2 flex gap-1 text-xs text-on-tone-50-surface/60">
+                    <div className="flex gap-1 pt-2 text-xs text-on-tone-50-surface/60">
                       <span className="font-bold">default:</span>
                       <span className="font-mono tracking-wider text-tone-500-accent">
                         {cssVar.defaultValue}
@@ -306,6 +307,7 @@ function EntitySection({
                 content: (
                   <UtilityValue
                     values={patternValueToNodes(entity.pattern.modifier)}
+                    defaultValue={entity.pattern.modifier.default}
                   />
                 ),
               },
@@ -459,9 +461,11 @@ function ApiReferenceRow({
     >
       <TagBadge tag={tag} className="max-desktop:hidden" />
 
-      <div className="mb-2 text-xs text-on-tone-50-surface/70 desktop:mt-2">
-        {description}
-      </div>
+      {description && (
+        <div className="mb-2 text-xs text-on-tone-50-surface/70 desktop:mt-2">
+          {description}
+        </div>
+      )}
 
       {children}
     </ApiRow>

@@ -9,7 +9,7 @@ describe("variantDefinition", () => {
       .vars({ "--size": "1rem" })
       .body({ "font-size": dsl.cssvar("--size") });
 
-    expect(variantDefinition(builder.state)).toEqual({ state: false });
+    expect(variantDefinition(builder.state)).toEqual({ hasVariants: false });
   });
 
   it("returns own variants when body references own variant vars", () => {
@@ -19,13 +19,13 @@ describe("variantDefinition", () => {
       .body({ color: dsl.cssvar("--color") });
 
     expect(variantDefinition(builder.state)).toEqual({
-      state: true,
+      hasVariants: true,
       own: {
         primary: { "--color": "blue" },
         secondary: { "--color": "gray" },
       },
       inherited: {},
-      default: undefined,
+      selection: { mode: "required" },
     });
   });
 
@@ -36,13 +36,13 @@ describe("variantDefinition", () => {
       .derive("icon", (child) => child.body({ color: dsl.cssvar("--color") }));
 
     expect(variantDefinition(builder.state)).toEqual({
-      state: true,
+      hasVariants: true,
       own: {},
       inherited: {
         primary: { "--color": "blue" },
         secondary: { "--color": "gray" },
       },
-      default: undefined,
+      selection: { mode: "required" },
     });
   });
 
@@ -53,9 +53,9 @@ describe("variantDefinition", () => {
       .derive("icon", (child) => child.body({ color: dsl.cssvar("--color") }));
 
     const result = variantDefinition(builder.state);
-    expect(result.state).toBe(true);
-    if (result.state) {
-      expect(result.default).toBe("primary");
+    expect(result.hasVariants).toBe(true);
+    if (result.hasVariants) {
+      expect(result.selection).toEqual({ mode: "default", key: "primary" });
     }
   });
 });

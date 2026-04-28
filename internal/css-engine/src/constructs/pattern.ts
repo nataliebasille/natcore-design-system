@@ -17,6 +17,7 @@ export type PatternValueToken =
 export type PatternValue = {
   name: string;
   default?: string;
+  optional?: boolean;
   tokens: ReadonlyArray<PatternValueToken>;
 };
 

@@ -4,6 +4,7 @@ import type {
   StyleRuleAst_WithMetadata,
 } from "../../dsl/ast/style-rule";
 import { stylesheetVisitorBuilder } from "../../dsl/ast/stylesheet-visitor-builder";
+import type { ThemeProperties } from "../theme";
 import { ThemeBag } from "./theme-bag";
 import type { ComponentSlot, ComponentState } from "./types";
 import {
@@ -54,11 +55,11 @@ export class ComponentStateRef {
 
   #themeable:
     | {
-        state: false;
+        isThemeable: false;
         default?: never;
       }
     | {
-        state: true;
+        isThemeable: true;
         default: string | undefined;
       }
     | null = null;
@@ -73,17 +74,17 @@ export class ComponentStateRef {
 
   #variants:
     | {
-        state: false;
+        hasVariants: false;
         own?: never;
-        default?: never;
+        selection?: never;
       }
     | {
-        state: true;
+        hasVariants: true;
         own: Record<
           string,
           Record<string, StylePropertyValue | StylePropertyValue[]>
         >;
-        default: string | undefined;
+        selection: ComponentState["variants"]["selection"];
       }
     | null = null;
 
@@ -93,7 +94,7 @@ export class ComponentStateRef {
 
       stylesheetVisitorBuilder()
         .on("css-var", (ast) => {
-          hasVariantRefs ||= this.#themeBag.isVariantVar(
+          hasVariantRefs ||= !!this.#themeBag.getVariantVar(
             ast.name as `--${string}`,
           );
           return ast;
@@ -103,11 +104,11 @@ export class ComponentStateRef {
       this.#variants =
         hasVariantRefs ?
           {
-            state: true,
-            own: this.#state.variants,
-            default: this.#state.defaultVariant,
+            hasVariants: true,
+            own: this.#state.variants.values,
+            selection: this.#state.variants.selection,
           }
-        : { state: false };
+        : { hasVariants: false };
     }
 
     return this.#variants;

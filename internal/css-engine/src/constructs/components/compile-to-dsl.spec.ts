@@ -175,25 +175,37 @@ describe("themeable = FALSE / variants = NONE", () => {
 });
 
 describe("themeable = TRUE NO DEFAULT / variants = NONE", () => {
-  it("generates a utility for each palette in PALETTE", () => {
+  it("generates an inherited static component and a utility for each palette in PALETTE", () => {
     const result = componentBuilderToDsl(
       component("btn").body({
         color: dsl.current(500),
       }),
     );
 
-    const expected = PALETTE.map((p) =>
+    const expected = [
+      ...PALETTE.map((p) =>
+        dsl.atRule(
+          "utility",
+          `btn/${p}`,
+          dsl.layer.components(
+            `palette-${p}`,
+            dsl.styleList({
+              color: dsl.adaptive(p, 500),
+            }),
+          ),
+        ),
+      ),
+
       dsl.atRule(
         "utility",
-        `btn/${p}`,
+        "btn",
         dsl.layer.components(
-          `palette-${p}`,
           dsl.styleList({
-            color: dsl.adaptive(p, 500),
+            color: dsl.current(500),
           }),
         ),
       ),
-    );
+    ];
 
     expect(result).toEqual(expected);
   });
@@ -298,6 +310,96 @@ describe("themeable = FALSE / variants - WITH DEFAULT", () => {
   });
 });
 
+describe("themeable = FALSE / variants - OPTIONAL", () => {
+  it("uses the base var default for optional variant refs before omitting unresolved ones", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--color": "black" })
+        .variant("solid", { "--color": "blue" })
+        .variant("outline", { "--bg": "red" })
+        .optionalVariants()
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+          padding: dsl.spacing("4"),
+        }),
+    );
+
+    const expected = [
+      dsl.atRule("theme", {
+        "--btn-color": "black",
+      }),
+      dsl.atRule("theme", "inline", {
+        "--btn-color-solid": "blue",
+        "--btn-bg-outline": "red",
+      }),
+
+      dsl.atRule(
+        "utility",
+        "btn-*",
+        dsl.layer.components(
+          dsl.styleList({
+            color: dsl.match.variable("--btn-color"),
+            "background-color": dsl.match.variable("--btn-bg"),
+            padding: dsl.spacing("4"),
+          }),
+        ),
+      ),
+
+      dsl.atRule(
+        "utility",
+        "btn",
+        dsl.layer.components(
+          dsl.styleList({ color: "black", padding: dsl.spacing("4") }),
+        ),
+      ),
+    ];
+
+    expect(result).toEqual(expected);
+  });
+
+  it("drops unresolved variant refs from the static base component while keeping non-variant styles", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("solid", { "--color": "blue" })
+        .variant("outline", { "--bg": "red" })
+        .optionalVariants()
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+          padding: dsl.spacing("4"),
+        }),
+    );
+
+    const expected = [
+      dsl.atRule("theme", "inline", {
+        "--btn-color-solid": "blue",
+        "--btn-bg-outline": "red",
+      }),
+
+      dsl.atRule(
+        "utility",
+        "btn-*",
+        dsl.layer.components(
+          dsl.styleList({
+            color: dsl.match.variable("--btn-color"),
+            "background-color": dsl.match.variable("--btn-bg"),
+            padding: dsl.spacing("4"),
+          }),
+        ),
+      ),
+
+      dsl.atRule(
+        "utility",
+        "btn",
+        dsl.layer.components(dsl.styleList({ padding: dsl.spacing("4") })),
+      ),
+    ];
+
+    expect(result).toEqual(expected);
+  });
+});
+
 describe("themeable = TRUE NO DEFAULT / variants - NO DEFAULT", () => {
   it("generates inline theme, and dynamic component with palette modifiers", () => {
     const result = componentBuilderToDsl(
@@ -331,6 +433,136 @@ describe("themeable = TRUE NO DEFAULT / variants - NO DEFAULT", () => {
             "background-color": dsl.match.variable("--btn-bg"),
           },
         ),
+      ),
+    ];
+
+    expect(result).toEqual(expected);
+  });
+});
+
+describe("themeable = TRUE NO DEFAULT / variants - OPTIONAL", () => {
+  it("uses base defaults for optional variant refs in themeable static components", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--color": dsl.currentText(500) })
+        .variant("solid", { "--color": dsl.currentText(700) })
+        .variant("outline", { "--bg": dsl.current(500) })
+        .optionalVariants()
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+          padding: dsl.spacing("4"),
+        }),
+    );
+
+    const expected = [
+      dsl.atRule("theme", {
+        "--btn-color": dsl.currentText(500),
+      }),
+      dsl.atRule("theme", "inline", {
+        "--btn-color-solid": dsl.currentText(700),
+        "--btn-bg-outline": dsl.current(500),
+      }),
+      dsl.atRule(
+        "utility",
+        "btn-*",
+        dsl.layer.components(
+          renderPalette((color) =>
+            dsl.match.asModifier(
+              dsl.match.variable(
+                colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+              ),
+            ),
+          ),
+          {
+            color: dsl.match.variable("--btn-color"),
+            "background-color": dsl.match.variable("--btn-bg"),
+            padding: dsl.spacing("4"),
+          },
+        ),
+      ),
+
+      ...PALETTE.map((p) =>
+        dsl.atRule(
+          "utility",
+          `btn/${p}`,
+          dsl.layer.components(
+            `palette-${p}`,
+            dsl.styleList({
+              color: dsl.adaptiveText(p as (typeof PALETTE)[number], 500),
+              padding: dsl.spacing("4"),
+            }),
+          ),
+        ),
+      ),
+
+      dsl.atRule(
+        "utility",
+        "btn",
+        dsl.layer.components(
+          dsl.styleList({
+            color: dsl.currentText(500),
+            padding: dsl.spacing("4"),
+          }),
+        ),
+      ),
+    ];
+
+    expect(result).toEqual(expected);
+  });
+
+  it("drops unresolved variant refs from themeable static components while keeping palette and non-variant styles", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("solid", { "--color": dsl.currentText(500) })
+        .variant("outline", { "--bg": dsl.current(500) })
+        .optionalVariants()
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+          padding: dsl.spacing("4"),
+        }),
+    );
+
+    const expected = [
+      dsl.atRule("theme", "inline", {
+        "--btn-color-solid": dsl.currentText(500),
+        "--btn-bg-outline": dsl.current(500),
+      }),
+      dsl.atRule(
+        "utility",
+        "btn-*",
+        dsl.layer.components(
+          renderPalette((color) =>
+            dsl.match.asModifier(
+              dsl.match.variable(
+                colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+              ),
+            ),
+          ),
+          {
+            color: dsl.match.variable("--btn-color"),
+            "background-color": dsl.match.variable("--btn-bg"),
+            padding: dsl.spacing("4"),
+          },
+        ),
+      ),
+
+      ...PALETTE.map((p) =>
+        dsl.atRule(
+          "utility",
+          `btn/${p}`,
+          dsl.layer.components(
+            `palette-${p}`,
+            dsl.styleList({ padding: dsl.spacing("4") }),
+          ),
+        ),
+      ),
+
+      dsl.atRule(
+        "utility",
+        "btn",
+        dsl.layer.components(dsl.styleList({ padding: dsl.spacing("4") })),
       ),
     ];
 
@@ -381,6 +613,63 @@ describe("themeable = TRUE NO DEFAULT / variants - WITH DEFAULT", () => {
           dsl.layer.components(`btn-outline/${p}`),
         ),
       ),
+    ];
+
+    expect(result).toEqual(expected);
+  });
+});
+
+describe("themeable = TRUE WITH DEFAULT / variants - OPTIONAL", () => {
+  it("drops unresolved variant refs from themeable static components and keeps the default palette entry", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("solid", { "--color": dsl.currentText(500) })
+        .variant("outline", { "--bg": dsl.current(500) })
+        .defaultTheme("secondary")
+        .optionalVariants()
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+          padding: dsl.spacing("4"),
+        }),
+    );
+
+    const expected = [
+      dsl.atRule("theme", "inline", {
+        "--btn-color-solid": dsl.currentText(500),
+        "--btn-bg-outline": dsl.current(500),
+      }),
+      dsl.atRule(
+        "utility",
+        "btn-*",
+        dsl.layer.components(
+          renderPalette((color) =>
+            dsl.match.asModifier(
+              dsl.match.variable(
+                colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
+              ),
+            ),
+          ),
+          {
+            color: dsl.match.variable("--btn-color"),
+            "background-color": dsl.match.variable("--btn-bg"),
+            padding: dsl.spacing("4"),
+          },
+        ),
+      ),
+
+      ...PALETTE.map((p) =>
+        dsl.atRule(
+          "utility",
+          `btn/${p}`,
+          dsl.layer.components(
+            `palette-${p}`,
+            dsl.styleList({ padding: dsl.spacing("4") }),
+          ),
+        ),
+      ),
+
+      dsl.atRule("utility", "btn", dsl.layer.components("btn/secondary")),
     ];
 
     expect(result).toEqual(expected);
@@ -683,7 +972,7 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled("--size", { type: "token", token: "sm", value: "0.875rem" })
+        .controlled("--size", { sm: "0.875rem" })
         .body({ padding: dsl.cssvar("--size") }),
     );
 
@@ -713,7 +1002,9 @@ describe("controlled vars", () => {
         expect(
           result.find(
             (x) =>
-              x.$ast === "at-rule" && x.name === "utility" && x.prelude === "btn",
+              x.$ast === "at-rule" &&
+              x.name === "utility" &&
+              x.prelude === "btn",
           ),
         ).toEqual(
           dsl.atRule(
@@ -744,7 +1035,9 @@ describe("controlled vars", () => {
         expect(
           result.find(
             (x) =>
-              x.$ast === "at-rule" && x.name === "utility" && x.prelude === "btn",
+              x.$ast === "at-rule" &&
+              x.name === "utility" &&
+              x.prelude === "btn",
           ),
         ).toEqual(
           dsl.atRule(
@@ -804,10 +1097,15 @@ describe("controlled vars", () => {
         );
 
         expect(
-          result.filter((x) => x.$ast === "at-rule" && x.name === "custom-variant"),
+          result.filter(
+            (x) => x.$ast === "at-rule" && x.name === "custom-variant",
+          ),
         ).toEqual([
           dsl.atRule("custom-variant", "btn-open (&[data-open='true'])"),
-          dsl.atRule("custom-variant", "btn-disabled (&[aria-disabled='true'])"),
+          dsl.atRule(
+            "custom-variant",
+            "btn-disabled (&[aria-disabled='true'])",
+          ),
         ]);
       });
 
@@ -821,21 +1119,25 @@ describe("controlled vars", () => {
         );
 
         expect(
-          result.filter((x) => x.$ast === "at-rule" && x.name === "custom-variant"),
+          result.filter(
+            (x) => x.$ast === "at-rule" && x.name === "custom-variant",
+          ),
         ).toEqual([
           dsl.atRule("custom-variant", "btn-open (&[data-open='true'])"),
-          dsl.atRule("custom-variant", "btn-group-active (&[data-active='true'])"),
+          dsl.atRule(
+            "custom-variant",
+            "btn-group-active (&[data-active='true'])",
+          ),
         ]);
       });
     });
-
   });
 
   it("token candidates produce a match.variable in utility", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled("--size", { type: "token", token: "sm", value: "0.875rem" })
+        .controlled("--size", { sm: "0.875rem" })
         .body({ padding: dsl.cssvar("--size") }),
     );
 
@@ -861,11 +1163,7 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled(
-          "--size",
-          { type: "token", token: "sm", value: "0.875rem" },
-          { type: "token", token: "lg", value: "1.25rem" },
-        )
+        .controlled("--size", { sm: "0.875rem", lg: "1.25rem" })
         .body({ padding: dsl.cssvar("--size") }),
     );
 
@@ -891,7 +1189,7 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled("--size", { type: "arbitrary", dataType: "length" })
+        .controlled("--size", dsl.match.arbitrary.length())
         .body({ padding: dsl.cssvar("--size") }),
     );
 
@@ -917,7 +1215,7 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled("--size", { type: "bare", dataType: "integer" })
+        .controlled("--size", dsl.match.bare.integer())
         .body({ padding: dsl.cssvar("--size") }),
     );
 
@@ -945,9 +1243,9 @@ describe("controlled vars", () => {
         .vars({ "--size": "1rem" })
         .controlled(
           "--size",
-          { type: "token", token: "sm", value: "0.875rem" },
-          { type: "arbitrary", dataType: "length" },
-          { type: "bare", dataType: "number" },
+          { sm: "0.875rem" },
+          dsl.match.arbitrary.length(),
+          dsl.match.bare.number(),
         )
         .body({ padding: dsl.cssvar("--size") }),
     );
@@ -978,7 +1276,7 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled("--size", { type: "token", token: "sm", value: "0.875rem" })
+        .controlled("--size", { sm: "0.875rem" })
         .body({ padding: dsl.cssvar("--size") }),
     );
 
@@ -1004,7 +1302,7 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled("--size", { type: "token", token: "sm", value: "0.875rem" })
+        .controlled("--size", { sm: "0.875rem" })
         .body({ padding: dsl.cssvar("--size") }),
     );
 
@@ -1023,20 +1321,11 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled(
-          "--size",
-          { type: "token", token: "sm", value: "0.875rem" },
-          {
-            type: "token",
-            token: "md",
-            value: "1rem",
-          },
-          {
-            type: "token",
-            token: "lg",
-            value: "1.25rem",
-          },
-        )
+        .controlled("--size", {
+          sm: "0.875rem",
+          md: "1rem",
+          lg: "1.25rem",
+        })
         .body({ padding: dsl.cssvar("--size") }),
     );
 
@@ -1058,8 +1347,8 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem", "--weight": "400" })
-        .controlled("--size", { type: "arbitrary", dataType: "length" })
-        .controlled("--weight", { type: "bare", dataType: "number" })
+        .controlled("--size", dsl.match.arbitrary.length())
+        .controlled("--weight", dsl.match.bare.number())
         .body({
           padding: dsl.cssvar("--size"),
           fontWeight: dsl.cssvar("--weight"),
@@ -1089,7 +1378,7 @@ describe("controlled vars", () => {
     const result = componentBuilderToDsl(
       component("btn")
         .vars({ "--size": "1rem" })
-        .controlled("--size", { type: "arbitrary", dataType: "length" })
+        .controlled("--size", dsl.match.arbitrary.length())
         .body({ padding: dsl.cssvar("--size") })
         .derive("group", (child) =>
           child.body({

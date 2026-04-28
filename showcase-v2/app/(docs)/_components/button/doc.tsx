@@ -235,7 +235,6 @@ export default {
     },
   },
   cssvars: {
-    "--size": "Base font size and scale factor for padding and gap.",
     "--px":
       "Inline (horizontal) padding. Override to decouple from --btn-size.",
     "--py": "Block (vertical) padding. Override to decouple from --btn-size.",

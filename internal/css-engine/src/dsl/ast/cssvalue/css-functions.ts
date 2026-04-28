@@ -139,7 +139,7 @@ function calcToString(this: {
 export function calc(
   strings: TemplateStringsArray,
   ...values: CssValue<
-    "length" | "percentage" | "number" | "integer" | "angle"
+    "length" | "percentage" | "number" | "integer" | "angle" | "ratio"
   >[]
 ) {
   return withToString(

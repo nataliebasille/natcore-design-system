@@ -13,18 +13,21 @@ import type {
 
 type DefinedVariants<T extends ComponentState> =
   T extends { parent: infer P extends ComponentState } ?
-    keyof T["variants"] | DefinedVariants<P>
-  : keyof T["variants"];
+    keyof T["variants"]["values"] | DefinedVariants<P>
+  : keyof T["variants"]["values"];
 
 type VarsMap = Record<`--${string}`, VarsProperty>;
 
 type UpdateState<T extends ComponentState, Next> = Omit<T, keyof Next> & Next;
 
-type ChildState<N extends string, T extends ComponentState> = {
+type InitialChildState<N extends string, T extends ComponentState> = {
   name: N;
   parent: T;
   vars: {};
-  variants: {};
+  variants: {
+    values: {};
+    selection: T["variants"]["selection"];
+  };
   utilities: {};
   guards: {};
   slots: {};
@@ -64,6 +67,9 @@ type BodyBuilder<T extends ComponentState> = (
 
 export type ComponentBuilder<T extends ComponentState = ComponentState> = {
   state: T;
+  defaultTheme<P extends Palette>(
+    palette: P,
+  ): ComponentBuilder<UpdateState<T, { defaultTheme: P }>>;
   vars<const P extends VarsMap>(
     vars: P,
   ): ComponentBuilder<UpdateState<T, { vars: P }>>;
@@ -71,14 +77,40 @@ export type ComponentBuilder<T extends ComponentState = ComponentState> = {
     name: V,
     vars: P,
   ): ComponentBuilder<
-    UpdateState<T, { variants: T["variants"] & Record<V, P> }>
+    UpdateState<
+      T,
+      {
+        variants: {
+          values: T["variants"]["values"] & Record<V, P>;
+          selection: T["variants"]["selection"];
+        };
+      }
+    >
   >;
-  defaultTheme<P extends Palette>(
-    palette: P,
-  ): ComponentBuilder<UpdateState<T, { defaultTheme: P }>>;
   defaultVariant<const V extends DefinedVariants<T>>(
     variantName: V,
-  ): ComponentBuilder<UpdateState<T, { defaultVariant: V }>>;
+  ): ComponentBuilder<
+    UpdateState<
+      T,
+      {
+        variants: {
+          values: T["variants"]["values"];
+          selection: { mode: "default"; key: V };
+        };
+      }
+    >
+  >;
+  optionalVariants(): ComponentBuilder<
+    UpdateState<
+      T,
+      {
+        variants: {
+          values: T["variants"]["values"];
+          selection: { mode: "optional" };
+        };
+      }
+    >
+  >;
   controlled<
     const V extends keyof T["vars"],
     const C extends ControlledVar["candidates"],
@@ -89,10 +121,7 @@ export type ComponentBuilder<T extends ComponentState = ComponentState> = {
   slot<N extends string>(
     name: N,
   ): ComponentBuilder<
-    UpdateState<
-      T,
-      { slots: T["slots"] & Record<N, { selector: ComponentSlot }> }
-    >
+    UpdateState<T, { slots: T["slots"] & Record<N, ComponentSlot> }>
   >;
   slot<N extends string>(
     name: N,
@@ -115,17 +144,18 @@ export type ComponentBuilder<T extends ComponentState = ComponentState> = {
   body(
     builder: BodyBuilder<T>,
   ): ComponentBuilder<UpdateState<T, { body: StyleRuleBodyBuilder[] }>>;
-  derive<const N extends string, C extends ComponentState>(
-    childName: N,
-    configure: (
-      child: ComponentBuilder<ChildState<N, T>>,
-    ) => ComponentBuilder<C>,
-  ): ComponentBuilder<UpdateState<C, { parent: T }>>;
 
   utility<const U extends string, const B extends StyleRuleBodyBuilder[]>(
     name: U,
     ...styles: B
   ): ComponentBuilder<UpdateState<T, { utilities: UtilityMap<T, U, B> }>>;
+
+  derive<const N extends string, C extends ComponentState>(
+    childName: N,
+    configure: (
+      child: ComponentBuilder<InitialChildState<N, T>>,
+    ) => ComponentBuilder<C>,
+  ): ComponentBuilder<UpdateState<C, { parent: T }>>;
 };
 
 class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
@@ -148,10 +178,39 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
     return new ComponentBuilderImpl({
       ...this.state,
       variants: {
-        ...this.state.variants,
-        [name]: vars,
+        values: {
+          ...this.state.variants.values,
+          [name]: vars,
+        },
+        selection: this.state.variants.selection,
       },
     } as unknown as UpdateState<T, { variants: T["variants"] & Record<V, P> }>);
+  }
+
+  defaultVariant<const V extends DefinedVariants<T>>(variantName: V) {
+    return new ComponentBuilderImpl({
+      ...this.state,
+      variants: {
+        values: this.state.variants.values,
+        selection: { mode: "default", key: variantName },
+      },
+    } as UpdateState<
+      T,
+      { variants: T["variants"] & { selection: { mode: "default"; key: V } } }
+    >);
+  }
+
+  optionalVariants() {
+    return new ComponentBuilderImpl({
+      ...this.state,
+      variants: {
+        values: this.state.variants.values,
+        selection: { mode: "optional" },
+      },
+    } as UpdateState<
+      T,
+      { variants: T["variants"] & { selection: { mode: "optional" } } }
+    >);
   }
 
   defaultTheme<P extends Palette>(palette: P) {
@@ -159,13 +218,6 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
       ...this.state,
       defaultTheme: palette,
     } as UpdateState<T, { defaultTheme: P }>);
-  }
-
-  defaultVariant<const V extends DefinedVariants<T>>(variantName: V) {
-    return new ComponentBuilderImpl({
-      ...this.state,
-      defaultVariant: variantName,
-    } as UpdateState<T, { defaultVariant: V }>);
   }
 
   controlled<
@@ -245,22 +297,27 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
   derive<const N extends string, C extends ComponentState>(
     childName: N,
     configure: (
-      child: ComponentBuilder<ChildState<N, T>>,
+      child: ComponentBuilder<InitialChildState<N, T>>,
     ) => ComponentBuilder<C>,
   ) {
     const childBuilder = new ComponentBuilderImpl({
       name: childName,
       vars: {},
-      variants: {},
+      variants: {
+        values: {},
+        selection: {
+          ...this.state.variants.selection,
+        },
+      },
       body: [],
       parent: this.state,
       utilities: {},
       slots: {},
       guards: {},
-    } as ChildState<N, T>);
+    } as InitialChildState<N, T>);
 
     return configure(
-      childBuilder as ComponentBuilder<ChildState<N, T>>,
+      childBuilder as ComponentBuilder<InitialChildState<N, T>>,
     ) as unknown as ComponentBuilder<UpdateState<C, { parent: T }>>;
   }
 }
@@ -269,16 +326,19 @@ export function component<const N extends string>(name: N) {
   return new ComponentBuilderImpl({
     name,
     vars: {},
-    variants: {},
+    variants: {
+      values: {},
+      selection: { mode: "required" },
+    },
     body: [],
     utilities: {},
     slots: {},
     guards: {},
   } as Omit<
-    ChildState<N, ComponentState>,
+    InitialChildState<N, ComponentState>,
     "parent"
   >) as unknown as ComponentBuilder<
-    Omit<ChildState<N, ComponentState>, "parent">
+    Omit<InitialChildState<N, ComponentState>, "parent">
   >;
 }
 

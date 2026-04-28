@@ -1,4 +1,5 @@
 import type { Pattern } from "@nataliebasille/css-engine";
+import type { ReactNode } from "react";
 
 export function DisplayPattern({ pattern }: { pattern: Pattern }) {
   const { root, value, modifier } = pattern;
@@ -17,15 +18,35 @@ export function DisplayPattern({ pattern }: { pattern: Pattern }) {
         </span>
       )}
       {modifier && (
-        <span>
+        <OptionalSegment optional={modifier.optional}>
           /
           <span className="text-tone-500-accent">
             {"{"}
-            {modifier?.name}
+            {modifier.name}
             {"}"}
           </span>
-        </span>
+        </OptionalSegment>
       )}
+    </span>
+  );
+}
+
+function OptionalSegment({
+  optional,
+  children,
+}: {
+  optional?: boolean;
+  children: ReactNode;
+}) {
+  if (!optional) {
+    return <span>{children}</span>;
+  }
+
+  return (
+    <span>
+      <span className="text-on-tone-50-surface/60">[</span>
+      {children}
+      <span className="text-on-tone-50-surface/60">]</span>
     </span>
   );
 }

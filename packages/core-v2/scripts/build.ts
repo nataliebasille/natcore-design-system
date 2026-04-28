@@ -1,7 +1,7 @@
 import { runTsup } from "./run-tsup.ts";
 import path from "path";
-import fs from "node:fs/promises";
 import { compile } from "../src/compile/index.ts";
+import { resolveCompileFiles } from "./resolve-compile-files.ts";
 
 console.log("🚀 Starting TypeScript build...\n");
 
@@ -24,8 +24,7 @@ await new Promise<void>((resolve, reject) => {
 
 const outDir = path.join(import.meta.dirname, "../dist");
 
-// Get all files recursively from src directory
 const srcDir = path.join(import.meta.dirname, "../src/tailwind");
-const files = await fs.readdir(srcDir, { recursive: true });
+const files = await resolveCompileFiles(process.argv.slice(2), srcDir);
 
 await compile(files, { dist: outDir, src: srcDir });

@@ -1,7 +1,13 @@
 import { PALETTE } from "../../dsl/public";
 import type { ShowcaseJsxNode } from "@nataliebasille/preview-jsx-runtime";
 import type { ExtendsNever } from "../../utils";
-import { createPattern, type Pattern } from "../pattern";
+import {
+  createPattern,
+  type Pattern,
+  type PatternValueToken,
+} from "../pattern";
+import type { MatchValueAst } from "../../dsl/ast/cssvalue/match-value";
+import type { CssDataType, StylePropertyValue } from "../../dsl/public";
 import { type ComponentBuilder } from "./component-builder";
 import {
   isControlledVar,
@@ -38,6 +44,16 @@ type ExtractControlledVars<T extends ComponentState> =
       : never]: T["vars"][K];
     };
 
+type ExtractVariantVars<T extends ComponentState> =
+  T extends { parent: infer P extends ComponentState } ?
+    OwnVariantVars<T> | ExtractVariantVars<P>
+  : OwnVariantVars<T>;
+
+type OwnVariantVars<T extends ComponentState> =
+  T["variants"]["values"][keyof T["variants"]["values"]] extends infer V ?
+    keyof V
+  : never;
+
 type DefinedUtilityKeys<T extends ComponentState> =
   T extends { parent: infer P extends ComponentState } ?
     | keyof T["utilities"]
@@ -45,22 +61,40 @@ type DefinedUtilityKeys<T extends ComponentState> =
     | DefinedUtilityKeys<P>
   : keyof T["utilities"] | ExtractVarName<ExtractControlledVars<T>>;
 
-type DefinedCssVars<T extends ComponentState> =
+type DefinedCssVars<
+  T extends ComponentState,
+  V extends PropertyKey = ExtractVariantVars<T>,
+> =
   T extends { parent: infer P extends ComponentState } ?
-    keyof T["vars"] | DefinedCssVars<P>
-  : keyof T["vars"];
+    ExtractCssVars<T, V> | DefinedCssVars<P, V>
+  : ExtractCssVars<T, V>;
+
+type ExtractCssVars<T extends ComponentState, V extends PropertyKey> = keyof {
+  [K in keyof T["vars"] as
+    T["vars"][K] extends ControlledVar ? never
+    : K extends V ? never
+    : K]: T["vars"][K];
+};
+
+type DocComponentMeta = {
+  name: string;
+  description: string;
+};
+
+type VariantComponentDocKeys<K extends string> = `${K}@variant`;
+
+type ComponentDocMetaComponents<T extends ComponentState> = {
+  [K in DefinedComponentKeys<T>]: DocComponentMeta;
+} & {
+  [K in VariantComponentDocKeys<DefinedComponentKeys<T>>]?: DocComponentMeta;
+};
 
 export type ComponentDocMeta<T extends ComponentBuilder> = {
   title: string;
   description: string;
 } & (T extends ComponentBuilder<infer S extends ComponentState> ?
   {
-    components: {
-      [K in DefinedComponentKeys<S>]: {
-        name: string;
-        description: string;
-      };
-    };
+    components: ComponentDocMetaComponents<S>;
   } & (ExtendsNever<DefinedUtilityKeys<S>> extends true ?
     {
       utilities?: never;
@@ -155,6 +189,9 @@ export function createDoc<
   const cssvars: ComponentDoc["cssvars"] = [];
   const slotEntries: DerivedDocEntry[] = [];
   const customVariantEntries: DerivedDocEntry[] = [];
+  const variantVars = getVariantVars(state);
+  const cssvarDescriptions = (meta as { cssvars?: Record<string, string> })
+    .cssvars;
 
   const resolvedSlots = getSlots(state);
   for (const [name] of Object.entries(resolvedSlots)) {
@@ -178,25 +215,18 @@ export function createDoc<
       if (isControlledVar(varValue)) {
         const varKey = varName.slice(2) as keyof typeof meta.utilities;
         const utilityName = `${componentName}-${varKey}`;
+        const utilityValues = [
+          varValue.default,
+          ...resolveControlledVarValues(varValue.candidates),
+        ].flat();
 
         varReferenceMap.addUtility(varKey, [
           {
-            [varName]: [
-              varValue.default,
-              ...varValue.candidates
-                .filter((c) => c.type === "token")
-                .map((c) => c.value),
-            ].flat(),
+            [varName]: utilityValues,
           },
         ]);
 
         const utilityMeta = meta.utilities[varKey]!;
-
-        cssvars.push({
-          varName: `--${utilityName}`,
-          description: meta.cssvars[varName as keyof typeof meta.cssvars] || "",
-          defaultValue: `${varValue.default}`,
-        });
 
         utilities[varKey] = {
           ...utilityMeta,
@@ -204,20 +234,20 @@ export function createDoc<
             utilityName,
             {
               name: varKey,
-              tokens: varValue.candidates.map((c) =>
-                c.type === "token" ? c.token : c,
-              ),
+              tokens: resolveControlledPatternTokens(varValue.candidates),
             },
             undefined,
           ),
           composesWith: [],
         };
       } else {
-        cssvars.push({
-          varName: `--${componentName}-${varName.slice(2)}`,
-          description: meta.cssvars[varName as keyof typeof meta.cssvars] || "",
-          defaultValue: `${varValue}`,
-        });
+        if (!variantVars.has(varName as `--${string}`)) {
+          cssvars.push({
+            varName: `--${componentName}-${varName.slice(2)}`,
+            description: cssvarDescriptions?.[varName] || "",
+            defaultValue: `${varValue}`,
+          });
+        }
 
         varReferenceMap.addVars({ [varName]: varValue });
       }
@@ -242,29 +272,29 @@ export function createDoc<
     const themeable = themeableDefinition(current);
     const variants = variantDefinition(current);
 
-    components[current.name] = {
-      ...meta.components[current.name as keyof typeof meta.components]!,
-      pattern: createPattern(
-        componentName,
-        variants.state === true ?
-          {
-            name: "variant",
-            default: variants.default,
-            tokens: Object.keys({ ...variants.inherited, ...variants.own }),
-          }
-        : undefined,
-        themeable.state === true ?
-          {
-            name: "palette",
-            default: themeable.default,
-            tokens: PALETTE,
-          }
-        : undefined,
-      ),
-      composesWith: varReferenceMap
-        .composesWith(current.body)
-        .map((id) => ({ type: "utility", id })),
-    };
+    const componentComposesWith: ComposesWith[] = varReferenceMap
+      .composesWith(current.body)
+      .map((id): ComposesWith => ({ type: "utility", id }));
+
+    for (const [entryKey, pattern] of resolveComponentEntries(
+      current.name,
+      componentName,
+      variants,
+      themeable,
+    )) {
+      const componentMeta =
+        meta.components[entryKey as keyof typeof meta.components];
+
+      if (!componentMeta) {
+        throw new Error(`Missing component doc metadata for \"${entryKey}\".`);
+      }
+
+      components[entryKey] = {
+        ...componentMeta,
+        pattern,
+        composesWith: componentComposesWith,
+      };
+    }
   });
 
   return {
@@ -302,4 +332,142 @@ export function createDoc<
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function getVariantVars(state: ComponentState) {
+  const variantVars = new Set<`--${string}`>();
+
+  traverseTopDown(state, (current) => {
+    for (const vars of Object.values(current.variants.values)) {
+      for (const varName of Object.keys(vars)) {
+        variantVars.add(varName as `--${string}`);
+      }
+    }
+  });
+
+  return variantVars;
+}
+
+function resolveComponentEntries(
+  componentKey: string,
+  componentName: string,
+  variants: ReturnType<typeof variantDefinition>,
+  themeable: ReturnType<typeof themeableDefinition>,
+) {
+  const basePattern = createPattern(
+    componentName,
+    undefined,
+    themeable.isThemeable ?
+      {
+        name: "palette",
+        default: themeable.default ?? "inherited",
+        optional: true,
+        tokens: PALETTE,
+      }
+    : undefined,
+  );
+
+  if (!variants.hasVariants) {
+    return [[componentKey, basePattern]] as const;
+  }
+
+  const variantTokens = Object.keys({ ...variants.inherited, ...variants.own });
+  if (variantTokens.length === 1) {
+    const staticVariantPattern = createPattern(
+      `${componentName}-${variantTokens[0]}`,
+      undefined,
+      themeable.isThemeable ?
+        {
+          name: "palette",
+          default: themeable.default ?? "inherited",
+          optional: true,
+          tokens: PALETTE,
+        }
+      : undefined,
+    );
+
+    return variants.selection.mode === "optional" ?
+        ([
+          [componentKey, basePattern],
+          [`${componentKey}@variant`, staticVariantPattern],
+        ] as const)
+      : ([[componentKey, staticVariantPattern]] as const);
+  }
+
+  const variantPattern = createPattern(
+    componentName,
+    {
+      name: "variant",
+      default:
+        variants.selection.mode === "default" ?
+          variants.selection.key
+        : undefined,
+      tokens: variantTokens,
+    },
+    themeable.isThemeable ?
+      {
+        name: "palette",
+        default: themeable.default ?? "inherited",
+        optional: true,
+        tokens: PALETTE,
+      }
+    : undefined,
+  );
+
+  return variants.selection.mode === "optional" ?
+      ([
+        [componentKey, basePattern],
+        [`${componentKey}@variant`, variantPattern],
+      ] as const)
+    : ([[componentKey, variantPattern]] as const);
+}
+
+function resolveControlledVarValues(
+  candidates: ControlledVar["candidates"],
+): Array<StylePropertyValue | StylePropertyValue[]> {
+  const values: Array<StylePropertyValue | StylePropertyValue[]> = [];
+
+  for (const candidate of candidates) {
+    if (isMatchValueCandidate(candidate)) {
+      continue;
+    }
+
+    values.push(...Object.values(candidate));
+  }
+
+  return values;
+}
+
+function resolveControlledPatternTokens(
+  candidates: ControlledVar["candidates"],
+): PatternValueToken[] {
+  const tokens: PatternValueToken[] = [];
+
+  for (const candidate of candidates) {
+    if (isMatchValueCandidate(candidate) === false) {
+      tokens.push(...Object.keys(candidate));
+      continue;
+    }
+
+    for (const valueCandidate of candidate.candidates) {
+      switch (valueCandidate.$twCandidate) {
+        case "arbitrary":
+          tokens.push({ type: "arbitrary", dataType: valueCandidate.dataType });
+          break;
+        case "bare":
+          tokens.push({ type: "bare", dataType: valueCandidate.dataType });
+          break;
+        case "variable":
+          break;
+      }
+    }
+  }
+
+  return tokens;
+}
+
+function isMatchValueCandidate(
+  candidate: ControlledVar["candidates"][number],
+): candidate is MatchValueAst<CssDataType> {
+  return "$ast" in candidate && candidate.$ast === "match-value";
 }

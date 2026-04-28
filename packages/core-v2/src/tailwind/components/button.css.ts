@@ -17,24 +17,11 @@ const module = component("btn")
   .controlled(
     "--size",
     {
-      type: "token",
-      token: "sm",
-      value: dsl.primitive.length.rem(0.75),
+      sm: dsl.primitive.length.rem(0.75),
+      md: BUTTON_SIZE_DEFAULT,
+      lg: dsl.primitive.length.rem(1.25),
     },
-    {
-      type: "token",
-      token: "md",
-      value: BUTTON_SIZE_DEFAULT,
-    },
-    {
-      type: "token",
-      token: "lg",
-      value: dsl.primitive.length.rem(1.75),
-    },
-    {
-      type: "arbitrary",
-      dataType: "length",
-    },
+    dsl.match.arbitrary.length(),
   )
   .variant("solid", {
     "--bg": dsl.current(800),

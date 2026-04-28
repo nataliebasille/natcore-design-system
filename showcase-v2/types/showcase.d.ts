@@ -8,6 +8,9 @@ import type { UtilityTag } from "@/ui/doc/utility-reference";
 export {};
 
 declare global {
+  type DocumentationComponentKey<T extends ComponentBuilder> =
+    keyof ComponentDocMeta<T>["components"];
+
   type DocShowcaseEntry = {
     title?: string;
     description?: string;
@@ -42,7 +45,7 @@ declare global {
     };
 
     components: {
-      [K in keyof ComponentDocMeta<T>["components"]]: {
+      [K in DocumentationComponentKey<T>]: {
         showcases?: DocShowcaseEntry[];
       };
     };

@@ -79,6 +79,7 @@ export function ComponentDocPage<B extends ComponentBuilder>({
                     content: (
                       <UtilityValue
                         values={patternValueToNodes(component.pattern.modifier)}
+                        defaultValue={component.pattern.modifier.default}
                       />
                     ),
                   },
@@ -143,6 +144,7 @@ export function ComponentDocPage<B extends ComponentBuilder>({
                     content: (
                       <UtilityValue
                         values={patternValueToNodes(utility.pattern.modifier)}
+                        defaultValue={utility.pattern.modifier.default}
                       />
                     ),
                   },

@@ -13,27 +13,19 @@ describe("createDoc", () => {
         .vars({ "--size": "1rem" })
         .variant("primary", { "--color": "blue" })
         .defaultVariant("primary")
-        .controlled("--size", {
-          type: "token",
-          token: "sm",
-          value: "0.875rem",
-        })
+        .controlled("--size", { sm: "0.875rem" })
         .utility("icon", { display: "inline-flex" })
         .body({ padding: dsl.cssvar("--size") });
 
       expectTypeOf(builder.state.name).toEqualTypeOf<"btn">();
-      expectTypeOf(builder.state.defaultVariant).toEqualTypeOf<"primary">();
       expectTypeOf(
-        builder.state.variants.primary["--color"],
+        builder.state.variants.selection.key,
+      ).toEqualTypeOf<"primary">();
+      expectTypeOf(
+        builder.state.variants.values.primary["--color"],
       ).toEqualTypeOf<"blue">();
       expectTypeOf(builder.state.vars["--size"].candidates).toExtend<
-        [
-          {
-            type: "token";
-            token: "sm";
-            value: "0.875rem";
-          },
-        ]
+        [{ sm: "0.875rem" }]
       >();
       expectTypeOf(builder.state.utilities).toHaveProperty("icon");
     });
@@ -109,7 +101,13 @@ describe("createDoc", () => {
       const result = createDoc(builder, {
         title: "Button",
         description: "...",
-        components: { btn: { name: "Button", description: "Base" } },
+        components: {
+          btn: { name: "Button", description: "Base" },
+          "btn@variant": {
+            name: "Button Variant",
+            description: "Variant form",
+          },
+        },
       });
 
       expect(result.components["btn"]!.pattern).toEqual({
@@ -122,6 +120,93 @@ describe("createDoc", () => {
       });
     });
 
+    it("component pattern includes both base and variant entries when variants are optional", () => {
+      const builder = component("btn")
+        .variant("primary", { "--color": "blue" })
+        .variant("secondary", { "--color": "gray" })
+        .optionalVariants()
+        .body({ color: dsl.cssvar("--color") });
+
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: {
+          btn: { name: "Button", description: "Base" },
+          "btn@variant": {
+            name: "Button Variant",
+            description: "Variant form",
+          },
+        },
+      });
+
+      expect(result.components["btn"]).toMatchObject({
+        name: "Button",
+        pattern: { root: "btn" },
+      });
+      expect(result.components["btn@variant"]).toMatchObject({
+        name: "Button Variant",
+        description: "Variant form",
+        pattern: {
+          root: "btn",
+          value: {
+            name: "variant",
+            tokens: ["primary", "secondary"],
+          },
+        },
+      });
+    });
+
+    it("optional single variant entries resolve to static component patterns", () => {
+      const builder = component("divider")
+        .variant("v", { "--direction": "column" })
+        .optionalVariants()
+        .body({ "flex-direction": dsl.cssvar("--direction") });
+
+      const result = createDoc(builder, {
+        title: "Divider",
+        description: "...",
+        components: {
+          divider: { name: "Divider", description: "Base" },
+          "divider@variant": {
+            name: "Vertical Divider",
+            description: "Vertical form",
+          },
+        },
+      });
+
+      expect(result.components["divider"]).toMatchObject({
+        name: "Divider",
+        pattern: { root: "divider" },
+      });
+      expect(result.components["divider@variant"]).toMatchObject({
+        name: "Vertical Divider",
+        description: "Vertical form",
+        pattern: { root: "divider-v" },
+      });
+      expect(
+        result.components["divider@variant"]!.pattern.value,
+      ).toBeUndefined();
+    });
+
+    it("required single variant entries resolve to static component patterns", () => {
+      const builder = component("badge")
+        .variant("solid", { "--weight": "700" })
+        .defaultVariant("solid")
+        .body({ "font-weight": dsl.cssvar("--weight") });
+
+      const result = createDoc(builder, {
+        title: "Badge",
+        description: "...",
+        components: {
+          badge: { name: "Badge", description: "Solid badge" },
+        },
+      });
+
+      expect(result.components["badge"]!.pattern).toEqual({
+        root: "badge-solid",
+      });
+    });
+
     it("component pattern includes palette modifier when component uses current color", () => {
       const builder = component("btn")
         .defaultTheme("primary")
@@ -130,14 +215,99 @@ describe("createDoc", () => {
       const result = createDoc(builder, {
         title: "Button",
         description: "...",
-        components: { btn: { name: "Button", description: "Base" } },
+        components: {
+          btn: { name: "Button", description: "Base" },
+          "btn@variant": {
+            name: "Button Variant",
+            description: "Variant form",
+          },
+        },
       });
 
       expect(result.components["btn"]!.pattern.modifier).toEqual({
         name: "palette",
         default: "primary",
+        optional: true,
         tokens: PALETTE,
       });
+    });
+
+    it("component pattern defaults palette to inherited when no default theme is set", () => {
+      const builder = component("btn").body({ color: dsl.current(500) });
+
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: {
+          btn: { name: "Button", description: "Base" },
+        },
+      });
+
+      expect(result.components["btn"]!.pattern.modifier).toEqual({
+        name: "palette",
+        default: "inherited",
+        optional: true,
+        tokens: PALETTE,
+      });
+    });
+
+    it("optional variant entries preserve palette modifiers when themeable", () => {
+      const builder = component("btn")
+        .defaultTheme("primary")
+        .variant("solid", { "--tone": dsl.current(700) })
+        .variant("soft", { "--tone": dsl.current(300) })
+        .optionalVariants()
+        .body({ color: dsl.cssvar("--tone") });
+
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: {
+          btn: { name: "Button", description: "Base" },
+          "btn@variant": {
+            name: "Button Variant",
+            description: "Variant form",
+          },
+        },
+      });
+
+      expect(result.components["btn"]!.pattern).toEqual({
+        root: "btn",
+        modifier: {
+          name: "palette",
+          default: "primary",
+          optional: true,
+          tokens: PALETTE,
+        },
+      });
+      expect(result.components["btn@variant"]!.pattern).toEqual({
+        root: "btn",
+        value: {
+          name: "variant",
+          tokens: ["solid", "soft"],
+        },
+        modifier: {
+          name: "palette",
+          default: "primary",
+          optional: true,
+          tokens: PALETTE,
+        },
+      });
+    });
+
+    it("throws when optional variant metadata is missing", () => {
+      const builder = component("btn")
+        .variant("primary", { "--color": "blue" })
+        .optionalVariants()
+        .body({ color: dsl.cssvar("--color") });
+
+      expect(() =>
+        createDoc(builder, {
+          title: "Button",
+          description: "...",
+          components: { btn: { name: "Button", description: "Base" } },
+        }),
+      ).toThrow('Missing component doc metadata for "btn@variant".');
     });
 
     it("component pattern has no modifier when not themeable", () => {
@@ -198,35 +368,10 @@ describe("createDoc", () => {
       });
     });
 
-    it("uses empty string description when var is not listed in cssvars meta", () => {
-      const builder = component("btn").vars({
-        "--size": "1rem",
-        "--color": "blue",
-      });
-
-      const result = createDoc(builder, {
-        title: "Button",
-        description: "...",
-        components: { btn: { name: "Button", description: "Base" } },
-        // only --size documented; --color intentionally absent
-        cssvars: { "--size": "Controls the size", "--color": "" },
-      });
-
-      expect(result.cssvars).toContainEqual({
-        varName: "--btn-color",
-        description: "",
-        defaultValue: "blue",
-      });
-    });
-
-    it("controlled var appears in cssvars with prefixed varName and its default value", () => {
+    it("does not register controlled vars as cssvars", () => {
       const builder = component("btn")
         .vars({ "--size": "1rem" })
-        .controlled(
-          "--size",
-          { type: "token", token: "sm", value: "0.875rem" },
-          { type: "token", token: "lg", value: "1.5rem" },
-        );
+        .controlled("--size", { sm: "0.875rem" }, { lg: "1.5rem" });
 
       const result = createDoc(builder, {
         title: "Button",
@@ -235,45 +380,90 @@ describe("createDoc", () => {
         utilities: {
           size: { name: "Size", description: "Controls button size" },
         },
-        cssvars: { "--size": "Controls the size of the button" },
       });
 
-      expect(result.cssvars).toContainEqual({
-        varName: "--btn-size",
-        description: "Controls the size of the button",
-        defaultValue: "1rem",
+      expect(result.cssvars).toEqual([]);
+    });
+
+    it("does not allow controlled vars in cssvars meta", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem" })
+        .controlled("--size", { sm: "0.875rem" });
+
+      createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: { btn: { name: "Button", description: "Base" } },
+        utilities: {
+          size: { name: "Size", description: "Controls button size" },
+        },
+        // @ts-expect-error - controlled vars are documented as utilities
+        cssvars: { "--size": "Controls the size" },
       });
     });
 
-    it("controlled vars appear before non-controlled vars in cssvars", () => {
+    it("does not register variant vars as cssvars", () => {
       const builder = component("btn")
         .vars({ "--size": "1rem", "--color": "blue" })
-        .controlled("--size", {
-          type: "token",
-          token: "sm",
-          value: "0.875rem",
-        });
+        .variant("primary", { "--color": "red" });
 
       const result = createDoc(builder, {
         title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
-        utilities: {
-          size: { name: "Size", description: "Controls button size" },
-        },
         cssvars: {
           "--size": "Controls the size",
+        },
+      });
+
+      expect(result.cssvars).toEqual([
+        {
+          varName: "--btn-size",
+          description: "Controls the size",
+          defaultValue: "1rem",
+        },
+      ]);
+    });
+
+    it("does not allow variant vars in cssvars meta", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem", "--color": "blue" })
+        .variant("primary", { "--color": "red" });
+
+      createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: { btn: { name: "Button", description: "Base" } },
+        cssvars: {
+          "--size": "Controls the size",
+          // @ts-expect-error - variant vars are not public CSS variable docs
           "--color": "Controls the color",
         },
       });
+    });
 
-      const sizeIdx = result.cssvars.findIndex(
-        (v) => v.varName === "--btn-size",
-      );
-      const colorIdx = result.cssvars.findIndex(
-        (v) => v.varName === "--btn-color",
-      );
-      expect(sizeIdx).toBeLessThan(colorIdx);
+    it("does not allow parent vars used by child variants in cssvars meta", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem", "--color": "blue" })
+        .derive("group", (child) =>
+          child
+            .variant("active", { "--color": "red" })
+            .body({ color: dsl.cssvar("--color") }),
+        );
+
+      createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: {
+          btn: { name: "Button", description: "Base" },
+          group: { name: "Button Group", description: "Group" },
+        },
+        cssvars: {
+          "--size": "Controls the size",
+          // @ts-expect-error - child variant vars are not public CSS variable docs
+          "--color": "Controls the color",
+        },
+      });
     });
   });
 
@@ -339,11 +529,7 @@ describe("createDoc", () => {
     it("creates a utility entry for each controlled var", () => {
       const builder = component("btn")
         .vars({ "--size": "1rem" })
-        .controlled(
-          "--size",
-          { type: "token", token: "sm", value: "0.875rem" },
-          { type: "token", token: "lg", value: "1.5rem" },
-        );
+        .controlled("--size", { sm: "0.875rem" }, { lg: "1.5rem" });
 
       const result = createDoc(builder, {
         title: "Button",
@@ -354,9 +540,6 @@ describe("createDoc", () => {
             name: "Size",
             description: "Controls button size",
           },
-        },
-        cssvars: {
-          "--size": "Controls the size of the button",
         },
       });
 
@@ -369,11 +552,7 @@ describe("createDoc", () => {
     it("controlled var utility pattern lists token candidates", () => {
       const builder = component("btn")
         .vars({ "--size": "1rem" })
-        .controlled(
-          "--size",
-          { type: "token", token: "sm", value: "0.875rem" },
-          { type: "token", token: "lg", value: "1.5rem" },
-        );
+        .controlled("--size", { sm: "0.875rem" }, { lg: "1.5rem" });
 
       const result = createDoc(builder, {
         title: "Button",
@@ -384,9 +563,6 @@ describe("createDoc", () => {
             name: "Size",
             description: "Controls button size",
           },
-        },
-        cssvars: {
-          "--size": "Controls the size of the button",
         },
       });
 
@@ -399,7 +575,7 @@ describe("createDoc", () => {
     it("controlled var utility pattern includes arbitrary candidates", () => {
       const builder = component("btn")
         .vars({ "--size": "1rem" })
-        .controlled("--size", { type: "arbitrary", dataType: "length" });
+        .controlled("--size", dsl.match.arbitrary.length());
 
       const result = createDoc(builder, {
         title: "Button",
@@ -410,9 +586,6 @@ describe("createDoc", () => {
             name: "Size",
             description: "Controls button size",
           },
-        },
-        cssvars: {
-          "--size": "Controls the size of the button",
         },
       });
 

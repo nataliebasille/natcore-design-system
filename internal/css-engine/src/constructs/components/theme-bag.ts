@@ -8,16 +8,18 @@ import {
 } from "./types";
 import { resolveComponentName } from "./utils";
 
+type VariantThemeBagEntry = {
+  original: `--${string}`;
+  type: "variant";
+  value: Record<string, StylePropertyValue | StylePropertyValue[]>;
+  default?: StylePropertyValue | StylePropertyValue[];
+};
+
 export class ThemeBag {
-  #resolvedName: string;
   #toScoped: Record<`--${string}`, `--${string}-${string}`>;
   #bag: Record<
     `--${string}-${string}`,
-    | {
-        original: `--${string}`;
-        type: "variant";
-        value: Record<string, StylePropertyValue | StylePropertyValue[]>;
-      }
+    | VariantThemeBagEntry
     | {
         original: `--${string}`;
         type: "default";
@@ -41,7 +43,6 @@ export class ThemeBag {
   }> = [];
 
   constructor(state: ComponentState) {
-    this.#resolvedName = resolveComponentName(state);
     this.#toScoped = {};
     this.#bag = {};
 
@@ -108,9 +109,11 @@ export class ThemeBag {
       .visit(value);
   }
 
-  isVariantVar(varName: `--${string}`) {
+  getVariantVar(varName: `--${string}`): VariantThemeBagEntry | undefined {
     const scoped = this.#toScoped[varName];
-    return scoped ? this.#bag[scoped]?.type === "variant" : false;
+    const entry = scoped ? this.#bag[scoped] : undefined;
+
+    return entry?.type === "variant" ? entry : undefined;
   }
 
   get controlledVars() {
@@ -140,7 +143,7 @@ export class ThemeBag {
           };
     });
 
-    Object.entries(state.variants).forEach(([variantName, vars]) => {
+    Object.entries(state.variants.values).forEach(([variantName, vars]) => {
       Object.entries(vars).forEach((keyValue) => {
         const varName = keyValue[0] as `--${string}`;
         const value = keyValue[1];
@@ -148,11 +151,20 @@ export class ThemeBag {
 
         this.#toScoped[varName] = scopedName;
 
-        if (!this.#bag[scopedName]) {
+        if (
+          !this.#bag[scopedName] ||
+          this.#bag[scopedName]?.type === "default"
+        ) {
+          const defaultValue =
+            this.#bag[scopedName]?.type === "default" ?
+              this.#bag[scopedName].value
+            : undefined;
+
           this.#bag[scopedName] = {
             type: "variant",
             original: varName,
             value: {},
+            ...(defaultValue ? { default: defaultValue } : {}),
           };
         }
 

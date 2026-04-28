@@ -1,17 +1,12 @@
 import { defaultValues } from "./toggle-playground-controls";
 import { renderToMarkup } from "@nataliebasille/preview-jsx-runtime";
 import { getTogglePlaygroundShowcase } from "./get-showcase";
-import { codeToHtml } from "shiki/bundle/web";
 import { TogglePlaygroundClient } from "./toggle-playground-client";
+import { highlightPlaygroundMarkup } from "@/app/_ui/playground/highlight-playground-markup";
 
 export default async function TogglePlayground() {
-  const initialHtml = await codeToHtml(
+  const initialHtml = await highlightPlaygroundMarkup(
     renderToMarkup(getTogglePlaygroundShowcase(defaultValues)),
-    {
-      lang: "html",
-      theme: "github-dark",
-      structure: "inline",
-    },
   );
 
   return <TogglePlaygroundClient initialHtml={initialHtml} />;

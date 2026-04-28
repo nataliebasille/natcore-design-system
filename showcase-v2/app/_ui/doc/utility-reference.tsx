@@ -77,6 +77,15 @@ export const UtilityValue = ({
           </Fragment>
         ))
       : <>{values}</>}
+      {defaultValue && (
+        <>
+          <span className="mx-1 text-on-tone-50-surface/40">{divider}</span>
+          <span className="text-on-tone-50-surface/50">default:</span>
+          <span className="font-mono text-tone-500-accent">
+            {defaultValue}
+          </span>
+        </>
+      )}
     </>
   );
 };

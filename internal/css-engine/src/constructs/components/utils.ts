@@ -87,10 +87,10 @@ export function resolveComponentName(state: ComponentState): string {
 export function themeableDefinition(state: ComponentState) {
   return isComponentThemeable(state) ?
       ({
-        state: true,
+        isThemeable: true,
         default: state.defaultTheme,
       } as const)
-    : ({ state: false } as const);
+    : ({ isThemeable: false } as const);
 }
 
 export function variantDefinition(state: ComponentState) {
@@ -99,7 +99,7 @@ export function variantDefinition(state: ComponentState) {
 
   stylesheetVisitorBuilder()
     .on("css-var", (ast) => {
-      if (themeBag.isVariantVar(ast.name as `--${string}`)) {
+      if (themeBag.getVariantVar(ast.name as `--${string}`)) {
         variantVarsInBody.add(ast.name as `--${string}`);
       }
       return ast;
@@ -107,16 +107,14 @@ export function variantDefinition(state: ComponentState) {
     .visit(state.body);
 
   if (variantVarsInBody.size === 0) {
-    return { state: false } as const;
+    return { hasVariants: false } as const;
   }
 
   const inheritedVariants: Record<string, ThemeProperties> = {};
-  let defaultVariant = state.defaultVariant;
   let current = state.parent;
 
   while (current) {
-    defaultVariant ??= current.defaultVariant;
-    for (const [variantName, vars] of Object.entries(current.variants)) {
+    for (const [variantName, vars] of Object.entries(current.variants.values)) {
       if (
         Object.keys(vars).some((k) => variantVarsInBody.has(k as `--${string}`))
       ) {
@@ -127,10 +125,10 @@ export function variantDefinition(state: ComponentState) {
   }
 
   return {
-    state: true,
-    own: state.variants,
+    hasVariants: true,
+    own: state.variants.values,
     inherited: inheritedVariants,
-    default: defaultVariant,
+    selection: state.variants.selection,
   } as const;
 }
 
@@ -145,9 +143,9 @@ function isComponentThemeable(state: ComponentState): boolean {
     .visit([
       state.body,
       state.vars,
-      state.variants,
+      state.variants.values,
       state.parent?.vars ?? {},
-      state.parent?.variants ?? {},
+      state.parent?.variants.values ?? {},
     ]);
 
   return themeable;
