@@ -1,15 +1,55 @@
-import { component_deprecated, dsl } from "@nataliebasille/css-engine";
+import { component, dsl } from "@nataliebasille/css-engine";
 
-export default component_deprecated("list", {
-  variants: {
-    default: {
-      "--item-hover-bg": dsl.current(200),
-      "--item-hover-fg": dsl.currentText(200),
-      "--item-active-bg": dsl.current(500),
-      "--item-active-fg": dsl.currentText(500),
-    },
-  },
-  styles: [
+const module = component("list")
+  .vars({
+    "--item-padding": dsl.spacing("2"),
+    "--item-padding-right": "0",
+    "--item-margin-left": "0",
+    "--item-cursor": "pointer",
+    "--item-active-background": dsl.current(500),
+    "--item-active-color": dsl.currentText(500),
+    "--item-marker-content": '""',
+    "--item-marker-display": "none",
+    "--item-marker-font-size": "1.875rem",
+    "--item-marker-top": "-12px",
+    "--item-counter-reset": "none",
+    "--item-counter-increment": "none",
+    "--item-hover-background": dsl.current(200),
+    "--item-hover-color": dsl.currentText(200),
+  })
+  .variant("disc", {
+    "--item-padding": "0",
+    "--item-padding-right": "20px",
+    "--item-margin-left": "20px",
+    "--item-cursor": "inherit",
+    "--item-marker-content": '"•"',
+    "--item-marker-display": "inline-block",
+    "--item-counter-reset": "none",
+    "--item-counter-increment": "none",
+    "--item-hover-background": "inherit",
+    "--item-hover-color": "inherit",
+    "--item-active-background": "inherit",
+    "--item-active-color": "inherit",
+  })
+  .variant("decimal", {
+    "--item-padding": "0",
+    "--item-padding-right": "20px",
+    "--item-margin-left": "20px",
+    "--item-cursor": "inherit",
+    "--item-marker-content": 'counter(list-counter) "."',
+    "--item-marker-display": "inline-block",
+    "--item-marker-font-size": "1rem",
+    "--item-marker-top": "0px",
+    "--item-counter-reset": "list-counter",
+    "--item-counter-increment": "list-counter",
+    "--item-hover-background": "inherit",
+    "--item-hover-color": "inherit",
+    "--item-active-background": "inherit",
+    "--item-active-color": "inherit",
+  })
+  .slot("item", "data-attr")
+  .optionalVariants()
+  .body(({ slot }) => [
     "flex",
     "flex-col",
     "gap-2",
@@ -17,86 +57,57 @@ export default component_deprecated("list", {
       padding: "0",
       margin: "0",
       "list-style": "none",
+      "counter-reset": dsl.cssvar("--item-counter-reset"),
 
       $: {
-        ["> .list-item"]: {
-          display: "block",
-          padding: `${dsl.spacing("2")}`,
-          margin: "0",
-          cursor: "pointer",
-          width: "100%",
-          "border-radius": dsl.cssvar("--radius-lg"),
-          "line-height": dsl.cssvar("--leading-tight"),
-        },
-
-        [dsl.select.parent(":not(.list-disc):not(.list-decimal) > .list-item")]:
+        [`> ${slot("item")}`]: [
+          "block",
+          "w-full",
           {
+            padding: dsl.cssvar("--item-padding"),
+            "padding-right": dsl.cssvar("--item-padding-right"),
+            margin: "0",
+            "margin-left": dsl.cssvar("--item-margin-left"),
+            cursor: dsl.cssvar("--item-cursor"),
+            "border-radius": dsl.cssvar("--radius-lg"),
+            "line-height": dsl.cssvar("--leading-tight"),
+            "counter-increment": dsl.cssvar("--item-counter-increment"),
+
             $: {
               [dsl.select.parent(":hover, &:focus")]: {
-                background: dsl.cssvar("--item-hover-bg"),
-                color: dsl.cssvar("--item-hover-fg"),
+                background: dsl.cssvar("--item-hover-background"),
+                color: dsl.cssvar("--item-hover-color"),
               },
 
               [dsl.select.parent(".active")]: {
-                "background-color": dsl.cssvar("--item-active-bg"),
-                color: dsl.cssvar("--item-active-fg"),
+                "background-color": dsl.cssvar("--item-active-background"),
+                color: dsl.cssvar("--item-active-color"),
 
                 $: {
                   [dsl.select.parent(":hover, &:focus")]: {
-                    "background-color": dsl.cssvar("--item-active-bg"),
-                    color: dsl.cssvar("--item-active-fg"),
+                    "background-color": dsl.cssvar("--item-active-background"),
+                    color: dsl.cssvar("--item-active-color"),
                   },
                 },
               },
-            },
-          },
 
-        [dsl.select.parent(".list-disc .list-item, &.list-decimal .list-item")]:
-          {
-            "margin-left": "20px",
-            padding: "0",
-            "padding-right": "20px",
-            "line-height": dsl.cssvar("--leading-tight"),
-            cursor: "inherit",
-
-            $: {
-              [dsl.select.pseudo("before")]: {
-                content: '"•"',
-                display: "inline-block",
-                "font-size": "1.875rem",
+              [dsl.select.parent("::before")]: {
+                content: dsl.cssvar("--item-marker-content"),
+                display: dsl.cssvar("--item-marker-display"),
+                "font-size": dsl.cssvar("--item-marker-font-size"),
                 "padding-right": "0.5rem",
                 "margin-left": "-20px",
                 width: "20px",
                 height: "20px",
                 position: "relative",
-                top: "-12px",
+                top: dsl.cssvar("--item-marker-top"),
                 "vertical-align": "top",
               },
-              [dsl.select.parent(":hover, &:focus")]: {
-                background: "inherit",
-                color: "inherit",
-              },
             },
           },
-
-        [dsl.select.parent(".list-decimal")]: {
-          "counter-reset": "list-counter",
-
-          $: {
-            [".list-item"]: {
-              "counter-increment": "list-counter",
-
-              $: {
-                [dsl.select.pseudo("before")]: {
-                  content: 'counter(list-counter) "."',
-                  "font-size": "1rem",
-                  top: "0px",
-                },
-              },
-            },
-          },
-        },
+        ],
       },
     },
-  ],
-});
+  ]);
+
+export default module;
