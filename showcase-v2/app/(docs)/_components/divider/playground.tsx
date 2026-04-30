@@ -1,13 +1,18 @@
-import { defaultValues } from './divider-playground-controls'
-import { renderToMarkup } from '@nataliebasille/preview-jsx-runtime'
-import { getDividerPlaygroundShowcase } from './get-showcase'
-import { DividerPlaygroundClient } from './divider-playground-client'
-import { highlightPlaygroundMarkup } from '@/app/_ui/playground/highlight-playground-markup'
+import { defaultValues } from "./divider-playground-controls";
+import { renderToMarkup } from "@nataliebasille/preview-jsx-runtime";
+import { getDividerPlaygroundShowcase } from "./get-showcase";
+import { codeToHtml } from "shiki/bundle/web";
+import { DividerPlaygroundClient } from "./divider-playground-client";
 
 export default async function DividerPlayground() {
-  const initialHtml = await highlightPlaygroundMarkup(
-    renderToMarkup(getDividerPlaygroundShowcase(defaultValues))
-  )
+  const initialHtml = await codeToHtml(
+    renderToMarkup(getDividerPlaygroundShowcase(defaultValues)),
+    {
+      lang: "html",
+      theme: "github-dark",
+      structure: "inline",
+    },
+  );
 
-  return <DividerPlaygroundClient initialHtml={initialHtml} />
+  return <DividerPlaygroundClient initialHtml={initialHtml} />;
 }

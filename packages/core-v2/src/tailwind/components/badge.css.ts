@@ -9,7 +9,7 @@ const module = component("badge")
   .variant("soft", {
     "--bg": dsl.current(100),
     "--fg": dsl.current(800),
-    "--border": dsl.current(600),
+    "--border": dsl.current(200),
   })
   .variant("outline", {
     "--bg": "transparent",

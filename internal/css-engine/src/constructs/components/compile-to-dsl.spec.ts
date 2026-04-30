@@ -271,6 +271,36 @@ describe("themeable = FALSE / variants - NO DEFAULT", () => {
 
     expect(result).toEqual(expected);
   });
+
+  it("bridges variant vars used in utilities as CSS custom properties on the dynamic element", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("primary", { "--hover-bg": "blue" })
+        .variant("secondary", { "--hover-bg": "gray" })
+        .body({ color: dsl.cssvar("--hover-bg") })
+        .utility("hover", { "background-color": dsl.cssvar("--hover-bg") }),
+    );
+
+    expect(result).toEqual([
+      dsl.atRule("theme", "inline", {
+        "--btn-hover-bg-primary": "blue",
+        "--btn-hover-bg-secondary": "gray",
+      }),
+      dsl.atRule(
+        "utility",
+        "btn-*",
+        dsl.layer.components(
+          dsl.styleList({ "--btn-hover-bg": dsl.match.variable("--btn-hover-bg") }),
+          dsl.styleList({ color: dsl.match.variable("--btn-hover-bg") }),
+        ),
+      ),
+      dsl.atRule(
+        "utility",
+        "btn-hover",
+        dsl.styleList({ "background-color": dsl.cssvar("--btn-hover-bg") }),
+      ),
+    ]);
+  });
 });
 
 describe("themeable = FALSE / variants - WITH DEFAULT", () => {

@@ -5,14 +5,12 @@ export default {
   description:
     "Flexible separators for splitting content horizontally or vertically. Add optional label content, switch orientation with the v variant, and adjust where the label sits with the placement utility.",
   atAGlance: (
-    <ui-div className="md:grid-cols-[minmax(0,1fr)_auto] grid w-full gap-4">
+    <ui-div className="grid w-full gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
       <ui-div className="space-y-3">
         <div className="space-y-2">
           <p className="text-sm opacity-75">Section header</p>
           <div className="divider/primary">Overview</div>
-          <p className="text-sm opacity-75">
-            Supporting content continues below.
-          </p>
+          <p className="text-sm opacity-75">Supporting content continues below.</p>
         </div>
       </ui-div>
 
@@ -40,7 +38,7 @@ export default {
     "divider@variant": {
       name: "Vertical Divider",
       description:
-        "Creates a vertical separator for side-by-side layouts, with optional label content and the same palette modifiers as the horizontal divider.",
+        "Adds the v variant to rotate the divider into a vertical separator while keeping the same palette and content behavior.",
       showcases: [
         {
           title: "Vertical",
@@ -55,7 +53,14 @@ export default {
     "place-content": {
       name: "Content Placement",
       description:
-        "Moves the divider label toward the start, center, or end of the available line space. Compose it with either orientation when the default centered label needs to align with surrounding content.",
+        "Moves the divider label toward the start, center, or end of the available line space. Accepts named tokens or arbitrary percentages.",
+    },
+  },
+  sections: [
+    {
+      title: "Placement Utility",
+      description:
+        "Compose divider-place-content-* with either orientation when the default centered label needs to align with surrounding content.",
       showcases: [
         {
           title: "Named placements",
@@ -63,6 +68,10 @@ export default {
         },
       ],
     },
+  ],
+  cssvars: {
+    "--place-content":
+      "Controls the percentage of line space reserved before the divider label. The default is 50%.",
   },
 } satisfies Documentation<
   typeof import("../../../../../packages/core-v2/src/tailwind/components/divider.css.ts").default
@@ -70,7 +79,7 @@ export default {
 
 function horizontalShowcase() {
   return (
-    <ui-div className="md:grid-cols-2 grid w-full gap-4">
+    <ui-div className="grid w-full gap-4 md:grid-cols-2">
       <div className="space-y-2">
         <span className="text-sm opacity-75">Without label</span>
         <div className="divider/surface"></div>
@@ -86,14 +95,14 @@ function horizontalShowcase() {
 
 function verticalShowcase() {
   return (
-    <ui-div className="md:grid-cols-2 grid w-full gap-4">
-      <div className="bg-surface/40 flex h-28 items-center justify-center gap-4 rounded-2xl px-4">
+    <ui-div className="grid w-full gap-4 md:grid-cols-2">
+      <div className="flex h-28 items-center justify-center gap-4 rounded-2xl bg-surface/40 px-4">
         <span className="text-sm opacity-75">Left pane</span>
         <div className="divider-v/primary h-full"></div>
         <span className="text-sm opacity-75">Right pane</span>
       </div>
 
-      <div className="bg-surface/40 flex h-28 items-center justify-center gap-4 rounded-2xl px-4">
+      <div className="flex h-28 items-center justify-center gap-4 rounded-2xl bg-surface/40 px-4">
         <span className="text-sm opacity-75">Choice A</span>
         <div className="divider-v/success h-full">OR</div>
         <span className="text-sm opacity-75">Choice B</span>
@@ -105,13 +114,13 @@ function verticalShowcase() {
 function placementShowcase() {
   return (
     <ui-div className="flex w-full flex-col gap-4">
-      <div className="divider/primary divider-place-content-before-start">
+      <div className="divider-place-content-before-start divider/primary">
         Start aligned
       </div>
-      <div className="divider/secondary divider-place-content-before-center">
+      <div className="divider-place-content-before-center divider/secondary">
         Center aligned
       </div>
-      <div className="divider/accent divider-place-content-before-end">
+      <div className="divider-place-content-before-end divider/accent">
         End aligned
       </div>
     </ui-div>

@@ -3,6 +3,7 @@ import type { PropsWithChildren } from "react";
 import NavLink from "../nav-link";
 import { twMerge } from "tailwind-merge";
 import { SidebarToggle } from "./sidebar-toggle";
+import { Overline } from "../layout/overline";
 
 export type SidebarProps = PropsWithChildren<{
   className?: string;
@@ -25,9 +26,9 @@ export type SidebarGroupProps = PropsWithChildren<{
 export function SidebarGroup({ header, children }: SidebarGroupProps) {
   return (
     <div className="flex flex-col">
-      <div className="mb-2 border-transparent pt-4 pb-0 text-[.675rem] tracking-[.2em] text-(--tone-current-fg)/50 uppercase">
+      <Overline className="mb-2 pt-4 pb-0">
         {header}
-      </div>
+      </Overline>
 
       <ul className="flex flex-col gap-1 text-tone-500-primary dark:text-tone-900-primary">
         {children}

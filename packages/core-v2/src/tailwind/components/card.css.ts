@@ -6,6 +6,9 @@ const module = component("card")
     "--fg": dsl.currentText(700),
     "--border": dsl.current(600),
     "--section-border": dsl.current(600, 0.55),
+    "--hover-bg": dsl.current(600),
+    "--hover-fg": dsl.currentText(600),
+    "--hover-border": dsl.current(500),
   })
   .variant("soft", {
     "--bg": dsl.current(100),

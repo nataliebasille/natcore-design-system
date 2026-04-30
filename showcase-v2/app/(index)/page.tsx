@@ -1,164 +1,155 @@
+import { ArrowRightIcon } from "@/ui/icons";
+import { ComponentsIcon } from "@/ui/icons/components";
+import { GuidelinesIcon } from "@/ui/icons/guidelines";
+import { TokenIcon } from "@/ui/icons/token";
+import { Overline } from "@/ui/layout/overline";
+import { PALETTE } from "@nataliebasille/css-engine";
+import { twMerge } from "tailwind-merge";
+
+const BG_COLORS: Record<(typeof PALETTE)[number], string> = {
+  primary: "bg-tone-500-primary",
+  secondary: "bg-tone-500-secondary",
+  accent: "bg-tone-500-accent",
+  surface: "bg-tone-500-surface",
+  success: "bg-tone-500-success",
+  danger: "bg-tone-500-danger",
+  disabled: "bg-tone-500-disabled",
+};
+
 export default function Home() {
   return (
     <article>
-      <header>
-        <h1>Natcore Design System v2</h1>
-        <p>
-          Natcore v2 is a design system that is meant to survive different
-          stacks. The core surface area is CSS: tokens, utilities, and component
-          styles applied through class names. If your product renders HTML,
-          Natcore can style it.
-        </p>
-        <p>
-          Framework packages (React, Svelte, Vue) are optional. They exist for
-          ergonomics, and they map to the same CSS contract. If something only
-          works through a wrapper, that is a problem to fix, not a feature.
-        </p>
-      </header>
+      <h1>
+        <span>Natcore</span>
+        <br />
+        <span className="text-(--tone-current-fg)/70">Design System</span>
+      </h1>
 
-      <section aria-labelledby="requirements">
-        <h2 id="requirements">Requirements</h2>
-        <ul>
-          <li>
-            <p>
-              <strong>Tailwind CSS is required.</strong>
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>OKLCH support is required.</strong>
-            </p>
-          </li>
-        </ul>
-      </section>
+      <p className="max-w-lg">
+        A CSS-first design system built to survive different stacks. Tokens,
+        utilities, and component styles applied through class names — if your
+        product renders HTML, Natcore can style it.
+      </p>
 
-      <section aria-labelledby="what-you-get">
-        <h2 id="what-you-get">What Natcore provides</h2>
-        <ul>
-          <li>
-            <p>
-              <strong>Tokens</strong> as CSS variables for color, typography,
-              spacing, radii, shadow, and motion. These tokens are the source of
-              truth for visual decisions.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Utilities</strong> that compose directly on markup and
-              stay compatible with Tailwind conventions. You should be able to
-              build most UI by composing utilities, not by writing custom CSS
-              for every screen.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Component styles</strong> implemented as reusable CSS
-              patterns you opt into with classes. Modifiers are used to express
-              intent consistently, rather than inventing one off class names.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>A plugin</strong> used to customize and add themes, and to
-              keep configuration centralized.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Framework packages and icons</strong> for React, Svelte,
-              Vue, plus a separate icons package.
-            </p>
-          </li>
-        </ul>
-      </section>
+      <div className="divider my-8" />
 
-      <section aria-labelledby="how-to-use">
-        <h2 id="how-to-use">How you use Natcore</h2>
-        <p>
-          Import the core package from the same stylesheet where you import
-          Tailwind. After that, usage is simple: write HTML, compose Tailwind
-          utilities, and add Natcore utilities and component classes where you
-          want Natcore behavior.
-        </p>
+      <div className="flex flex-col">
+        <Overline>Principles</Overline>
 
-        <pre>
-          <code>@import "@nataliebasille/natcore-design-system";</code>
-        </pre>
+        <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 tablet:gap-4 desktop:grid-cols-4">
+          <InfoCard
+            icon={
+              <span className="inline-block aspect-square text-xs">01</span>
+            }
+            title="Stack agnostic"
+            description="The core is CSS. If your product renders HTML, Natcore can style it."
+          />
 
-        <p>
-          Installation and configuration details, including plugin setup, are
-          documented on the Installation page.
-        </p>
-      </section>
+          <InfoCard
+            icon={
+              <span className="inline-block aspect-square text-xs">02</span>
+            }
+            title="Composable"
+            description="Build UI by composing utilities and tokens — not one-off custom CSS."
+          />
+          <InfoCard
+            icon={
+              <span className="inline-block aspect-square text-xs">03</span>
+            }
+            title="Consistent"
+            description="Modifiers express intent. Scan markup and understand it without reading implementation."
+          />
+          <InfoCard
+            icon={
+              <span className="inline-block aspect-square text-xs">04</span>
+            }
+            title="Themeable"
+            description="Same HTML renders under any theme. Switch with a single data attribute."
+          />
+        </div>
+      </div>
 
-      <section aria-labelledby="theming">
-        <h2 id="theming">Theming</h2>
-        <p>
-          Themes are selected via a <code>data-theme</code> attribute. Theme
-          changes should not require markup changes. The point is that the same
-          HTML can render correctly under different themes.
-        </p>
+      <div className="divider my-8" />
 
-        <pre>
-          <code>&lt;html data-theme="dark"&gt; ... &lt;/html&gt;</code>
-        </pre>
+      <div className="flex flex-col">
+        <Overline>Explore</Overline>
 
-        <p>Tokens are exposed as CSS variables. Example:</p>
+        <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 tablet:gap-4 desktop:grid-cols-3">
+          <InfoCard
+            icon={<TokenIcon className="h-4 w-4" />}
+            title="Token"
+            description="Color, spacing, typography, radii, shadow, and motion as CSS variables"
+            href="nowhere right now"
+          />
+          <InfoCard
+            icon={<ComponentsIcon className="h-4 w-4" />}
+            title="Components"
+            description="Everything you need to build consistent interfaces"
+          />
+          <InfoCard
+            icon={<GuidelinesIcon className="h-4 w-4" />}
+            title="Guidelines"
+            description="Variants, tones, naming conventions, and theming rules"
+          />
+        </div>
+      </div>
 
-        <pre>
-          <code>--color-primary</code>-500
-        </pre>
-      </section>
+      <div className="divider my-8" />
 
-      <section aria-labelledby="conventions">
-        <h2 id="conventions">Conventions</h2>
-        <p>
-          Natcore stays coherent by being strict about vocabulary and naming.
-          You should be able to scan markup and understand intent without
-          reading implementation code.
-        </p>
+      <div className="">
+        <Overline>Core Tokens</Overline>
 
-        <p>
-          Modifiers are the standard way to express variants and tones. Current
-          vocabulary includes variants
-          <code>solid</code>, <code>outline</code>, <code>ghost</code>,{" "}
-          <code>soft</code>, <code>ghost-outline</code>
-          and tones <code>primary</code>, <code>secondary</code>,{" "}
-          <code>accent</code>, <code>surface</code>.
-        </p>
-
-        <pre>
-          <code>
-            &lt;div class="component component-variant/tone"&gt;...&lt;/div&gt;
-          </code>
-        </pre>
-
-        <ul>
-          <li>
-            <p>
-              Prefer tokens over raw values when a decision is meant to repeat.
-            </p>
-          </li>
-          <li>
-            <p>
-              Prefer modifiers over creating new class names when expressing
-              variants and tones.
-            </p>
-          </li>
-          <li>
-            <p>
-              If you need the same workaround twice, the system is missing a
-              token, a utility, or a modifier.
-            </p>
-          </li>
-        </ul>
-      </section>
-
-      <footer>
-        <p>
-          Next: <a href="./installation">Installation</a>
-        </p>
-      </footer>
+        <div className="flex flex-wrap gap-3">
+          {PALETTE.map((color) => (
+            <div
+              key={color}
+              className="badge-soft/surface flex items-center rounded-lg px-3 py-1.5"
+            >
+              <span
+                className={twMerge(
+                  BG_COLORS[color],
+                  `mr-2 inline-block h-3 w-3 rounded-sm`,
+                )}
+              ></span>
+              {color}
+            </div>
+          ))}
+        </div>
+      </div>
     </article>
+  );
+}
+
+function InfoCard({
+  icon,
+  title,
+  description,
+  href,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  href?: string;
+}) {
+  return (
+    <div className={twMerge("card card-soft/surface", href && "card-hover")}>
+      <div data-slot="content" className="flex flex-col gap-1 tablet:gap-2">
+        <span className="flex items-center gap-2">
+          <span className="inline-flex aspect-square size-7 items-center justify-center rounded-md bg-tone-50-surface text-on-tone-50-surface">
+            {icon}
+          </span>
+          {title}
+        </span>
+        <span className="flex-1 text-xs/relaxed text-(--tone-current-fg)/70">
+          {description}
+        </span>
+
+        {href && (
+          <a className="mt-4 flex items-center-safe gap-1 text-xs tracking-wider uppercase">
+            Explore <ArrowRightIcon className="size-3" />
+          </a>
+        )}
+      </div>
+    </div>
   );
 }

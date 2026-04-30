@@ -145,7 +145,36 @@ const themeableStaticComponentsGenerator: GeneratorReduceFn = (acc, curr) => {
 
 const dynamicComponentGenerator: GeneratorReduceFn = (acc, curr) => {
   if (curr.variants.hasVariants) {
+    // Bridge variant vars used in utilities onto the dynamic element so
+    // utilities can read them via plain var().
+    const utilityVariantVarNames = new Set<`--${string}`>();
+    Object.values(curr.utilities).forEach((body) => {
+      stylesheetVisitorBuilder()
+        .on("css-var", (ast) => {
+          if (curr.themeBag.getVariantVar(ast.name as `--${string}`)) {
+            utilityVariantVarNames.add(
+              curr.themeBag.tryScope(ast.name as `--${string}`),
+            );
+          }
+          return ast;
+        })
+        .visit(normalizeStyleBuilders(curr.state, body));
+    });
+
+    const bridge =
+      utilityVariantVarNames.size > 0 ?
+        dsl.styleList(
+          Object.fromEntries(
+            [...utilityVariantVarNames].map((scopedName) => [
+              scopedName,
+              dsl.match.variable(scopedName),
+            ]),
+          ) as dsl.StyleProperties,
+        )
+      : null;
+
     appendComponentIfExists(acc.body, `${curr.name}-*`, [
+      bridge,
       curr.themeable.isThemeable &&
         renderPalette((color) =>
           dsl.match.asModifier(

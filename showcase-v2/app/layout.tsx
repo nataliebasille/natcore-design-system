@@ -34,7 +34,7 @@ export default async function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"
         />
       </head>
-      <body className="grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_minmax(32rem,1fr)] grid-rows-[auto_1fr] overflow-hidden bg-tone-50-surface palette-surface max-tablet:grid-cols-1">
+      <body className="grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_minmax(32rem,1fr)] grid-rows-[auto_1fr] overflow-hidden bg-tone-50-surface palette-surface max-tablet:grid-cols-1 max-tablet:grid-rows-[auto_auto_1fr]">
         <ThemeProvider>
           <SidebarProvider>
             <Header className="col-span-2 border-b border-b-tone-600-surface/30 bg-tone-50-surface" />
@@ -48,7 +48,7 @@ export default async function RootLayout({
 
               {renderSidebarLinks(links)}
             </Sidebar>
-            <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-tone-50-surface px-4 max-tablet:col-span-2">
+            <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-tone-50-surface p-6 max-tablet:col-span-2">
               {children}
             </main>
           </SidebarProvider>
