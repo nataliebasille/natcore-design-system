@@ -71,10 +71,6 @@ export default {
       ],
     },
   ],
-  cssvars: {
-    "--place-content":
-      "Controls the percentage of line space reserved before the divider label. The default is 50%.",
-  },
 } satisfies Documentation<
   typeof import("../../../../../packages/core-v2/src/tailwind/components/divider.css.ts").default
 >;
