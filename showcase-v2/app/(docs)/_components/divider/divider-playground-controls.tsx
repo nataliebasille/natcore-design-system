@@ -86,7 +86,7 @@ type DirectionControlProps = {
 
 function DirectionControl({ value, onChange }: DirectionControlProps) {
   return (
-    <div className="btn-group-ghost btn-size-sm -ml-(--btn-padding-inline)">
+    <div className="-ml-(--btn-padding-inline) btn-group-ghost btn-size-sm">
       <label>
         Horizontal
         <input

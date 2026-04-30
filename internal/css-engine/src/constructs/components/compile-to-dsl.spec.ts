@@ -290,7 +290,9 @@ describe("themeable = FALSE / variants - NO DEFAULT", () => {
         "utility",
         "btn-*",
         dsl.layer.components(
-          dsl.styleList({ "--btn-hover-bg": dsl.match.variable("--btn-hover-bg") }),
+          dsl.styleList({
+            "--btn-hover-bg": dsl.match.variable("--btn-hover-bg"),
+          }),
           dsl.styleList({ color: dsl.match.variable("--btn-hover-bg") }),
         ),
       ),

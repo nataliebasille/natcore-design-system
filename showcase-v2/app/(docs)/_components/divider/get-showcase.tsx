@@ -12,7 +12,7 @@ export function getDividerPlaygroundShowcase(values: DividerControlValues) {
 
   if (values.direction === "vertical") {
     return (
-      <div className="flex h-28 items-center justify-center gap-4 rounded-2xl bg-surface/40 px-4">
+      <div className="bg-surface/40 flex h-28 items-center justify-center gap-4 rounded-2xl px-4">
         <span className="text-sm opacity-75">Account</span>
         <div className={dividerClassName}>{values.label}</div>
         <span className="text-sm opacity-75">Billing</span>
@@ -21,7 +21,7 @@ export function getDividerPlaygroundShowcase(values: DividerControlValues) {
   }
 
   return (
-    <div className="w-full space-y-3 rounded-2xl bg-surface/40 p-4">
+    <div className="bg-surface/40 w-full space-y-3 rounded-2xl p-4">
       <div className="space-y-1">
         <p className="text-sm opacity-75">Current release</p>
         <p className="text-lg font-semibold">Natcore v2 preview</p>

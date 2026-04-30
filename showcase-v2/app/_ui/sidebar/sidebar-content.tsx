@@ -26,9 +26,7 @@ export type SidebarGroupProps = PropsWithChildren<{
 export function SidebarGroup({ header, children }: SidebarGroupProps) {
   return (
     <div className="flex flex-col">
-      <Overline className="mb-2 pt-4 pb-0">
-        {header}
-      </Overline>
+      <Overline className="mb-2 pt-4 pb-0">{header}</Overline>
 
       <ul className="flex flex-col gap-1 text-tone-500-primary dark:text-tone-900-primary">
         {children}

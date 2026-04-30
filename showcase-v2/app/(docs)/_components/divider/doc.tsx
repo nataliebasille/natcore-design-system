@@ -5,12 +5,14 @@ export default {
   description:
     "Flexible separators for splitting content horizontally or vertically. Add optional label content, switch orientation with the v variant, and adjust where the label sits with the placement utility.",
   atAGlance: (
-    <ui-div className="grid w-full gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
+    <ui-div className="md:grid-cols-[minmax(0,1fr)_auto] grid w-full gap-4">
       <ui-div className="space-y-3">
         <div className="space-y-2">
           <p className="text-sm opacity-75">Section header</p>
           <div className="divider/primary">Overview</div>
-          <p className="text-sm opacity-75">Supporting content continues below.</p>
+          <p className="text-sm opacity-75">
+            Supporting content continues below.
+          </p>
         </div>
       </ui-div>
 
@@ -79,7 +81,7 @@ export default {
 
 function horizontalShowcase() {
   return (
-    <ui-div className="grid w-full gap-4 md:grid-cols-2">
+    <ui-div className="md:grid-cols-2 grid w-full gap-4">
       <div className="space-y-2">
         <span className="text-sm opacity-75">Without label</span>
         <div className="divider/surface"></div>
@@ -95,14 +97,14 @@ function horizontalShowcase() {
 
 function verticalShowcase() {
   return (
-    <ui-div className="grid w-full gap-4 md:grid-cols-2">
-      <div className="flex h-28 items-center justify-center gap-4 rounded-2xl bg-surface/40 px-4">
+    <ui-div className="md:grid-cols-2 grid w-full gap-4">
+      <div className="bg-surface/40 flex h-28 items-center justify-center gap-4 rounded-2xl px-4">
         <span className="text-sm opacity-75">Left pane</span>
         <div className="divider-v/primary h-full"></div>
         <span className="text-sm opacity-75">Right pane</span>
       </div>
 
-      <div className="flex h-28 items-center justify-center gap-4 rounded-2xl bg-surface/40 px-4">
+      <div className="bg-surface/40 flex h-28 items-center justify-center gap-4 rounded-2xl px-4">
         <span className="text-sm opacity-75">Choice A</span>
         <div className="divider-v/success h-full">OR</div>
         <span className="text-sm opacity-75">Choice B</span>
