@@ -10,7 +10,7 @@ export function DisplayPattern({ pattern }: { pattern: Pattern }) {
       {value && (
         <span>
           -
-          <span className="text-tone-500-accent">
+          <span className="text-accent-500">
             {"{"}
             {value?.name}
             {"}"}
@@ -20,7 +20,7 @@ export function DisplayPattern({ pattern }: { pattern: Pattern }) {
       {modifier && (
         <OptionalSegment optional={modifier.optional}>
           /
-          <span className="text-tone-500-accent">
+          <span className="text-accent-500">
             {"{"}
             {modifier.name}
             {"}"}
@@ -44,9 +44,9 @@ function OptionalSegment({
 
   return (
     <span>
-      <span className="text-on-tone-50-surface/60">[</span>
+      <span className="text-on-surface-50/60">[</span>
       {children}
-      <span className="text-on-tone-50-surface/60">]</span>
+      <span className="text-on-surface-50/60">]</span>
     </span>
   );
 }

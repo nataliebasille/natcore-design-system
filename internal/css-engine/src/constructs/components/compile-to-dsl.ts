@@ -127,9 +127,9 @@ const themeableStaticComponentsGenerator: GeneratorReduceFn = (acc, curr) => {
       : curr.variants.selection.mode === "optional" ?
         [
           `palette-${palette}`,
-          ...resolveOptionalVariantReferences(
-            curr,
-            applyCurrentPalette(palette, curr.body),
+          ...applyCurrentPalette(
+            palette,
+            resolveOptionalVariantReferences(curr, curr.body),
           ),
         ]
       : [

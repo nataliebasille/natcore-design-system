@@ -276,7 +276,7 @@ function customVariantsShowcase() {
         className="toggle-outline/surface toggle-on:text-white toggle-off:palette-surface"
         checked={false}
         thumb={thumbGlyph("L")}
-        labelClassName="font-mono text-xs tracking-normal text-tone-500-accent"
+        labelClassName="font-mono text-xs tracking-normal text-accent-500"
         interactive={false}
       />
       <ToggleRow
@@ -284,7 +284,7 @@ function customVariantsShowcase() {
         className="toggle-outline/surface toggle-on:text-white toggle-off:palette-surface"
         checked={true}
         thumb={thumbGlyph("D")}
-        labelClassName="font-mono text-xs tracking-normal text-tone-500-accent"
+        labelClassName="font-mono text-xs tracking-normal text-accent-500"
         interactive={false}
       />
     </ui-div>
@@ -307,11 +307,11 @@ function ToggleRow({
   interactive?: boolean;
 }) {
   return (
-    <ui-div className="flex min-h-16 w-full items-center justify-between gap-4 rounded-xl border border-tone-500-surface/10 bg-tone-100-surface/22 px-4 py-3">
+    <ui-div className="flex min-h-16 w-full items-center justify-between gap-4 rounded-xl border border-surface-500/10 bg-surface-100/22 px-4 py-3">
       <span
         className={
           labelClassName ??
-          "text-sm font-medium tracking-[0.01em] text-on-tone-50-surface/78"
+          "text-sm font-medium tracking-[0.01em] text-on-surface-50/78"
         }
       >
         {label}
@@ -336,8 +336,8 @@ function ButtonToggleRow({
   ariaChecked?: boolean;
 }) {
   return (
-    <ui-div className="flex min-h-16 w-full items-center justify-between gap-4 rounded-xl border border-tone-500-surface/10 bg-tone-100-surface/22 px-4 py-3">
-      <span className="font-mono text-xs tracking-normal text-tone-500-accent">
+    <ui-div className="flex min-h-16 w-full items-center justify-between gap-4 rounded-xl border border-surface-500/10 bg-surface-100/22 px-4 py-3">
+      <span className="font-mono text-xs tracking-normal text-accent-500">
         {label}
       </span>
       <button

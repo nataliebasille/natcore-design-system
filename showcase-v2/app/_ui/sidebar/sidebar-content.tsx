@@ -28,7 +28,7 @@ export function SidebarGroup({ header, children }: SidebarGroupProps) {
     <div className="flex flex-col">
       <Overline className="mb-2 pt-4 pb-0">{header}</Overline>
 
-      <ul className="flex flex-col gap-1 text-tone-500-primary dark:text-tone-900-primary">
+      <ul className="flex flex-col gap-1 text-primary-500 dark:text-primary-900">
         {children}
       </ul>
     </div>
@@ -44,7 +44,7 @@ export function SidebarLink({ href, children }: SidebarLinkProps) {
     <NavLink
       href={href}
       component="li"
-      className="cursor-pointer rounded-lg border-l-2 border-transparent p-2 pl-2 text-sm tracking-wider text-(--tone-current-fg)/65 hover:bg-tone-200-surface hover:text-on-tone-200-surface active:rounded-l-none active:border-l-tone-500-accent active:bg-tone-200-surface active:text-on-tone-200-surface"
+      className="cursor-pointer rounded-lg border-l-2 border-transparent p-2 pl-2 text-sm tracking-wider text-(--tone-current-fg)/65 hover:bg-surface-200 hover:text-on-surface-200 active:rounded-l-none active:border-l-accent-500 active:bg-surface-200 active:text-on-surface-200"
     >
       {children}
     </NavLink>

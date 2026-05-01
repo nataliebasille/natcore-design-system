@@ -246,7 +246,7 @@ const Pattern = ({ text }: { text: string }) => {
     <span>
       {parts.map((part, i) =>
         part.startsWith("{") ?
-          <span key={i} className="text-tone-500-accent">
+          <span key={i} className="text-accent-500">
             {part}
           </span>
         : <Fragment key={i}>{part}</Fragment>,

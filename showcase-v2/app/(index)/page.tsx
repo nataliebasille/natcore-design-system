@@ -7,13 +7,13 @@ import { PALETTE } from "@nataliebasille/css-engine";
 import { twMerge } from "tailwind-merge";
 
 const BG_COLORS: Record<(typeof PALETTE)[number], string> = {
-  primary: "bg-tone-500-primary",
-  secondary: "bg-tone-500-secondary",
-  accent: "bg-tone-500-accent",
-  surface: "bg-tone-500-surface",
-  success: "bg-tone-500-success",
-  danger: "bg-tone-500-danger",
-  disabled: "bg-tone-500-disabled",
+  primary: "bg-primary-500",
+  secondary: "bg-secondary-500",
+  accent: "bg-accent-500",
+  surface: "bg-surface-500",
+  success: "bg-success-500",
+  danger: "bg-danger-500",
+  disabled: "bg-disabled-500",
 };
 
 export default function Home() {
@@ -135,7 +135,7 @@ function InfoCard({
     <div className={twMerge("card card-soft/surface", href && "card-hover")}>
       <div data-slot="content" className="flex flex-col gap-1 tablet:gap-2">
         <span className="flex items-center gap-2">
-          <span className="inline-flex aspect-square size-7 items-center justify-center rounded-md bg-tone-50-surface text-on-tone-50-surface">
+          <span className="inline-flex aspect-square size-7 items-center justify-center rounded-md bg-surface-50 text-on-surface-50">
             {icon}
           </span>
           {title}

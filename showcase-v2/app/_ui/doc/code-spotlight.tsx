@@ -22,7 +22,7 @@ export function MarkupSpotlight({
     >
       <div className="flex flex-col items-center gap-4">
         {description && (
-          <div className="w-full px-4 text-sm tracking-wider text-on-tone-50/60">
+          <div className="w-full px-4 text-sm tracking-wider text-on-50/60">
             {description}
           </div>
         )}

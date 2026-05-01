@@ -10,7 +10,7 @@ export function Overline({
   return (
     <div
       className={twMerge(
-        "mb-4 text-xs tracking-[.2em] text-tone-700-surface uppercase",
+        "mb-4 text-xs tracking-[.2em] text-surface-700 uppercase",
         className,
       )}
     >

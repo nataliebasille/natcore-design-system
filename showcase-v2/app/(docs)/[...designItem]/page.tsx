@@ -124,7 +124,7 @@ export default async function DesignItemPage({
                     <div className="grid grid-cols-[max-content_1fr] items-start gap-x-4 gap-y-2 text-xs desktop:mt-2">
                       {meta.pattern.value && (
                         <>
-                          <span className="text-on-tone-50-surface/60">
+                          <span className="text-on-surface-50/60">
                             {capitalize(meta.pattern.value.name)}
                           </span>
                           <div className="flex flex-wrap gap-1.5">
@@ -137,7 +137,7 @@ export default async function DesignItemPage({
 
                       {meta.pattern.modifier && (
                         <>
-                          <span className="text-on-tone-50-surface/60">
+                          <span className="text-on-surface-50/60">
                             {capitalize(meta.pattern.modifier.name)}
                           </span>
                           <div className="flex flex-wrap gap-1.5">
@@ -169,9 +169,9 @@ export default async function DesignItemPage({
                     "Add the slot selector to a child element to replace the default rendered part."
                   }
                 >
-                  <div className="mt-2 flex gap-1 text-xs text-on-tone-50-surface/60">
+                  <div className="mt-2 flex gap-1 text-xs text-on-surface-50/60">
                     <span className="font-bold">selector:</span>
-                    <span className="font-mono tracking-wider text-tone-500-accent">
+                    <span className="font-mono tracking-wider text-accent-500">
                       {slot.selector}
                     </span>
                   </div>
@@ -195,9 +195,9 @@ export default async function DesignItemPage({
                       "Custom variant derived from component state selectors."
                     }
                   >
-                    <div className="mt-2 flex gap-1 text-xs text-on-tone-50-surface/60">
+                    <div className="mt-2 flex gap-1 text-xs text-on-surface-50/60">
                       <span className="font-bold">selector:</span>
-                      <span className="font-mono tracking-wider break-all text-tone-500-accent">
+                      <span className="font-mono tracking-wider break-all text-accent-500">
                         {variant.selector}
                       </span>
                     </div>
@@ -218,9 +218,9 @@ export default async function DesignItemPage({
                   description={cssVar.description}
                 >
                   {cssVar.defaultValue && (
-                    <div className="flex gap-1 pt-2 text-xs text-on-tone-50-surface/60">
+                    <div className="flex gap-1 pt-2 text-xs text-on-surface-50/60">
                       <span className="font-bold">default:</span>
-                      <span className="font-mono tracking-wider text-tone-500-accent">
+                      <span className="font-mono tracking-wider text-accent-500">
                         {cssVar.defaultValue}
                       </span>
                     </div>
@@ -462,7 +462,7 @@ function ApiReferenceRow({
       <TagBadge tag={tag} className="max-desktop:hidden" />
 
       {description && (
-        <div className="mb-2 text-xs text-on-tone-50-surface/70 desktop:mt-2">
+        <div className="mb-2 text-xs text-on-surface-50/70 desktop:mt-2">
           {description}
         </div>
       )}
@@ -482,7 +482,7 @@ function patternValueToNodes(value: PatternValue | undefined) {
   return value.tokens.flatMap((t) =>
     typeof t === "string" ? t
     : t.type === "arbitrary" ?
-      <span className="font-mono text-tone-500-accent">[{t.dataType}]</span>
-    : <span className="font-mono text-tone-500-accent">{t.dataType}</span>,
+      <span className="font-mono text-accent-500">[{t.dataType}]</span>
+    : <span className="font-mono text-accent-500">{t.dataType}</span>,
   );
 }

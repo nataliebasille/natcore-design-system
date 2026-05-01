@@ -115,6 +115,24 @@ export type CssFunction =
       toString: () => string;
     }
   | {
+      $function: "oklch";
+      from?: CssValue<"color">;
+      l: OklchChannel;
+      c: OklchChannel;
+      h: OklchChannel;
+      alpha?: CssValue<"number" | "percentage">;
+      toString: () => string;
+    }
+  | {
+      $function: "lch";
+      from?: CssValue<"color">;
+      l: LchChannel;
+      c: LchChannel;
+      h: LchChannel;
+      alpha?: CssValue<"number" | "percentage">;
+      toString: () => string;
+    }
+  | {
       $function: "translateX";
       value: CssValue<"length" | "percentage">;
       toString: () => string;
@@ -396,6 +414,90 @@ export function colorMix(
       mix,
     },
     colorMixToString,
+  );
+}
+
+export type OklchChannel =
+  | CssValue<"number" | "angle" | "percentage">
+  | "none"
+  | (string & {});
+
+export type LchChannel =
+  | CssValue<"number" | "angle" | "percentage">
+  | "none"
+  | (string & {});
+
+function oklchToString(this: {
+  $function: "oklch";
+  from?: any;
+  l: any;
+  c: any;
+  h: any;
+  alpha?: any;
+}) {
+  const from = this.from ? `from ${valueToString(this.from)} ` : "";
+  const channels = `${valueToString(this.l)} ${valueToString(this.c)} ${valueToString(this.h)}`;
+  return this.alpha !== undefined ?
+      `oklch(${from}${channels} / ${valueToString(this.alpha)})`
+    : `oklch(${from}${channels})`;
+}
+
+export function oklch(
+  l: OklchChannel,
+  c: OklchChannel,
+  h: OklchChannel,
+  options?: {
+    from?: CssValue<"color">;
+    alpha?: CssValue<"number" | "percentage">;
+  },
+) {
+  return withToString(
+    {
+      $function: "oklch" as const,
+      from: options?.from,
+      l,
+      c,
+      h,
+      alpha: options?.alpha,
+    },
+    oklchToString,
+  );
+}
+
+function lchToString(this: {
+  $function: "lch";
+  from?: any;
+  l: any;
+  c: any;
+  h: any;
+  alpha?: any;
+}) {
+  const from = this.from ? `from ${valueToString(this.from)} ` : "";
+  const channels = `${valueToString(this.l)} ${valueToString(this.c)} ${valueToString(this.h)}`;
+  return this.alpha !== undefined ?
+      `lch(${from}${channels} / ${valueToString(this.alpha)})`
+    : `lch(${from}${channels})`;
+}
+
+export function lch(
+  l: LchChannel,
+  c: LchChannel,
+  h: LchChannel,
+  options?: {
+    from?: CssValue<"color">;
+    alpha?: CssValue<"number" | "percentage">;
+  },
+) {
+  return withToString(
+    {
+      $function: "lch" as const,
+      from: options?.from,
+      l,
+      c,
+      h,
+      alpha: options?.alpha,
+    },
+    lchToString,
   );
 }
 

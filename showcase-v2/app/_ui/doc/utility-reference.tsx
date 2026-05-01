@@ -10,11 +10,11 @@ export const ApiGroup = ({
 }) => (
   <div>
     {label && (
-      <p className="mb-2 text-xs font-semibold tracking-widest text-on-tone-50-surface/50 uppercase">
+      <p className="mb-2 text-xs font-semibold tracking-widest text-on-surface-50/50 uppercase">
         {label}
       </p>
     )}
-    <div className="grid grid-cols-[minmax(180px,220px)_1fr] items-start gap-px overflow-hidden rounded-lg border border-tone-300-surface/40 bg-tone-300-surface/40">
+    <div className="grid grid-cols-[minmax(180px,220px)_1fr] items-start gap-px overflow-hidden rounded-lg border border-surface-300/40 bg-surface-300/40">
       {children}
     </div>
   </div>
@@ -28,10 +28,10 @@ export const ApiRow = ({
   children?: ReactNode;
 }) => (
   <div className="col-span-2 gap-px desktop:grid desktop:grid-cols-subgrid">
-    <div className="bg-tone-50-surface px-4 py-3 text-sm max-desktop:pb-0">
+    <div className="bg-surface-50 px-4 py-3 text-sm max-desktop:pb-0">
       {label}
     </div>
-    <div className="bg-tone-50-surface px-4 py-3 text-sm max-desktop:pt-0">
+    <div className="bg-surface-50 px-4 py-3 text-sm max-desktop:pt-0">
       {children}
     </div>
   </div>
@@ -72,18 +72,16 @@ export const UtilityValue = ({
           <Fragment key={i}>
             <span>{value}</span>
             {i < values.length - 1 && (
-              <span className="mx-1 text-on-tone-50-surface/40">{divider}</span>
+              <span className="mx-1 text-on-surface-50/40">{divider}</span>
             )}
           </Fragment>
         ))
       : <>{values}</>}
       {defaultValue && (
         <>
-          <span className="mx-1 text-on-tone-50-surface/40">{divider}</span>
-          <span className="text-on-tone-50-surface/50">default:</span>
-          <span className="font-mono text-tone-500-accent">
-            {defaultValue}
-          </span>
+          <span className="mx-1 text-on-surface-50/40">{divider}</span>
+          <span className="text-on-surface-50/50">default:</span>
+          <span className="font-mono text-accent-500">{defaultValue}</span>
         </>
       )}
     </>
@@ -130,14 +128,14 @@ export const UtilityReference = ({
 
       {/* Description */}
       {description && (
-        <p className="mt-0! text-tone-950-surface/60">{description}</p>
+        <p className="mt-0! text-surface-950/60">{description}</p>
       )}
 
       {/* Reference table */}
       <ApiGroup>
         {table.map(({ label, content }) => (
           <ApiRow key={label} label={label}>
-            <div className="flex flex-wrap items-center gap-1.5 text-on-tone-50-surface/80">
+            <div className="flex flex-wrap items-center gap-1.5 text-on-surface-50/80">
               {content}
             </div>
           </ApiRow>

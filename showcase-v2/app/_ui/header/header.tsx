@@ -14,7 +14,7 @@ export function Header({ className }: HeaderProps) {
     <>
       <header
         className={twMerge(
-          `col-span-full grid grid-cols-[min-content_1fr_max-content_max-content] items-center gap-1 border-b border-tone-500-surface px-2 py-1 tracking-wider desktop:grid-cols-[1fr_max-content_max-content] desktop:px-6`,
+          `col-span-full grid grid-cols-[min-content_1fr_max-content_max-content] items-center gap-1 border-b border-surface-500 px-2 py-1 tracking-wider desktop:grid-cols-[1fr_max-content_max-content] desktop:px-6`,
           className,
         )}
       >
@@ -23,8 +23,8 @@ export function Header({ className }: HeaderProps) {
           <Image src="/logo.svg" alt="Natcore Logo" width={32} height={32} />
           <span className="ml-2 flex items-center gap-2">
             <span className="text-2xl">
-              <span className="font-bold text-tone-500-primary">Nat</span>
-              <span className="font-normal text-tone-500-secondary">Core</span>
+              <span className="font-bold text-primary-500">Nat</span>
+              <span className="font-normal text-secondary-500">Core</span>
             </span>
             <InProgressTag className="rounded-full max-tablet:hidden" />
           </span>
@@ -44,7 +44,7 @@ function InProgressTag({ className }: { className?: string }) {
   return (
     <span
       className={twMerge(
-        "bg-tone-100-accent/80 px-2 py-0.5 text-[0.6rem] font-semibold tracking-widest text-tone-700-accent uppercase ring-1 ring-tone-500-accent",
+        "bg-accent-50 px-2 py-0.5 text-[0.6rem] font-semibold tracking-widest text-accent-700 uppercase ring-1 ring-accent-500",
         className,
       )}
     >

@@ -189,22 +189,18 @@ export function ComponentDocPage<B extends ComponentBuilder>({
                     tag="component"
                     label={<DisplayPattern pattern={meta.pattern} />}
                   >
-                    <div className="mb-2 text-xs text-on-tone-50-surface/70">
+                    <div className="mb-2 text-xs text-on-surface-50/70">
                       {meta.description}
                     </div>
 
                     <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-1 text-xs desktop:mt-2">
-                      <span className="text-on-tone-50-surface/60">
-                        Variant
-                      </span>
+                      <span className="text-on-surface-50/60">Variant</span>
                       <div className="flex flex-wrap gap-1.5">
                         <UtilityValue
                           values={patternValueToNodes(meta.pattern.value)}
                         />
                       </div>
-                      <span className="text-on-tone-50-surface/60">
-                        Palette
-                      </span>
+                      <span className="text-on-surface-50/60">Palette</span>
                       <div className="flex flex-wrap gap-1.5">
                         <UtilityValue
                           values={patternValueToNodes(meta.pattern.modifier)}
@@ -221,13 +217,13 @@ export function ComponentDocPage<B extends ComponentBuilder>({
                     tag="modifier"
                     label={<DisplayPattern pattern={meta.pattern} />}
                   >
-                    <div className="mb-2 text-xs text-on-tone-50-surface/70">
+                    <div className="mb-2 text-xs text-on-surface-50/70">
                       {meta.description}
                     </div>
 
                     {/* {meta.modifiers.length > 0 && (
                       <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-1 text-xs">
-                        <span className="text-on-tone-50-surface/60">
+                        <span className="text-on-surface-50/60">
                           {capitalize(seg)}
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -254,16 +250,16 @@ export function ComponentDocPage<B extends ComponentBuilder>({
                   >
                     <span className="flex flex-col items-start gap-1.5 text-xs">
                       {extra?.description && (
-                        <span className="text-on-tone-50-surface/80">
+                        <span className="text-on-surface-50/80">
                           {extra.description}
                         </span>
                       )}
                       {v.default && (
                         <span className="flex gap-1">
-                          <span className="text-on-tone-50-surface/60">
+                          <span className="text-on-surface-50/60">
                             Default:{" "}
                           </span>
-                          <span className="text-tone-500-accent">
+                          <span className="text-accent-500">
                             {v.default}
                           </span>
                         </span>
@@ -280,16 +276,16 @@ export function ComponentDocPage<B extends ComponentBuilder>({
                 >
                   <span className="flex flex-col items-start gap-1.5 text-xs">
                     {v.description && (
-                      <span className="text-on-tone-50-surface/80">
+                      <span className="text-on-surface-50/80">
                         {v.description}
                       </span>
                     )}
                     {v.default && (
                       <span className="flex gap-1">
-                        <span className="text-on-tone-50-surface/60">
+                        <span className="text-on-surface-50/60">
                           Default:{" "}
                         </span>
-                        <span className="text-tone-500-accent">
+                        <span className="text-accent-500">
                           {v.default}
                         </span>
                       </span>
@@ -310,7 +306,7 @@ export function ComponentDocPage<B extends ComponentBuilder>({
                   label={<span className="font-mono text-sm">{s.name}</span>}
                 >
                   {s.description && (
-                    <span className="text-on-tone-50-surface/80">
+                    <span className="text-on-surface-50/80">
                       {s.description}
                     </span>
                   )}
@@ -332,16 +328,16 @@ export function ComponentDocPage<B extends ComponentBuilder>({
                     <span className="flex flex-col gap-0.5 text-xs">
                       {v.condition && (
                         <>
-                          <span className="text-on-tone-50-surface/60">
+                          <span className="text-on-surface-50/60">
                             Selector:{" "}
                           </span>
-                          <span className="break-all text-tone-500-accent">
+                          <span className="break-all text-accent-500">
                             {v.condition}
                           </span>
                         </>
                       )}
                       {extra?.description && (
-                        <span className="mt-1 text-on-tone-50-surface/80">
+                        <span className="mt-1 text-on-surface-50/80">
                           {extra.description}
                         </span>
                       )}

@@ -12,7 +12,6 @@ export function colorKey(
     return toneKey(color);
   }
 
-  const mode = color.mode === "adaptive" ? ("tone" as const) : color.mode;
   return `${colorKeyWithoutPalette(color)}-${color.palette}` as const;
 }
 
@@ -77,14 +76,16 @@ export function matchTextColor() {
 }
 
 export function toneKey(color: Pick<ColorAst, "shade" | "role">) {
-  return `--${color.role === "text" ? ("on-" as const) : ("" as const)}tone-${color.shade}` as const;
+  const ground = color.role === "text" ? "--fg" : "--bg";
+  return `${ground}-tone-${color.shade}` as const;
 }
 
 export function colorKeyWithoutPalette(
   color: Pick<ColorAst, "role" | "mode" | "shade">,
 ) {
   const mode = color.mode === "adaptive" ? ("tone" as const) : color.mode;
-  return `--color${color.role === "text" ? ("-on" as const) : ("" as const)}-${mode}-${color.shade}` as const;
+  const ground = color.role === "text" ? "--fg" : "--bg";
+  return `${ground}-${mode}-${color.shade}` as const;
 }
 
 export function renderPalette(

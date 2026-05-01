@@ -13,7 +13,7 @@ export function ExampleContainer({
   return (
     <div
       className={twMerge(
-        `flex flex-wrap items-center overflow-hidden card-ghost/surface rounded-sm border border-tone-200-surface bg-transparent`,
+        `flex flex-wrap items-center overflow-hidden card-ghost/surface rounded-sm border border-surface-200 bg-transparent`,
         className,
       )}
     >
