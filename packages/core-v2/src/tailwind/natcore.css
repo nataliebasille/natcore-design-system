@@ -6,7 +6,7 @@
 
 /* Note: color-scheme is now controlled by user via scheme-* utility classes */
 
-@import "./themes/colors.css";
+@import "./themes/color.css";
 @import "./themes/palette.css";
 
 /* Variants */
@@ -32,3 +32,16 @@
 @import "./components/tabs.css";
 @import "./components/toggle.css";
 @import "./components/tray.css";
+
+@theme static {
+  --theme-primary: #5b2e91;
+  --theme-secondary: #0f6e8c;
+  --theme-accent: #c05a8b;
+
+  --theme-surface-50: #f6f4f8;
+  --theme-surface-500: #746d7d;
+  --theme-surface-950: #100d12;
+
+  --theme-danger: #c0445f;
+  --theme-success: #2f8f6b;
+}

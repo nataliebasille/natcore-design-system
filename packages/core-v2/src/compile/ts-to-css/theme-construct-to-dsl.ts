@@ -16,7 +16,7 @@ export function themeConstructToDsl(themeConstruct: ThemeConstruct) {
 
 function getThemeMode(themeConstruct: ThemeConstruct) {
   if (themeConstruct.mode) {
-    return themeConstruct.mode;
+    return themeConstruct.mode === "root" ? null : themeConstruct.mode;
   }
 
   const containsCssVar = Object.values(themeConstruct.properties).some(

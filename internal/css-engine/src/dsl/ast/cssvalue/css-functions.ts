@@ -17,6 +17,26 @@ export type ColorMixColorspace =
   | "hwb";
 
 /**
+ * Valid color spaces for the CSS color() function.
+ */
+export type CssColorFunctionColorspace =
+  | "srgb"
+  | "srgb-linear"
+  | "display-p3"
+  | "a98-rgb"
+  | "prophoto-rgb"
+  | "rec2020"
+  | "xyz"
+  | "xyz-d50"
+  | "xyz-d65"
+  | (string & {});
+
+export type CssColorFunctionChannel =
+  | CssValue<"number" | "percentage">
+  | "none"
+  | (string & {});
+
+/**
  * Type for CSS function values
  */
 export type CssFunction =
@@ -70,6 +90,14 @@ export type CssFunction =
       h: CssValue<"angle" | "number">;
       s: CssValue<"percentage">;
       l: CssValue<"percentage">;
+      alpha?: CssValue<"number" | "percentage">;
+      toString: () => string;
+    }
+  | {
+      $function: "color";
+      colorspace: CssColorFunctionColorspace;
+      from?: CssValue<"color">;
+      channels: CssColorFunctionChannel[];
       alpha?: CssValue<"number" | "percentage">;
       toString: () => string;
     }
@@ -291,6 +319,44 @@ export function hsl(
       alpha,
     },
     hslToString,
+  );
+}
+
+function cssColorToString(this: {
+  $function: "color";
+  colorspace: CssColorFunctionColorspace;
+  from?: any;
+  channels: CssColorFunctionChannel[];
+  alpha?: any;
+}) {
+  const channels = this.channels.map(valueToString).join(" ");
+  const from = this.from ? `from ${valueToString(this.from)} ` : "";
+  const color =
+    channels ?
+      `${from}${this.colorspace} ${channels}`
+    : `${from}${this.colorspace}`;
+  return this.alpha !== undefined ?
+      `color(${color} / ${valueToString(this.alpha)})`
+    : `color(${color})`;
+}
+
+export function cssColor(
+  colorspace: CssColorFunctionColorspace,
+  channels: CssColorFunctionChannel[],
+  alpha?: CssValue<"number" | "percentage">,
+  options?: {
+    from?: CssValue<"color">;
+  },
+) {
+  return withToString(
+    {
+      $function: "color" as const,
+      colorspace,
+      from: options?.from,
+      channels,
+      alpha,
+    },
+    cssColorToString,
   );
 }
 

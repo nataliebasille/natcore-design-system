@@ -44,7 +44,7 @@ function InProgressTag({ className }: { className?: string }) {
   return (
     <span
       className={twMerge(
-        "bg-amber-400/20 px-2 py-0.5 text-[0.6rem] font-semibold tracking-widest text-amber-600 uppercase ring-1 ring-amber-400/40",
+        "bg-tone-100-accent/80 px-2 py-0.5 text-[0.6rem] font-semibold tracking-widest text-tone-700-accent uppercase ring-1 ring-tone-500-accent",
         className,
       )}
     >

@@ -11,7 +11,7 @@ export * from "./css-functions.ts";
 export type { CssDataType, CssPrimitiveValue } from "./css-primitive.ts";
 export * from "./css-primitive.ts";
 export { cssvar } from "./cssvar.ts";
-export type { CssVarAst } from "./cssvar.ts";
+export type { CssVarAst, CssFunctionLike, CssVarFallback } from "./cssvar.ts";
 export * from "./match-value.ts";
 export { cssv } from "./template-literal.ts";
 export type { TemplateLiteralAst } from "./template-literal.ts";

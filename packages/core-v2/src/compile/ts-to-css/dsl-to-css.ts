@@ -188,7 +188,14 @@ function transformStylePropertyValue(
     .on("color", applyOpacity)
     .on("function-spacing", (value) => `--spacing(${value.value})`)
     .on("css-var", function cssVarToString(value): string {
-      return `var(${value.name}${value.fallback ? `, ${typeof value.fallback === "object" ? cssVarToString(value.fallback) : ""}` : ""})`;
+      if (!value.fallback && value.fallback !== 0) {
+        return `var(${value.name})`;
+      }
+      const fallbackStr =
+        typeof value.fallback === "object" && "$ast" in value.fallback ?
+          cssVarToString(value.fallback as any)
+        : String(value.fallback);
+      return `var(${value.name}, ${fallbackStr})`;
     })
     .on("match-value", (value) => matchToString("--value", value.candidates))
     .on("match-modifier", (value) =>
