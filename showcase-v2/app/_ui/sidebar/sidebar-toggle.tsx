@@ -7,7 +7,8 @@ export function SidebarToggle() {
   return (
     <input
       type="checkbox"
-      className="tray-toggle hidden"
+      data-slot="toggle"
+      className="hidden"
       name="sidebar-toggle"
       checked={isOpen}
       readOnly
