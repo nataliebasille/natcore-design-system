@@ -60,7 +60,7 @@ type SizeControlProps = {
 
 function SizeControl({ value, onChange }: SizeControlProps) {
   return (
-    <div className="btn-group-ghost btn-size-sm -ml-(--btn-padding-inline)">
+    <div className="-ml-(--btn-padding-inline) btn-group-outline btn-size-sm">
       <label>
         SM
         <input
