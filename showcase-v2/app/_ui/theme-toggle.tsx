@@ -14,13 +14,18 @@ export function ThemeToggle({
   className?: string;
   customThemes?: Awaited<ReturnType<typeof getCustomThemes>>;
 }) {
+  const currentTheme =
+    typeof window !== "undefined" ?
+      document.documentElement.dataset.theme
+    : undefined;
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  const { resolvedTheme, setTheme: setLightDark } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const { resolvedTheme: resolvedLightOrDark, setTheme: setLightDark } =
+    useTheme();
+  const isDark = resolvedLightOrDark === "dark";
   const title =
-    resolvedTheme === "light" ?
+    resolvedLightOrDark === "light" ?
       "Light theme (click for dark)"
     : "Dark theme (click for light)";
 
@@ -29,7 +34,7 @@ export function ThemeToggle({
       evt.stopPropagation();
       setLightDark(isDark ? "light" : "dark");
     },
-    [resolvedTheme, setLightDark],
+    [resolvedLightOrDark, setLightDark],
   );
 
   const toggleThemeSelector = useCallback(() => {
@@ -91,10 +96,13 @@ export function ThemeToggle({
       >
         {customThemes?.map((theme) => (
           <button
+            suppressHydrationWarning
             key={theme.id}
             className={twMerge(
               "inline-flex btn-outline items-center gap-3 tablet:btn-size-lg",
               !theme.id && "col-span-full justify-center",
+              theme.id === currentTheme &&
+                "pointer-events-none btn-soft/primary!",
             )}
             onClick={() => setTheme(theme.id)}
           >
