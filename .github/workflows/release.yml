@@ -5,6 +5,17 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      release_type:
+        description: Use auto normally. Use initial only to force the first 2.0.0 publish.
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - initial
+          - patch
+          - minor
 
 permissions:
   contents: write
@@ -42,6 +53,7 @@ jobs:
           import { execFileSync } from "node:child_process";
 
           const packageName = "@nataliebasille/natcore-design-system";
+          const requestedReleaseType = process.env.REQUESTED_RELEASE_TYPE || "auto";
           const packageJson = JSON.parse(
             fs.readFileSync("packages/core/package.json", "utf8"),
           );
@@ -84,10 +96,36 @@ jobs:
           const setOutput = (key, value) =>
             fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
 
+          console.log(
+            `Published versions seen for ${packageName}: ${
+              publishedVersions.length > 0 ? publishedVersions.join(", ") : "(none)"
+            }`,
+          );
+
           const hasPublishedV2 = publishedVersions.some((version) => {
             const major = Number(String(version).split(".")[0]);
             return major === 2;
           });
+
+          if (requestedReleaseType !== "auto") {
+            if (requestedReleaseType === "initial") {
+              if (packageJson.version !== "2.0.0") {
+                throw new Error(
+                  `Initial core v2 release must be 2.0.0, found ${packageJson.version}`,
+                );
+              }
+
+              setOutput("should_release", "true");
+              setOutput("release_type", "initial");
+              setOutput("reason", "Manual initial release requested.");
+              process.exit(0);
+            }
+
+            setOutput("should_release", "true");
+            setOutput("release_type", requestedReleaseType);
+            setOutput("reason", `Manual ${requestedReleaseType} release requested.`);
+            process.exit(0);
+          }
 
           if (!hasPublishedV2) {
             if (packageJson.version !== "2.0.0") {
@@ -164,6 +202,7 @@ jobs:
           NODE
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REQUESTED_RELEASE_TYPE: ${{ inputs.release_type || 'auto' }}
 
       - name: Skip release
         if: ${{ steps.release.outputs.should_release != 'true' }}
