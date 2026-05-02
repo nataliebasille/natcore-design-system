@@ -14,8 +14,8 @@
     "dev": "concurrently \"pnpm --filter @nataliebasille/natcore-design-system dev\" \"pnpm --filter showcase dev\"",
     "dev:v2": "concurrently \"pnpm --filter showcase-v2 dev\"",
     "clean": "pnpm -r clean",
-    "check:release:1x": "tsx packages/core/scripts/assert-release-contract.ts v1",
-    "check:release:2x": "tsx packages/core/scripts/assert-release-contract.ts v2",
+    "check:release:1x": "pnpm --filter @nataliebasille/natcore-design-system exec tsx scripts/assert-release-contract.ts v1",
+    "check:release:2x": "pnpm --filter @nataliebasille/natcore-design-system exec tsx scripts/assert-release-contract.ts v2",
     "release": "pnpm -r --filter \"./packages/*\" build && changeset publish",
     "release:2x": "pnpm -r --filter \"./packages/*\" build && changeset publish --tag latest",
     "release:1x": "pnpm -r --filter \"./packages/*\" build && changeset publish --tag v1"
