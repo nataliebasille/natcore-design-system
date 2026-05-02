@@ -4,12 +4,21 @@ import { twMerge } from "tailwind-merge";
 import { GithubIcon } from "../icons/github";
 import { ThemeToggle } from "../theme-toggle";
 import { MenuIcon } from "./menu-icon";
+import {
+  getCustomThemes,
+  getNatcoreDefaultTheme,
+} from "@/server/get-custom-themes";
 
 type HeaderProps = {
   className?: string;
 };
 
-export function Header({ className }: HeaderProps) {
+export async function Header({ className }: HeaderProps) {
+  const [customThemes, defaultTheme] = await Promise.all([
+    getCustomThemes(),
+    getNatcoreDefaultTheme(),
+  ]);
+  const allThemes = [...(defaultTheme ? [defaultTheme] : []), ...customThemes];
   return (
     <>
       <header
@@ -29,7 +38,10 @@ export function Header({ className }: HeaderProps) {
             <InProgressTag className="rounded-full max-tablet:hidden" />
           </span>
         </div>
-        <ThemeToggle className="-col-start-2 -col-end-2 row-start-1" />
+        <ThemeToggle
+          className="-col-start-2 -col-end-2 row-start-1"
+          customThemes={allThemes}
+        />
         <button className="-col-start-1 -col-end-1 row-start-1 btn-icon btn-ghost/surface">
           <GithubIcon className="h-[1.5em] w-[1.5em]" />
         </button>

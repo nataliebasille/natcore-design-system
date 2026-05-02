@@ -10,6 +10,8 @@ import { ThemeProvider } from "./_ui/theme-provider";
 import { SidebarProvider } from "./_ui/sidebar/sidebar-provider";
 import { listTailwindModules } from "@/server/get-tailwind-modules";
 import { capitalize } from "@/utlls/capitalize";
+import Script from "next/script";
+import { THEME_STORAGE_KEY } from "@/utlls/constants";
 
 const roboto = Roboto({ subsets: ["latin"] });
 
@@ -19,6 +21,19 @@ export const metadata = {
     icon: "/logo.svg",
   },
 };
+
+function initTheme(storageKey: string) {
+  try {
+    console.log(`Initializing theme from localStorage with key: ${storageKey}`);
+    const theme = localStorage.getItem(storageKey);
+    console.log(`Initializing theme from localStorage: ${theme}`);
+    if (theme) {
+      document.documentElement.dataset.theme = theme;
+    }
+  } catch (err) {
+    console.error("Failed to initialize theme from localStorage", err);
+  }
+}
 
 export default async function RootLayout({
   children,
@@ -35,6 +50,13 @@ export default async function RootLayout({
         />
       </head>
       <body className="grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_minmax(32rem,1fr)] grid-rows-[auto_1fr] overflow-hidden bg-surface-50 palette-surface max-tablet:grid-cols-1 max-tablet:grid-rows-[auto_auto_1fr]">
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(${initTheme.toString()})(${JSON.stringify(THEME_STORAGE_KEY)});`,
+          }}
+        />
         <ThemeProvider>
           <SidebarProvider>
             <Header className="col-span-2 border-b border-b-surface-600/30 bg-surface-50" />

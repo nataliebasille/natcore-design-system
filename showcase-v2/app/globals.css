@@ -126,3 +126,16 @@
   --theme-danger: #c84967;
   --theme-success: #3d9676;
 }
+
+:root[data-theme="citrine-reef"] {
+  --theme-primary: #087f8c;
+  --theme-secondary: #f59e0b;
+  --theme-accent: #ef476f;
+
+  --theme-surface-50: #f4fbf7;
+  --theme-surface-500: #678f82;
+  --theme-surface-950: #071c18;
+
+  --theme-danger: #c2415d;
+  --theme-success: #26966f;
+}
