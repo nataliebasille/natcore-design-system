@@ -54,14 +54,15 @@ jobs:
             throw new Error("packages/core must not be private before publish.");
           }
 
-          let publishedVersion = "";
+          let publishedVersions = [];
           try {
-            publishedVersion = execFileSync(
+            const versionsOutput = execFileSync(
               "npm",
               [
                 "view",
                 packageName,
-                "version",
+                "versions",
+                "--json",
                 "--registry=https://npm.pkg.github.com",
               ],
               {
@@ -73,14 +74,22 @@ jobs:
                 stdio: ["ignore", "pipe", "ignore"],
               },
             ).trim();
+            const parsedVersions = JSON.parse(versionsOutput);
+            publishedVersions =
+              Array.isArray(parsedVersions) ? parsedVersions : [parsedVersions];
           } catch {
-            publishedVersion = "";
+            publishedVersions = [];
           }
 
           const setOutput = (key, value) =>
             fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
 
-          if (!publishedVersion) {
+          const hasPublishedV2 = publishedVersions.some((version) => {
+            const major = Number(String(version).split(".")[0]);
+            return major === 2;
+          });
+
+          if (!hasPublishedV2) {
             if (packageJson.version !== "2.0.0") {
               throw new Error(
                 `Initial core v2 release must be 2.0.0, found ${packageJson.version}`,
@@ -89,7 +98,7 @@ jobs:
 
             setOutput("should_release", "true");
             setOutput("release_type", "initial");
-            setOutput("reason", "Package has not been published yet.");
+            setOutput("reason", "Package has not published a v2 release yet.");
             process.exit(0);
           }
 
