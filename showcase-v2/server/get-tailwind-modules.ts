@@ -48,7 +48,7 @@ export async function listTailwindModules(): Promise<TailwindModuleEntry[]> {
 
 export async function getModuleDoc(entry: TailwindModuleEntry) {
   try {
-    const [module, meta, playground] = await Promise.all([
+    const [module, meta, playground] = await Promise.allSettled([
       import(
         `../../packages/core-v2/src/tailwind/${[...entry.category, entry.name].join("/")}.css.ts`
       ),
@@ -61,18 +61,21 @@ export async function getModuleDoc(entry: TailwindModuleEntry) {
     ]);
 
     if (
-      !module?.default ||
-      !isComponentBuilder(module.default) ||
-      !meta?.default ||
-      !playground?.default
+      module.status !== "fulfilled" ||
+      meta.status !== "fulfilled" ||
+      playground.status !== "fulfilled" ||
+      !module.value?.default ||
+      !isComponentBuilder(module.value.default) ||
+      !meta.value?.default ||
+      !playground.value?.default
     ) {
       return undefined;
     }
 
     return {
-      module: module.default as ComponentBuilder<ComponentState>,
-      meta: meta.default as Documentation<ComponentBuilder>,
-      playground: playground.default as React.FC,
+      module: module.value.default as ComponentBuilder<ComponentState>,
+      meta: meta.value.default as Documentation<ComponentBuilder>,
+      playground: playground.value.default as React.FC,
     };
   } catch (e) {
     return undefined;
