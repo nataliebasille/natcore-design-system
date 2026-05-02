@@ -1,7 +1,9 @@
 name: Release core v2 to GitHub Packages
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - main
   workflow_dispatch:
@@ -16,6 +18,7 @@ on:
           - initial
           - patch
           - minor
+          - major
 
 permissions:
   contents: write
@@ -23,12 +26,14 @@ permissions:
 
 jobs:
   release:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -49,7 +54,6 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from "node:fs";
-          import path from "node:path";
           import { execFileSync } from "node:child_process";
 
           const packageName = "@nataliebasille/natcore-design-system";
@@ -65,6 +69,10 @@ jobs:
           if (packageJson.private) {
             throw new Error("packages/core must not be private before publish.");
           }
+
+          const setOutput = (key, value) => {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
+          };
 
           let publishedVersions = [];
           try {
@@ -93,9 +101,6 @@ jobs:
             publishedVersions = [];
           }
 
-          const setOutput = (key, value) =>
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
-
           console.log(
             `Published versions seen for ${packageName}: ${
               publishedVersions.length > 0 ? publishedVersions.join(", ") : "(none)"
@@ -115,19 +120,19 @@ jobs:
                 );
               }
 
+              setOutput("should_release", "true");
+              setOutput("release_type", "initial");
+              setOutput("release_source", "manual");
+              setOutput("reason", "Manual initial release requested.");
+              process.exit(0);
+            }
+
             setOutput("should_release", "true");
-            setOutput("release_type", "initial");
+            setOutput("release_type", requestedReleaseType);
             setOutput("release_source", "manual");
-            setOutput("reason", "Manual initial release requested.");
+            setOutput("reason", `Manual ${requestedReleaseType} release requested.`);
             process.exit(0);
           }
-
-          setOutput("should_release", "true");
-          setOutput("release_type", requestedReleaseType);
-          setOutput("release_source", "manual");
-          setOutput("reason", `Manual ${requestedReleaseType} release requested.`);
-          process.exit(0);
-        }
 
           if (!hasPublishedV2) {
             if (packageJson.version !== "2.0.0") {
@@ -143,48 +148,62 @@ jobs:
             process.exit(0);
           }
 
-          const changesetDir = ".changeset";
-          const changesetFiles = fs
-            .readdirSync(changesetDir)
-            .filter((file) => file.endsWith(".md") && file !== "README.md");
-
-          const bumpRank = { patch: 1, minor: 2 };
+          const before = process.env.BEFORE_SHA;
+          const after = process.env.AFTER_SHA || "HEAD";
+          const bumpRank = { patch: 1, minor: 2, major: 3 };
           let releaseType = "";
+          let commitMessages = "";
 
-          for (const file of changesetFiles) {
-            const content = fs.readFileSync(
-              path.join(changesetDir, file),
-              "utf8",
+          try {
+            const range =
+              before && !/^0+$/.test(before) ? `${before}..${after}` : after;
+            commitMessages = execFileSync(
+              "git",
+              ["log", range, "--format=%B%n---END-COMMIT---"],
+              { encoding: "utf8" },
             );
-            const frontmatter = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-
-            if (!frontmatter) {
-              continue;
-            }
-
-            const packageBump = frontmatter[1].match(
-              new RegExp(`["']?${packageName.replace("/", "\\/")}["']?:\\s*(\\w+)`),
+          } catch {
+            commitMessages = execFileSync(
+              "git",
+              ["log", "-1", "--format=%B"],
+              { encoding: "utf8" },
             );
+          }
 
-            if (!packageBump) {
-              continue;
+          console.log("Commit messages considered for release:");
+          console.log(commitMessages);
+
+          const commits = commitMessages
+            .split("---END-COMMIT---")
+            .map((message) => message.trim())
+            .filter(Boolean);
+
+          const bumpForCommit = (message) => {
+            const firstLine = message.split(/\r?\n/, 1)[0]?.trim() ?? "";
+
+            if (
+              /\bbreaking\b/i.test(firstLine) ||
+              /BREAKING CHANGE:/i.test(message) ||
+              /^[a-z]+(?:\([^)]+\))?!:/i.test(firstLine)
+            ) {
+              return "major";
             }
 
-            const bump = packageBump[1];
-
-            if (bump === "major") {
-              throw new Error(
-                `${file} requests a major release for ${packageName}; core v2 releases only support patch or minor bumps.`,
-              );
+            if (/^feat(?:\([^)]+\))?:/i.test(firstLine)) {
+              return "minor";
             }
 
-            if (!bumpRank[bump]) {
-              throw new Error(
-                `${file} has unsupported release type "${bump}" for ${packageName}.`,
-              );
+            if (/^(fix|chore|refactor)(?:\([^)]+\))?:/i.test(firstLine)) {
+              return "patch";
             }
 
-            if (!releaseType || bumpRank[bump] > bumpRank[releaseType]) {
+            return "";
+          };
+
+          for (const commit of commits) {
+            const bump = bumpForCommit(commit);
+
+            if (bump && (!releaseType || bumpRank[bump] > bumpRank[releaseType])) {
               releaseType = bump;
             }
           }
@@ -195,30 +214,28 @@ jobs:
             setOutput("release_source", "auto");
             setOutput(
               "reason",
-              `No patch or minor changeset found for ${packageName}.`,
+              "No feat, fix, chore, refactor, or breaking commit found.",
             );
             process.exit(0);
           }
 
           setOutput("should_release", "true");
           setOutput("release_type", releaseType);
-          setOutput("release_source", "changeset");
-          setOutput("reason", `${releaseType} changeset found.`);
+          setOutput("release_source", "commit");
+          setOutput("reason", `${releaseType} commit signal found.`);
           NODE
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REQUESTED_RELEASE_TYPE: ${{ inputs.release_type || 'auto' }}
+          BEFORE_SHA: ${{ github.event.pull_request.base.sha }}
+          AFTER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Skip release
         if: ${{ steps.release.outputs.should_release != 'true' }}
         run: echo "${{ steps.release.outputs.reason }}"
 
-      - name: Apply changeset version
-        if: ${{ steps.release.outputs.release_source == 'changeset' }}
-        run: pnpm changeset version
-
-      - name: Apply manual version bump
-        if: ${{ steps.release.outputs.release_source == 'manual' && (steps.release.outputs.release_type == 'patch' || steps.release.outputs.release_type == 'minor') }}
+      - name: Apply version bump
+        if: ${{ steps.release.outputs.should_release == 'true' && steps.release.outputs.release_type != 'initial' }}
         working-directory: packages/core
         run: pnpm version ${{ steps.release.outputs.release_type }} --no-git-tag-version
 
@@ -268,11 +285,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit release changes
-        if: ${{ steps.version_check.outputs.can_publish == 'true' && (steps.release.outputs.release_type == 'patch' || steps.release.outputs.release_type == 'minor') }}
+        if: ${{ steps.version_check.outputs.can_publish == 'true' && steps.release.outputs.release_type != 'initial' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .changeset packages/core/package.json packages/core/CHANGELOG.md
+          git add packages/core/package.json pnpm-lock.yaml
           git diff --cached --quiet && echo "No release files changed; continuing without a release commit." || git commit -m "chore: release core v${{ steps.package.outputs.version }} [skip ci]"
           git push
 
