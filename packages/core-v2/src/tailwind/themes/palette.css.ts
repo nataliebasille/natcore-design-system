@@ -17,7 +17,6 @@ export default () => [
         colorKeyWithoutPalette({ ...color, mode: "adaptive" }),
       ),
     ),
-    "--select-chevron": dsl.match.variable("--select-chevron"),
   }),
 
   // utility("bg", {

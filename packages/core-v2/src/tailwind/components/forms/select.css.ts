@@ -4,13 +4,10 @@ const CHEVRON_SIZE = dsl.primitive.length.em(1);
 export default dsl.layer.base(
   dsl.styleRule(dsl.select.element("select"), {
     appearance: "none",
-    "background-image": dsl.cssvar(
-      "--select-chevron",
-      dsl.cssvar("--select-chevron-surface"),
-    ),
-    "background-position": `right ${CHEVRON_SIZE} center`,
+    "background-image": `linear-gradient(45deg, transparent 45%, currentColor 45% 58%, transparent 58%), linear-gradient(135deg, transparent 45%, currentColor 45% 58%, transparent 58%);`,
+    "background-position": `calc(100% - 1.15rem) 50%, calc(100% - 0.85rem) 50%`,
+    "background-size": `0.35rem 0.35rem, 0.35rem 0.35rem`,
     "background-repeat": "no-repeat",
-    "background-size": `${CHEVRON_SIZE} ${CHEVRON_SIZE}`,
   }),
 
   dsl.supports(

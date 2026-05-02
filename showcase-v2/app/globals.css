@@ -7,3 +7,122 @@
   --breakpoint-tablet: 48rem;
   --breakpoint-desktop: 80rem;
 }
+
+:root[data-theme="cobalt-fig"] {
+  --theme-primary: #3f4fd8;
+  --theme-secondary: #7c3aed;
+  --theme-accent: #d84f8f;
+
+  --theme-surface-50: #f4f5ff;
+  --theme-surface-500: #6e7398;
+  --theme-surface-950: #0d1026;
+
+  --theme-danger: #cf3f5b;
+  --theme-success: #2f9b76;
+}
+
+:root[data-theme="prism-orchard"] {
+  --theme-primary: #6d3df5;
+  --theme-secondary: #0097a7;
+  --theme-accent: #ff4f9a;
+
+  --theme-surface-50: #f8f7ff;
+  --theme-surface-500: #706f87;
+  --theme-surface-950: #0f1020;
+
+  --theme-danger: #e34b66;
+  --theme-success: #21a67a;
+}
+
+:root[data-theme="fern-kiln"] {
+  --theme-primary: #496b42;
+  --theme-secondary: #3f6f7d;
+  --theme-accent: #b8793e;
+
+  --theme-surface-50: #f5f5ef;
+  --theme-surface-500: #727267;
+  --theme-surface-950: #11130d;
+
+  --theme-danger: #b94a42;
+  --theme-success: #3f8f57;
+}
+
+:root[data-theme="amber-current"] {
+  --theme-primary: #d46b1f;
+  --theme-secondary: #2563a6;
+  --theme-accent: #e6a500;
+
+  --theme-surface-50: #fff8ed;
+  --theme-surface-500: #7c7060;
+  --theme-surface-950: #17110a;
+
+  --theme-danger: #d94848;
+  --theme-success: #3f9b65;
+}
+
+:root[data-theme="plum-harbor"] {
+  --theme-primary: #8b5cf6;
+  --theme-secondary: #14b8a6;
+  --theme-accent: #f43f8b;
+
+  --theme-surface-50: #faf7fb;
+  --theme-surface-500: #706875;
+  --theme-surface-950: #0d0a10;
+
+  --theme-danger: #f04452;
+  --theme-success: #22a06b;
+}
+
+:root[data-theme="harbor-glass"] {
+  --theme-primary: #245c73;
+  --theme-secondary: #4f46a5;
+  --theme-accent: #d16f55;
+
+  --theme-surface-50: #f2f7f8;
+  --theme-surface-500: #68777c;
+  --theme-surface-950: #0b1113;
+
+  --theme-danger: #c94d5d;
+  --theme-success: #2f9278;
+}
+
+/* More colorful surfaces */
+
+:root[data-theme="rose-terracotta"] {
+  --theme-primary: #9d3f73;
+  --theme-secondary: #b95f3b;
+  --theme-accent: #e09f3e;
+
+  --theme-surface-50: #fff1ed;
+  --theme-surface-500: #987064;
+  --theme-surface-950: #24110d;
+
+  --theme-danger: #c84052;
+  --theme-success: #478f63;
+}
+
+:root[data-theme="sage-lagoon"] {
+  --theme-primary: #357a65;
+  --theme-secondary: #2f6f8f;
+  --theme-accent: #c4874a;
+
+  --theme-surface-50: #eef8f1;
+  --theme-surface-500: #698471;
+  --theme-surface-950: #0d1b12;
+
+  --theme-danger: #bd4b4f;
+  --theme-success: #34875c;
+}
+
+:root[data-theme="lilac-dusk"] {
+  --theme-primary: #7054c8;
+  --theme-secondary: #b0528a;
+  --theme-accent: #e08f62;
+
+  --theme-surface-50: #f7f0ff;
+  --theme-surface-500: #7f6c92;
+  --theme-surface-950: #160d20;
+
+  --theme-danger: #c84967;
+  --theme-success: #3d9676;
+}
