@@ -46,13 +46,13 @@
     "tailwindcss": "^4.1.16"
   },
   "dependencies": {
-    "@nataliebasille/css-engine": "workspace:*",
     "chroma-js": "^3.2.0",
     "classnames": "^2.5.1",
     "culori": "^4.0.2",
     "next-themes": "^0.4.6"
   },
   "devDependencies": {
+    "@nataliebasille/css-engine": "workspace:*",
     "@tailwindcss/cli": "^4.1.16",
     "@types/chroma-js": "^3.1.2",
     "@types/culori": "^4.0.1",

@@ -7,6 +7,7 @@
     "changeset": "changeset",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test:core:2x": "pnpm check:release:2x && pnpm --filter @nataliebasille/css-engine test && pnpm --filter @nataliebasille/natcore-design-system type-check",
     "format": "concurrently \"prettier packages --write --cache --cache-location .cache/prettier/packages.cache --ignore-unknown\" \"prettier showcase --write --cache --cache-location .cache/prettier/showcase.cache --ignore-unknown\" \"prettier showcase-v2 --write --cache --cache-location .cache/prettier/showcase-v2.cache --ignore-unknown\" \"prettier package.json pnpm-workspace.yaml README.md eslint.config.cjs tsconfig.base.json .prettierrc.cjs --write --cache --cache-location .cache/prettier/root.cache --ignore-unknown\"",
     "format:check": "concurrently \"prettier packages --check --cache --cache-location .cache/prettier/packages.cache --ignore-unknown\" \"prettier showcase --check --cache --cache-location .cache/prettier/showcase.cache --ignore-unknown\" \"prettier showcase-v2 --check --cache --cache-location .cache/prettier/showcase-v2.cache --ignore-unknown\" \"prettier package.json pnpm-workspace.yaml README.md eslint.config.cjs tsconfig.base.json .prettierrc.cjs --check --cache --cache-location .cache/prettier/root.cache --ignore-unknown\"",
     "build": "pnpm --filter @nataliebasille/natcore-design-system build && pnpm --filter showcase build",

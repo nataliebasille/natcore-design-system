@@ -111,9 +111,6 @@ importers:
 
   packages/core:
     dependencies:
-      '@nataliebasille/css-engine':
-        specifier: workspace:*
-        version: link:../../internal/css-engine
       chroma-js:
         specifier: ^3.2.0
         version: 3.2.0
@@ -130,6 +127,9 @@ importers:
         specifier: ^4.1.16
         version: 4.1.16
     devDependencies:
+      '@nataliebasille/css-engine':
+        specifier: workspace:*
+        version: link:../../internal/css-engine
       '@tailwindcss/cli':
         specifier: ^4.1.16
         version: 4.1.16
