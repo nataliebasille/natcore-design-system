@@ -99,18 +99,24 @@ export function ThemeToggle({
             suppressHydrationWarning
             key={theme.id}
             className={twMerge(
-              "inline-flex btn-outline items-center gap-3 tablet:btn-size-lg",
-              !theme.id && "col-span-full justify-center",
+              "btn-outline tablet:btn-size-lg",
+              !theme.id && "col-span-full",
               theme.id === currentTheme &&
                 "pointer-events-none btn-soft/primary!",
             )}
             onClick={() => setTheme(theme.id)}
           >
             <div
-              className="size-5 rounded-full border"
-              style={{
-                borderColor: get500Color(theme.accent),
-                background: `
+              className={twMerge(
+                "inline-flex w-full items-center gap-3",
+                !theme.id && "justify-center",
+              )}
+            >
+              <div
+                className="size-5 rounded-full border"
+                style={{
+                  borderColor: get500Color(theme.accent),
+                  background: `
                 conic-gradient(
                   from 270deg,
                   ${get500Color(theme.primary)} 0deg 108deg,
@@ -119,9 +125,10 @@ export function ThemeToggle({
                   ${get500Color(theme.surface)} 180deg 360deg
                 )
               `,
-              }}
-            />
-            {theme.label}
+                }}
+              />
+              {theme.label}
+            </div>
           </button>
         ))}
       </div>
