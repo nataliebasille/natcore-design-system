@@ -28,6 +28,9 @@ import {
 import { notFound } from "next/navigation";
 import { type PropsWithChildren, type ReactNode } from "react";
 
+export const dynamicParams = false;
+export const revalidate = false;
+
 export async function generateStaticParams() {
   const modules = await listTailwindModules();
   return modules.map((m) => ({ designItem: [...m.category, m.name] }));
