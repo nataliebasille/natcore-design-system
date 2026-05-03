@@ -11,11 +11,6 @@
       "style": "./dist/natcore.css",
       "default": "./dist/natcore.css"
     },
-    "./plugin": {
-      "types": "./dist/plugin.d.ts",
-      "import": "./dist/plugin.js",
-      "require": "./dist/plugin.cjs"
-    },
     "./utils": {
       "types": "./dist/utils.d.ts",
       "import": "./dist/utils.js",
