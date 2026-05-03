@@ -1,9 +1,6 @@
 /* Natcore Design System */
 @import "tailwindcss";
 
-/* Plugin with default colors */
-@plugin "@nataliebasille/natcore-design-system-v2/plugin";
-
 /* Note: color-scheme is now controlled by user via scheme-* utility classes */
 
 @import "./themes/color.css";
