@@ -9,8 +9,6 @@ This is a **monorepo design system** with three main packages and a Next.js show
 - `packages/icons`: SVG icon components
 - `showcase`: Next.js documentation site demonstrating components
 
-**Key Integration**: The design system uses a custom Tailwind plugin (`packages/core/src/plugin.ts`) that generates CSS variables and utility classes based on color schemas defined in `packages/core/src/themes/colors.ts`.
-
 ## Development Workflow
 
 ### Building & Running

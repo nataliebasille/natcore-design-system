@@ -2,7 +2,6 @@
 // This package is designed for Tailwind CSS 4.0
 
 export * from "./src/shared/utils.ts";
-export * from "./src/tailwind/plugin.ts";
 
 // Re-export types and utilities that will be used by consumers
 export type { Config } from "tailwindcss";
@@ -10,6 +9,3 @@ export type { Config } from "tailwindcss";
 // Version identifier
 export const VERSION = "2.0.0";
 export const TAILWIND_VERSION = "4.0";
-
-// Default export is the plugin function for convenience
-export { default } from "./src/tailwind/plugin.ts";
