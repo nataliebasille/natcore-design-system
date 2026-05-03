@@ -340,9 +340,6 @@ importers:
       '@nataliebasille/natcore-design-system-react':
         specifier: workspace:*
         version: link:../packages/react
-      '@nataliebasille/natcore-design-system-v2':
-        specifier: workspace:*
-        version: link:../packages/core-v2
       '@nataliebasille/natcore-icons':
         specifier: workspace:*
         version: link:../packages/icons
