@@ -116,6 +116,14 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      <div className="divider my-8" />
+
+      <div className="flex">
+        <button className="ml-auto flex btn-outline items-center gap-2 btn-size-sm">
+          Installation guide <ArrowRightIcon className="size-3" />
+        </button>
+      </div>
     </article>
   );
 }

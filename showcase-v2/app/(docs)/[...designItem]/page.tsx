@@ -246,7 +246,7 @@ function DesignItemPageSection({
   return (
     <div className="mt-6 mb-8 card-soft">
       <div data-slot="content">
-        <DocSection title={title} description={description}>
+        <DocSection title={title} description={description} className="m-0">
           {children}
         </DocSection>
       </div>

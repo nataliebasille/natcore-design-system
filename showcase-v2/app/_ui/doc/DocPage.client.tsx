@@ -159,7 +159,7 @@ export function DocSection({
   const { Header, id, childContext } = useNextLevel(title);
 
   return (
-    <div className={className}>
+    <div className={twMerge("mt-6 mb-8", className)}>
       <div className="relative">
         <CopySectionUrl sectionId={id} />
 
