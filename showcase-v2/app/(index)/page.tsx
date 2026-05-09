@@ -18,7 +18,7 @@ const BG_COLORS: Record<(typeof PALETTE)[number], string> = {
 
 export default function Home() {
   return (
-    <article>
+    <article className="p-4 desktop:p-6">
       <h1>
         <span>Natcore</span>
         <br />
@@ -31,7 +31,7 @@ export default function Home() {
         product renders HTML, Natcore can style it.
       </p>
 
-      <div className="divider my-8" />
+      <div className="my-8 divider" />
 
       <div className="flex flex-col">
         <Overline>Principles</Overline>
@@ -69,7 +69,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="divider my-8" />
+      <div className="my-8 divider" />
 
       <div className="flex flex-col">
         <Overline>Explore</Overline>
@@ -94,7 +94,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="divider my-8" />
+      <div className="my-8 divider" />
 
       <div className="">
         <Overline>Core Tokens</Overline>
@@ -117,7 +117,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="divider my-8" />
+      <div className="my-8 divider" />
 
       <div className="flex">
         <button className="ml-auto flex btn-outline items-center gap-2 btn-size-sm">
