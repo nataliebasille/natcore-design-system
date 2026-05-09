@@ -1,230 +1,185 @@
-import { DocPage } from "@/ui/doc/DocPage";
-import { DocSection } from "@/ui/doc/DocPage.client";
-import { ServerFormattedCodeSnippet } from "@/ui/code-snippet/server-formatted-code-snippet";
-import { Spotlight } from "@/ui/doc/spotlight";
-import { ArrowRightIcon } from "@/ui/icons";
-import { Overline } from "@/ui/layout/overline";
-import { type ReactNode } from "react";
+import { ServerFormattedCodeSnippet } from '@/ui/code-snippet/server-formatted-code-snippet'
+import { DocPage } from '@/ui/doc/DocPage'
+import { DocSection } from '@/ui/doc/DocPage.client'
+import { ArrowLeftIcon, ArrowRightIcon } from '@/ui/icons'
+import Link from 'next/link'
+import { type ReactNode } from 'react'
 
 const installCommands = [
   {
-    label: "pnpm",
-    code: `pnpm add @nataliebasille/natcore-design-system tailwindcss`,
+    label: 'pnpm',
+    code: 'pnpm add @nataliebasille/natcore-design-system tailwindcss',
   },
   {
-    label: "yarn",
-    code: `yarn add @nataliebasille/natcore-design-system tailwindcss`,
+    label: 'npm',
+    code: 'npm install @nataliebasille/natcore-design-system tailwindcss',
   },
   {
-    label: "npm",
-    code: `npm install @nataliebasille/natcore-design-system tailwindcss`,
+    label: 'yarn',
+    code: 'yarn add @nataliebasille/natcore-design-system tailwindcss',
   },
-] as const;
+] as const
 
 const stylesheetImport = `@import "tailwindcss";
-@import "@nataliebasille/natcore-design-system";`;
+@import "@nataliebasille/natcore-design-system";`
 
 const themeExample = `<html data-theme="citrine-reef">
   <body>
     <button class="button button-solid/primary">Create project</button>
   </body>
-</html>`;
+</html>`
 
-const productionCheck = `pnpm build`;
+const productionCheck = 'pnpm build'
 
 const steps = [
   {
-    title: "Install the package",
-    eyebrow: "Package",
-    body: "Add Natcore and Tailwind to the app that owns your global stylesheet.",
-    installCommands,
-  } as const,
-  {
-    title: "Import the CSS",
-    eyebrow: "Stylesheet",
-    body: "Load Tailwind first, then Natcore. The design system registers tokens, component classes, modifiers, and theme-ready color palettes.",
-    code: stylesheetImport,
-    language: "css",
+    title: 'Install package',
+    description: 'Add Natcore and Tailwind to the app that owns your global stylesheet.',
+    content: installCommands.map((command) => (
+      <CommandBlock key={command.label} label={command.label}>
+        <ServerFormattedCodeSnippet code={command.code} language="bash" />
+      </CommandBlock>
+    )),
   },
   {
-    title: "Apply classes in markup",
-    eyebrow: "Usage",
-    body: "Compose components and modifiers directly on the element. Theme changes can happen above the UI with a data attribute.",
-    code: themeExample,
-    language: "html",
+    title: 'Import stylesheet',
+    description:
+      'Load Tailwind first, then Natcore. The import registers tokens, component classes, modifiers, and color palettes.',
+    content: <ServerFormattedCodeSnippet code={stylesheetImport} language="css" />,
   },
   {
-    title: "Build once",
-    eyebrow: "Verify",
-    body: "Run a production build after the first import so Tailwind can scan your project and emit the classes you use.",
-    code: productionCheck,
-    language: "bash",
+    title: 'Use classes',
+    description:
+      'Natcore is CSS-first, so the same classes work in React, server-rendered templates, or plain HTML.',
+    content: <ServerFormattedCodeSnippet code={themeExample} language="html" />,
   },
-] as const;
-
-const supportedSurfaces = [
-  "Next.js app router",
-  "React client apps",
-  "Static HTML",
-  "Any UI that renders class names",
-];
+  {
+    title: 'Verify setup',
+    description:
+      'Run a production build once after the import is in place so Tailwind can emit the classes used by your app.',
+    content: <ServerFormattedCodeSnippet code={productionCheck} language="bash" />,
+  },
+] as const
 
 export default function InstallationPage() {
   return (
     <DocPage
       title="Installation"
-      description="Set up Natcore once, then style UI through portable class names, tokens, and themes."
+      description="Install Natcore, import the stylesheet, and start using component classes in your markup."
     >
       <DocSection title="Quick start">
-        <Spotlight className="overflow-hidden p-0">
-          <div className="grid gap-0 desktop:grid-cols-[minmax(0,1fr)_18rem]">
-            <div className="p-5 tablet:p-6">
-              <Overline className="mb-3 text-on-50/60">Install flow</Overline>
-              <p className="max-w-2xl text-sm/7 text-on-50/75">
-                Natcore is CSS-first. The only hard requirement is that your app
-                can import a global stylesheet and render HTML class names. From
-                there, components, modifiers, and themes all travel through
-                markup.
-              </p>
-            </div>
-            <div className="border-t border-on-50/10 bg-on-50/5 p-5 tablet:p-6 desktop:border-t-0 desktop:border-l">
-              <div className="text-sm font-semibold tracking-tight">
-                Works well with
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {supportedSurfaces.map((surface) => (
-                  <span
-                    key={surface}
-                    className="badge-soft/surface rounded-md px-2 py-1 text-xs"
-                  >
-                    {surface}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Spotlight>
-      </DocSection>
-
-      <DocSection
-        title="Installation steps"
-        description="Move top to bottom. Each step builds on the one before it, so the page reads like a setup checklist instead of four loose snippets."
-      >
-        <div className="relative mt-3">
-          <div className="space-y-5">
-            {steps.map((step, index) => (
-              <InstallStep
-                key={step.title}
-                number={index + 1}
-                isLast={index === steps.length - 1}
-                {...(step as any)}
-              />
-            ))}
-          </div>
+        <div className="grid gap-6">
+          {steps.map((step, index) => (
+            <StepSection
+              key={step.title}
+              number={index + 1}
+              title={step.title}
+              description={step.description}
+            >
+              {step.content}
+            </StepSection>
+          ))}
         </div>
       </DocSection>
 
-      <DocSection title="After install">
+      <DocSection title="Next steps">
         <div className="grid gap-3 tablet:grid-cols-3">
           <InfoPanel
-            title="Use components"
-            description="Start with classes like button, card, badge, divider, list, toggle, and tray."
+            title="Components"
+            description="Start with button, card, badge, divider, list, toggle, and tray."
+            href="/components/button"
           />
           <InfoPanel
-            title="Compose modifiers"
+            title="Modifiers"
             description="Pair component classes with palette and state modifiers to keep markup readable."
           />
           <InfoPanel
-            title="Switch themes"
-            description="Set a supported data-theme on the root element and the same HTML follows the new palette."
+            title="Themes"
+            description="Set data-theme on the root element and the same HTML follows the new palette."
           />
         </div>
+
+        <Link href="/" className="mt-4 flex w-fit btn-outline items-center gap-2 btn-size-sm">
+          <ArrowLeftIcon className="size-3" /> Introduction
+        </Link>
       </DocSection>
     </DocPage>
-  );
+  )
 }
 
-type InstallStepProps = {
-  number: number;
-  eyebrow: string;
-  title: string;
-  body: string;
-} & (
-  | { code: string; language: "bash" | "css" | "html"; installCommands?: never }
-  | {
-      installCommands: readonly { label: string; code: string }[];
-      code?: never;
-      language?: never;
-    }
-);
-
-function InstallStep({
-  number,
-  eyebrow,
-  title,
-  body,
-  ...rest
-}: InstallStepProps) {
-  const codeBlock =
-    "installCommands" in rest && rest.installCommands ?
-      <div className="flex flex-col gap-2">
-        {rest.installCommands.map(({ label, code }) => (
-          <div key={label}>
-            <div className="mb-1 text-xs font-medium text-surface-950/50">
-              {label}
-            </div>
-            <ServerFormattedCodeSnippet code={code} language="bash" />
-          </div>
-        ))}
-      </div>
-    : "code" in rest && rest.code ?
-      <ServerFormattedCodeSnippet code={rest.code} language={rest.language!} />
-    : null;
+function CommandBlock({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
-    <div className="relative grid grid-cols-1 gap-4 tablet:grid-cols-[2.5rem_minmax(0,1fr)] [&:last-child_.card]:mb-0 [&:not(:last-child)_.divider-v]:h-[calc(100%+var(--spacing)*5)]">
-      <div className="mt-1 divider-v [--divider-gap:0] divider-place-content-start max-tablet:hidden">
-        <div className="flex size-10 flex-[0_0_auto] items-center justify-center rounded-full border-2 border-accent-500 bg-accent-500/10 text-sm font-semibold text-accent-600">
-          {number}
-        </div>
+    <div>
+      <div className="mb-1 text-xs font-medium tracking-wider text-surface-950/50 uppercase">
+        {label}
       </div>
-
-      <div className="card mb-1 card-soft/surface">
-        <div data-slot="content" className="gap-4">
-          <div>
-            <Overline className="mb-2 flex items-center">
-              <span>{eyebrow}</span>
-              <span className="ml-auto badge-soft/accent rounded-md text-xs tablet:hidden">
-                Step {number}
-              </span>
-            </Overline>
-            <h3 className="m-0 text-xl tracking-tight">{title}</h3>
-          </div>
-
-          <p className="max-w-2xl text-sm/7 text-surface-950/65">{body}</p>
-
-          {codeBlock}
-        </div>
-      </div>
+      {children}
     </div>
-  );
+  )
+}
+
+function StepSection({
+  number,
+  title,
+  description,
+  children,
+}: {
+  number: number
+  title: ReactNode
+  description: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <section className="grid gap-3 tablet:grid-cols-[2.25rem_minmax(0,1fr)] tablet:gap-4">
+      <div className="max-tablet:hidden">
+        <span className="flex size-9 items-center justify-center rounded-md border border-surface-600/25 bg-surface-50 text-sm font-semibold text-on-surface-50">
+          {number}
+        </span>
+      </div>
+
+      <div>
+        <div className="mb-3 flex items-start gap-3">
+          <span className="flex size-9 flex-[0_0_auto] items-center justify-center rounded-md border border-surface-600/25 bg-surface-50 text-sm font-semibold text-on-surface-50 tablet:hidden">
+            {number}
+          </span>
+          <div>
+            <h2 className="mt-0! mb-1 text-2xl tracking-tight">{title}</h2>
+            <p className="text-sm/7 text-surface-950/65">{description}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4">{children}</div>
+      </div>
+    </section>
+  )
 }
 
 function InfoPanel({
   title,
   description,
+  href,
 }: {
-  title: ReactNode;
-  description: ReactNode;
+  title: ReactNode
+  description: ReactNode
+  href?: string
 }) {
-  return (
-    <div className="card card-outline/surface">
-      <div data-slot="content" className="gap-2">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <ArrowRightIcon className="size-4 text-accent-500" />
-          {title}
-        </div>
-        <p className="text-xs/6 text-surface-950/65">{description}</p>
+  const content = (
+    <div data-slot="content" className="gap-2">
+      <div className="flex items-center gap-2 text-sm font-semibold">
+        {href && <ArrowRightIcon className="size-4 text-accent-500" />}
+        {title}
       </div>
+      <p className="text-xs/6 text-surface-950/65">{description}</p>
     </div>
-  );
+  )
+
+  if (href) {
+    return (
+      <Link href={href} className="card card-hover card-soft/surface">
+        {content}
+      </Link>
+    )
+  }
+
+  return <div className="card card-soft/surface">{content}</div>
 }
