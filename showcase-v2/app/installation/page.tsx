@@ -1,11 +1,25 @@
 import { DocPage } from "@/ui/doc/DocPage";
 import { DocSection } from "@/ui/doc/DocPage.client";
+import { ServerFormattedCodeSnippet } from "@/ui/code-snippet/server-formatted-code-snippet";
 import { Spotlight } from "@/ui/doc/spotlight";
 import { ArrowRightIcon } from "@/ui/icons";
 import { Overline } from "@/ui/layout/overline";
 import { type ReactNode } from "react";
 
-const installCommand = `pnpm add @nataliebasille/natcore-design-system tailwindcss`;
+const installCommands = [
+  {
+    label: "pnpm",
+    code: `pnpm add @nataliebasille/natcore-design-system tailwindcss`,
+  },
+  {
+    label: "yarn",
+    code: `yarn add @nataliebasille/natcore-design-system tailwindcss`,
+  },
+  {
+    label: "npm",
+    code: `npm install @nataliebasille/natcore-design-system tailwindcss`,
+  },
+] as const;
 
 const stylesheetImport = `@import "tailwindcss";
 @import "@nataliebasille/natcore-design-system";`;
@@ -23,9 +37,8 @@ const steps = [
     title: "Install the package",
     eyebrow: "Package",
     body: "Add Natcore and Tailwind to the app that owns your global stylesheet.",
-    code: installCommand,
-    language: "bash",
-  },
+    installCommands,
+  } as const,
   {
     title: "Import the CSS",
     eyebrow: "Stylesheet",
@@ -68,9 +81,9 @@ export default function InstallationPage() {
             <div className="p-5 tablet:p-6">
               <Overline className="mb-3 text-on-50/60">Install flow</Overline>
               <p className="max-w-2xl text-sm/7 text-on-50/75">
-                Natcore v2 is CSS-first. The only hard requirement is that your
-                app can import a global stylesheet and render HTML class names.
-                From there, components, modifiers, and themes all travel through
+                Natcore is CSS-first. The only hard requirement is that your app
+                can import a global stylesheet and render HTML class names. From
+                there, components, modifiers, and themes all travel through
                 markup.
               </p>
             </div>
@@ -104,7 +117,7 @@ export default function InstallationPage() {
                 key={step.title}
                 number={index + 1}
                 isLast={index === steps.length - 1}
-                {...step}
+                {...(step as any)}
               />
             ))}
           </div>
@@ -131,72 +144,67 @@ export default function InstallationPage() {
   );
 }
 
+type InstallStepProps = {
+  number: number;
+  eyebrow: string;
+  title: string;
+  body: string;
+} & (
+  | { code: string; language: "bash" | "css" | "html"; installCommands?: never }
+  | {
+      installCommands: readonly { label: string; code: string }[];
+      code?: never;
+      language?: never;
+    }
+);
+
 function InstallStep({
   number,
   eyebrow,
   title,
   body,
-  code,
-  language,
-  isLast,
-}: {
-  number: number;
-  eyebrow: string;
-  title: string;
-  body: string;
-  code: string;
-  language: "bash" | "css" | "html";
-  isLast: boolean;
-}) {
+  ...rest
+}: InstallStepProps) {
+  const codeBlock =
+    "installCommands" in rest && rest.installCommands ?
+      <div className="flex flex-col gap-2">
+        {rest.installCommands.map(({ label, code }) => (
+          <div key={label}>
+            <div className="mb-1 text-xs font-medium text-surface-950/50">
+              {label}
+            </div>
+            <ServerFormattedCodeSnippet code={code} language="bash" />
+          </div>
+        ))}
+      </div>
+    : "code" in rest && rest.code ?
+      <ServerFormattedCodeSnippet code={rest.code} language={rest.language!} />
+    : null;
   return (
-    <div className="relative grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4">
-      <div className="divider-v divider-place-content-start">
-        <div className="flex size-10 flex-[0_0_auto] items-center justify-center rounded-full border border-surface-600/40 bg-surface-50 text-sm font-semibold text-surface-950 shadow-sm">
+    <div className="relative grid grid-cols-1 gap-4 tablet:grid-cols-[2.5rem_minmax(0,1fr)] [&:last-child_.card]:mb-0 [&:not(:last-child)_.divider-v]:h-[calc(100%+var(--spacing)*5)]">
+      <div className="mt-1 divider-v [--divider-gap:0] divider-place-content-start max-tablet:hidden">
+        <div className="flex size-10 flex-[0_0_auto] items-center justify-center rounded-full border-2 border-accent-500 bg-accent-500/10 text-sm font-semibold text-accent-600">
           {number}
         </div>
       </div>
 
-      <div
-        className={["card card-soft/surface", isLast ? "mb-0" : "mb-1"].join(
-          " ",
-        )}
-      >
+      <div className="card mb-1 card-soft/surface">
         <div data-slot="content" className="gap-4">
-          <div className="flex flex-col gap-2 tablet:flex-row tablet:items-start tablet:justify-between">
-            <div>
-              <Overline className="mb-2">{eyebrow}</Overline>
-              <h3 className="m-0 text-xl tracking-tight">{title}</h3>
-            </div>
-            <span className="badge-soft/accent w-fit rounded-md px-2 py-1 text-xs">
-              Step {number}
-            </span>
+          <div>
+            <Overline className="mb-2 flex items-center">
+              <span>{eyebrow}</span>
+              <span className="ml-auto badge-soft/accent rounded-md text-xs tablet:hidden">
+                Step {number}
+              </span>
+            </Overline>
+            <h3 className="m-0 text-xl tracking-tight">{title}</h3>
           </div>
 
           <p className="max-w-2xl text-sm/7 text-surface-950/65">{body}</p>
 
-          <InlineCodeBlock code={code} language={language} />
+          {codeBlock}
         </div>
       </div>
-    </div>
-  );
-}
-
-function InlineCodeBlock({
-  code,
-  language,
-}: {
-  code: string;
-  language: string;
-}) {
-  return (
-    <div className="overflow-hidden rounded-lg border border-on-50/10 bg-zinc-950 text-on-50">
-      <div className="flex items-center justify-between border-b border-on-50/10 px-4 py-2 text-xs font-bold tracking-widest text-on-50/55 uppercase">
-        Code
-        <span className="text-accent-500">{language}</span>
-      </div>
-      <pre className="max-w-full overflow-x-auto p-4 text-sm/6 whitespace-pre">
-        <code>{code}</code>
-      </pre>
     </div>
   );
 }

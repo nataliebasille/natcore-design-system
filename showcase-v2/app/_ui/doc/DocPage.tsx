@@ -28,9 +28,9 @@ const Description = ({
 
 export const DocPage = ({ children, title, description }: DocPageProps) => {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start divide-surface-600/30 scroll-smooth desktop:divide-x desktop:*:not-first:pl-4 desktop:*:not-last:pr-4">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start divide-surface-600/30 scroll-smooth desktop:divide-x desktop:*:not-first:pl-4 desktop:*:not-last:pr-6">
       <DocOutlineProvider>
-        <article className="h-full w-full desktop:p-6">
+        <article className="h-full w-full px-4 desktop:p-6">
           <h1 id={title}>{title}</h1>
 
           {description && (

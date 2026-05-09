@@ -40,12 +40,15 @@ const parsersConfig = {
   { parser: string; plugins: unknown[]; [key: string]: unknown }
 >;
 
-export type SupportedLanguages = keyof typeof parsersConfig;
+export type SupportedLanguages = keyof typeof parsersConfig | "bash" | "css";
 
 export async function formatCode(code: string, language: SupportedLanguages) {
   try {
     return language in parsersConfig ?
-        await prettier.format(code, parsersConfig[language])
+        await prettier.format(
+          code,
+          parsersConfig[language as keyof typeof parsersConfig],
+        )
       : code;
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {

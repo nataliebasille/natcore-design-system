@@ -58,6 +58,10 @@ export default {
         "Moves the divider label toward the start, center, or end of the available line space. Accepts named tokens or arbitrary percentages.",
     },
   },
+  cssvars: {
+    "--gap":
+      "Controls the spacing between the label and divider lines. The default is 0.5rem (2).",
+  },
   sections: [
     {
       title: "Placement Utility",

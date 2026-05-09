@@ -70,7 +70,7 @@ export default async function RootLayout({
 
               {renderSidebarLinks(links)}
             </Sidebar>
-            <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-surface-50 p-6 max-tablet:col-span-2">
+            <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-surface-50 max-tablet:col-span-2">
               {children}
             </main>
           </SidebarProvider>
