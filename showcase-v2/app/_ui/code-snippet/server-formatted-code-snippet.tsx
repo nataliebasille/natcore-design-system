@@ -14,8 +14,9 @@ export async function ServerFormattedCodeSnippet({
   language,
 }: ServerFormattedCodeSnippetProps) {
   const formatted = await formatCode(code, language)
+  const shikiLanguage = language === 'css' ? 'postcss' : language
   const html = await codeToHtml(formatted, {
-    lang: language,
+    lang: shikiLanguage,
     theme: 'github-dark',
     structure: 'inline',
   })

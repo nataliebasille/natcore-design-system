@@ -66,7 +66,10 @@ export default async function RootLayout({
                 <SidebarLink href="/installation">Installation</SidebarLink>
               </SidebarGroup>
 
-              <SidebarGroup header="Core"></SidebarGroup>
+              <SidebarGroup header="Core">
+                <SidebarLink href="/core/tokens">Tokens</SidebarLink>
+                <SidebarLink href="/core/theming">Theming</SidebarLink>
+              </SidebarGroup>
 
               {renderSidebarLinks(links)}
             </Sidebar>

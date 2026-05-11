@@ -1,7 +1,8 @@
 import { ServerFormattedCodeSnippet } from '@/ui/code-snippet/server-formatted-code-snippet'
+import { DocPager } from '@/ui/doc/doc-pager'
 import { DocPage } from '@/ui/doc/DocPage'
 import { DocSection } from '@/ui/doc/DocPage.client'
-import { ArrowLeftIcon, ArrowRightIcon } from '@/ui/icons'
+import { ArrowRightIcon } from '@/ui/icons'
 import Link from 'next/link'
 import { type ReactNode } from 'react'
 
@@ -98,11 +99,12 @@ export default function InstallationPage() {
             description="Set data-theme on the root element and the same HTML follows the new palette."
           />
         </div>
-
-        <Link href="/" className="mt-4 flex w-fit btn-outline items-center gap-2 btn-size-sm">
-          <ArrowLeftIcon className="size-3" /> Introduction
-        </Link>
       </DocSection>
+
+      <DocPager
+        previous={{ href: '/', label: 'Introduction' }}
+        next={{ href: '/core/tokens', label: 'Tokens' }}
+      />
     </DocPage>
   )
 }

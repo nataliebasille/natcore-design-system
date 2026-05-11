@@ -1,3 +1,4 @@
+import { DocPager } from '@/ui/doc/doc-pager'
 import { ArrowRightIcon } from '@/ui/icons'
 import { ComponentsIcon } from '@/ui/icons/components'
 import { GuidelinesIcon } from '@/ui/icons/guidelines'
@@ -23,8 +24,7 @@ export default function Home() {
     <article className="p-4 desktop:p-6">
       <section className="grid gap-4 desktop:grid-cols-[minmax(0,1fr)_18rem]">
         <div>
-          <Overline className="mb-3">Introduction</Overline>
-          <h1>
+          <h1 className="mt-0!">
             <span>Natcore</span>
             <br />
             <span className="text-(--tone-current-fg)/70">Design System</span>
@@ -96,6 +96,7 @@ export default function Home() {
             icon={<TokenIcon className="h-4 w-4" />}
             title="Tokens"
             description="Color, spacing, typography, radii, shadow, and motion as CSS variables"
+            href="/core/tokens"
           />
           <InfoCard
             icon={<ComponentsIcon className="h-4 w-4" />}
@@ -131,13 +132,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="my-8 divider" />
-
-      <div className="flex justify-end">
-        <Link href="/installation" className="flex btn-outline items-center gap-2 btn-size-sm">
-          Installation guide <ArrowRightIcon className="size-3" />
-        </Link>
-      </div>
+      <DocPager next={{ href: '/installation', label: 'Installation' }} />
     </article>
   )
 }
