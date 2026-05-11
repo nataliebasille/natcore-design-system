@@ -40,9 +40,8 @@ export async function getNatcoreDefaultTheme(): Promise<ThemeDefinition | null> 
     process.cwd(),
     "node_modules",
     "@nataliebasille",
-    "natcore-design-system-v2",
-    "src",
-    "tailwind",
+    "natcore-design-system",
+    "dist",
     "natcore.css",
   );
 
