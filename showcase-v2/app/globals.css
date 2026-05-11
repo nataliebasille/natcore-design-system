@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@import "@nataliebasille/natcore-design-system-v2";
+@import "@nataliebasille/natcore-design-system";
 
 @theme {
   --breakpoint-*: initial;
