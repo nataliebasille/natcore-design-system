@@ -113,7 +113,7 @@ export default function CoreTokensPage() {
 
       <DocSection
         title="Theme anchors"
-        description="Any palette role can define 50, 500, and 950 anchors. If only a role color is provided, Natcore treats it as the 500 anchor and derives 50 and 950."
+        description="Any palette role can anchor any shade from 50 to 950. If only a role color is provided, Natcore treats it as the 500 anchor and derives 50 and 950; unanchored shades are interpolated."
       >
         <div className="grid gap-4">
           <ServerFormattedCodeSnippet code={themeExample} language="css" />
