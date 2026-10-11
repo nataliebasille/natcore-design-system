@@ -12,6 +12,7 @@ import {
 import chroma from "chroma-js";
 import * as culori from "culori";
 import dedent from "dedent";
+import { CONTRAST_CHANNEL } from "../../shared/palette-formula.ts";
 
 type Anchors = { c50: string; c500: string; c950: string };
 type RoleBase = { name: Palette; fgOpacity?: number };
@@ -27,8 +28,6 @@ const disabled = {
   seed: "#8A8F98",
   fgOpacity: 0.5,
 };
-
-const CONTRAST_CHANNEL = "clamp(0, (.36 / y - 1) * 100, 1)";
 
 export default function compile() {
   return [

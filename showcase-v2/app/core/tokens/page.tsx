@@ -1,21 +1,26 @@
-import { ServerFormattedCodeSnippet } from '@/ui/code-snippet/server-formatted-code-snippet'
-import { DocPager } from '@/ui/doc/doc-pager'
-import { DocPage } from '@/ui/doc/DocPage'
-import { DocSection } from '@/ui/doc/DocPage.client'
-import { ArrowRightIcon } from '@/ui/icons'
-import { PALETTE, SHADES, type Palette, type Shade } from '@nataliebasille/css-engine'
-import Link from 'next/link'
-import { type ReactNode } from 'react'
+import { ServerFormattedCodeSnippet } from "@/ui/code-snippet/server-formatted-code-snippet";
+import { DocPager } from "@/ui/doc/doc-pager";
+import { DocPage } from "@/ui/doc/DocPage";
+import { DocSection } from "@/ui/doc/DocPage.client";
+import { ArrowRightIcon } from "@/ui/icons";
+import {
+  PALETTE,
+  SHADES,
+  type Palette,
+  type Shade,
+} from "@nataliebasille/css-engine";
+import Link from "next/link";
+import { type ReactNode } from "react";
 
 const paletteDescriptions: Record<Palette, string> = {
-  primary: 'Primary actions, selected states, and the main brand direction.',
-  secondary: 'Supporting actions and secondary moments that still need color.',
-  accent: 'Highlights, emphasis, and moments that should stand apart.',
-  surface: 'Page backgrounds, containers, borders, and neutral text.',
-  success: 'Positive outcomes, confirmations, and valid states.',
-  danger: 'Destructive actions, errors, and blocking states.',
-  disabled: 'Unavailable controls, subdued text, and inactive surfaces.',
-}
+  primary: "Primary actions, selected states, and the main brand direction.",
+  secondary: "Supporting actions and secondary moments that still need color.",
+  accent: "Highlights, emphasis, and moments that should stand apart.",
+  surface: "Page backgrounds, containers, borders, and neutral text.",
+  success: "Positive outcomes, confirmations, and valid states.",
+  danger: "Destructive actions, errors, and blocking states.",
+  disabled: "Unavailable controls, subdued text, and inactive surfaces.",
+};
 
 const tokenExample = `<button class="btn-solid/primary btn-size-md">
   Save changes
@@ -23,7 +28,7 @@ const tokenExample = `<button class="btn-solid/primary btn-size-md">
 
 <div class="card card-soft/surface">
   <p class="text-surface-950/70">Tokens stay readable in markup.</p>
-</div>`
+</div>`;
 
 const themeExample = `:root[data-theme="citrine-reef"] {
   --theme-primary: #087f8c;
@@ -32,7 +37,26 @@ const themeExample = `:root[data-theme="citrine-reef"] {
   --theme-surface-50: #f4fbf7;
   --theme-surface-500: #678f82;
   --theme-surface-950: #071c18;
-}`
+}`;
+
+const BUILTIN_COLOR_NAMES =
+  "slate, gray, zinc, neutral, stone, red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose";
+
+// Literal class strings so Tailwind detects and generates them.
+const BUILTIN_PALETTE_DEMO = [
+  "palette-red",
+  "palette-orange",
+  "palette-amber",
+  "palette-lime",
+  "palette-emerald",
+  "palette-teal",
+  "palette-sky",
+  "palette-blue",
+  "palette-indigo",
+  "palette-violet",
+  "palette-fuchsia",
+  "palette-rose",
+] as const;
 
 export default function CoreTokensPage() {
   return (
@@ -81,7 +105,7 @@ export default function CoreTokensPage() {
         <div className="card overflow-hidden card-soft/surface">
           <div data-slot="content" className="gap-4">
             <div className="grid gap-3">
-              {(['primary', 'surface', 'danger'] as const).map((palette) => (
+              {(["primary", "surface", "danger"] as const).map((palette) => (
                 <ShadeRow key={palette} palette={palette} />
               ))}
             </div>
@@ -103,8 +127,9 @@ export default function CoreTokensPage() {
                 Read from intent
               </div>
               <p className="text-xs/6 text-surface-950/65">
-                A class like <InlineCode>btn-solid/primary</InlineCode> says what the element is
-                doing. Theme values can move underneath it without changing the markup.
+                A class like <InlineCode>btn-solid/primary</InlineCode> says
+                what the element is doing. Theme values can move underneath it
+                without changing the markup.
               </p>
             </div>
           </div>
@@ -138,9 +163,41 @@ export default function CoreTokensPage() {
         </div>
       </DocSection>
 
+      <DocSection
+        title="Built-in color palettes"
+        description="Every built-in Tailwind color is available as a palette-{color} class out of the box. Like design-system roles, built-in palettes flip in dark mode (50 <-> 950), auto-contrast their text, and expose a per-shade --theme-{color}-{shade} override."
+      >
+        <BuiltinPaletteGrid />
+
+        <div className="card card-soft/surface">
+          <div data-slot="content" className="gap-3">
+            <div>
+              <div className="text-sm font-semibold">Supported colors</div>
+              <p className="text-xs/6 text-surface-950/65">
+                Every built-in Tailwind color is available as a palette class.
+              </p>
+            </div>
+
+            <p className="text-xs/6 text-surface-950/70">
+              {BUILTIN_COLOR_NAMES}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs text-surface-950/55">
+              <span>Use as</span>
+              <InlineCode>palette-{"{color}"}</InlineCode>
+              <span>— for example</span>
+              <InlineCode>palette-emerald</InlineCode>
+            </div>
+          </div>
+        </div>
+      </DocSection>
+
       <DocSection title="Next steps">
         <div className="grid gap-3 tablet:grid-cols-3">
-          <Link href="/core/theming" className="card card-hover card-soft/surface">
+          <Link
+            href="/core/theming"
+            className="card card-hover card-soft/surface"
+          >
             <div data-slot="content" className="gap-2">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <ArrowRightIcon className="size-4 text-accent-500" />
@@ -152,19 +209,26 @@ export default function CoreTokensPage() {
             </div>
           </Link>
 
-          <Link href="/installation" className="card card-hover card-soft/surface">
+          <Link
+            href="/installation"
+            className="card card-hover card-soft/surface"
+          >
             <div data-slot="content" className="gap-2">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <ArrowRightIcon className="size-4 text-accent-500" />
                 Installation
               </div>
               <p className="text-xs/6 text-surface-950/65">
-                Import the stylesheet and make the token classes available to your app.
+                Import the stylesheet and make the token classes available to
+                your app.
               </p>
             </div>
           </Link>
 
-          <Link href="/components/button" className="card card-hover card-soft/surface">
+          <Link
+            href="/components/button"
+            className="card card-hover card-soft/surface"
+          >
             <div data-slot="content" className="gap-2">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <ArrowRightIcon className="size-4 text-accent-500" />
@@ -179,11 +243,11 @@ export default function CoreTokensPage() {
       </DocSection>
 
       <DocPager
-        previous={{ href: '/installation', label: 'Installation' }}
-        next={{ href: '/core/theming', label: 'Theming' }}
+        previous={{ href: "/installation", label: "Installation" }}
+        next={{ href: "/core/theming", label: "Theming" }}
       />
     </DocPage>
-  )
+  );
 }
 
 function TokenModelCard({
@@ -191,9 +255,9 @@ function TokenModelCard({
   title,
   description,
 }: {
-  label: ReactNode
-  title: ReactNode
-  description: ReactNode
+  label: ReactNode;
+  title: ReactNode;
+  description: ReactNode;
 }) {
   return (
     <div className="card card-soft/surface">
@@ -207,7 +271,7 @@ function TokenModelCard({
         <p className="text-xs/6 text-surface-950/65">{description}</p>
       </div>
     </div>
-  )
+  );
 }
 
 function PalettePanel({ palette }: { palette: Palette }) {
@@ -217,7 +281,9 @@ function PalettePanel({ palette }: { palette: Palette }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="text-sm font-semibold capitalize">{palette}</div>
-            <p className="text-xs/6 text-surface-950/65">{paletteDescriptions[palette]}</p>
+            <p className="text-xs/6 text-surface-950/65">
+              {paletteDescriptions[palette]}
+            </p>
           </div>
 
           <div className="flex overflow-hidden rounded-md border border-surface-600/20">
@@ -238,7 +304,38 @@ function PalettePanel({ palette }: { palette: Palette }) {
         </div>
       </div>
     </div>
-  )
+  );
+}
+
+function BuiltinPaletteGrid() {
+  return (
+    <div className="grid gap-1.5">
+      {BUILTIN_PALETTE_DEMO.map((paletteClass) => (
+        <div
+          key={paletteClass}
+          className={`${paletteClass} grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-3`}
+        >
+          <span className="text-xs font-medium capitalize">
+            {paletteClass.replace("palette-", "")}
+          </span>
+          <div className="grid grid-cols-11 overflow-hidden rounded-md border border-surface-600/20">
+            {SHADES.map((shade) => (
+              <span
+                key={shade}
+                className="flex h-7 items-center justify-center text-[9px] font-medium"
+                style={{
+                  backgroundColor: `var(--bg-tone-${shade})`,
+                  color: `var(--fg-tone-${shade})`,
+                }}
+              >
+                {shade}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function ShadeRow({ palette }: { palette: Palette }) {
@@ -262,7 +359,7 @@ function ShadeRow({ palette }: { palette: Palette }) {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 function InfoPanel({
@@ -270,9 +367,9 @@ function InfoPanel({
   description,
   swatch,
 }: {
-  title: ReactNode
-  description: ReactNode
-  swatch: string
+  title: ReactNode;
+  description: ReactNode;
+  swatch: string;
 }) {
   return (
     <div className="card card-soft/surface">
@@ -287,17 +384,21 @@ function InfoPanel({
         <p className="text-xs/6 text-surface-950/65">{description}</p>
       </div>
     </div>
-  )
+  );
 }
 
 function InlineCode({ children }: { children: ReactNode }) {
-  return <code className="code-soft/surface code text-xs">{children}</code>
+  return (
+    <span className="inline-block">
+      <code className="code-soft/surface code text-xs">{children}</code>
+    </span>
+  );
 }
 
 function colorToken(palette: Palette, shade: Shade) {
-  return `var(--color-${palette}-${shade})`
+  return `var(--color-${palette}-${shade})`;
 }
 
 function onColorToken(palette: Palette, shade: Shade) {
-  return `var(--color-on-${palette}-${shade})`
+  return `var(--color-on-${palette}-${shade})`;
 }
