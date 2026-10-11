@@ -58,6 +58,17 @@ const BUILTIN_PALETTE_DEMO = [
   "palette-rose",
 ] as const;
 
+const currentPaletteExample = `<!-- Set the palette once; children use shade-only utilities -->
+<div class="palette-indigo">
+  <button class="bg-500 text-on-500">Solid</button>
+  <div class="bg-100 text-on-100">Soft fill</div>
+  <p class="text-700">Body copy in the active palette</p>
+  <div class="bg-linear-to-r from-500 via-700 to-900">Gradient</div>
+</div>
+
+<!-- Same markup, a different palette -->
+<div class="palette-rose">...</div>`;
+
 export default function CoreTokensPage() {
   return (
     <DocPage
@@ -111,6 +122,50 @@ export default function CoreTokensPage() {
             </div>
           </div>
         </div>
+      </DocSection>
+
+      <DocSection
+        title="Composing with a palette"
+        description="Any palette — a design-system role like palette-primary or a built-in color like palette-rose — sets the active palette on a container. Children use shade-only utilities that resolve against the nearest palette ancestor, so the same markup adapts to whatever palette is active."
+      >
+        <div className="grid gap-4 tablet:grid-cols-2">
+          <CurrentPaletteCard
+            paletteClass="palette-primary"
+            label="palette-primary"
+          />
+          <CurrentPaletteCard
+            paletteClass="palette-secondary"
+            label="palette-secondary"
+          />
+        </div>
+
+        <div className="card card-soft/surface">
+          <div data-slot="content" className="gap-3">
+            <div>
+              <div className="text-sm font-semibold">Shade-only utilities</div>
+              <p className="text-xs/6 text-surface-950/65">
+                Inside a palette, color utilities drop the color name and take
+                just a shade, reading the active palette's background tone. The
+                on- variants read the matching contrast foreground, and gradient
+                stops work the same way.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <InlineCode>bg-{"{shade}"}</InlineCode>
+              <InlineCode>text-{"{shade}"}</InlineCode>
+              <InlineCode>border-{"{shade}"}</InlineCode>
+              <InlineCode>text-on-{"{shade}"}</InlineCode>
+              <InlineCode>from-{"{shade}"}</InlineCode>
+              <InlineCode>via-{"{shade}"}</InlineCode>
+              <InlineCode>to-{"{shade}"}</InlineCode>
+            </div>
+          </div>
+        </div>
+
+        <ServerFormattedCodeSnippet
+          code={currentPaletteExample}
+          language="html"
+        />
       </DocSection>
 
       <DocSection
@@ -334,6 +389,34 @@ function BuiltinPaletteGrid() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function CurrentPaletteCard({
+  paletteClass,
+  label,
+}: {
+  paletteClass: string;
+  label: string;
+}) {
+  return (
+    <div
+      className={`${paletteClass} grid gap-2 rounded-lg border border-surface-600/20 p-4`}
+    >
+      <div className="text-xs font-medium text-surface-950/55">{label}</div>
+      <div className="bg-500 rounded-md px-3 py-2 text-sm font-medium text-on-500">
+        bg-500 · text-on-500
+      </div>
+      <div className="bg-100 rounded-md px-3 py-2 text-sm font-medium text-on-100">
+        bg-100 · text-on-100
+      </div>
+      <div className="rounded-md border px-3 py-2 text-sm font-medium border-500 text-700">
+        border-500 · text-700
+      </div>
+      <div className="rounded-md bg-linear-to-r from-500 via-700 to-900 px-3 py-2 text-sm font-medium text-on-700">
+        from-500 · via-700 · to-900
+      </div>
     </div>
   );
 }
