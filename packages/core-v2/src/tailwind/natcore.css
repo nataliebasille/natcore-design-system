@@ -5,6 +5,7 @@
 
 @import "./themes/color.css";
 @import "./themes/palette.css";
+@import "./themes/builtin-palettes.css";
 
 /* Variants */
 @import "./variants/active.css";

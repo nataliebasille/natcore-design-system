@@ -21,9 +21,14 @@ const themeDefinitionExample = `:root[data-theme="citrine-reef"] {
 
 const explicitAnchorExample = `:root[data-theme="custom"] {
   --theme-primary-50: #eef8ff;
+  --theme-primary-300: #4aa3c7;
   --theme-primary-500: #087f8c;
   --theme-primary-950: #061a21;
-}`;
+}
+
+/* Any shade 50-950 can be anchored.
+   Pin every shade for a fully explicit ramp;
+   unanchored shades interpolate between 50/500/950. */`;
 
 const singleAnchorExample = `:root[data-theme="custom"] {
   --theme-primary: #087f8c;
@@ -48,6 +53,35 @@ const tokenResolutionExample = `@theme {
   --color-dark-primary-50: var(--color-light-primary-950);
 }`;
 
+const pinIntermediateExample = `:root[data-theme="custom"] {
+  --theme-primary: #087f8c;
+
+  /* Pin a single step. Every other shade,
+     including 50/500/950, stays derived. */
+  --theme-primary-300: #4aa3c7;
+}`;
+
+const pinFullRampExample = `:root[data-theme="custom"] {
+  /* Pin all eleven shades to bypass
+     interpolation and reproduce an exact ramp
+     (e.g. mirror an existing brand palette). */
+  --theme-primary-50: #eef8ff;
+  --theme-primary-100: #d9eefc;
+  --theme-primary-200: #b6ddf7;
+  --theme-primary-300: #85c6f0;
+  --theme-primary-400: #4aa3c7;
+  --theme-primary-500: #087f8c;
+  --theme-primary-600: #0a6b76;
+  --theme-primary-700: #0d555d;
+  --theme-primary-800: #103f45;
+  --theme-primary-900: #112f34;
+  --theme-primary-950: #061a21;
+}`;
+
+const THEME_SHADES = [
+  50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
+] as const;
+
 const themeSteps = [
   {
     label: "01",
@@ -59,13 +93,13 @@ const themeSteps = [
     label: "02",
     title: "Resolve anchors",
     description:
-      "Each role can provide 50, 500, and 950 anchors. If a role only provides one color, that color becomes the 500 anchor.",
+      "Each role can anchor any shade from 50 to 950. If a role only provides one color, that color becomes the 500 anchor.",
   },
   {
     label: "03",
     title: "Derive shade ramps",
     description:
-      "Natcore derives missing 50 and 950 anchors, then interpolates the full shade ramp and matching on-color text values.",
+      "Natcore derives missing 50 and 950 anchors, interpolates any unanchored shades, and generates matching on-color text values.",
   },
   {
     label: "04",
@@ -128,12 +162,12 @@ export default function CoreThemingPage() {
 
       <DocSection
         title="Anchor system"
-        description="Every palette role can define explicit 50, 500, and 950 anchors. If those anchors are not provided, the role color becomes the 500 anchor and Natcore derives 50 and 950 from it."
+        description="Every palette role can anchor any shade from 50 to 950. If no anchors are provided, the role color becomes the 500 anchor and Natcore derives 50 and 950 from it; any unanchored shades are interpolated."
       >
         <div className="grid items-stretch gap-4 desktop:grid-cols-2">
           <AnchorExample
             title="Explicit anchors"
-            description="Use this when a brand palette already has intentional light, middle, and dark stops."
+            description="Pin any shade from 50 to 950 — including intermediates — where the exact color matters. Pin every shade for a fully explicit ramp."
             code={explicitAnchorExample}
           />
           <AnchorExample
@@ -155,6 +189,41 @@ export default function CoreThemingPage() {
           <GuidancePanel
             title="950"
             description="The dark anchor. Used for strong contrast, deep fills, and the mirrored side of dark mode."
+          />
+        </div>
+      </DocSection>
+
+      <DocSection
+        title="Per-shade anchoring"
+        description="Anchoring is not limited to 50, 500, and 950 — any shade can be pinned with --theme-{role}-{shade}. A pinned shade changes only itself, so you can nudge a single step or pin the whole ramp for exact control."
+      >
+        <div className="grid items-stretch gap-4 desktop:grid-cols-2">
+          <AnchorExample
+            title="Pin a single intermediate"
+            description="Override one step like 300. The 50/500/950 anchors and every other shade keep their derived values — neighbors are not re-bracketed."
+            code={pinIntermediateExample}
+          />
+          <AnchorExample
+            title="Pin the full ramp"
+            description="Provide all eleven shades to bypass interpolation entirely — ideal for mirroring an existing brand or Tailwind palette exactly."
+            code={pinFullRampExample}
+          />
+        </div>
+
+        <ShadeRamp />
+
+        <div className="grid gap-3 tablet:grid-cols-3">
+          <GuidancePanel
+            title="Any shade, any time"
+            description="--theme-primary-200, --theme-accent-700, and so on are all valid. Pin only the steps you care about."
+          />
+          <GuidancePanel
+            title="Independent by design"
+            description="Pinning 300 does not shift 200 or 400. Unpinned shades keep interpolating between the 50, 500, and 950 anchors."
+          />
+          <GuidancePanel
+            title="Pin at the theme level"
+            description="Declare per-shade anchors in the same data-theme block as the role color so Natcore resolves them into the ramp."
           />
         </div>
       </DocSection>
@@ -231,7 +300,7 @@ export default function CoreThemingPage() {
         <div className="grid gap-3 tablet:grid-cols-3">
           <GuidancePanel
             title="Anchor only what matters"
-            description="Use explicit 50, 500, and 950 anchors for roles where the exact ramp matters. Use a single role color when derived anchors are enough."
+            description="Pin any shade (50-950) where the exact color matters, or pin every shade for a fully explicit ramp. Use a single role color when derived anchors are enough."
           />
           <GuidancePanel
             title="Keep roles semantic"
@@ -302,6 +371,37 @@ function AnchorExample({
         <p className="text-xs/6 text-surface-950/65">{description}</p>
       </div>
       <ServerFormattedCodeSnippet code={code} language="css" />
+    </div>
+  );
+}
+
+function ShadeRamp() {
+  return (
+    <div className="card card-soft/surface">
+      <div data-slot="content" className="gap-3">
+        <div className="text-sm font-semibold">
+          Primary ramp (active theme)
+        </div>
+        <p className="text-xs/6 text-surface-950/65">
+          Natcore builds the full 50&ndash;950 ramp from the theme anchors.
+          Shades you do not pin are interpolated between the 50, 500, and 950
+          anchors; pinning a shade replaces just that swatch.
+        </p>
+        <div className="grid grid-cols-11 overflow-hidden rounded-md border border-surface-600/20">
+          {THEME_SHADES.map((shade) => (
+            <span
+              key={shade}
+              className="flex h-12 items-end justify-center pb-1 text-[10px] font-medium"
+              style={{
+                backgroundColor: `var(--color-primary-${shade})`,
+                color: `var(--color-on-primary-${shade})`,
+              }}
+            >
+              {shade}
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
