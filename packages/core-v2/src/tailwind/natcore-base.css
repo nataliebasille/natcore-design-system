@@ -1,0 +1,46 @@
+/* Natcore Design System — base bundle (everything except the color-palette
+ * `@theme`). This is an internal split: `natcore.css` imports it and then the
+ * built-in color theme. Prefer importing `natcore.css`. */
+@import "tailwindcss";
+
+/* Note: color-scheme is now controlled by user via scheme-* utility classes */
+
+@import "./themes/palette.css";
+@import "./themes/builtin-palettes.css";
+
+/* Variants */
+@import "./variants/active.css";
+@import "./variants/dark.css";
+@import "./variants/interactive.css";
+
+/* Utilities */
+@import "./utilities/article.css";
+@import "./utilities/headings.css";
+
+/* Components */
+@import "./components/badge.css";
+@import "./components/button.css";
+@import "./components/card.css";
+@import "./components/code.css";
+@import "./components/divider.css";
+@import "./components/forms/inputs.css";
+@import "./components/forms/select.css";
+@import "./components/forms/form-control.css";
+@import "./components/list.css";
+@import "./components/radio-group.css";
+@import "./components/tabs.css";
+@import "./components/toggle.css";
+@import "./components/tray.css";
+
+@theme static {
+  --theme-primary: #5b2e91;
+  --theme-secondary: #0f6e8c;
+  --theme-accent: #c05a8b;
+
+  --theme-surface-50: #f6f4f8;
+  --theme-surface-500: #746d7d;
+  --theme-surface-950: #100d12;
+
+  --theme-danger: #c0445f;
+  --theme-success: #2f8f6b;
+}
