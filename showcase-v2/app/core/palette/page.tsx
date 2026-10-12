@@ -11,36 +11,31 @@ const PALETTE_SHADES = [
 ] as const;
 
 const BUILTIN_PALETTES = [
-  {
-    name: "primary",
-    paletteClass: "palette-primary",
-    description: "Primary actions, selected states, and the main direction.",
-  },
-  {
-    name: "secondary",
-    paletteClass: "palette-secondary",
-    description: "Supporting actions and secondary moments that need color.",
-  },
-  {
-    name: "accent",
-    paletteClass: "palette-accent",
-    description: "Highlights, emphasis, and moments that should stand apart.",
-  },
-  {
-    name: "surface",
-    paletteClass: "palette-surface",
-    description: "Page backgrounds, containers, borders, and neutral text.",
-  },
-  {
-    name: "success",
-    paletteClass: "palette-success",
-    description: "Positive outcomes, confirmations, and valid states.",
-  },
-  {
-    name: "danger",
-    paletteClass: "palette-danger",
-    description: "Destructive actions, errors, and blocking states.",
-  },
+  { name: "primary", paletteClass: "palette-primary" },
+  { name: "secondary", paletteClass: "palette-secondary" },
+  { name: "accent", paletteClass: "palette-accent" },
+  { name: "surface", paletteClass: "palette-surface" },
+  { name: "success", paletteClass: "palette-success" },
+  { name: "danger", paletteClass: "palette-danger" },
+] as const;
+
+const BUILTIN_COLOR_NAMES =
+  "slate, gray, zinc, neutral, stone, red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose";
+
+// Literal class strings so Tailwind detects and generates them.
+const BUILTIN_COLOR_DEMO = [
+  "palette-red",
+  "palette-orange",
+  "palette-amber",
+  "palette-lime",
+  "palette-emerald",
+  "palette-teal",
+  "palette-sky",
+  "palette-blue",
+  "palette-indigo",
+  "palette-violet",
+  "palette-fuchsia",
+  "palette-rose",
 ] as const;
 
 const buildSteps = [
@@ -81,21 +76,23 @@ const namedUtilityExample = `<!-- Name the palette inline with any color utility
 <span class="text-secondary-700">Secondary label</span>
 <div class="border border-accent-500">Accent border</div>`;
 
-const paletteClassExample = `<!-- Set the palette once; children use shade-only tone utilities -->
+const paletteClassExample = `<!-- A design-system role as the current palette -->
 <div class="palette-primary">
   <button class="bg-500 text-on-500">Solid</button>
   <div class="bg-100 text-on-100">Soft fill</div>
   <p class="text-700">Body copy in the active palette</p>
 </div>
 
-<!-- Same markup, a different palette -->
-<div class="palette-danger">...</div>`;
+<!-- Same markup, a built-in Tailwind color -->
+<div class="palette-emerald">...</div>`;
 
-const componentModifierExample = `<!-- Components take a /{palette} modifier -->
+const componentModifierExample = `<!-- A /{palette} modifier accepts a role… -->
 <button class="btn-solid/primary">Primary</button>
-<button class="btn-soft/success">Success</button>
-<div class="card card-soft/surface">...</div>
-<span class="badge-solid/danger">Error</span>`;
+<button class="btn-soft/accent">Accent</button>
+
+<!-- …or a built-in Tailwind color -->
+<button class="btn-solid/emerald">Emerald</button>
+<button class="btn-soft/sky">Sky</button>`;
 
 const postcssConfigExample = `// postcss.config.js — the Natcore transform runs BEFORE Tailwind
 module.exports = {
@@ -151,6 +148,18 @@ const customUsageExample = `<!-- Everything a built-in palette can do, your pale
   <span class="bg-500 text-on-500">Current tone = pumpkin</span>
 </section>`;
 
+const flipExample = `/* Dark is the light ramp, mirrored end-to-end */
+--color-dark-primary-50:  var(--color-light-primary-950);
+--color-dark-primary-100: var(--color-light-primary-900);
+/* …200↔800, 300↔700, 400↔600, 500 stays… */
+--color-dark-primary-950: var(--color-light-primary-50);
+
+/* The adaptive token picks the active scheme's side */
+--color-primary-500: light-dark(
+  var(--color-light-primary-500),
+  var(--color-dark-primary-500)
+);`;
+
 export default function CorePalettePage() {
   return (
     <DocPage
@@ -174,19 +183,92 @@ export default function CorePalettePage() {
       </DocSection>
 
       <DocSection
-        title="Built-in palettes"
-        description="A theme defines six semantic palette roles. Markup references the role, not a hex, so the same components work across every theme. Each ramp below is live, rendered from this site's active theme."
+        title="Light and dark"
+        description="A palette is built once on the light side, then mirrored for dark: dark-{shade} points at the light ramp's opposite end — 50↔950, 100↔900, and so on, with 500 unchanged. A shade number keeps its semantic role but resolves to the other end of the ramp, so bg-surface-50 is a light surface in light mode and a dark surface in dark mode, with no markup change. The on-colors mirror the same way, so contrast flips automatically. Which side is active is the separate scheme axis — see Theming."
       >
-        <div className="grid gap-3">
-          {BUILTIN_PALETTES.map((palette) => (
-            <BuiltinPalette
-              key={palette.name}
-              name={palette.name}
-              paletteClass={palette.paletteClass}
-              description={palette.description}
+        <div className="card card-soft/surface">
+          <div data-slot="content" className="gap-4">
+            <SchemeRamp
+              name="primary"
+              side="light"
+              label="Light scheme"
+              hint="--color-light-primary-{shade}"
             />
-          ))}
+            <SchemeRamp
+              name="primary"
+              side="dark"
+              label="Dark scheme"
+              hint="--color-dark-primary-{shade} — the same ramp, reversed"
+            />
+          </div>
         </div>
+
+        <ServerFormattedCodeSnippet code={flipExample} language="css" />
+      </DocSection>
+
+      <DocSection
+        title="Built-in palettes"
+        description="Natcore ships two families of ready-made palettes: the semantic theme-role palettes and every built-in Tailwind color. Both expand through the same anchor model, flip in dark mode, and auto-contrast their text."
+      >
+        <DocSection
+          title="Theme role palettes"
+          description="A theme defines six semantic roles. Markup references the role, not a hex, so the same components work across every theme — see Theming for what each role is for. Each ramp below is live, rendered from this site's active theme."
+        >
+          <div className="grid gap-3">
+            {BUILTIN_PALETTES.map((palette) => (
+              <BuiltinPalette
+                key={palette.name}
+                name={palette.name}
+                paletteClass={palette.paletteClass}
+              />
+            ))}
+          </div>
+
+          <Link
+            href="/core/theming"
+            className="card card-hover card-soft/surface"
+          >
+            <div data-slot="content" className="gap-2">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <ArrowRightIcon className="size-4 text-accent-500" />
+                What each role means
+              </div>
+              <p className="text-xs/6 text-surface-950/65">
+                Theming documents the intent of primary, secondary, accent,
+                surface, success, danger, and disabled.
+              </p>
+            </div>
+          </Link>
+        </DocSection>
+
+        <DocSection
+          title="Tailwind color palettes"
+          description="Every built-in Tailwind color is available as a palette-{color} class out of the box. Like role palettes, they flip in dark mode (50 <-> 950), auto-contrast their text, and expose a per-shade --theme-{color}-{shade} override."
+        >
+          <BuiltinColorGrid />
+
+          <div className="card card-soft/surface">
+            <div data-slot="content" className="gap-3">
+              <div>
+                <div className="text-sm font-semibold">Supported colors</div>
+                <p className="text-xs/6 text-surface-950/65">
+                  Every built-in Tailwind color is available as a palette class.
+                </p>
+              </div>
+
+              <p className="text-xs/6 text-surface-950/70">
+                {BUILTIN_COLOR_NAMES}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2 text-xs text-surface-950/55">
+                <span>Use as</span>
+                <InlineCode>palette-{"{color}"}</InlineCode>
+                <span>— for example</span>
+                <InlineCode>palette-emerald</InlineCode>
+              </div>
+            </div>
+          </div>
+        </DocSection>
       </DocSection>
 
       <DocSection
@@ -223,24 +305,30 @@ export default function CorePalettePage() {
             language="html"
           />
           <div className="grid gap-3 tablet:grid-cols-2">
-            <ToneDemo palette="palette-primary" label="palette-primary" />
-            <ToneDemo palette="palette-danger" label="palette-danger" />
+            <ToneDemo
+              palette="palette-primary"
+              label="palette-primary (role)"
+            />
+            <ToneDemo
+              palette="palette-emerald"
+              label="palette-emerald (built-in)"
+            />
           </div>
         </DocSection>
 
         <DocSection
           title="Component modifiers"
-          description="Components accept a /{palette} modifier, which sets the current tone for that component instance."
+          description="Components accept a /{palette} modifier, which sets the current tone for that component instance — a design-system role or a built-in Tailwind color both work."
         >
           <ServerFormattedCodeSnippet
             code={componentModifierExample}
             language="html"
           />
           <div className="flex flex-wrap items-center gap-3">
-            <button className="btn-solid/primary">Primary</button>
-            <button className="btn-soft/success">Success</button>
-            <button className="btn-outline/accent">Accent</button>
-            <span className="badge-solid/danger">Error</span>
+            <button className="btn-solid/primary">Primary (role)</button>
+            <button className="btn-soft/accent">Accent (role)</button>
+            <button className="btn-solid/emerald">Emerald (built-in)</button>
+            <button className="btn-soft/sky">Sky (built-in)</button>
           </div>
         </DocSection>
       </DocSection>
@@ -324,7 +412,7 @@ export default function CorePalettePage() {
           />
 
           <div className="card card-soft/surface">
-            <div data-slot="content" className="gap-4">
+            <div data-slot="content" className="flex flex-col gap-4">
               <div className="text-sm font-semibold">Live pumpkin</div>
 
               <div className="flex flex-wrap items-center gap-3">
@@ -417,9 +505,56 @@ export default function CorePalettePage() {
   );
 }
 
-function PaletteRamp({ name }: { name: string }) {
+function SchemeRamp({
+  name,
+  side,
+  label,
+  hint,
+}: {
+  name: string;
+  side: "light" | "dark";
+  label: string;
+  hint: string;
+}) {
   return (
-    <div className="grid grid-cols-11 overflow-hidden rounded-md border border-surface-600/20">
+    <div className="grid gap-1.5">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+        <div className="text-sm font-semibold">{label}</div>
+        <code className="code-soft/surface code text-[0.65rem]">{hint}</code>
+      </div>
+      <div className="grid grid-cols-11 overflow-hidden rounded-md border border-surface-600/20">
+        {PALETTE_SHADES.map((shade) => (
+          <span
+            key={shade}
+            className="flex h-12 items-end justify-center pb-1 text-[10px] font-medium"
+            style={{
+              backgroundColor: `var(--color-${side}-${name}-${shade})`,
+              color: `var(--color-on-${side}-${name}-${shade})`,
+            }}
+          >
+            {shade}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PaletteRamp({
+  name,
+  flush = false,
+}: {
+  name: string;
+  flush?: boolean;
+}) {
+  return (
+    <div
+      className={
+        flush ? "grid grid-cols-11" : (
+          "grid grid-cols-11 overflow-hidden rounded-md border border-surface-600/20"
+        )
+      }
+    >
       {PALETTE_SHADES.map((shade) => (
         <span
           key={shade}
@@ -439,33 +574,65 @@ function PaletteRamp({ name }: { name: string }) {
 function BuiltinPalette({
   name,
   paletteClass,
-  description,
 }: {
   name: string;
   paletteClass: string;
-  description: ReactNode;
 }) {
   return (
     <div className={`${paletteClass} card card-soft/surface`}>
-      <div data-slot="content" className="gap-2">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-          <div className="text-sm font-semibold capitalize">{name}</div>
-          <code className="code-soft/surface code text-xs">
+      <div data-slot="content" className="gap-3">
+        <div className="text-sm font-semibold capitalize">{name}</div>
+        <div className="overflow-hidden rounded-md border border-surface-600/20">
+          <code className="code-soft/surface code block w-full rounded-none border-b border-surface-600/20 text-xs">
             bg-{name}-500 · {paletteClass}
           </code>
+          <PaletteRamp name={name} flush />
         </div>
-        <p className="text-xs/6 text-surface-950/65">{description}</p>
-        <PaletteRamp name={name} />
       </div>
+    </div>
+  );
+}
+
+function BuiltinColorGrid() {
+  return (
+    <div className="grid gap-1.5">
+      {BUILTIN_COLOR_DEMO.map((paletteClass) => (
+        <div
+          key={paletteClass}
+          className={`${paletteClass} grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-3`}
+        >
+          <span className="text-xs font-medium capitalize">
+            {paletteClass.replace("palette-", "")}
+          </span>
+          <div className="grid grid-cols-11 overflow-hidden rounded-md border border-surface-600/20">
+            {PALETTE_SHADES.map((shade) => (
+              <span
+                key={shade}
+                className="flex h-7 items-center justify-center text-[9px] font-medium"
+                style={{
+                  backgroundColor: `var(--bg-tone-${shade})`,
+                  color: `var(--fg-tone-${shade})`,
+                }}
+              >
+                {shade}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
 
 function ToneDemo({ palette, label }: { palette: string; label: string }) {
   return (
-    <div className={`${palette} grid gap-2 rounded-lg border border-500/30 p-3`}>
-      <div className="text-xs font-semibold text-700">{label}</div>
-      <div className="grid grid-cols-3 overflow-hidden rounded-md">
+    <div
+      className={`${palette} overflow-hidden rounded-lg border border-500/30`}
+    >
+      <div className="px-3 pt-3 pb-2 text-xs font-semibold text-700">
+        {label}
+      </div>
+      <div className="grid grid-cols-3">
         <span className="flex h-12 items-center justify-center bg-100 text-[10px] text-on-100">
           bg-100
         </span>

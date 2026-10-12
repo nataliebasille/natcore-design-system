@@ -3,8 +3,19 @@ import { DocPager } from "@/ui/doc/doc-pager";
 import { DocPage } from "@/ui/doc/DocPage";
 import { DocSection } from "@/ui/doc/DocPage.client";
 import { ArrowRightIcon } from "@/ui/icons";
+import { PALETTE, type Palette, type Shade } from "@nataliebasille/css-engine";
 import Link from "next/link";
 import { type ReactNode } from "react";
+
+const roleDescriptions: Record<Palette, string> = {
+  primary: "Primary actions, selected states, and the main brand direction.",
+  secondary: "Supporting actions and secondary moments that still need color.",
+  accent: "Highlights, emphasis, and moments that should stand apart.",
+  surface: "Page backgrounds, containers, borders, and neutral text.",
+  success: "Positive outcomes, confirmations, and valid states.",
+  danger: "Destructive actions, errors, and blocking states.",
+  disabled: "Unavailable controls, subdued text, and inactive surfaces.",
+};
 
 const themeDefinitionExample = `:root[data-theme="citrine-reef"] {
   --theme-primary: #087f8c;
@@ -82,6 +93,17 @@ export default function CoreThemingPage() {
       </DocSection>
 
       <DocSection
+        title="Semantic roles"
+        description="A theme assigns a color to each of these roles. Markup references the role by intent — not a specific hex — so the same components work across every theme. These roles are the stable API; a theme changes the values underneath them."
+      >
+        <div className="grid gap-3 tablet:grid-cols-2">
+          {PALETTE.map((role) => (
+            <RolePanel key={role} role={role} />
+          ))}
+        </div>
+      </DocSection>
+
+      <DocSection
         title="Theme identity"
         description="Use data-theme to select a named palette. The selector defines role values Natcore uses to build the rest of the token system."
       >
@@ -108,24 +130,8 @@ export default function CoreThemingPage() {
         title="Anchoring role colors"
         description="Within a theme, each role is a palette. Give a role a single color or pin specific shades with --theme-{role}-{shade} — Natcore fills in the rest of the ramp. This is the same anchor model documented on the Palette page, applied to a theme's roles."
       >
-        <div className="grid gap-4 desktop:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="grid gap-4">
           <ServerFormattedCodeSnippet code={roleAnchorExample} language="css" />
-
-          <Link
-            href="/core/palette"
-            className="card card-hover self-start card-soft/surface"
-          >
-            <div data-slot="content" className="gap-2">
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <ArrowRightIcon className="size-4 text-accent-500" />
-                Palette anchor model
-              </div>
-              <p className="text-xs/6 text-surface-950/65">
-                How 50/500/950 anchors and interpolation turn a color into a
-                full ramp — shared by themes and custom palettes.
-              </p>
-            </div>
-          </Link>
         </div>
       </DocSection>
 
@@ -265,6 +271,41 @@ function ModePanel({
   );
 }
 
+function RolePanel({ role }: { role: Palette }) {
+  return (
+    <div className="card card-soft/surface">
+      <div data-slot="content" className="gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold capitalize">{role}</div>
+            <p className="text-xs/6 text-surface-950/65">
+              {roleDescriptions[role]}
+            </p>
+          </div>
+
+          <div className="flex overflow-hidden rounded-md border border-surface-600/20">
+            {([50, 500, 950] as const).map((shade) => (
+              <span
+                key={shade}
+                className="block size-8"
+                style={{ backgroundColor: colorToken(role, shade) }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <InlineCode>--theme-{role}</InlineCode>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function InlineCode({ children }: { children: ReactNode }) {
   return <code className="code-soft/surface code text-xs">{children}</code>;
+}
+
+function colorToken(palette: Palette, shade: Shade) {
+  return `var(--color-${palette}-${shade})`;
 }
