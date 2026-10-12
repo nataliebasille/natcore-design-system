@@ -1,5 +1,13 @@
 # Natcore Design System - AI Agent Instructions
 
+## Git Workflow
+
+- **`develop` is the base branch for all work. `main` is release-only** (version
+  bumps and tags land there through release PRs); never commit features to it.
+- Create feature/fix branches from `develop`.
+- **Open every pull request against `develop`** unless the user explicitly asks for
+  a different base. Never target `main` directly.
+
 ## Architecture Overview
 
 This is a **monorepo design system** with three main packages and a Next.js showcase app:
