@@ -69,6 +69,7 @@ export default async function RootLayout({
               <SidebarGroup header="Core">
                 <SidebarLink href="/core/tokens">Tokens</SidebarLink>
                 <SidebarLink href="/core/theming">Theming</SidebarLink>
+                <SidebarLink href="/core/palette">Palette</SidebarLink>
               </SidebarGroup>
 
               {renderSidebarLinks(links)}

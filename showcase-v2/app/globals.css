@@ -2,6 +2,33 @@
 
 @import "@nataliebasille/natcore-design-system";
 
+/* Custom palettes. The `@natcore-palettes` at-rule — expanded by the
+   `@nataliebasille/natcore-design-system/postcss` plugin (see postcss.config.js)
+   — generates each palette with the full anchor model, so `palette-{name}`,
+   `bg-{name}-{shade}`, `text-on-{name}-{shade}`, etc. all work and unused
+   shades/palettes still tree-shake. */
+@natcore-palettes {
+  brand: #f04e23;
+  brand-300: #ff9977;
+  brand-950: #2a0d05;
+
+  info-50: #eaf6ff;
+  info-500: #0099ff;
+  info-950: #001a33;
+
+  pumpkin-50: #fff5e9;
+  pumpkin-100: #ffe3c4;
+  pumpkin-200: #f9c489;
+  pumpkin-300: #f2a04a;
+  pumpkin-400: #eb7d1e;
+  pumpkin-500: #dd5f10;
+  pumpkin-600: #c24a0e;
+  pumpkin-700: #a23a12;
+  pumpkin-800: #7f2f14;
+  pumpkin-900: #6a2810;
+  pumpkin-950: #5a230a;
+}
+
 @theme {
   --breakpoint-*: initial;
   --breakpoint-tablet: 48rem;
@@ -139,3 +166,4 @@
   --theme-danger: #c2415d;
   --theme-success: #26966f;
 }
+
