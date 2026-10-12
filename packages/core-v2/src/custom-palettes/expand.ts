@@ -75,6 +75,10 @@ function findAtRule(css: string, from: number): number {
   let i = from;
   while (i < css.length) {
     const ch = css[i];
+    if (ch === "\\") {
+      i += 2;
+      continue;
+    }
     if (ch === "/" && css[i + 1] === "*") {
       i = skipComment(css, i);
       continue;
@@ -94,6 +98,10 @@ function findOpenBrace(css: string, from: number): number {
   let i = from;
   while (i < css.length) {
     const ch = css[i];
+    if (ch === "\\") {
+      i += 2;
+      continue;
+    }
     if (ch === "/" && css[i + 1] === "*") {
       i = skipComment(css, i);
       continue;
@@ -117,6 +125,10 @@ function findMatchingBrace(css: string, braceStart: number): number {
   let i = braceStart;
   while (i < css.length) {
     const ch = css[i];
+    if (ch === "\\") {
+      i += 2;
+      continue;
+    }
     if (ch === "/" && css[i + 1] === "*") {
       i = skipComment(css, i);
       continue;

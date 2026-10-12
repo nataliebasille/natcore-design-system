@@ -40,6 +40,27 @@ describe("expandNatcorePalettesInCss", () => {
     expect(out).toBe(css);
   });
 
+  it("does not treat an escaped quote in a selector as a string start", () => {
+    const selector = `.foo\\"bar { color: red; }`;
+    const css = `${selector}\n@natcore-palettes {\n  pumpkin: #e87a01;\n}\n`;
+    const out = expandNatcorePalettesInCss(css);
+
+    // The selector with the escaped quote survives verbatim.
+    expect(out).toContain(selector);
+    // The real block after it still expands.
+    expect(out).toContain("--theme-pumpkin");
+    expect(out).toContain("#e87a01");
+    expect(out).not.toContain("@natcore-palettes");
+  });
+
+  it("ignores an escaped at-rule token in a selector", () => {
+    const selector = `.x\\@natcore-palettes { color: red; }`;
+    const css = `${selector}\n.y { color: blue; }\n`;
+    const out = expandNatcorePalettesInCss(css);
+
+    expect(out).toBe(css);
+  });
+
   it("expands multiple real blocks that follow a comment mention", () => {
     const comment = "/* configure with @natcore-palettes */";
     const css =
