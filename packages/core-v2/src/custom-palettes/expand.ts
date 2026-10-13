@@ -330,12 +330,15 @@ function findAtRule(css: string, from: number): number {
 }
 
 /**
- * Next index of `token` that is not inside a comment or string literal. Shared
- * by the `@natcore-palettes` and `@import` scanners so both stay comment/string
- * aware.
+ * Next index of `token` at the top level (brace depth 0) that is not inside a
+ * comment or string literal. Shared by the `@natcore-palettes` and `@import`
+ * scanners so both stay comment/string aware and ignore tokens nested inside a
+ * rule block (e.g. a declaration value like `--x: @import "…";`), which are not
+ * real top-level at-rules. Callers always resume from a depth-0 boundary.
  */
 function findToken(css: string, from: number, token: string): number {
   let i = from;
+  let depth = 0;
   while (i < css.length) {
     const ch = css[i];
     if (ch === "\\") {
@@ -350,7 +353,17 @@ function findToken(css: string, from: number, token: string): number {
       i = skipString(css, i);
       continue;
     }
-    if (ch === token[0] && css.startsWith(token, i)) return i;
+    if (ch === "{") {
+      depth += 1;
+      i += 1;
+      continue;
+    }
+    if (ch === "}") {
+      if (depth > 0) depth -= 1;
+      i += 1;
+      continue;
+    }
+    if (depth === 0 && ch === token[0] && css.startsWith(token, i)) return i;
     i += 1;
   }
   return -1;

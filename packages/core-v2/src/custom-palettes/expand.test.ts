@@ -97,6 +97,14 @@ describe("expandNatcorePalettesInCss", () => {
     expect(out).toContain("--theme-seafoam");
     expect(out.replace(comment, "")).not.toContain("@natcore-palettes");
   });
+
+  it("does not expand a @natcore-palettes token nested inside a rule block", () => {
+    const css = `.foo {\n  @natcore-palettes { brand: red; }\n}\n`;
+    const out = expandNatcorePalettesInCss(css);
+
+    // A nested token is not a real top-level at-rule, so it is left untouched.
+    expect(out).toBe(css);
+  });
 });
 
 /**
@@ -315,6 +323,42 @@ describe("inlineNatcorePaletteImports", () => {
     });
 
     expect(out).toBe(css);
+  });
+
+  it("does not consume an @import nested inside a rule block", () => {
+    const files = {
+      "/project/palettes.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+    };
+    const css = `.foo {\n  --snippet: @import "./palettes.css";\n}\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    // The nested token is a declaration value, not a top-level import, so it is
+    // left untouched rather than replaced with palette content.
+    expect(out).toBe(css);
+  });
+
+  it("still inlines a top-level import that follows a rule block containing @import text", () => {
+    const files = {
+      "/project/palettes.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+    };
+    const css =
+      `.foo {\n  --snippet: @import "./ignored.css";\n}\n` +
+      `@import "./palettes.css";\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    // The nested token is left alone...
+    expect(out).toContain('--snippet: @import "./ignored.css";');
+    // ...while the real top-level import is inlined.
+    expect(out).toContain("pumpkin: #e87a01");
+    expect(out).not.toContain('@import "./palettes.css"');
   });
 
   it("does not inline a file that only mentions @natcore-palettes in a comment/string", () => {
