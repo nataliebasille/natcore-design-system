@@ -50,7 +50,8 @@
     "build": "tsx scripts/build.ts",
     "watch": "tsx ../core-v2/scripts/watch.ts",
     "clean": "rimraf dist",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "check:exports": "tsx scripts/assert-plugin-exports.ts"
   },
   "author": "Natalie Basille",
   "license": "MIT",
