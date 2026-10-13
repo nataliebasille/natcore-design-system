@@ -376,4 +376,33 @@ describe("inlineNatcorePaletteImports", () => {
       out.indexOf("remote.css"),
     );
   });
+
+  it("hoists only palette blocks from a mixed file, preserving cascade order of its rules", () => {
+    const files = {
+      "/project/brand.css":
+        "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n" +
+        ".button { color: red; }\n",
+      "/project/overrides.css": ".button { color: blue; }\n",
+    };
+    const css =
+      `@import "./brand.css";\n` + `@import "./overrides.css";\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    const redAt = out.indexOf("color: red");
+    const overridesAt = out.indexOf("overrides.css");
+    const paletteAt = out.indexOf("@natcore-palettes");
+
+    // brand's rule stays before the overrides import, so overrides still wins
+    // the cascade (blue beats red).
+    expect(redAt).toBeGreaterThanOrEqual(0);
+    expect(redAt).toBeLessThan(overridesAt);
+    // The palette block is extracted and hoisted after the import prelude.
+    expect(paletteAt).toBeGreaterThan(overridesAt);
+    // The non-palette overrides import is left for Tailwind.
+    expect(out).toContain('@import "./overrides.css"');
+  });
 });

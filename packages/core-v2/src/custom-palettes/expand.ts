@@ -83,10 +83,11 @@ export interface InlineImportsOptions {
  * literal never false-matches. Recurses into inlined files and guards against
  * cycles/duplicates via `visited`.
  *
- * Inlined palette content is deferred to the end of the leading import prelude
- * (after any `@import`s that remain) rather than injected at the consumed
- * import's original position, so a later untouched `@import` is never left
- * sitting after non-import rules — which CSS would otherwise ignore.
+ * Only the `@natcore-palettes` blocks from a consumed import are hoisted to the
+ * end of the leading import prelude (after any `@import`s that remain), so a
+ * later untouched `@import` is never left sitting after non-import rules — which
+ * CSS would otherwise ignore. Any unrelated rules in the imported file stay at
+ * the import's original position, preserving their normal cascade order.
  */
 export function inlineNatcorePaletteImports(
   css: string,
@@ -132,9 +133,14 @@ export function inlineNatcorePaletteImports(
       output += statement;
       lastImportEnd = output.length;
     } else {
-      // Palette import consumed — defer its content past the prelude.
+      // Palette import consumed. Hoist only the `@natcore-palettes` blocks past
+      // the import prelude; keep any unrelated rules from the imported file at
+      // the import's original position so the normal CSS cascade order of those
+      // rules is preserved.
+      const { palettes, rest } = splitPaletteBlocks(inlined);
+      output += rest;
       if (firstConsumedAt === -1) firstConsumedAt = output.length;
-      if (inlined) collected += (collected ? "\n" : "") + inlined;
+      if (palettes) collected += (collected ? "\n" : "") + palettes;
     }
     index = statementEnd;
   }
@@ -143,6 +149,46 @@ export function inlineNatcorePaletteImports(
 
   const at = Math.max(firstConsumedAt, lastImportEnd, 0);
   return `${output.slice(0, at)}\n${collected}\n${output.slice(at)}`;
+}
+
+/**
+ * Split CSS into its `@natcore-palettes { … }` blocks and everything else,
+ * comment/string-aware. Used to hoist palette declarations out of an imported
+ * file without relocating the file's unrelated rules.
+ */
+function splitPaletteBlocks(css: string): { palettes: string; rest: string } {
+  if (!css.includes(AT_RULE)) return { palettes: "", rest: css };
+
+  let palettes = "";
+  let rest = "";
+  let index = 0;
+
+  while (index < css.length) {
+    const start = findAtRule(css, index);
+    if (start === -1) {
+      rest += css.slice(index);
+      break;
+    }
+
+    rest += css.slice(index, start);
+
+    const braceStart = findOpenBrace(css, start + AT_RULE.length);
+    if (braceStart === -1) {
+      rest += css.slice(start);
+      break;
+    }
+
+    const braceEnd = findMatchingBrace(css, braceStart);
+    if (braceEnd === -1) {
+      rest += css.slice(start);
+      break;
+    }
+
+    palettes += (palettes ? "\n" : "") + css.slice(start, braceEnd + 1);
+    index = braceEnd + 1;
+  }
+
+  return { palettes, rest };
 }
 
 interface InlineContext {
