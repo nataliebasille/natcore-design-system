@@ -485,4 +485,68 @@ describe("inlineNatcorePaletteImports", () => {
     expect(consumed).toContain("/project/seafoam.css");
     expect(consumed).toContain("/project/styles/index.css");
   });
+
+  it("still consumes a palette imported directly when a mixed file also imports it", () => {
+    const files = {
+      // Mixed: pulls in the pure palette file but also has its own rule.
+      "/project/brand.css":
+        `@import "./palette.css";\n.button { color: red; }\n`,
+      "/project/palette.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+    };
+    const css =
+      `@import "./brand.css";\n` + `@import "./palette.css";\n`;
+
+    const consumed: string[] = [];
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+      onConsume: (file) => consumed.push(file),
+    });
+
+    // brand.css is mixed → left verbatim; the direct palette import must still
+    // be consumed (not dropped as a speculative duplicate from the mixed branch).
+    expect(out).toContain('@import "./brand.css"');
+    expect(out).toContain("pumpkin: #e87a01");
+    expect(out).not.toContain('@import "./palette.css"');
+    // The palette is committed exactly once, and only the real consumption fires.
+    expect(consumed).toEqual(["/project/palette.css"]);
+  });
+
+  it("does not treat @imported as an @import at-rule", () => {
+    const files = {
+      "/project/palettes.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+    };
+    const css = `@imported "./palettes.css" { color: red; }\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    // `@imported` is a different at-keyword and must be left untouched.
+    expect(out).toBe(css);
+  });
+
+  it("does not end an import at a semicolon inside an unquoted url()", () => {
+    const files = {
+      "/project/palettes.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+    };
+    const css =
+      `@import url(data:text/css;base64,QUJD);\n` +
+      `@import "./palettes.css";\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    // The data-URL import is one statement (the inner `;` does not terminate it)
+    // and is left verbatim; the real palette import is consumed and hoisted
+    // after it — not spliced inside the url().
+    expect(out).toContain("@import url(data:text/css;base64,QUJD);");
+    const dataAt = out.indexOf("data:text/css");
+    const paletteAt = out.indexOf("@natcore-palettes");
+    expect(paletteAt).toBeGreaterThan(dataAt);
+    expect(out).not.toContain('@import "./palettes.css"');
+  });
 });

@@ -65,8 +65,6 @@ export interface InlineImportsOptions {
   resolveImport: ResolveImport;
   /** Read a resolved file's contents (or `null` to skip). */
   readFile: ReadFile;
-  /** Absolute paths already inlined — guards against import cycles/duplicates. */
-  visited?: Set<string>;
   /**
    * Called with each resolved file that is actually consumed (inlined), so the
    * caller can register it as a build dependency — consumed imports are removed
@@ -92,8 +90,9 @@ export interface InlineImportsOptions {
  *
  * Comment/string-aware and brace-depth-aware so a mention of `@import` or
  * `@natcore-palettes` inside `/* … *​/`, a string literal, or a nested rule block
- * never false-matches. Recurses into consumed files and guards against
- * cycles/duplicates via `visited`.
+ * never false-matches. Recurses into consumed files, isolating each branch's
+ * consumption state so a palette reachable only through a non-pure parent is not
+ * falsely de-duplicated, and guards against import cycles.
  *
  * Consumed palette blocks are hoisted to the end of the leading import prelude
  * (after any `@import`s that remain), so a later untouched `@import` is never
@@ -103,17 +102,51 @@ export function inlineNatcorePaletteImports(
   css: string,
   options: InlineImportsOptions,
 ): string {
-  const visited = options.visited ?? new Set<string>();
-  if (options.fromFile) visited.add(options.fromFile);
-
   if (!css.includes(IMPORT_AT_RULE)) return css;
 
-  const ctx: InlineContext = {
+  const state: InlineState = {
     resolveImport: options.resolveImport,
     readFile: options.readFile,
-    visited,
-    onConsume: options.onConsume,
+    // Files whose palette blocks are committed to the kept output (file ->
+    // importing parent). Used for cross-import de-duplication; `onConsume` runs
+    // for these only after the whole traversal succeeds.
+    consumed: new Map<string, string | undefined>(),
+    // Absolute paths on the active recursion stack, for cycle detection.
+    stack: new Set<string>(),
   };
+  if (options.fromFile) state.stack.add(options.fromFile);
+
+  const output = explore(css, options.fromFile, state);
+
+  // Commit side effects only now that the final output is known: a palette file
+  // consumed speculatively under a branch that turned out non-pure was rolled
+  // back and never reaches here.
+  if (options.onConsume) {
+    for (const [file, parent] of state.consumed) options.onConsume(file, parent);
+  }
+
+  return output;
+}
+
+interface InlineState {
+  resolveImport: ResolveImport;
+  readFile: ReadFile;
+  consumed: Map<string, string | undefined>;
+  stack: Set<string>;
+}
+
+/**
+ * Walk the top-level `@import`s in `css`, consuming pure palette files and
+ * hoisting their blocks past the import prelude. Pure, side-effect-free with
+ * respect to `onConsume`: consumption is recorded in `state.consumed` and only
+ * committed by the public entry point once the whole traversal succeeds.
+ */
+function explore(
+  css: string,
+  fromFile: string | undefined,
+  state: InlineState,
+): string {
+  if (!css.includes(IMPORT_AT_RULE)) return css;
 
   let output = "";
   // Collected palette blocks from consumed imports, deferred until after the
@@ -138,7 +171,7 @@ export function inlineNatcorePaletteImports(
     const statementEnd = semicolon === -1 ? css.length : semicolon + 1;
     const statement = css.slice(start, statementEnd);
 
-    const palettes = resolveStatement(statement, options.fromFile, ctx);
+    const palettes = resolveStatement(statement, fromFile, state);
     if (palettes === null) {
       // Not a consumable palette import — keep it verbatim for Tailwind.
       output += statement;
@@ -197,23 +230,21 @@ function splitPaletteBlocks(css: string): { palettes: string; rest: string } {
   return { palettes, rest };
 }
 
-interface InlineContext {
-  resolveImport: ResolveImport;
-  readFile: ReadFile;
-  visited: Set<string>;
-  onConsume?: (file: string, parent: string | undefined) => void;
-}
-
 /**
  * Resolve a single `@import` statement. Returns the hoisted palette blocks when
  * the import resolves to a pure palette file (possibly `""` for a
  * de-duplicated/cyclic import), or `null` to leave the statement verbatim for
  * Tailwind (non-palette, mixed, qualified, or unresolvable imports).
+ *
+ * Branch state is isolated: the file's subtree is explored speculatively, and
+ * any consumption it records is rolled back unless this file is confirmed pure,
+ * so a palette reachable only through a non-pure parent is not falsely marked
+ * consumed.
  */
 function resolveStatement(
   statement: string,
   fromFile: string | undefined,
-  ctx: InlineContext,
+  state: InlineState,
 ): string | null {
   const parsed = parseImportTarget(statement);
   if (parsed === null) return null;
@@ -223,31 +254,23 @@ function resolveStatement(
   // unconditionally would change that, so leave it for Tailwind.
   if (hasImportConditions(statement, parsed.end)) return null;
 
-  const resolved = ctx.resolveImport(parsed.spec, fromFile);
+  const resolved = state.resolveImport(parsed.spec, fromFile);
   if (resolved === null) return null;
 
-  // Already inlined elsewhere (duplicate) or currently being inlined higher up
-  // the chain (cycle) — consume it but contribute nothing to avoid duplicate
-  // palette definitions and infinite recursion.
-  if (ctx.visited.has(resolved)) return "";
+  // Already committed elsewhere (duplicate) or currently on the recursion stack
+  // (cycle) — consume it but contribute nothing to avoid duplicate palette
+  // definitions and infinite recursion.
+  if (state.consumed.has(resolved) || state.stack.has(resolved)) return "";
 
-  // Tentatively claim this path before recursing so cycles and duplicates are
-  // caught; revert if it turns out we are not going to consume this branch.
-  ctx.visited.add(resolved);
+  const contents = state.readFile(resolved);
+  if (contents === null) return null;
 
-  const contents = ctx.readFile(resolved);
-  if (contents === null) {
-    ctx.visited.delete(resolved);
-    return null;
-  }
-
-  const inlined = inlineNatcorePaletteImports(contents, {
-    fromFile: resolved,
-    resolveImport: ctx.resolveImport,
-    readFile: ctx.readFile,
-    visited: ctx.visited,
-    onConsume: ctx.onConsume,
-  });
+  state.stack.add(resolved);
+  // Record what is already committed so this speculative branch can be rolled
+  // back if the file turns out not to be a pure palette file.
+  const snapshot = new Set(state.consumed.keys());
+  const inlined = explore(contents, resolved, state);
+  state.stack.delete(resolved);
 
   const { palettes, rest } = splitPaletteBlocks(inlined);
 
@@ -257,13 +280,16 @@ function resolveStatement(
   // `url(…)`/`@import` references — are not transplanted to a different base
   // directory, and so cascade order is preserved.
   if (palettes === "" || !isBlank(rest)) {
-    ctx.visited.delete(resolved);
+    // Roll back any consumption recorded while exploring this non-pure branch.
+    for (const file of state.consumed.keys()) {
+      if (!snapshot.has(file)) state.consumed.delete(file);
+    }
     return null;
   }
 
-  // Consumed: this file is removed before Tailwind sees it, so register it as a
-  // build dependency to keep watch mode rebuilding when it changes.
-  ctx.onConsume?.(resolved, fromFile);
+  // Consumed: record it (committed to `onConsume` by the entry point once the
+  // whole traversal succeeds) so watch mode rebuilds when the file changes.
+  state.consumed.set(resolved, fromFile);
 
   return palettes;
 }
@@ -385,15 +411,42 @@ function findToken(css: string, from: number, token: string): number {
       i += 1;
       continue;
     }
-    if (depth === 0 && ch === token[0] && css.startsWith(token, i)) return i;
+    if (
+      depth === 0 &&
+      ch === token[0] &&
+      css.startsWith(token, i) &&
+      !isIdentChar(css[i + token.length])
+    ) {
+      // Require an identifier boundary after the token so `@import` does not
+      // match `@imported` and `@natcore-palettes` does not match a longer
+      // at-keyword that merely starts with it.
+      return i;
+    }
     i += 1;
   }
   return -1;
 }
 
-/** Next `;` that is not inside a comment or string literal. */
+/** Whether `ch` can continue a CSS identifier / at-keyword name. */
+function isIdentChar(ch: string | undefined): boolean {
+  if (ch === undefined) return false;
+  return (
+    (ch >= "a" && ch <= "z") ||
+    (ch >= "A" && ch <= "Z") ||
+    (ch >= "0" && ch <= "9") ||
+    ch === "-" ||
+    ch === "_"
+  );
+}
+
+/**
+ * Next statement-terminating `;` (parenthesis depth 0) that is not inside a
+ * comment or string literal. Tracking parentheses keeps a `;` inside an
+ * unquoted `url(data:…;base64,…)` from ending the import early.
+ */
 function findSemicolon(css: string, from: number): number {
   let i = from;
+  let parens = 0;
   while (i < css.length) {
     const ch = css[i];
     if (ch === "\\") {
@@ -408,7 +461,17 @@ function findSemicolon(css: string, from: number): number {
       i = skipString(css, i);
       continue;
     }
-    if (ch === ";") return i;
+    if (ch === "(") {
+      parens += 1;
+      i += 1;
+      continue;
+    }
+    if (ch === ")") {
+      if (parens > 0) parens -= 1;
+      i += 1;
+      continue;
+    }
+    if (ch === ";" && parens === 0) return i;
     i += 1;
   }
   return -1;
