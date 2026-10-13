@@ -421,11 +421,11 @@ describe("inlineNatcorePaletteImports", () => {
     );
   });
 
-  it("hoists only palette blocks from a mixed file, preserving cascade order of its rules", () => {
+  it("leaves a mixed file (palette plus ordinary rules) verbatim for Tailwind", () => {
     const files = {
       "/project/brand.css":
         "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n" +
-        ".button { color: red; }\n",
+        '.logo { background: url("./logo.svg"); }\n',
       "/project/overrides.css": ".button { color: blue; }\n",
     };
     const css =
@@ -436,17 +436,53 @@ describe("inlineNatcorePaletteImports", () => {
       ...createFs(files),
     });
 
-    const redAt = out.indexOf("color: red");
-    const overridesAt = out.indexOf("overrides.css");
-    const paletteAt = out.indexOf("@natcore-palettes");
+    // The mixed file is not consumed: its ordinary rules (and their relative
+    // references) are not transplanted into the entry stylesheet, so the base
+    // directory of `url("./logo.svg")` is preserved and cascade order is intact.
+    expect(out).toBe(css);
+    expect(out).not.toContain("logo.svg");
+    expect(out).not.toContain("@natcore-palettes");
+  });
 
-    // brand's rule stays before the overrides import, so overrides still wins
-    // the cascade (blue beats red).
-    expect(redAt).toBeGreaterThanOrEqual(0);
-    expect(redAt).toBeLessThan(overridesAt);
-    // The palette block is extracted and hoisted after the import prelude.
-    expect(paletteAt).toBeGreaterThan(overridesAt);
-    // The non-palette overrides import is left for Tailwind.
-    expect(out).toContain('@import "./overrides.css"');
+  it("leaves a palette file verbatim when it also imports a non-palette file", () => {
+    const files = {
+      "/project/brand.css":
+        `@import "./reset.css";\n@natcore-palettes {\n  pumpkin: #e87a01;\n}\n`,
+      "/project/reset.css": ".reset { margin: 0; }\n",
+    };
+    const css = `@import "./brand.css";\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    // brand.css is mixed (it pulls in a non-palette file), so it is left for
+    // Tailwind rather than transplanting the nested reset import.
+    expect(out).toBe(css);
+  });
+
+  it("reports each consumed palette file via onConsume", () => {
+    const files = {
+      "/project/styles/index.css": `@import "./pumpkin.css";\n`,
+      "/project/styles/pumpkin.css":
+        "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+      "/project/seafoam.css": "@natcore-palettes {\n  seafoam: #2ec4b6;\n}\n",
+    };
+    const css =
+      `@import "./styles/index.css";\n` + `@import "./seafoam.css";\n`;
+
+    const consumed: string[] = [];
+    inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+      onConsume: (file) => consumed.push(file),
+    });
+
+    // Both the directly imported pure palette file and the nested one are
+    // reported, plus the barrel that only forwards to a palette file.
+    expect(consumed).toContain("/project/styles/pumpkin.css");
+    expect(consumed).toContain("/project/seafoam.css");
+    expect(consumed).toContain("/project/styles/index.css");
   });
 });

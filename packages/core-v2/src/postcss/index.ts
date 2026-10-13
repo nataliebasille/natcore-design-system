@@ -20,9 +20,13 @@ interface MinimalRoot {
 interface MinimalParse {
   (css: string, opts?: { from?: string }): { nodes: unknown };
 }
+interface MinimalResult {
+  opts?: { from?: string };
+  messages?: unknown[];
+}
 interface MinimalHelpers {
   postcss: { parse: MinimalParse };
-  result?: { opts?: { from?: string } };
+  result?: MinimalResult;
 }
 interface MinimalPlugin {
   postcssPlugin: string;
@@ -75,6 +79,17 @@ const plugin: MinimalPluginCreator = () => {
         fromFile: from,
         resolveImport,
         readFile,
+        onConsume: (file, parent) => {
+          // Consumed palette files are removed before Tailwind sees them, so
+          // register them as PostCSS dependencies to keep watch mode rebuilding
+          // when they change.
+          result?.messages?.push({
+            type: "dependency",
+            plugin: "@nataliebasille/natcore-design-system/custom-palettes",
+            file,
+            parent: parent ?? from,
+          });
+        },
       });
       if (!inlined.includes("@natcore-palettes")) return;
 

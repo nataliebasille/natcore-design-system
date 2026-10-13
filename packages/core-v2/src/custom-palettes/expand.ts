@@ -67,6 +67,12 @@ export interface InlineImportsOptions {
   readFile: ReadFile;
   /** Absolute paths already inlined — guards against import cycles/duplicates. */
   visited?: Set<string>;
+  /**
+   * Called with each resolved file that is actually consumed (inlined), so the
+   * caller can register it as a build dependency — consumed imports are removed
+   * before Tailwind sees them and would otherwise not be watched.
+   */
+  onConsume?: (file: string, parent: string | undefined) => void;
 }
 
 /**
@@ -75,19 +81,23 @@ export interface InlineImportsOptions {
  *
  * natcore must run before `@tailwindcss/postcss`, which is what normally inlines
  * `@import`s — so without this pass a palette block behind an `@import` is never
- * expanded. An `@import` is inlined only when its resolved file (or something it
- * transitively imports) actually declares palettes; every other `@import` (bare
- * specifiers such as `tailwindcss`, non-palette files, qualified imports, and
- * unresolvable paths) is left verbatim for Tailwind. Comment/string-aware so a
- * mention of `@import` or `@natcore-palettes` inside `/* … *​/` or a string
- * literal never false-matches. Recurses into inlined files and guards against
+ * expanded. An `@import` is consumed only when it resolves to a file whose
+ * meaningful content is *exclusively* `@natcore-palettes` blocks (optionally via
+ * nested imports to other such files). Every other `@import` — bare specifiers
+ * (`tailwindcss`), non-palette files, *mixed* files that also contain ordinary
+ * rules, qualified imports, and unresolvable paths — is left verbatim for
+ * Tailwind. Leaving mixed files alone avoids transplanting their non-palette
+ * rules (whose relative `url(…)`/`@import` references would otherwise resolve
+ * from the wrong base directory) and preserves cascade order.
+ *
+ * Comment/string-aware and brace-depth-aware so a mention of `@import` or
+ * `@natcore-palettes` inside `/* … *​/`, a string literal, or a nested rule block
+ * never false-matches. Recurses into consumed files and guards against
  * cycles/duplicates via `visited`.
  *
- * Only the `@natcore-palettes` blocks from a consumed import are hoisted to the
- * end of the leading import prelude (after any `@import`s that remain), so a
- * later untouched `@import` is never left sitting after non-import rules — which
- * CSS would otherwise ignore. Any unrelated rules in the imported file stay at
- * the import's original position, preserving their normal cascade order.
+ * Consumed palette blocks are hoisted to the end of the leading import prelude
+ * (after any `@import`s that remain), so a later untouched `@import` is never
+ * left sitting after non-import rules — which CSS would otherwise ignore.
  */
 export function inlineNatcorePaletteImports(
   css: string,
@@ -102,10 +112,11 @@ export function inlineNatcorePaletteImports(
     resolveImport: options.resolveImport,
     readFile: options.readFile,
     visited,
+    onConsume: options.onConsume,
   };
 
   let output = "";
-  // Collected palette content from consumed imports, deferred until after the
+  // Collected palette blocks from consumed imports, deferred until after the
   // import prelude.
   let collected = "";
   // Output index of the first consumed palette import (locality fallback).
@@ -127,18 +138,13 @@ export function inlineNatcorePaletteImports(
     const statementEnd = semicolon === -1 ? css.length : semicolon + 1;
     const statement = css.slice(start, statementEnd);
 
-    const inlined = resolveStatement(statement, options.fromFile, ctx);
-    if (inlined === null) {
-      // Not a palette import — keep it verbatim for Tailwind.
+    const palettes = resolveStatement(statement, options.fromFile, ctx);
+    if (palettes === null) {
+      // Not a consumable palette import — keep it verbatim for Tailwind.
       output += statement;
       lastImportEnd = output.length;
     } else {
-      // Palette import consumed. Hoist only the `@natcore-palettes` blocks past
-      // the import prelude; keep any unrelated rules from the imported file at
-      // the import's original position so the normal CSS cascade order of those
-      // rules is preserved.
-      const { palettes, rest } = splitPaletteBlocks(inlined);
-      output += rest;
+      // Pure palette import consumed — hoist its blocks past the prelude.
       if (firstConsumedAt === -1) firstConsumedAt = output.length;
       if (palettes) collected += (collected ? "\n" : "") + palettes;
     }
@@ -195,12 +201,14 @@ interface InlineContext {
   resolveImport: ResolveImport;
   readFile: ReadFile;
   visited: Set<string>;
+  onConsume?: (file: string, parent: string | undefined) => void;
 }
 
 /**
- * Resolve a single `@import` statement. Returns the inlined palette content to
- * defer (possibly `""` for a de-duplicated/cyclic import), or `null` to leave
- * the statement verbatim for Tailwind.
+ * Resolve a single `@import` statement. Returns the hoisted palette blocks when
+ * the import resolves to a pure palette file (possibly `""` for a
+ * de-duplicated/cyclic import), or `null` to leave the statement verbatim for
+ * Tailwind (non-palette, mixed, qualified, or unresolvable imports).
  */
 function resolveStatement(
   statement: string,
@@ -224,7 +232,7 @@ function resolveStatement(
   if (ctx.visited.has(resolved)) return "";
 
   // Tentatively claim this path before recursing so cycles and duplicates are
-  // caught; revert if it turns out there are no palettes down this branch.
+  // caught; revert if it turns out we are not going to consume this branch.
   ctx.visited.add(resolved);
 
   const contents = ctx.readFile(resolved);
@@ -238,17 +246,31 @@ function resolveStatement(
     resolveImport: ctx.resolveImport,
     readFile: ctx.readFile,
     visited: ctx.visited,
+    onConsume: ctx.onConsume,
   });
 
-  // Only inline when this branch yields a *real* `@natcore-palettes` at-rule
-  // (not merely a mention in a comment or string); otherwise leave the
-  // `@import` verbatim for Tailwind (do no harm to non-palette imports).
-  if (findAtRule(inlined, 0) === -1) {
+  const { palettes, rest } = splitPaletteBlocks(inlined);
+
+  // Only consume a *pure* palette file: one whose only meaningful content is
+  // `@natcore-palettes` blocks. A mixed file (palette plus ordinary rules) is
+  // left verbatim for Tailwind so its non-palette rules — and their relative
+  // `url(…)`/`@import` references — are not transplanted to a different base
+  // directory, and so cascade order is preserved.
+  if (palettes === "" || !isBlank(rest)) {
     ctx.visited.delete(resolved);
     return null;
   }
 
-  return inlined;
+  // Consumed: this file is removed before Tailwind sees it, so register it as a
+  // build dependency to keep watch mode rebuilding when it changes.
+  ctx.onConsume?.(resolved, fromFile);
+
+  return palettes;
+}
+
+/** Whether `css` is only whitespace and comments (no meaningful rules). */
+function isBlank(css: string): boolean {
+  return css.replace(/\/\*[\s\S]*?\*\//g, "").trim() === "";
 }
 
 /**
