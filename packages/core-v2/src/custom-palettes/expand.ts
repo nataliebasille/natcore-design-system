@@ -139,10 +139,15 @@ function resolveStatement(
   fromFile: string | undefined,
   ctx: InlineContext,
 ): string {
-  const spec = parseImportTarget(statement);
-  if (spec === null) return statement;
+  const parsed = parseImportTarget(statement);
+  if (parsed === null) return statement;
 
-  const resolved = ctx.resolveImport(spec, fromFile);
+  // A qualified import (`@import "…" print`, `layer(…)`, `supports(…)`, or a
+  // media query) only applies under its condition. Inlining its contents
+  // unconditionally would change that, so leave it for Tailwind.
+  if (hasImportConditions(statement, parsed.end)) return statement;
+
+  const resolved = ctx.resolveImport(parsed.spec, fromFile);
   if (resolved === null) return statement;
 
   // Already inlined elsewhere (duplicate) or currently being inlined higher up
@@ -172,8 +177,24 @@ function resolveStatement(
   return `\n${inlined}\n`;
 }
 
+/**
+ * Whether anything other than whitespace/`;` follows the import URL token that
+ * ends at `urlEnd` — i.e. a media query, `layer(…)`, or `supports(…)` condition.
+ */
+function hasImportConditions(statement: string, urlEnd: number): boolean {
+  let tail = statement.slice(urlEnd).trim();
+  if (tail.endsWith(";")) tail = tail.slice(0, -1).trim();
+  return tail.length > 0;
+}
+
+/** The import URL specifier plus the index just past its closing token. */
+interface ImportTarget {
+  spec: string;
+  end: number;
+}
+
 /** Extract the path/specifier from an `@import` statement, or `null`. */
-function parseImportTarget(statement: string): string | null {
+function parseImportTarget(statement: string): ImportTarget | null {
   let i = IMPORT_AT_RULE.length;
   while (i < statement.length && isWhitespace(statement[i])) i += 1;
 
@@ -183,16 +204,21 @@ function parseImportTarget(statement: string): string | null {
     const quote = statement[j];
     if (quote === '"' || quote === "'") {
       const end = statement.indexOf(quote, j + 1);
-      return end === -1 ? null : statement.slice(j + 1, end);
+      if (end === -1) return null;
+      const close = statement.indexOf(")", end + 1);
+      if (close === -1) return null;
+      return { spec: statement.slice(j + 1, end), end: close + 1 };
     }
     const close = statement.indexOf(")", j);
-    return close === -1 ? null : statement.slice(j, close).trim();
+    return close === -1 ?
+        null
+      : { spec: statement.slice(j, close).trim(), end: close + 1 };
   }
 
   const quote = statement[i];
   if (quote === '"' || quote === "'") {
     const end = statement.indexOf(quote, i + 1);
-    return end === -1 ? null : statement.slice(i + 1, end);
+    return end === -1 ? null : { spec: statement.slice(i + 1, end), end: end + 1 };
   }
 
   return null;

@@ -229,6 +229,46 @@ describe("inlineNatcorePaletteImports", () => {
     expect(expandNatcorePalettesInCss(out)).toContain("--theme-brand");
   });
 
+  it("leaves a qualified palette @import (media/layer/supports) for Tailwind", () => {
+    const files = {
+      "/project/palettes.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+    };
+    const qualifiers = [
+      `@import "./palettes.css" print;`,
+      `@import "./palettes.css" screen and (min-width: 600px);`,
+      `@import "./palettes.css" layer(brand);`,
+      `@import "./palettes.css" supports(display: grid);`,
+      `@import url("./palettes.css") print;`,
+    ];
+
+    for (const statement of qualifiers) {
+      const css = `${statement}\n`;
+      const out = inlineNatcorePaletteImports(css, {
+        fromFile: "/project/globals.css",
+        ...createFs(files),
+      });
+
+      // The qualified import is left verbatim; its condition is not dropped and
+      // the palette body is not inlined unconditionally.
+      expect(out).toBe(css);
+    }
+  });
+
+  it("still inlines an unqualified @import that uses url()", () => {
+    const files = {
+      "/project/palettes.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+    };
+    const css = `@import url("./palettes.css");\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    expect(out).toContain("pumpkin: #e87a01");
+    expect(out).not.toContain("@import");
+  });
+
   it("does not hang or crash on an import cycle", () => {
     const files = {
       "/project/a.css":
