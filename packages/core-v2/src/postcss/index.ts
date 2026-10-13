@@ -1,4 +1,12 @@
-import { expandNatcorePalettesInCss } from "../custom-palettes/expand.ts";
+import fs from "node:fs";
+import path from "node:path";
+import { createRequire } from "node:module";
+import {
+  expandNatcorePalettesInCss,
+  inlineNatcorePaletteImports,
+  type ResolveImport,
+  type ReadFile,
+} from "../custom-palettes/expand.ts";
 
 // Minimal structural types so this plugin does not need `postcss` as a
 // type/runtime dependency of the package it ships in. The host project
@@ -47,12 +55,27 @@ const plugin: MinimalPluginCreator = () => {
     postcssPlugin: "@nataliebasille/natcore-design-system/custom-palettes",
     Once(root, { postcss, result }) {
       const css = root.toString();
-      if (!css.includes("@natcore-palettes")) return;
-
-      const expanded = expandNatcorePalettesInCss(css);
-      if (expanded === css) return;
+      // Nothing to do when the document has neither palettes nor imports that
+      // might bring palette declarations in.
+      if (!css.includes("@natcore-palettes") && !css.includes("@import")) {
+        return;
+      }
 
       const from = result?.opts?.from ?? root.source?.input?.file;
+
+      // Inline `@import`ed palette files first; Tailwind (which normally inlines
+      // imports) runs after us, so a palette block behind a plain `@import`
+      // would otherwise be invisible to the expander.
+      const inlined = inlineNatcorePaletteImports(css, {
+        fromFile: from,
+        resolveImport,
+        readFile,
+      });
+      if (!inlined.includes("@natcore-palettes")) return;
+
+      const expanded = expandNatcorePalettesInCss(inlined);
+      if (expanded === css) return;
+
       const parsed = postcss.parse(expanded, from ? { from } : undefined);
       root.removeAll();
       root.append(parsed.nodes);
@@ -63,3 +86,44 @@ const plugin: MinimalPluginCreator = () => {
 plugin.postcss = true;
 
 export default plugin;
+
+/**
+ * Resolve an `@import` specifier to an absolute file path, or `null` to leave it
+ * for Tailwind. Relative/absolute paths resolve against the importing file;
+ * package specifiers with a subpath resolve through node_modules. Bare entry
+ * specifiers (`tailwindcss`, `@nataliebasille/natcore-design-system`) return
+ * `null`.
+ */
+const resolveImport: ResolveImport = (spec, fromFile) => {
+  const clean = spec.replace(/[?#].*$/, "").trim();
+  if (!clean) return null;
+
+  if (clean.startsWith("./") || clean.startsWith("../") || path.isAbsolute(clean)) {
+    const base = fromFile ? path.dirname(fromFile) : process.cwd();
+    const resolved = path.resolve(base, clean);
+    return fs.existsSync(resolved) ? resolved : null;
+  }
+
+  // Bare specifier: only resolve when it points at a subpath inside a package.
+  if (!hasSubpath(clean)) return null;
+  try {
+    const req = createRequire(fromFile ?? path.join(process.cwd(), "_"));
+    return req.resolve(clean);
+  } catch {
+    return null;
+  }
+};
+
+const readFile: ReadFile = (absPath) => {
+  try {
+    return fs.readFileSync(absPath, "utf8");
+  } catch {
+    return null;
+  }
+};
+
+/** Whether a bare specifier addresses a subpath (not just a package entry). */
+function hasSubpath(spec: string): boolean {
+  if (spec.startsWith("@")) return spec.split("/").length > 2;
+  return spec.includes("/");
+}
