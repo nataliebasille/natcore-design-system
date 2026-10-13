@@ -61,7 +61,12 @@ const plugin: MinimalPluginCreator = () => {
         return;
       }
 
-      const from = result?.opts?.from ?? root.source?.input?.file;
+      const rawFrom = result?.opts?.from ?? root.source?.input?.file;
+      // `result.opts.from` may be a caller-provided relative path; resolve it to
+      // an absolute path so `createRequire` (used for node_modules resolution)
+      // does not throw `ERR_INVALID_ARG_VALUE` and silently skip package-subpath
+      // palette imports.
+      const from = rawFrom ? path.resolve(rawFrom) : undefined;
 
       // Inline `@import`ed palette files first; Tailwind (which normally inlines
       // imports) runs after us, so a palette block behind a plain `@import`

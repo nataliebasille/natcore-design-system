@@ -316,4 +316,64 @@ describe("inlineNatcorePaletteImports", () => {
 
     expect(out).toBe(css);
   });
+
+  it("does not inline a file that only mentions @natcore-palettes in a comment/string", () => {
+    const files = {
+      "/project/docs.css":
+        `/* configure with @natcore-palettes { brand: red } */\n` +
+        `.hint::after { content: "@natcore-palettes"; }\n`,
+    };
+    const css = `@import "./docs.css";\n.foo { color: red; }\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    // The file has no real at-rule, so the import is left verbatim for Tailwind.
+    expect(out).toBe(css);
+  });
+
+  it("defers inlined palettes past a later import so the prelude stays valid", () => {
+    const files = {
+      "/project/palettes.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+    };
+    const css =
+      `@import "tailwindcss";\n` +
+      `@import "./palettes.css";\n` +
+      `@import url("https://example.com/remote.css");\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    // The remote import survives...
+    expect(out).toContain('@import url("https://example.com/remote.css");');
+    // ...and the inlined palette block comes after it (imports before rules).
+    const remoteAt = out.indexOf("remote.css");
+    const paletteAt = out.indexOf("@natcore-palettes");
+    expect(paletteAt).toBeGreaterThan(remoteAt);
+    // The consumed palette import itself is gone.
+    expect(out).not.toContain('@import "./palettes.css"');
+  });
+
+  it("keeps a trailing non-palette import ahead of the deferred palette block", () => {
+    const files = {
+      "/project/palettes.css": "@natcore-palettes {\n  pumpkin: #e87a01;\n}\n",
+      "/project/reset.css": ".reset { margin: 0; }\n",
+    };
+    const css =
+      `@import "./palettes.css";\n` +
+      `@import url("https://example.com/remote.css");\n`;
+
+    const out = inlineNatcorePaletteImports(css, {
+      fromFile: "/project/globals.css",
+      ...createFs(files),
+    });
+
+    expect(out.indexOf("@natcore-palettes")).toBeGreaterThan(
+      out.indexOf("remote.css"),
+    );
+  });
 });

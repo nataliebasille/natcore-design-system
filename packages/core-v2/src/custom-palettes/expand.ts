@@ -77,10 +77,16 @@ export interface InlineImportsOptions {
  * `@import`s — so without this pass a palette block behind an `@import` is never
  * expanded. An `@import` is inlined only when its resolved file (or something it
  * transitively imports) actually declares palettes; every other `@import` (bare
- * specifiers such as `tailwindcss`, non-palette files, unresolvable paths) is
- * left verbatim for Tailwind. Comment/string-aware so a mention of `@import`
- * inside `/* … *​/` or a string literal never false-matches. Recurses into
- * inlined files and guards against cycles/duplicates via `visited`.
+ * specifiers such as `tailwindcss`, non-palette files, qualified imports, and
+ * unresolvable paths) is left verbatim for Tailwind. Comment/string-aware so a
+ * mention of `@import` or `@natcore-palettes` inside `/* … *​/` or a string
+ * literal never false-matches. Recurses into inlined files and guards against
+ * cycles/duplicates via `visited`.
+ *
+ * Inlined palette content is deferred to the end of the leading import prelude
+ * (after any `@import`s that remain) rather than injected at the consumed
+ * import's original position, so a later untouched `@import` is never left
+ * sitting after non-import rules — which CSS would otherwise ignore.
  */
 export function inlineNatcorePaletteImports(
   css: string,
@@ -89,11 +95,54 @@ export function inlineNatcorePaletteImports(
   const visited = options.visited ?? new Set<string>();
   if (options.fromFile) visited.add(options.fromFile);
 
-  return inlineImports(css, options.fromFile, {
+  if (!css.includes(IMPORT_AT_RULE)) return css;
+
+  const ctx: InlineContext = {
     resolveImport: options.resolveImport,
     readFile: options.readFile,
     visited,
-  });
+  };
+
+  let output = "";
+  // Collected palette content from consumed imports, deferred until after the
+  // import prelude.
+  let collected = "";
+  // Output index of the first consumed palette import (locality fallback).
+  let firstConsumedAt = -1;
+  // Output index just past the last `@import` left verbatim.
+  let lastImportEnd = -1;
+  let index = 0;
+
+  while (index < css.length) {
+    const start = findToken(css, index, IMPORT_AT_RULE);
+    if (start === -1) {
+      output += css.slice(index);
+      break;
+    }
+
+    output += css.slice(index, start);
+
+    const semicolon = findSemicolon(css, start + IMPORT_AT_RULE.length);
+    const statementEnd = semicolon === -1 ? css.length : semicolon + 1;
+    const statement = css.slice(start, statementEnd);
+
+    const inlined = resolveStatement(statement, options.fromFile, ctx);
+    if (inlined === null) {
+      // Not a palette import — keep it verbatim for Tailwind.
+      output += statement;
+      lastImportEnd = output.length;
+    } else {
+      // Palette import consumed — defer its content past the prelude.
+      if (firstConsumedAt === -1) firstConsumedAt = output.length;
+      if (inlined) collected += (collected ? "\n" : "") + inlined;
+    }
+    index = statementEnd;
+  }
+
+  if (collected === "") return output;
+
+  const at = Math.max(firstConsumedAt, lastImportEnd, 0);
+  return `${output.slice(0, at)}\n${collected}\n${output.slice(at)}`;
 }
 
 interface InlineContext {
@@ -102,57 +151,30 @@ interface InlineContext {
   visited: Set<string>;
 }
 
-/** Walk `@import`s in `css`, inlining the palette-bearing ones. */
-function inlineImports(
-  css: string,
-  fromFile: string | undefined,
-  ctx: InlineContext,
-): string {
-  if (!css.includes(IMPORT_AT_RULE)) return css;
-
-  let result = "";
-  let index = 0;
-
-  while (index < css.length) {
-    const start = findToken(css, index, IMPORT_AT_RULE);
-    if (start === -1) {
-      result += css.slice(index);
-      break;
-    }
-
-    result += css.slice(index, start);
-
-    const semicolon = findSemicolon(css, start + IMPORT_AT_RULE.length);
-    const statementEnd = semicolon === -1 ? css.length : semicolon + 1;
-    const statement = css.slice(start, statementEnd);
-
-    result += resolveStatement(statement, fromFile, ctx);
-    index = statementEnd;
-  }
-
-  return result;
-}
-
-/** Inline a single `@import` statement, or return it unchanged. */
+/**
+ * Resolve a single `@import` statement. Returns the inlined palette content to
+ * defer (possibly `""` for a de-duplicated/cyclic import), or `null` to leave
+ * the statement verbatim for Tailwind.
+ */
 function resolveStatement(
   statement: string,
   fromFile: string | undefined,
   ctx: InlineContext,
-): string {
+): string | null {
   const parsed = parseImportTarget(statement);
-  if (parsed === null) return statement;
+  if (parsed === null) return null;
 
   // A qualified import (`@import "…" print`, `layer(…)`, `supports(…)`, or a
   // media query) only applies under its condition. Inlining its contents
   // unconditionally would change that, so leave it for Tailwind.
-  if (hasImportConditions(statement, parsed.end)) return statement;
+  if (hasImportConditions(statement, parsed.end)) return null;
 
   const resolved = ctx.resolveImport(parsed.spec, fromFile);
-  if (resolved === null) return statement;
+  if (resolved === null) return null;
 
   // Already inlined elsewhere (duplicate) or currently being inlined higher up
-  // the chain (cycle) — drop to avoid duplicate palette definitions and
-  // infinite recursion.
+  // the chain (cycle) — consume it but contribute nothing to avoid duplicate
+  // palette definitions and infinite recursion.
   if (ctx.visited.has(resolved)) return "";
 
   // Tentatively claim this path before recursing so cycles and duplicates are
@@ -162,19 +184,25 @@ function resolveStatement(
   const contents = ctx.readFile(resolved);
   if (contents === null) {
     ctx.visited.delete(resolved);
-    return statement;
+    return null;
   }
 
-  const inlined = inlineImports(contents, resolved, ctx);
+  const inlined = inlineNatcorePaletteImports(contents, {
+    fromFile: resolved,
+    resolveImport: ctx.resolveImport,
+    readFile: ctx.readFile,
+    visited: ctx.visited,
+  });
 
-  // Only inline when this branch actually yields palettes; otherwise leave the
-  // `@import` for Tailwind (do no harm to non-palette imports).
-  if (!inlined.includes(AT_RULE)) {
+  // Only inline when this branch yields a *real* `@natcore-palettes` at-rule
+  // (not merely a mention in a comment or string); otherwise leave the
+  // `@import` verbatim for Tailwind (do no harm to non-palette imports).
+  if (findAtRule(inlined, 0) === -1) {
     ctx.visited.delete(resolved);
-    return statement;
+    return null;
   }
 
-  return `\n${inlined}\n`;
+  return inlined;
 }
 
 /**
