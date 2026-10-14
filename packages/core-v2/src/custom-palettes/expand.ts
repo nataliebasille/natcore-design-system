@@ -346,7 +346,7 @@ function parseImportTarget(statement: string): ImportTarget | null {
   return null;
 }
 
-function isWhitespace(ch: string): boolean {
+function isWhitespace(ch: string | undefined): boolean {
   return ch === " " || ch === "\t" || ch === "\n" || ch === "\r" || ch === "\f";
 }
 
