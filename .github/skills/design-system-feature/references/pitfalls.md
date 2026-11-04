@@ -1,0 +1,38 @@
+# Pitfalls
+
+Each of these cost time while building the dialog component. Check the relevant ones before each phase.
+
+## css-engine / core-v2 CSS
+
+- **`.defaultVariant()` can create a circular `@apply`.** If the bare class (`dialog`) and the variants (`dialog-*`) share a root, `.defaultVariant("center")` emits `@utility dialog { @apply dialog-center }`, which Tailwind rejects. Use `.optionalVariants()` and put the default values in `.vars()` instead.
+- **Numeric values can be dropped.** `opacity: 0` (a number) disappears from the output. Use strings: `opacity: "0"`.
+- **New DSL helpers need a css-engine rebuild.** core-v2 and the showcase import css-engine's built `dist`, so run `pnpm --filter @nataliebasille/css-engine build` after adding a helper, or core-v2 tests fail with "x is not a function".
+- **At-rules go in the body, not string keys.** Pass `dsl.startingStyle(...)`, `dsl.prefersReducedMotion(...)`, etc. as body arguments rather than `"@starting-style"` keys in `$`.
+- **Cascade layers.** Component bodies compile into `@layer utilities { @layer components { … } }`, so plain Tailwind utilities override them; `.utility(...)` classes land in `utilities`. Test this with `findDecls(...).layer` rather than assuming.
+- **Refactors must not change output.** Before changing the compiler or an existing component, copy `packages/core-v2/dist`, rebuild, and diff every `.css` file.
+- **css-engine type-check is already failing** (31 errors at the time of the dialog PR). Compare the error list before and after your change; don't treat a non-zero exit as your regression, and don't add it to CI.
+
+## Tests
+
+- **Vitest can stall on re-imports.** The harness caches compiled stylesheets per process; don't add cache-busting query strings to imports in tests.
+- **Prove the harness before trusting a red test.** When adding helper functionality, add a passing test against an existing component (tray, button) so a failing feature test can't be a harness bug.
+- **Computed colors are `oklab(...)`.** Tailwind v4 colors don't come back as `rgba(...)`. Compare alpha/opacity, not exact color strings.
+- **The showcase only has `tablet` and `desktop` breakpoints** (no `sm`). Responsive examples and tests must use those.
+- **Playwright never silently reuses a server.** It builds and starts its own on port 3210 unless `E2E_REUSE_SERVER=1`; this avoids accidentally testing another app on a shared port.
+
+## Showcase docs
+
+- **Global heading styles win.** natcore's `h1`–`h6` styles override Tailwind text sizes, so example titles should be `<p className="font-semibold">`, not `<h2>`.
+- **`<code>` is block-level.** Inline code in docs text needs `<code className="inline">`.
+- **Preview vs. snippet.** In doc JSX, `ui-*` elements (e.g. `<ui-div>`) render only in the live preview, and `<markup>` content only in the code snippet. Use this for wrappers that shouldn't appear in copyable code.
+- **No React event handlers in examples.** Examples are server-rendered. For script-driven examples, render the same HTML into both preview and snippet (see `ScriptTrigger` in `_components/dialog/doc.tsx`).
+- **Unknown attributes need types, not camelCase.** React warns on `commandFor`; use lowercase attributes and add a type augmentation in `showcase-v2/types/`.
+- **Fallback examples must work without the feature they fall back from.** For example, the JavaScript `showModal()` example closes with `<form method="dialog">`, not `command="close"`.
+- **Explain in context.** Put reference tables beneath the example they describe (`DocShowcaseEntry.table`), not in the section header. Keep shared copy (like the installation page) generic so it doesn't need editing for every new component.
+
+## Dev environment
+
+- **`pnpm test:e2e` breaks a running `pnpm dev`.** The production build rewrites `packages/core/dist`, which the dev server reads. Stop the dev server first, or run E2E against it with `E2E_REUSE_SERVER=1 E2E_PORT=3001`.
+- **`pnpm dev` doesn't rebuild core-v2 CSS.** Its predev filter resolves from `showcase-v2/` and matches nothing. After editing `*.css.ts`, run `pnpm --filter ./packages/core-v2 build:css` from the repo root.
+- **Stopping servers on Windows can leave orphans.** After stopping `next start`/`next dev`, check the port (`Get-NetTCPConnection -LocalPort <port>`) and stop leftovers by PID, only if the command line points at this worktree.
+- **Prettier on Windows reports every file** because of CRLF. Always pass `--end-of-line auto`. Several files were unformatted before this work; check `HEAD`'s version before reformatting a whole file.
