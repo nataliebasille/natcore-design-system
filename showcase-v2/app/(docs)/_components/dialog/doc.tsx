@@ -269,8 +269,9 @@ export default {
               <DialogSurface
                 id="dialog-js"
                 closedby="any"
+                closeWith="form"
                 title="Opened from script"
-                text="Call close() or use a close button to dismiss it."
+                text="This Close button sits in a form with method set to dialog, so it works in every browser that supports dialog, like dialog.close()."
               />
             </>
           ),
@@ -287,6 +288,7 @@ export default {
               <DialogSurface
                 id="dialog-non-modal"
                 className="dialog card-soft shadow-xl"
+                closeWith="form"
                 title="Non-modal"
                 text="You can still interact with the page behind this dialog."
               />
@@ -478,12 +480,15 @@ function DialogSurface({
   id,
   className = 'dialog card-soft',
   closedby,
+  closeWith = 'command',
   title,
   text,
 }: {
   id: string
   className?: string
   closedby?: 'any' | 'closerequest' | 'none'
+  /** 'form' closes through <form method="dialog">, which works without invoker commands. */
+  closeWith?: 'command' | 'form'
   title: string
   text: string
 }) {
@@ -497,11 +502,17 @@ function DialogSurface({
       <div data-slot="content">
         <p className="text-sm">{text}</p>
       </div>
-      <footer data-slot="footer" className="flex justify-end">
-        <button className="btn-ghost/surface" commandfor={id} command="close">
-          Close
-        </button>
-      </footer>
+      {closeWith === 'form' ? (
+        <form method="dialog" data-slot="footer" className="flex justify-end">
+          <button className="btn-ghost/surface">Close</button>
+        </form>
+      ) : (
+        <footer data-slot="footer" className="flex justify-end">
+          <button className="btn-ghost/surface" commandfor={id} command="close">
+            Close
+          </button>
+        </footer>
+      )}
     </dialog>
   )
 }

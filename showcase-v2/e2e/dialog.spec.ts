@@ -124,6 +124,23 @@ test.describe('opening and closing', () => {
     await expect(dialog).toBeVisible()
     expect(await isModal(dialog)).toBe(true)
   })
+
+  for (const id of ['dialog-js', 'dialog-non-modal']) {
+    test(`${id} closes through <form method="dialog">, without invoker commands`, async ({
+      page,
+    }) => {
+      await page.locator(`button[aria-controls="${id}"]`).click()
+      const dialog = page.locator(`#${id}`)
+      await expect(dialog).toBeVisible()
+
+      const close = dialog.locator('form[method="dialog"] button', { hasText: 'Close' })
+      await expect(close).not.toHaveAttribute('command')
+      await expect(close).not.toHaveAttribute('commandfor')
+
+      await close.click()
+      await expect(dialog).toBeHidden()
+    })
+  }
 })
 
 test.describe('appearance', () => {
