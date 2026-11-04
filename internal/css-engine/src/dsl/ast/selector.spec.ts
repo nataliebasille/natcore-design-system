@@ -1,5 +1,13 @@
 import { select } from "./selector.ts";
 
+describe("select.has()", () => {
+  it("wraps a relative selector in :has()", () => {
+    const result = select.has(select.parent(select.pseudo("modal")));
+    expectTypeOf(result).toEqualTypeOf<":has(&:modal)">();
+    expect(result).toEqual(":has(&:modal)");
+  });
+});
+
 describe("selector type tests", () => {
   describe("select.element()", () => {
     it("returns Lowercase<T> selector string", () => {

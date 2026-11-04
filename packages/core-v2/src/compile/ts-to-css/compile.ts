@@ -36,32 +36,35 @@ export const compileTsToCss = createCompiler({
       throw new Error(`Expected default export in ${file.path}`);
     }
 
-    const content =
-      typeof compiler.default === "function" ?
-        compiler.default()
-      : compiler.default;
-
-    const contentAsArray = Array.isArray(content) ? content : [content];
-
-    const transpiledToCssAstContent = contentAsArray.flatMap((content) => {
-      return (
-        isComponentBuilder(content) ? dslToCss(componentBuilderToDsl(content))
-        : "$construct" in content ?
-          content.$construct === "theme" ?
-            dslToCss([themeConstructToDsl(content)])
-          : content.$construct === "utility" ?
-            dslToCss(utilityConstructToDsl(content))
-          : content.$construct === "component" ?
-            dslToCss(componentConstructToDsl(content))
-          : content
-        : "$ast" in content ? dslToCss([content])
-        : content
-      );
-    });
-
     return {
       filename: `${file.filename.replace(".ts", "")}`,
-      content: compile(transpiledToCssAstContent),
+      content: moduleToCss(compiler.default),
     };
   },
 });
+
+/** Converts the default export of a `*.css.ts` module to its compiled CSS. */
+export function moduleToCss(moduleDefault: any): string {
+  const content =
+    typeof moduleDefault === "function" ? moduleDefault() : moduleDefault;
+
+  const contentAsArray = Array.isArray(content) ? content : [content];
+
+  const transpiledToCssAstContent = contentAsArray.flatMap((content) => {
+    return (
+      isComponentBuilder(content) ? dslToCss(componentBuilderToDsl(content))
+      : "$construct" in content ?
+        content.$construct === "theme" ?
+          dslToCss([themeConstructToDsl(content)])
+        : content.$construct === "utility" ?
+          dslToCss(utilityConstructToDsl(content))
+        : content.$construct === "component" ?
+          dslToCss(componentConstructToDsl(content))
+        : content
+      : "$ast" in content ? dslToCss([content])
+      : content
+    );
+  });
+
+  return compile(transpiledToCssAstContent);
+}

@@ -18,11 +18,29 @@ import {
   prefersHighContrast,
   supportsHover,
   supportsFinePointer,
+  startingStyle,
   type AtRuleAst,
 } from "./at-rule.ts";
 import { styleRule, styleList, arbitraryValue } from "./style-rule.ts";
 import { select } from "./selector.ts";
 import { rgb } from "./public.ts";
+
+describe("startingStyle()", () => {
+  it("creates a prelude-less @starting-style at-rule", () => {
+    const result = startingStyle(
+      styleRule(select.parent(select.attr("open")), { opacity: "0" }),
+    );
+
+    expect(result.$ast).toBe("at-rule");
+    expect(result.name).toBe("starting-style");
+    expect(result.prelude).toBeNull();
+    expect(result.rules).toHaveLength(1);
+    expect(result.rules[0]).toMatchObject({
+      $ast: "style-rule",
+      selector: "&[open]",
+    });
+  });
+});
 
 describe("at-rule tests", () => {
   describe("atRule()", () => {

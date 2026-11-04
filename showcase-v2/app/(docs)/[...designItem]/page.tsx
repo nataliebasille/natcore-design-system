@@ -335,14 +335,7 @@ function EntitySection({
       />
 
       {entityMeta.showcases?.map((showcase, i) => (
-        <DocSection
-          className="mt-4"
-          key={i}
-          title={showcase.title ?? ""}
-          description={<div className="mb-2">{showcase.description}</div>}
-        >
-          <StaticExample.FromShowcaseJsx source={showcase.content} />
-        </DocSection>
+        <ShowcaseEntry key={i} showcase={showcase} />
       ))}
     </DesignItemPageSection>
   );
@@ -369,14 +362,7 @@ function StandaloneSection({ section }: { section: DocStandaloneSection }) {
       )}
 
       {section.showcases?.map((showcase, index) => (
-        <DocSection
-          className="mt-4"
-          key={index}
-          title={showcase.title ?? ""}
-          description={<div className="mb-2">{showcase.description}</div>}
-        >
-          <StaticExample.FromShowcaseJsx source={showcase.content} />
-        </DocSection>
+        <ShowcaseEntry key={index} showcase={showcase} />
       ))}
     </DesignItemPageSection>
   );
@@ -399,14 +385,7 @@ function DerivedSlotsSection({
       />
 
       {section.showcases?.map((showcase, index) => (
-        <DocSection
-          className="mt-4"
-          key={index}
-          title={showcase.title ?? ""}
-          description={<div className="mb-2">{showcase.description}</div>}
-        >
-          <StaticExample.FromShowcaseJsx source={showcase.content} />
-        </DocSection>
+        <ShowcaseEntry key={index} showcase={showcase} />
       ))}
     </DesignItemPageSection>
   );
@@ -429,16 +408,36 @@ function DerivedCustomVariantsSection({
       />
 
       {section.showcases?.map((showcase, index) => (
-        <DocSection
-          className="mt-4"
-          key={index}
-          title={showcase.title ?? ""}
-          description={<div className="mb-2">{showcase.description}</div>}
-        >
-          <StaticExample.FromShowcaseJsx source={showcase.content} />
-        </DocSection>
+        <ShowcaseEntry key={index} showcase={showcase} />
       ))}
     </DesignItemPageSection>
+  );
+}
+
+function ShowcaseEntry({
+  showcase,
+}: {
+  showcase: Omit<DocShowcaseEntry, "content"> & { content: ShowcaseJsxChild };
+}) {
+  return (
+    <DocSection
+      className="mt-4"
+      title={showcase.title ?? ""}
+      description={<div className="mb-2">{showcase.description}</div>}
+    >
+      <StaticExample.FromShowcaseJsx source={showcase.content} />
+      {showcase.table && showcase.table.length > 0 && (
+        <div className="mt-4">
+          <UtilityReference
+            description={undefined}
+            table={showcase.table.map((row) => ({
+              label: row.label,
+              content: renderToUi(row.content as ShowcaseJsxChild),
+            }))}
+          />
+        </div>
+      )}
+    </DocSection>
   );
 }
 
