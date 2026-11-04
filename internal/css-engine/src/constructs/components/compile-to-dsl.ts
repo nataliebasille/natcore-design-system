@@ -21,6 +21,7 @@ import { ComponentStateRef } from "./component-state-ref.ts";
 import { normalizeStyleBuilders } from "./utils.ts";
 import {
   isControlledVar,
+  type ComponentBodyAst,
   type ComponentState,
   type ControlledVar,
   type VarsProperty,
@@ -349,10 +350,7 @@ function appendComponentIfExists(
   }
 }
 
-function applyCurrentPalette(
-  palette: Palette,
-  body: (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[],
-) {
+function applyCurrentPalette(palette: Palette, body: ComponentBodyAst[]) {
   return stylesheetVisitorBuilder()
     .on("color", (ast) => {
       return {
@@ -365,7 +363,7 @@ function applyCurrentPalette(
 
 function resolveOptionalVariantReferences(
   curr: ComponentStateRef,
-  body: (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[],
+  body: ComponentBodyAst[],
 ) {
   if (
     !curr.variants.hasVariants ||
@@ -496,9 +494,15 @@ function rewriteOptionalVariantNode(
     : Object.fromEntries(rewrittenEntries);
 }
 
-function isEmptyStyleNode(entry: dsl.StyleListAst | dsl.StyleRuleAst) {
+function isEmptyStyleNode(
+  entry: dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst,
+) {
   if (entry.$ast === "style-list") {
     return entry.styles.length === 0;
+  }
+
+  if (entry.$ast === "at-rule") {
+    return entry.rules.length === 0;
   }
 
   return entry.body.length === 0;

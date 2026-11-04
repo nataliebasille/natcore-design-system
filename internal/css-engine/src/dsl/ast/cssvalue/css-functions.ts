@@ -136,6 +136,16 @@ export type CssFunction =
       $function: "translateX";
       value: CssValue<"length" | "percentage">;
       toString: () => string;
+    }
+  | {
+      $function: "translateY";
+      value: CssValue<"length" | "percentage">;
+      toString: () => string;
+    }
+  | {
+      $function: "scale";
+      value: CssValue<"number" | "percentage">;
+      toString: () => string;
     };
 
 // Helper to convert value to string
@@ -513,4 +523,32 @@ export function translateX(value: CssValue<"length" | "percentage">) {
     },
     translateXToString,
   );
+}
+
+export function translateY(value: CssValue<"length" | "percentage">) {
+  return withToString(
+    {
+      $function: "translateY" as const,
+      value,
+    },
+    translateYToString,
+  );
+}
+
+export function scale(value: CssValue<"number" | "percentage">) {
+  return withToString(
+    {
+      $function: "scale" as const,
+      value,
+    },
+    scaleToString,
+  );
+}
+
+function translateYToString(this: { $function: "translateY"; value: any }) {
+  return `translateY(${valueToString(this.value)})`;
+}
+
+function scaleToString(this: { $function: "scale"; value: any }) {
+  return `scale(${valueToString(this.value)})`;
 }

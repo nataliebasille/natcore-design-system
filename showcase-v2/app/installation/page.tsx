@@ -87,7 +87,7 @@ export default function InstallationPage() {
         <div className="grid gap-3 tablet:grid-cols-3">
           <InfoPanel
             title="Components"
-            description="Start with button, card, badge, divider, list, toggle, and tray."
+            description="Browse the component docs for live examples, copyable markup, and the full class reference."
             href="/components/button"
           />
           <InfoPanel

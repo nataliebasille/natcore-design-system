@@ -1,5 +1,27 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { cssColor, cssvar, primitive, type CssFunction } from "./public.ts";
+import {
+  cssColor,
+  cssvar,
+  primitive,
+  scale,
+  translateY,
+  type CssFunction,
+} from "./public.ts";
+
+describe("transform functions", () => {
+  it("translateY() renders a vertical translation", () => {
+    expect(translateY(primitive.length.percent(100)).toString()).toBe(
+      "translateY(100%)",
+    );
+    expect(translateY(primitive.length.rem(-1)).toString()).toBe(
+      "translateY(-1rem)",
+    );
+  });
+
+  it("scale() renders a uniform scale factor", () => {
+    expect(scale(0.95).toString()).toBe("scale(0.95)");
+  });
+});
 
 describe("css function values", () => {
   describe("cssColor()", () => {
