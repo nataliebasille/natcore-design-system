@@ -80,6 +80,13 @@ export function pseudoElement<T extends string>(pseudoEl: T): `::${T}` {
 }
 
 /**
+ * Relational pseudo-class: matches when the relative selector matches
+ */
+export function has<T extends string>(relative: T): `:has(${T})` {
+  return `:has(${relative})`;
+}
+
+/**
  * Helper to create a parent reference selector
  */
 export function parent<T extends string = "">(suffix?: T): `&${T}` {
@@ -164,6 +171,7 @@ export const select = {
   attr,
   pseudo,
   pseudoElement,
+  has,
   parent,
   descendant,
   child,

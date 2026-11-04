@@ -15,6 +15,8 @@ declare global {
     title?: string;
     description?: string;
     content: ShowcaseJsxNode;
+    /** Reference rows rendered beneath the example and its code. */
+    table?: DocSectionTableEntry[];
   };
 
   type DocSectionTableEntry = {

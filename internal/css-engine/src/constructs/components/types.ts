@@ -5,11 +5,20 @@ import type {
   TwBareCandidate,
 } from "../../dsl/ast/cssvalue/match-value";
 import type {
+  StyleListAst_WithMetadata,
   StylePropertyValue,
+  StyleRuleAst_WithMetadata,
   StyleRuleBodyBuilder,
 } from "../../dsl/ast/style-rule";
+import type { AtRuleAst } from "../../dsl/ast/at-rule";
 import type { CssDataType, Selector } from "../../dsl/public";
 import type { ThemeProperties } from "../theme";
+
+/** A component body after normalization: style lists, nested rules, at-rules. */
+export type ComponentBodyAst =
+  | StyleListAst_WithMetadata
+  | StyleRuleAst_WithMetadata
+  | AtRuleAst;
 
 export type ComponentSlot = {
   selector: "data-attr" | "class" | Selector;

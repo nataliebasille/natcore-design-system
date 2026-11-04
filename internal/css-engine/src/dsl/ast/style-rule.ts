@@ -14,6 +14,7 @@ import {
 import type { TemplateLiteralAst } from "./cssvalue/template-literal.ts";
 import type { SpacingFunctionAst } from "./tailwind-functions/spacing.ts";
 import type { Eager, WithMetadata } from "../../utils/types.ts";
+import type { AtRuleAst } from "./at-rule.ts";
 
 export type {
   TailwindUtility,
@@ -107,6 +108,7 @@ export type StyleProperties = {
 export type StyleRuleBody =
   | StyleListAst
   | StyleRuleAst
+  | AtRuleAst
   | TailwindClassAst<TailwindUtility>;
 
 export type StyleRuleAst = AstNode<
@@ -120,6 +122,7 @@ export type StyleRuleAst = AstNode<
 export type StyleRuleBodyBuilder =
   | StyleListAst
   | StyleRuleAst
+  | AtRuleAst
   | TailwindUtility
   | TailwindClassAst<TailwindUtility>
   | (StyleProperties & {

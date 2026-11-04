@@ -9,6 +9,7 @@
     "dev": "next dev -p 3001",
     "start": "next start",
     "lint": "next lint",
+    "test:e2e": "playwright test",
     "format": "prettier . --write --cache --cache-location .cache/prettier/.prettier-cache --ignore-unknown",
     "format:check": "prettier . --check --cache --cache-location .cache/prettier/.prettier-cache --ignore-unknown"
   },
@@ -21,9 +22,9 @@
     "@iconify-icons/ri": "^1.2.10",
     "@nataliebasille/css-engine": "workspace:*",
     "@nataliebasille/natcore-design-system": "workspace:*",
-    "@nataliebasille/preview-jsx-runtime": "workspace:*",
     "@nataliebasille/natcore-design-system-react": "workspace:*",
     "@nataliebasille/natcore-icons": "workspace:*",
+    "@nataliebasille/preview-jsx-runtime": "workspace:*",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/node": "^22.19.0",
     "@types/react": "19.2.9",
@@ -51,6 +52,7 @@
   "devDependencies": {
     "@iconify-icon/react": "^3.0.3",
     "@iconify-icons/mdi": "^1.2.45",
+    "@playwright/test": "^1.64.1",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.1",
     "prettier": "^3.6.2",
