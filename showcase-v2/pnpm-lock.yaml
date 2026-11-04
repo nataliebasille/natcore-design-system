@@ -9,7 +9,7 @@ importers:
     dependencies:
       "@natcore/design-system-core":
         specifier: workspace:*
-        version: link:../packages/core
+        version: link:../packages/core-v2
       "@natcore/design-system-react":
         specifier: workspace:*
         version: link:../packages/react

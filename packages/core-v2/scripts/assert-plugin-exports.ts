@@ -67,5 +67,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  "packages/core plugin exports (./postcss, ./vite) match the require/import contract.",
+  "packages/core-v2 plugin exports (./postcss, ./vite) match the require/import contract.",
 );

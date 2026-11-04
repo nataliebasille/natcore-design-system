@@ -10,7 +10,6 @@
     "typescriptreact"
   ],
   "eslint.workingDirectories": [
-    { "directory": "./packages/core", "changeProcessCWD": true },
     { "directory": "./packages/core-v2", "changeProcessCWD": true },
     { "directory": "./packages/css-engine", "changeProcessCWD": true },
     { "directory": "./packages/icons", "changeProcessCWD": true },
