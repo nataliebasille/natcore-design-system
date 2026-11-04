@@ -51,7 +51,10 @@ type ExtractVariantVars<T extends ComponentState> =
 
 type OwnVariantVars<T extends ComponentState> =
   T["variants"]["values"][keyof T["variants"]["values"]] extends infer V ?
-    keyof V
+    // Distribute so no variants (never) yields never instead of keyof never.
+    V extends unknown ?
+      keyof V
+    : never
   : never;
 
 type DefinedUtilityKeys<T extends ComponentState> =
@@ -175,13 +178,13 @@ export type ComponentDoc = {
   customVariants?: DerivedDocSection;
 };
 
-export function createDoc<
-  T extends ComponentBuilder,
-  M extends ComponentDocMeta<T> & {
+export function createDoc<T extends ComponentBuilder>(
+  builder: T,
+  meta: ComponentDocMeta<T> & {
     slots?: DerivedDocSectionMeta;
     customVariants?: DerivedDocSectionMeta;
   },
->(builder: T, meta: M): ComponentDoc {
+): ComponentDoc {
   const { state } = builder;
   const varReferenceMap = new VarReferenceMap();
   const components: ComponentDoc["components"] = {};

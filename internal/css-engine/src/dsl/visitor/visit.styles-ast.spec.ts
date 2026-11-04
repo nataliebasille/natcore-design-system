@@ -36,7 +36,8 @@ describe("style-list visitor", () => {
         "font-size": "16px",
       });
 
-      expectTypeOf(actual).toEqualTypeOf(expected);
+      expectTypeOf(actual).toExtend<StyleRuleAst>();
+      expect(actual).toEqual(expected);
     });
   });
 
@@ -203,7 +204,7 @@ describe("style-list visitor", () => {
       }));
       const result = visitor.visit(ast);
 
-      expect(result.body[0].styles).toEqual([
+      expect((result.body[0] as StyleListAst).styles).toEqual([
         {
           color: "blue",
           "font-size": "16px",
@@ -228,7 +229,7 @@ describe("style-list visitor", () => {
       }));
       const result = visitor.visit(ast);
 
-      expect(result.body[0].styles[0]).toEqual({
+      expect((result.body[0] as StyleListAst).styles[0]).toEqual({
         color: "red",
         padding: "8px",
         modified: "true",
@@ -253,8 +254,12 @@ describe("style-list visitor", () => {
       });
       const result = visitor.visit(ast);
 
-      expect(result[0]?.body[0].styles).toEqual([{ padding: "16px" }]);
-      expect(result[1]?.body[0].styles).toEqual([{ padding: "24px" }]);
+      expect((result[0]?.body[0] as StyleListAst).styles).toEqual([
+        { padding: "16px" },
+      ]);
+      expect((result[1]?.body[0] as StyleListAst).styles).toEqual([
+        { padding: "24px" },
+      ]);
     });
   });
 
@@ -318,7 +323,9 @@ describe("style-list visitor", () => {
       }));
       const result = visitor.visit(ast);
 
-      expect(result.body[0].styles[0]).toHaveProperty("modified");
+      expect((result.body[0] as StyleListAst).styles[0]).toHaveProperty(
+        "modified",
+      );
 
       const childRule = result.body[1];
       expect(
@@ -400,7 +407,8 @@ describe("style-list visitor", () => {
           };
         })
         .visit(ast);
-      const styles = result.body[0]?.styles[0] as StyleProperties;
+      const styles = (result.body[0] as StyleListAst)
+        .styles[0] as StyleProperties;
 
       expect(styles["background-color"]).toEqual(light("primary", 900));
       expect(styles.color).toEqual(light("primary", 900));
@@ -422,7 +430,8 @@ describe("style-list visitor", () => {
         ],
       }));
       const result = visitor.visit(ast);
-      const styles = result.body[0]?.styles[0] as StyleProperties & {
+      const styles = (result.body[0] as StyleListAst)
+        .styles[0] as StyleProperties & {
         border: string;
       };
 

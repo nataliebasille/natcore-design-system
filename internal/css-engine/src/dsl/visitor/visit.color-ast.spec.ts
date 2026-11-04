@@ -1,7 +1,13 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { light, lightText, type ColorAst } from "../ast/cssvalue/color.ts";
 import { stylesheetVisitorBuilder } from "../ast/stylesheet-visitor-builder.ts";
-import { styleList, type TemplateLiteralAst } from "../public.ts";
+import {
+  styleList,
+  type CssDataType,
+  type StyleListAst,
+  type StyleProperties,
+  type TemplateLiteralAst,
+} from "../public.ts";
 
 describe("color ast visitor", () => {
   describe("type inference", () => {
@@ -14,8 +20,8 @@ describe("color ast visitor", () => {
 
     it("correctly infers parent type in visitor function", () => {
       stylesheetVisitorBuilder().on("color", (node, context) => {
-        expectTypeOf(context.parent).toEqualTypeOf<
-          TemplateLiteralAst | undefined
+        expectTypeOf(context.parent).toExtend<
+          StyleListAst | TemplateLiteralAst<CssDataType> | undefined
         >();
         return node;
       });
@@ -168,7 +174,7 @@ describe("color ast visitor", () => {
         })
         .visit(ast);
 
-      expect(result[0]?.styles[0]?.["--original"]).toEqual(
+      expect((result[0]?.styles[0] as StyleProperties)["--original"]).toEqual(
         light("primary", 900),
       );
     });
@@ -188,10 +194,10 @@ describe("color ast visitor", () => {
         })
         .visit(ast);
 
-      expect(result.styles[0]?.["--should-change"]).toEqual(
+      expect((result.styles[0] as StyleProperties)["--should-change"]).toEqual(
         light("primary", 600),
       );
-      expect(result.styles[0]?.["--should-stay"]).toEqual(
+      expect((result.styles[0] as StyleProperties)["--should-stay"]).toEqual(
         light("primary", 300),
       );
     });
@@ -200,11 +206,13 @@ describe("color ast visitor", () => {
       const ast = styleList({ "--color": light("primary", 500) });
       const result = stylesheetVisitorBuilder()
         .on("color", (node) => {
-          return light(node.palette, node.shade, 0.8);
+          return { ...node, opacity: 0.8 };
         })
         .visit(ast);
 
-      expect(result.styles[0]?.["--color"]).toEqual(light("primary", 500, 0.8));
+      expect((result.styles[0] as StyleProperties)["--color"]).toEqual(
+        light("primary", 500, 0.8),
+      );
     });
   });
 
@@ -245,14 +253,16 @@ describe("color ast visitor", () => {
 
       const result = visitor.visit(ast);
 
-      expect(result.styles[0]?.["--primary"]).toEqual("base-light-primary-500");
-      expect(result.styles[0]?.["--primary-text"]).toEqual(
+      expect((result.styles[0] as StyleProperties)["--primary"]).toEqual(
+        "base-light-primary-500",
+      );
+      expect((result.styles[0] as StyleProperties)["--primary-text"]).toEqual(
         "text-light-primary-500",
       );
-      expect(result.styles[0]?.["--secondary"]).toEqual(
+      expect((result.styles[0] as StyleProperties)["--secondary"]).toEqual(
         "base-light-primary-600",
       );
-      expect(result.styles[0]?.["--secondary-text"]).toEqual(
+      expect((result.styles[0] as StyleProperties)["--secondary-text"]).toEqual(
         "text-light-primary-600",
       );
     });
@@ -310,11 +320,15 @@ describe("color ast visitor", () => {
         .on("color", () => light("primary", 999 as any))
         .visit(ast);
 
-      expect(result[0]?.styles[0]?.["--static"]).toBe("#ff0000");
-      expect(result[0]?.styles[0]?.["--dynamic"]).toEqual(
+      expect((result[0]?.styles[0] as StyleProperties)["--static"]).toBe(
+        "#ff0000",
+      );
+      expect((result[0]?.styles[0] as StyleProperties)["--dynamic"]).toEqual(
         light("primary", 999 as any),
       );
-      expect(result[0]?.styles[0]?.["--spacing"]).toBe("16px");
+      expect((result[0]?.styles[0] as StyleProperties)["--spacing"]).toBe(
+        "16px",
+      );
     });
   });
 });

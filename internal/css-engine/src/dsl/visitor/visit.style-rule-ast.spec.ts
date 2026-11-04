@@ -120,7 +120,9 @@ describe("style-rule ast visitor", () => {
       });
       const result = visitor.visit(ast);
 
-      expect(result[0]!.body[0].styles[0]).toEqual({ modified: "true" });
+      expect((result[0]!.body[0] as StyleListAst).styles[0]).toEqual({
+        modified: "true",
+      });
     });
 
     it("allows visitor to transform based on selector", () => {
@@ -138,10 +140,10 @@ describe("style-rule ast visitor", () => {
       });
       const result = visitor.visit(ast);
 
-      const buttonRule = result[0]?.body[0].styles[0]!;
+      const buttonRule = (result[0]?.body[0] as StyleListAst).styles[0];
       expect(buttonRule).toEqual({ padding: "16px", color: "blue" });
 
-      const inputRule = result[1]?.body[0].styles[0]!;
+      const inputRule = (result[1]?.body[0] as StyleListAst).styles[0];
       expect(inputRule).toEqual({ color: "red" });
     });
   });
