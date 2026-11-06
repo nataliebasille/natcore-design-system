@@ -63,10 +63,6 @@ export default {
       },
     ],
   },
-  cssvars: {
-    '--item-marker-font-size': 'Font size for generated disc and decimal markers.',
-    '--item-marker-top': 'Vertical offset for generated disc and decimal markers.',
-  },
 } satisfies Documentation<
   typeof import('../../../../../packages/core-v2/src/tailwind/components/list.css.ts').default
 >
