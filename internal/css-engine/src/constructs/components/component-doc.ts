@@ -49,10 +49,9 @@ type ExtractVariantVars<T extends ComponentState> =
     OwnVariantVars<T> | ExtractVariantVars<P>
   : OwnVariantVars<T>;
 
-type OwnVariantVars<T extends ComponentState> =
-  T["variants"]["values"][keyof T["variants"]["values"]] extends infer V ?
-    keyof V
-  : never;
+type OwnVariantVars<T extends ComponentState> = {
+  [K in keyof T["variants"]["values"]]: keyof T["variants"]["values"][K];
+}[keyof T["variants"]["values"]];
 
 type DefinedUtilityKeys<T extends ComponentState> =
   T extends { parent: infer P extends ComponentState } ?
@@ -70,10 +69,9 @@ type DefinedCssVars<
   : ExtractCssVars<T, V>;
 
 type ExtractCssVars<T extends ComponentState, V extends PropertyKey> = keyof {
-  [K in keyof T["vars"] as
-    T["vars"][K] extends ControlledVar ? never
-    : K extends V ? never
-    : K]: T["vars"][K];
+  [K in keyof T["vars"] as T["vars"][K] extends ControlledVar ? never
+  : K extends V ? never
+  : K]: T["vars"][K];
 };
 
 type DocComponentMeta = {
@@ -175,13 +173,13 @@ export type ComponentDoc = {
   customVariants?: DerivedDocSection;
 };
 
-export function createDoc<
-  T extends ComponentBuilder,
-  M extends ComponentDocMeta<T> & {
+export function createDoc<T extends ComponentBuilder>(
+  builder: T,
+  meta: ComponentDocMeta<T> & {
     slots?: DerivedDocSectionMeta;
     customVariants?: DerivedDocSectionMeta;
   },
->(builder: T, meta: M): ComponentDoc {
+): ComponentDoc {
   const { state } = builder;
   const varReferenceMap = new VarReferenceMap();
   const components: ComponentDoc["components"] = {};

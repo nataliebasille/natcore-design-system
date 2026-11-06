@@ -8,6 +8,23 @@
 - **Open every pull request against `develop`** unless the user explicitly asks for
   a different base. Never target `main` directly.
 
+### GitHub CLI authentication
+
+`gh` is not logged in on this machine (`gh auth status` reports no hosts), and the
+user-scope `GITHUB_TOKEN` env var is stale (GitHub returns HTTP 401). `git push` works
+through Git Credential Manager, so reuse that credential for `gh` commands. Do not
+give up and hand the user a compare URL.
+
+```powershell
+$cred = "protocol=https`nhost=github.com`n`n" | git credential fill 2>$null
+$env:GH_TOKEN = ($cred | Select-String '^password=').Line -replace '^password=',''
+gh pr create --base develop --head <branch> --title "<title>" --body-file <file>
+```
+
+- Set `GH_TOKEN` in the same command as the `gh` call; env vars don't persist between
+  tool calls.
+- Never print, log, or commit the token.
+
 ## Architecture Overview
 
 This is a **monorepo design system** for Tailwind CSS 4:
@@ -32,7 +49,14 @@ pnpm dev
 
 # Clean all build artifacts
 pnpm clean
+
+# Type-check every workspace package (CI runs this; build the libraries first)
+pnpm --filter "@nataliebasille/natcore-*" build
+pnpm type-check
 ```
+
+`vitest run` does not type-check, so passing tests do not mean the code compiles.
+Run `pnpm type-check` before opening a PR.
 
 **Critical**: `showcase-v2` consumes workspace packages through `workspace:*`, so rebuild `core-v2` (`pnpm --filter ./packages/core-v2 build:css`) after changing its styles.
 

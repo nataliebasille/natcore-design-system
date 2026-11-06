@@ -442,6 +442,26 @@ describe("createDoc", () => {
       });
     });
 
+    it("treats vars set by only some variants as variant vars", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem", "--color": "blue", "--marker": "none" })
+        .variant("primary", { "--color": "red" })
+        .variant("decimal", { "--color": "green", "--marker": "1rem" });
+
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: { btn: { name: "Button", description: "Base" } },
+        cssvars: {
+          "--size": "Controls the size",
+          // @ts-expect-error - set by the decimal variant, so not a public CSS variable
+          "--marker": "Controls the marker",
+        },
+      });
+
+      expect(result.cssvars.map((v) => v.varName)).toEqual(["--btn-size"]);
+    });
+
     it("does not allow parent vars used by child variants in cssvars meta", () => {
       const builder = component("btn")
         .vars({ "--size": "1rem", "--color": "blue" })

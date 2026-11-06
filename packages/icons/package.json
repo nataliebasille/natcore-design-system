@@ -28,7 +28,7 @@
   "scripts": {
     "build": "tsup --config tsup.config.ts",
     "clean": "rimraf dist",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "type-check": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint ."
   },
   "peerDependencies": {
