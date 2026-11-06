@@ -32,7 +32,7 @@ Each of these cost time while building the dialog component. Check the relevant 
 
 ## Dev environment
 
-- **`pnpm test:e2e` breaks a running `pnpm dev`.** The production build rewrites `packages/core/dist`, which the dev server reads. Stop the dev server first, or run E2E against it with `E2E_REUSE_SERVER=1 E2E_PORT=3001`.
+- **`pnpm test:e2e` breaks a running `pnpm dev`.** The production build rewrites `packages/core-v2/dist`, which the dev server reads. Stop the dev server first, or run E2E against it with `E2E_REUSE_SERVER=1 E2E_PORT=3001`.
 - **`pnpm dev` doesn't rebuild core-v2 CSS.** Its predev filter resolves from `showcase-v2/` and matches nothing. After editing `*.css.ts`, run `pnpm --filter ./packages/core-v2 build:css` from the repo root.
 - **Stopping servers on Windows can leave orphans.** After stopping `next start`/`next dev`, check the port (`Get-NetTCPConnection -LocalPort <port>`) and stop leftovers by PID, only if the command line points at this worktree.
 - **Prettier on Windows reports every file** because of CRLF. Always pass `--end-of-line auto`. Several files were unformatted before this work; check `HEAD`'s version before reformatting a whole file.

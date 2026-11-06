@@ -141,7 +141,7 @@ function createFs(
   };
 
   const readFile: InlineImportsOptions["readFile"] = (absPath) =>
-    absPath in files ? files[absPath] : null;
+    absPath in files ? (files[absPath] ?? null) : null;
 
   return { resolveImport, readFile };
 }

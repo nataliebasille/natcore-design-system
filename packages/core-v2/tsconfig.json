@@ -22,6 +22,9 @@
     "*.ts",
     "src/shared/**/*",
     "src/tailwind/**/*",
+    "src/custom-palettes/**/*",
+    "src/postcss/**/*",
+    "src/vite/**/*",
     "scripts/**/*",
     "src/compile",
     "test/**/*"
