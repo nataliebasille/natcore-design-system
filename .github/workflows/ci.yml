@@ -40,8 +40,31 @@ jobs:
       - name: core-v2 tests
         run: pnpm --filter ./packages/core-v2 test
 
-      - name: core-v2 type-check
-        run: pnpm --filter ./packages/core-v2 type-check
+  type-check:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Workspace packages resolve each other through dist/ type declarations.
+      - name: Build workspace libraries
+        run: pnpm --filter "@nataliebasille/natcore-*" build
+
+      - name: Type check
+        run: pnpm type-check
 
   e2e:
     name: E2E tests (showcase-v2)
