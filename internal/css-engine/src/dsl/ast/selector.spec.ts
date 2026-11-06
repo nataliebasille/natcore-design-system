@@ -1,3 +1,4 @@
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { select } from "./selector.ts";
 
 describe("select.has()", () => {
