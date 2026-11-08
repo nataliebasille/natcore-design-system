@@ -1,0 +1,209 @@
+<!-- Dialog examples exercised by dialog.e2e.spec.ts. -->
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-basic"
+  command="show-modal"
+>
+  Open dialog
+</button>
+<dialog
+  id="dialog-basic"
+  class="dialog card-soft"
+  closedby="any"
+  aria-labelledby="dialog-basic-title"
+>
+  <header data-slot="header">
+    <p id="dialog-basic-title" class="font-semibold">Edit profile</p>
+  </header>
+  <div data-slot="content">
+    <p class="text-sm">Update your display name and avatar.</p>
+  </div>
+  <footer data-slot="footer" class="flex justify-end">
+    <button class="btn-ghost/surface" commandfor="dialog-basic" command="close">
+      Close
+    </button>
+  </footer>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-invokers"
+  command="show-modal"
+>
+  Open invoker dialog
+</button>
+<dialog id="dialog-invokers" class="dialog card-soft" closedby="any">
+  <footer data-slot="footer" class="flex justify-end gap-2">
+    <button
+      class="btn-ghost/surface"
+      commandfor="dialog-invokers"
+      command="request-close"
+    >
+      Request close
+    </button>
+    <button
+      class="btn-solid/primary"
+      commandfor="dialog-invokers"
+      command="close"
+      value="done"
+    >
+      Done
+    </button>
+  </footer>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-esc-only"
+  command="show-modal"
+>
+  Open Esc-only dialog
+</button>
+<dialog id="dialog-esc-only" class="dialog card-soft" closedby="closerequest">
+  <footer data-slot="footer" class="flex justify-end">
+    <button
+      class="btn-ghost/surface"
+      commandfor="dialog-esc-only"
+      command="close"
+    >
+      Close
+    </button>
+  </footer>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-no-dismiss"
+  command="show-modal"
+>
+  Open required dialog
+</button>
+<dialog id="dialog-no-dismiss" class="dialog card-soft" closedby="none">
+  <footer data-slot="footer" class="flex justify-end">
+    <button
+      class="btn-ghost/surface"
+      commandfor="dialog-no-dismiss"
+      command="close"
+    >
+      Close
+    </button>
+  </footer>
+</dialog>
+
+<button class="btn-solid/danger" commandfor="dialog-alert" command="show-modal">
+  Delete project
+</button>
+<dialog id="dialog-alert" role="alertdialog" class="dialog card-soft">
+  <div data-slot="content">
+    <p class="text-sm">This permanently deletes the project and its files.</p>
+  </div>
+  <form method="dialog" data-slot="footer" class="flex justify-end gap-2">
+    <button value="cancel" class="btn-ghost/surface">Cancel</button>
+    <button value="delete" class="btn-solid/danger">Delete</button>
+  </form>
+</dialog>
+
+<button class="btn-solid/primary" commandfor="dialog-top" command="show-modal">
+  Open top dialog
+</button>
+<dialog id="dialog-top" class="dialog-top card-soft" closedby="any">
+  <div data-slot="content"><p class="text-sm">Top placement.</p></div>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-bottom"
+  command="show-modal"
+>
+  Open bottom sheet
+</button>
+<dialog id="dialog-bottom" class="dialog-bottom card-soft" closedby="any">
+  <div data-slot="content"><p class="text-sm">Bottom sheet.</p></div>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-responsive"
+  command="show-modal"
+>
+  Open responsive dialog
+</button>
+<dialog
+  id="dialog-responsive"
+  class="dialog-bottom card-soft md:dialog-center"
+  closedby="any"
+>
+  <div data-slot="content"><p class="text-sm">Sheet on phones.</p></div>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-fullscreen"
+  command="show-modal"
+>
+  Open full-screen dialog
+</button>
+<dialog
+  id="dialog-fullscreen"
+  class="dialog card-soft m-0 size-full max-h-none max-w-none rounded-none"
+  closedby="any"
+>
+  <div data-slot="content"><p class="text-sm">Fills the viewport.</p></div>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-backdrop-blur"
+  command="show-modal"
+>
+  Open with blurred backdrop
+</button>
+<dialog
+  id="dialog-backdrop-blur"
+  class="dialog card-soft backdrop:bg-black/60 backdrop:backdrop-blur-md"
+  closedby="any"
+>
+  <div data-slot="content"><p class="text-sm">Blurred backdrop.</p></div>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  commandfor="dialog-backdrop-none"
+  command="show-modal"
+>
+  Open without backdrop
+</button>
+<dialog
+  id="dialog-backdrop-none"
+  class="dialog card-soft dialog-backdrop-none shadow-xl"
+  closedby="any"
+>
+  <div data-slot="content"><p class="text-sm">No dim.</p></div>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  aria-controls="dialog-js"
+  onclick="document.getElementById('dialog-js').showModal()"
+>
+  Open with showModal()
+</button>
+<dialog id="dialog-js" class="dialog card-soft" closedby="any">
+  <form method="dialog" data-slot="footer" class="flex justify-end">
+    <button class="btn-ghost/surface">Close</button>
+  </form>
+</dialog>
+
+<button
+  class="btn-solid/primary"
+  aria-controls="dialog-non-modal"
+  onclick="document.getElementById('dialog-non-modal').show()"
+>
+  Show non-modal dialog
+</button>
+<dialog id="dialog-non-modal" class="dialog card-soft shadow-xl">
+  <form method="dialog" data-slot="footer" class="flex justify-end">
+    <button class="btn-ghost/surface">Close</button>
+  </form>
+</dialog>

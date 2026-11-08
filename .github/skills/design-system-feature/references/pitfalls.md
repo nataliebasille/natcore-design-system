@@ -17,8 +17,9 @@ Each of these cost time while building the dialog component. Check the relevant 
 - **Vitest can stall on re-imports.** The harness caches compiled stylesheets per process; don't add cache-busting query strings to imports in tests.
 - **Prove the harness before trusting a red test.** When adding helper functionality, add a passing test against an existing component (tray, button) so a failing feature test can't be a harness bug.
 - **Computed colors are `oklab(...)`.** Tailwind v4 colors don't come back as `rgba(...)`. Compare alpha/opacity, not exact color strings.
-- **The showcase only has `tablet` and `desktop` breakpoints** (no `sm`). Responsive examples and tests must use those.
-- **Playwright never silently reuses a server.** It builds and starts its own on port 3210 unless `E2E_REUSE_SERVER=1`; this avoids accidentally testing another app on a shared port.
+- **The showcase only has `tablet` and `desktop` breakpoints** (no `sm`). Responsive docs examples must use those; e2e fixtures use Tailwind's default breakpoints (`md:`).
+- **E2E specs never touch showcase-v2.** Each `*.e2e.spec.ts` sits next to the file it covers and mounts its sibling `*.e2e.html` fixture with `page.setContent`; the stylesheet is compiled from core-v2 source for the classes in the fixture, so there's no server or build step. The body gets `palette-surface` so `card-*` surfaces have colors. Vitest excludes `*.e2e.spec.ts`; Playwright runs only those.
+- **Every spec runs in Chromium and Firefox.** Import `test`/`expect` from `test/helpers/browser-test.ts`. `test(...)` runs in every browser; `test("title", browsers("chromium"), fn)` or `browsers("chromium", "webkit")` skips the other browsers automatically (typed, so typos don't compile). Limit a test only for a documented platform gap (e.g. Firefox lacks `transition-property: overlay`), and keep the rest of the behavior covered in all browsers.
 
 ## Showcase docs
 
@@ -32,7 +33,6 @@ Each of these cost time while building the dialog component. Check the relevant 
 
 ## Dev environment
 
-- **`pnpm test:e2e` breaks a running `pnpm dev`.** The production build rewrites `packages/core-v2/dist`, which the dev server reads. Stop the dev server first, or run E2E against it with `E2E_REUSE_SERVER=1 E2E_PORT=3001`.
 - **`pnpm dev` doesn't rebuild core-v2 CSS.** Its predev filter resolves from `showcase-v2/` and matches nothing. After editing `*.css.ts`, run `pnpm --filter ./packages/core-v2 build:css` from the repo root.
 - **Stopping servers on Windows can leave orphans.** After stopping `next start`/`next dev`, check the port (`Get-NetTCPConnection -LocalPort <port>`) and stop leftovers by PID, only if the command line points at this worktree.
 - **Prettier on Windows reports every file** because of CRLF. Always pass `--end-of-line auto`. Several files were unformatted before this work; check `HEAD`'s version before reformatting a whole file.

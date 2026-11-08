@@ -31,11 +31,12 @@ export async function listTailwindModules(): Promise<TailwindModuleEntry[]> {
 
     if (!name?.endsWith(".css.ts")) continue;
 
-    // Static `.ts` suffix so Turbopack's static analysis only bundles `.ts`
-    // files — not plain `.css` files that fail when processed in isolation.
-    // name = "/utilities/headings.css.ts"; slice(1,-3) = "utilities/headings.css"
+    // Static `.css.ts` suffix so Turbopack's static analysis only bundles
+    // style modules — not plain `.css` files that fail when processed in
+    // isolation, or colocated `*.e2e.spec.ts` Playwright specs.
+    // name = "/utilities/headings.css.ts"; slice(1,-7) = "utilities/headings"
     const imported = (await import(
-      `../../packages/core-v2/src/tailwind/${name.slice(1, -3)}.ts`
+      `../../packages/core-v2/src/tailwind/${name.slice(1, -7)}.css.ts`
     )) as { default?: unknown };
 
     if (isComponentBuilder(imported.default)) {
