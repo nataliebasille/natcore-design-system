@@ -166,6 +166,9 @@ importers:
       globby:
         specifier: ^15.0.0
         version: 15.0.0
+      interestfor:
+        specifier: ^1.0.12
+        version: 1.0.12
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -2855,6 +2858,9 @@ packages:
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
+
+  interestfor@1.0.12:
+    resolution: {integrity: sha512-c1td//M4fCDefKxTAYdAD3ve7SzKQ9FvRSq27vt6Myto4cw2bCpyMYEb6VHWan96ChJdyFBodnx+22NB+2AF0A==}
 
   internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
@@ -7006,6 +7012,8 @@ snapshots:
   imurmurhash@0.1.4: {}
 
   inherits@2.0.4: {}
+
+  interestfor@1.0.12: {}
 
   internal-slot@1.1.0:
     dependencies:

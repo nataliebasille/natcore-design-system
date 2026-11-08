@@ -1,12 +1,48 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
+  calc,
   cssColor,
   cssvar,
+  match,
   primitive,
   scale,
   translateY,
   type CssFunction,
+  type CssValue,
 } from "./public.ts";
+
+describe("time values", () => {
+  it("primitive.time.ms() renders milliseconds", () => {
+    expect(primitive.time.ms(150).toString()).toBe("150ms");
+    expectTypeOf(primitive.time.ms(150)).toMatchTypeOf<CssValue<"time">>();
+  });
+
+  it("primitive.time.s() renders seconds", () => {
+    expect(primitive.time.s(1.5).toString()).toBe("1.5s");
+    expectTypeOf(primitive.time.s(1.5)).toMatchTypeOf<CssValue<"time">>();
+  });
+
+  it("keeps the unit for zero, because a unitless 0 is not a valid <time>", () => {
+    expect(primitive.time.ms(0).toString()).toBe("0ms");
+    expect(primitive.time.s(0).toString()).toBe("0s");
+  });
+
+  it("calc() accepts time values", () => {
+    expect(
+      calc`${primitive.integer(150)} * ${primitive.time.ms(1)}`.toString(),
+    ).toBe("calc(150 * 1ms)");
+  });
+
+  it("calc() accepts a bare-integer match multiplied by a time unit", () => {
+    const delay = calc`${match.bare.integer()} * ${primitive.time.ms(1)}`;
+
+    expect(delay.values).toEqual([
+      match.bare.integer(),
+      primitive.time.ms(1),
+    ]);
+    expectTypeOf(delay).toMatchTypeOf<CssFunction>();
+  });
+});
 
 describe("transform functions", () => {
   it("translateY() renders a vertical translation", () => {

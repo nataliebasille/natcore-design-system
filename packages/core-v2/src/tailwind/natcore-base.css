@@ -16,6 +16,7 @@
 /* Utilities */
 @import "./utilities/article.css";
 @import "./utilities/headings.css";
+@import "./utilities/interest/interest.css";
 
 /* Components */
 @import "./components/badge/badge.css";
