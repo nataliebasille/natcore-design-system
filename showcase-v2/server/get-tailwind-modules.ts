@@ -39,7 +39,7 @@ export async function listTailwindModules(): Promise<TailwindModuleEntry[]> {
     // Static `.css.ts` suffix so Turbopack's static analysis only bundles
     // style modules — not plain `.css` files that fail when processed in
     // isolation, or colocated `*.e2e.spec.ts` Playwright specs.
-    // name = "/utilities/headings.css.ts"; slice(1,-7) = "utilities/headings"
+    // name = "/typography/heading/heading.css.ts"; slice(1,-7) = "typography/heading/heading"
     const imported = (await import(
       `../../packages/core-v2/src/tailwind/${name.slice(1, -7)}.css.ts`
     )) as { default?: unknown };

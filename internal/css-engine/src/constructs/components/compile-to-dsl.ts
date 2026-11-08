@@ -264,6 +264,38 @@ const guardsGenerator: GeneratorReduceFn = (acc, curr) => {
   return acc;
 };
 
+const appliesToGenerator: GeneratorReduceFn = (acc, curr) => {
+  const generatedUtilities = new Set(
+    acc.body.flatMap((node) =>
+      node.$ast === "at-rule" && node.name === "utility" ?
+        [String(node.prelude)]
+      : [],
+    ),
+  );
+
+  (curr.state.appliesTo ?? []).forEach(({ selector, variant }) => {
+    const className =
+      variant === undefined ? curr.name : `${curr.name}-${variant}`;
+    const generated =
+      generatedUtilities.has(className) ||
+      (variant !== undefined &&
+        curr.variants.hasVariants &&
+        generatedUtilities.has(`${curr.name}-*`));
+
+    if (!generated) {
+      throw new Error(
+        variant === undefined ?
+          `Component "${curr.name}" requires a variant to apply to ${selector}: no bare "${curr.name}" class is generated`
+        : `Class "${className}" isn't generated, so it can't be applied to ${selector}. Reference the variant's vars in the body.`,
+      );
+    }
+
+    acc.body.push(dsl.styleRule(selector, className as StyleRuleBodyBuilder));
+  });
+
+  return acc;
+};
+
 const generators: GeneratorReduceFn[] = [
   varsGenerator,
   variantVarsGenerator,
@@ -273,6 +305,7 @@ const generators: GeneratorReduceFn[] = [
   controlledVarGenerator,
   utilitiesGenerator,
   guardsGenerator,
+  appliesToGenerator,
 ];
 
 export function componentBuilderToDsl({

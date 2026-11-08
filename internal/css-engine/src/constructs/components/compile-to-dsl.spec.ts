@@ -1454,3 +1454,111 @@ describe("utility", () => {
     expect(actual).toEqual(expected);
   });
 });
+
+describe("applyTo", () => {
+  it("styles a selector with the component class", () => {
+    const result = componentBuilderToDsl(
+      component("article")
+        .body({ margin: "0" })
+        .applyTo(dsl.select.element("article")),
+    );
+
+    expect(result.filter((x) => x.$ast === "style-rule")).toEqual([
+      dsl.styleRule(dsl.select.element("article"), "article"),
+    ]);
+  });
+
+  it("styles a selector with a variant class", () => {
+    const result = componentBuilderToDsl(
+      component("heading")
+        .variant("1", { "--size": "3rem" })
+        .variant("2", { "--size": "2rem" })
+        .body({ "font-size": dsl.cssvar("--size") })
+        .applyTo(dsl.select.element("h1"), "1")
+        .applyTo(dsl.select.element("h2"), "2"),
+    );
+
+    expect(result.filter((x) => x.$ast === "style-rule")).toEqual([
+      dsl.styleRule(dsl.select.element("h1"), "heading-1"),
+      dsl.styleRule(dsl.select.element("h2"), "heading-2"),
+    ]);
+  });
+
+  it("emits the selector rules after the component's utilities", () => {
+    const result = componentBuilderToDsl(
+      component("heading")
+        .variant("1", { "--size": "3rem" })
+        .body({ "font-size": dsl.cssvar("--size") })
+        .applyTo(dsl.select.element("h1"), "1"),
+    );
+
+    const lastUtility = result.findLastIndex(
+      (x) => x.$ast === "at-rule" && x.name === "utility",
+    );
+    const rule = result.findIndex((x) => x.$ast === "style-rule");
+
+    expect(lastUtility).toBeGreaterThanOrEqual(0);
+    expect(rule).toBeGreaterThan(lastUtility);
+  });
+
+  it("uses the scoped name for derived components", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .body({ margin: "0" })
+        .derive("group", (child) =>
+          child.body({ display: "flex" }).applyTo(dsl.select.element("menu")),
+        ),
+    );
+
+    expect(result.filter((x) => x.$ast === "style-rule")).toEqual([
+      dsl.styleRule(dsl.select.element("menu"), "btn-group"),
+    ]);
+  });
+
+  it("rejects a variant the component doesn't define", () => {
+    expect(() =>
+      component("heading")
+        .variant("1", { "--size": "3rem" })
+        .body({ "font-size": dsl.cssvar("--size") })
+        // @ts-expect-error "7" is not a defined variant
+        .applyTo(dsl.select.element("h1"), "7"),
+    ).toThrow(/heading.*"7"/);
+  });
+
+  it("rejects applying the bare class when variants are required", () => {
+    const builder = component("heading")
+      .variant("1", { "--size": "3rem" })
+      .body({ "font-size": dsl.cssvar("--size") })
+      .applyTo(dsl.select.element("h1"));
+
+    expect(() => componentBuilderToDsl(builder)).toThrow(
+      /heading.*requires a variant.*h1/,
+    );
+  });
+
+  it("allows the bare class when variants are optional", () => {
+    const result = componentBuilderToDsl(
+      component("heading")
+        .vars({ "--size": "1rem" })
+        .variant("1", { "--size": "3rem" })
+        .optionalVariants()
+        .body({ "font-size": dsl.cssvar("--size") })
+        .applyTo(dsl.select.element("h1")),
+    );
+
+    expect(result.filter((x) => x.$ast === "style-rule")).toEqual([
+      dsl.styleRule(dsl.select.element("h1"), "heading"),
+    ]);
+  });
+
+  it("rejects a variant whose class isn't generated because the body doesn't use it", () => {
+    const builder = component("box")
+      .variant("1", { "--size": "3rem" })
+      .body({ margin: "0" })
+      .applyTo(dsl.select.element("h1"), "1");
+
+    expect(() => componentBuilderToDsl(builder)).toThrow(
+      /box-1.*isn't generated.*h1/,
+    );
+  });
+});

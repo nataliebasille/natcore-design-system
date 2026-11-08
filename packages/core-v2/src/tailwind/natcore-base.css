@@ -14,9 +14,11 @@
 @import "./variants/interactive.css";
 
 /* Utilities */
-@import "./utilities/article.css";
-@import "./utilities/headings.css";
 @import "./utilities/interest/interest.css";
+
+/* Typography */
+@import "./typography/article/article.css";
+@import "./typography/heading/heading.css";
 
 /* Components */
 @import "./components/badge/badge.css";
