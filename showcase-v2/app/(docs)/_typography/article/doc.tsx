@@ -39,7 +39,7 @@ export default {
     {
       title: 'On any element',
       description:
-        'Add the article class when the content shouldn’t be an <article>, for example a post body inside a card or a div rendered by a CMS.',
+        'To apply article styles to content that shouldn’t be an <article> element, such as a post body inside a card or a div rendered by a CMS, add the article class to its container.',
       showcases: [
         {
           title: 'The article class on a div',
