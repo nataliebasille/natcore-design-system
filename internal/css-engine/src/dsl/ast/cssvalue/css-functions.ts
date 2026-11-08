@@ -44,7 +44,13 @@ export type CssFunction =
       $function: "calc";
       strings: string[];
       values: CssValue<
-        "length" | "percentage" | "number" | "integer" | "angle" | "ratio"
+        | "length"
+        | "percentage"
+        | "number"
+        | "integer"
+        | "angle"
+        | "ratio"
+        | "time"
       >[];
       toString: () => string;
     }
@@ -195,7 +201,7 @@ function calcToString(this: {
 export function calc(
   strings: TemplateStringsArray,
   ...values: CssValue<
-    "length" | "percentage" | "number" | "integer" | "angle" | "ratio"
+    "length" | "percentage" | "number" | "integer" | "angle" | "ratio" | "time"
   >[]
 ) {
   return withToString(

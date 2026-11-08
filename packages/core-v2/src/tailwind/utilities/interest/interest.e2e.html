@@ -1,0 +1,179 @@
+<!-- Interest invokers exercised by interest.e2e.spec.ts. Each row is a
+     focusable "before" button and an invoker; the hint popovers follow. -->
+
+<div class="flex flex-col items-start gap-1 p-2">
+  <div class="flex gap-2">
+    <button id="default-before">Before</button>
+    <button id="default" interestfor="default-tip">No utilities</button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="longhand-bare-before">Before</button>
+    <button
+      id="longhand-bare"
+      interestfor="longhand-bare-tip"
+      class="interest-delay-start-1000 interest-delay-end-700"
+    >
+      Longhands, bare integers
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="longhand-arbitrary-before">Before</button>
+    <button
+      id="longhand-arbitrary"
+      interestfor="longhand-arbitrary-tip"
+      class="interest-delay-start-[1s] interest-delay-end-[0.7s]"
+    >
+      Longhands, arbitrary values
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="shorthand-bare-before">Before</button>
+    <button
+      id="shorthand-bare"
+      interestfor="shorthand-bare-tip"
+      class="interest-delay-1000"
+    >
+      Shorthand, bare integer
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="shorthand-arbitrary-before">Before</button>
+    <button
+      id="shorthand-arbitrary"
+      interestfor="shorthand-arbitrary-tip"
+      class="interest-delay-[1s]"
+    >
+      Shorthand, arbitrary value
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="shorthand-calc-before">Before</button>
+    <button
+      id="shorthand-calc"
+      interestfor="shorthand-calc-tip"
+      class="interest-delay-[calc(1s)]"
+    >
+      Shorthand, arbitrary calc()
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="zero-before">Before</button>
+    <button
+      id="zero"
+      interestfor="zero-tip"
+      class="interest-delay-start-0 interest-delay-end-0"
+    >
+      Zero delays
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="shorthand-start-override-before">Before</button>
+    <button
+      id="shorthand-start-override"
+      interestfor="shorthand-start-override-tip"
+      class="interest-delay-1000 interest-delay-start-200"
+    >
+      Shorthand with a start override
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="shorthand-end-override-before">Before</button>
+    <button
+      id="shorthand-end-override"
+      interestfor="shorthand-end-override-tip"
+      class="interest-delay-1000 interest-delay-end-200"
+    >
+      Shorthand with an end override
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="shorthand-variant-override-before">Before</button>
+    <button
+      id="shorthand-variant-override"
+      interestfor="shorthand-variant-override-tip"
+      class="interest-delay-200 md:interest-delay-[1s]"
+    >
+      Bare shorthand overridden by an arbitrary one at md
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="bare-start-normal-before">Before</button>
+    <button
+      id="bare-start-normal"
+      interestfor="bare-start-normal-tip"
+      class="interest-delay-2000 interest-delay-start-[normal]"
+    >
+      Bare shorthand, start reset to normal
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="bare-end-normal-before">Before</button>
+    <button
+      id="bare-end-normal"
+      interestfor="bare-end-normal-tip"
+      class="interest-delay-2000 interest-delay-end-[normal]"
+    >
+      Bare shorthand, end reset to normal
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="arbitrary-start-normal-before">Before</button>
+    <button
+      id="arbitrary-start-normal"
+      interestfor="arbitrary-start-normal-tip"
+      class="interest-delay-[2s] interest-delay-start-[normal]"
+    >
+      Arbitrary shorthand, start reset to normal
+    </button>
+  </div>
+
+  <div class="flex gap-2">
+    <button id="arbitrary-end-normal-before">Before</button>
+    <button
+      id="arbitrary-end-normal"
+      interestfor="arbitrary-end-normal-tip"
+      class="interest-delay-[2s] interest-delay-end-[normal]"
+    >
+      Arbitrary shorthand, end reset to normal
+    </button>
+  </div>
+
+  <!-- Tab target after the last invoker, so focus never leaves the page. -->
+  <button id="after">After</button>
+</div>
+
+<div id="default-tip" popover="hint" class="tip">Tip</div>
+<div id="longhand-bare-tip" popover="hint" class="tip">Tip</div>
+<div id="longhand-arbitrary-tip" popover="hint" class="tip">Tip</div>
+<div id="shorthand-bare-tip" popover="hint" class="tip">Tip</div>
+<div id="shorthand-arbitrary-tip" popover="hint" class="tip">Tip</div>
+<div id="shorthand-calc-tip" popover="hint" class="tip">Tip</div>
+<div id="zero-tip" popover="hint" class="tip">Tip</div>
+<div id="shorthand-start-override-tip" popover="hint" class="tip">Tip</div>
+<div id="shorthand-end-override-tip" popover="hint" class="tip">Tip</div>
+<div id="shorthand-variant-override-tip" popover="hint" class="tip">Tip</div>
+<div id="bare-start-normal-tip" popover="hint" class="tip">Tip</div>
+<div id="bare-end-normal-tip" popover="hint" class="tip">Tip</div>
+<div id="arbitrary-start-normal-tip" popover="hint" class="tip">Tip</div>
+<div id="arbitrary-end-normal-tip" popover="hint" class="tip">Tip</div>
+
+<style>
+  /* Keep popovers away from the invokers so they never cover the pointer. */
+  .tip {
+    position: fixed;
+    inset: auto 16px 16px auto;
+    margin: 0;
+  }
+</style>

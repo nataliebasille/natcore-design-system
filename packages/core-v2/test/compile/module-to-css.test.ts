@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { component, dsl } from "@nataliebasille/css-engine";
+import { component, dsl, utility } from "@nataliebasille/css-engine";
 import { moduleToCss } from "../../src/compile/ts-to-css/compile.ts";
+
+describe("moduleToCss with time values", () => {
+  it("emits a bare-integer match multiplied by a time unit", () => {
+    const css = moduleToCss(
+      utility("wait", {
+        "transition-delay": dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.time.ms(1)}`,
+      }),
+    );
+
+    expect(normalize(css)).toContain(
+      "@utility wait-* { transition-delay: calc(--value(integer) * 1ms); }",
+    );
+  });
+});
 
 describe("moduleToCss with nested at-rules", () => {
   it("emits at-rules nested in a component body, resolving variant vars", () => {

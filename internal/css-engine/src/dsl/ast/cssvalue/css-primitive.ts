@@ -24,11 +24,15 @@ export type SupportedBareDataType =
   | "ratio"
   | "percentage";
 
+// Value-only data types: usable in DSL values but not as Tailwind `--value(...)` match types.
+export type ValueOnlyDataType = "time";
+
 export type LiteralDataType = string & {};
 
 export type CssDataType =
   | SupportedArbitraryDataType
   | SupportedBareDataType
+  | ValueOnlyDataType
   | LiteralDataType;
 
 export type CssAbsoluteValue =
@@ -42,6 +46,8 @@ export type CssAbsoluteValue =
   | "xxx-large";
 
 export type CssAngleUnit = "deg" | "grad" | "rad" | "turn";
+
+export type CssTimeUnit = "ms" | "s";
 
 export type CssLengthUnit =
   | "px"
@@ -115,6 +121,7 @@ export type CssRelativeSize = "larger" | "smaller";
 type DataTypeToValue<T extends CssDataType> =
   T extends "absolute-size" ? CssAbsoluteValue
   : T extends "angle" ? `${number}${CssAngleUnit}` | 0
+  : T extends "time" ? `${number}${CssTimeUnit}`
   : T extends "bg-size" ? CssBgSizeValue
   : T extends "color" ? CssColorValue
   : T extends "family-name" ? CssFamilyName
@@ -135,7 +142,8 @@ type DataTypeToValue<T extends CssDataType> =
 
 export type ConcreteCssDataType =
   | SupportedArbitraryDataType
-  | SupportedBareDataType;
+  | SupportedBareDataType
+  | ValueOnlyDataType;
 
 // Mapped helper: TypeScript eagerly evaluates DataTypeToValue<T> for each
 // concrete key T, producing 18 fully-resolved member types (one per data type)
@@ -257,6 +265,20 @@ export const primitive = {
       withToString({
         $primitive: "angle" as const,
         value: `${value}turn` as const,
+      }),
+  },
+
+  // Time helpers (zero keeps its unit: a unitless 0 is not a valid <time>)
+  time: {
+    ms: (value: number) =>
+      withToString({
+        $primitive: "time" as const,
+        value: `${value}ms` as const,
+      }),
+    s: (value: number) =>
+      withToString({
+        $primitive: "time" as const,
+        value: `${value}s` as const,
       }),
   },
 
