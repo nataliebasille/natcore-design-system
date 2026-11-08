@@ -166,7 +166,7 @@ export function DocSection({
       <div className="relative">
         <CopySectionUrl sectionId={id} />
 
-        <Header id={id} className="mt-0! scroll-mt-20 tracking-tighter">
+        <Header id={id} className="mt-0 scroll-mt-20 tracking-tighter">
           {title}
         </Header>
       </div>
