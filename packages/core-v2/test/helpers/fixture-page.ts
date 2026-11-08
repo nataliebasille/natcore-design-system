@@ -20,29 +20,27 @@ export async function loadFixture(page: Page, fixture: URL) {
  * have colors.
  */
 export async function mountHtml(page: Page, html: string) {
-  const css = await stylesheetFor(html);
   await page.setContent(
-    `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body class="${BODY_CLASS}">${html}</body></html>`,
+    `<!doctype html><html><head><meta charset="utf-8"></head><body class="${BODY_CLASS}">${html}</body></html>`,
   );
+  // Read candidates from the parsed DOM, so every valid way of writing a class
+  // attribute (quoted, unquoted, spaced, entity-encoded) is picked up.
+  const candidates = await page.evaluate(() => [
+    ...new Set(
+      [...document.querySelectorAll("[class]")].flatMap((el) => [
+        ...el.classList,
+      ]),
+    ),
+  ]);
+  await page.addStyleTag({ content: await stylesheetFor(candidates) });
 }
 
-function stylesheetFor(html: string) {
-  let cached = stylesheetCache.get(html);
+function stylesheetFor(candidates: string[]) {
+  const key = [...candidates].sort().join(" ");
+  let cached = stylesheetCache.get(key);
   if (!cached) {
-    cached = buildNatcoreCss([BODY_CLASS, ...classCandidates(html)]).then(
-      (root) => root.toString(),
-    );
-    stylesheetCache.set(html, cached);
+    cached = buildNatcoreCss(candidates).then((root) => root.toString());
+    stylesheetCache.set(key, cached);
   }
   return cached;
-}
-
-function classCandidates(html: string) {
-  const candidates = new Set<string>();
-  for (const [, classes = ""] of html.matchAll(/\bclass="([^"]*)"/g)) {
-    for (const candidate of classes.split(/\s+/)) {
-      if (candidate) candidates.add(candidate);
-    }
-  }
-  return [...candidates];
 }
