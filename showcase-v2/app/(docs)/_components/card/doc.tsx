@@ -66,5 +66,5 @@ export default {
     ],
   },
 } satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/card.css.ts").default
+  typeof import("../../../../../packages/core-v2/src/tailwind/components/card/card.css.ts").default
 >;

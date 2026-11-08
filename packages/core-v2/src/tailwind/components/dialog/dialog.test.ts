@@ -1,8 +1,8 @@
 /**
- * Spec for the `dialog` component (packages/core-v2/src/tailwind/components/
- * dialog.css.ts). The dialog styles a native <dialog>: placement, size,
- * backdrop, open/close animation, and page scroll lock. Its surface (background,
- * border, sections) comes from other classes such as `card-soft`.
+ * Spec for the `dialog` component (dialog.css.ts). The dialog styles a native
+ * <dialog>: placement, size, backdrop, open/close animation, and page scroll
+ * lock. Its surface (background, border, sections) comes from other classes
+ * such as `card-soft`.
  */
 import { describe, expect, it } from "vitest";
 import {
@@ -11,7 +11,7 @@ import {
   findDecls,
   flatten,
   resolveVars,
-} from "../helpers/build-natcore-css.ts";
+} from "../../../../test/helpers/build-natcore-css.ts";
 
 const SURFACE_PROPS = /^(background(-color|-image)?|color|border(-.*)?)$/;
 

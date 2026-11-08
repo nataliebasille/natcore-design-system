@@ -23,13 +23,18 @@ export async function listTailwindModules(): Promise<TailwindModuleEntry[]> {
 
   for (const file of files) {
     const name = file.split("packages/core-v2/src/tailwind").slice(-1)[0];
-    const parts = name?.split("/").filter((x) => !!x) || [];
-    const entry = {
-      category: parts.slice(0, -1),
-      name: parts.slice(-1)[0]!.replace(".css.ts", ""),
-    };
-
     if (!name?.endsWith(".css.ts")) continue;
+
+    const parts = name.split("/").filter((x) => !!x);
+    const moduleName = parts.slice(-1)[0]!.replace(".css.ts", "");
+    const folders = parts.slice(0, -1);
+    // Components live in their own folder (components/button/button.css.ts);
+    // drop that folder so the entry stays { category: ["components"], name: "button" }.
+    const entry = {
+      category:
+        folders.at(-1) === moduleName ? folders.slice(0, -1) : folders,
+      name: moduleName,
+    };
 
     // Static `.css.ts` suffix so Turbopack's static analysis only bundles
     // style modules — not plain `.css` files that fail when processed in
@@ -51,7 +56,7 @@ export async function getModuleDoc(entry: TailwindModuleEntry) {
   try {
     const [module, meta, playground] = await Promise.allSettled([
       import(
-        `../../packages/core-v2/src/tailwind/${[...entry.category, entry.name].join("/")}.css.ts`
+        `../../packages/core-v2/src/tailwind/${[...entry.category, entry.name, entry.name].join("/")}.css.ts`
       ),
       import(
         `../app/(docs)/_${entry.category[0]}/${entry.category.slice(1).concat(entry.name).join("/")}/doc.tsx`

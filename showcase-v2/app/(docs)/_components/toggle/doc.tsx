@@ -110,7 +110,7 @@ export default {
     "--p": "Inner padding between the track edge and the thumb.",
   },
 } satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/toggle.css.ts").default
+  typeof import("../../../../../packages/core-v2/src/tailwind/components/toggle/toggle.css.ts").default
 >;
 
 function variantShowcase(variant: "solid" | "soft" | "outline" | "ghost") {

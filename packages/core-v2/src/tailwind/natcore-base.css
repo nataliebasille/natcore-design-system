@@ -18,20 +18,20 @@
 @import "./utilities/headings.css";
 
 /* Components */
-@import "./components/badge.css";
-@import "./components/button.css";
-@import "./components/card.css";
-@import "./components/code.css";
-@import "./components/dialog.css";
-@import "./components/divider.css";
+@import "./components/badge/badge.css";
+@import "./components/button/button.css";
+@import "./components/card/card.css";
+@import "./components/code/code.css";
+@import "./components/dialog/dialog.css";
+@import "./components/divider/divider.css";
 @import "./components/forms/inputs.css";
 @import "./components/forms/select.css";
 @import "./components/forms/form-control.css";
-@import "./components/list.css";
-@import "./components/radio-group.css";
-@import "./components/tabs.css";
-@import "./components/toggle.css";
-@import "./components/tray.css";
+@import "./components/list/list.css";
+@import "./components/radio-group/radio-group.css";
+@import "./components/tabs/tabs.css";
+@import "./components/toggle/toggle.css";
+@import "./components/tray/tray.css";
 
 @theme static {
   --theme-primary: #5b2e91;

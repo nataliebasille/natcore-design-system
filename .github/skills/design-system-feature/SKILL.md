@@ -40,8 +40,8 @@ Standard todo order (drop any that don't apply):
 | --- | -------------------------------------- | ---------------------------------------------------------------------- |
 | 1   | css-engine helpers: failing specs      | New `*.spec.ts` cases fail because the helper doesn't exist            |
 | 2   | css-engine helpers: implement          | css-engine specs pass; css-engine rebuilt                              |
-| 3   | core-v2 unit tests                     | `test/components/<name>.test.ts` fails because the CSS isn't generated |
-| 4   | Playwright e2e tests                   | `src/tailwind/components/<name>.e2e.spec.ts` fails because the CSS isn't generated |
+| 3   | core-v2 unit tests                     | `src/tailwind/components/<name>/<name>.test.ts` fails because the CSS isn't generated |
+| 4   | Playwright e2e tests                   | `src/tailwind/components/<name>/<name>.e2e.spec.ts` fails because the CSS isn't generated |
 | 5   | core-v2 CSS                            | All core-v2 unit and Playwright tests pass                             |
 | 6   | showcase-v2 docs page                  | Docs page renders; screenshots checked                                 |
 | 7   | CI updates (only if new test commands) | `actionlint` clean                                                     |
@@ -49,21 +49,21 @@ Standard todo order (drop any that don't apply):
 
 ### 2. Unit tests first (core-v2 / css-engine)
 
-- **core-v2:** create `packages/core-v2/test/components/<name>.test.ts` using the harness in `packages/core-v2/test/helpers/build-natcore-css.ts` (`buildNatcoreCss`, `declarations`, `findDecls`, `flatten`, `resolveVars`). It compiles the real `natcore.css` from source through Tailwind, so it also catches a component that isn't imported in `natcore-base.css`. Model it on `test/components/dialog.test.ts`.
+- **core-v2:** create `packages/core-v2/src/tailwind/components/<name>/<name>.test.ts` (next to `<name>.css.ts`) using the harness in `packages/core-v2/test/helpers/build-natcore-css.ts` (`buildNatcoreCss`, `declarations`, `findDecls`, `flatten`, `resolveVars`). It compiles the real `natcore.css` from source through Tailwind, so it also catches a component that isn't imported in `natcore-base.css`. Model it on `src/tailwind/components/dialog/dialog.test.ts`.
 - Assert behavior, not implementation details: generated rules per class, breakpoint variants (`atRule`), and **cascade layer** (`findDecls(...).layer`). Component bodies land in `utilities.components`, so a test that a Tailwind utility (layer `utilities`) overrides a default is how to prove "Tailwind can override this".
 - **css-engine helpers:** add cases to the colocated spec (`internal/css-engine/src/dsl/ast/**/*.spec.ts`) and, if the helper affects compiled output, to `packages/core-v2/test/compile/module-to-css.test.ts`.
 - Run, confirm every new test fails for the right reason, then stop for approval.
 
 ### 3. Playwright tests first (core-v2)
 
-- Next to the component, create `packages/core-v2/src/tailwind/components/<name>.e2e.html` with the examples to exercise and `<name>.e2e.spec.ts` that mounts it with `loadFixture(page, new URL("./<name>.e2e.html", import.meta.url))` from `test/helpers/fixture-page.ts`. E2E tests are independent of showcase-v2. Put the **fixture contract** in the spec's header comment: every element id/attribute the tests rely on. Target elements by attributes the examples need anyway (`id`, `commandfor`, `aria-controls`).
+- Next to the component, create `packages/core-v2/src/tailwind/components/<name>/<name>.e2e.html` with the examples to exercise and `<name>.e2e.spec.ts` that mounts it with `loadFixture(page, new URL("./<name>.e2e.html", import.meta.url))` from `test/helpers/fixture-page.ts`. E2E tests are independent of showcase-v2. Put the **fixture contract** in the spec's header comment: every element id/attribute the tests rely on. Target elements by attributes the examples need anyway (`id`, `commandfor`, `aria-controls`).
 - Cover real browser behavior the CSS tests can't: interaction, focus, geometry (`boundingBox`), computed styles (`getComputedStyle`), animation (`getAnimations()`), reduced motion (`page.emulateMedia`), and narrow viewports (`page.setViewportSize`).
 - Every spec runs in Chromium and Firefox; import `test`/`expect` from `test/helpers/browser-test.ts` and pass `browsers("chromium", ...)` as the test details for a test that only applies to some browsers. Before relying on a browser feature, prove it works in the bundled browsers with a throwaway spec against `mountHtml(page, ...)`, then delete it.
 - Run them; expect failures because the component's CSS doesn't exist yet. Stop for approval.
 
 ### 4. Implement the CSS
 
-- Add `packages/core-v2/src/tailwind/components/<name>.css.ts` (default export: `component("<name>")`) and import it in `packages/core-v2/src/tailwind/natcore-base.css`.
+- Add `packages/core-v2/src/tailwind/components/<name>/<name>.css.ts` (each component gets its own folder) (default export: `component("<name>")`) and import it in `packages/core-v2/src/tailwind/natcore-base.css`.
 - Iterate with `pnpm --filter ./packages/core-v2 test` and `pnpm --filter ./packages/core-v2 test:e2e` until green. Inspect the compiled output with `pnpm --filter ./packages/core-v2 build:css -- --file components/<name>.css.ts` and read `packages/core-v2/dist/components/<name>.css`.
 - **Changing an existing component:** snapshot `packages/core-v2/dist` first, rebuild, and diff the CSS so every output change is intentional.
 - Stop for approval.

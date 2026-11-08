@@ -434,7 +434,7 @@ export default {
     '--backdrop': 'Default backdrop color. The default is black at 50% opacity.',
   },
 } satisfies Documentation<
-  typeof import('../../../../../packages/core-v2/src/tailwind/components/dialog.css.ts').default
+  typeof import('../../../../../packages/core-v2/src/tailwind/components/dialog/dialog.css.ts').default
 >
 
 function ExampleDialog({
