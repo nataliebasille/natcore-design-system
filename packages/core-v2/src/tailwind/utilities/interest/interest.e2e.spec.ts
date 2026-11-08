@@ -6,11 +6,13 @@
  *
  * Chromium runs the native feature. Firefox has no native `interestfor`, so
  * the page also loads the `interestfor` polyfill, which reads the
- * `--interest-delay*` custom properties the utilities set. (The polyfill turns
- * itself off where `interestfor` is native.)
+ * `--interest-delay-start/-end` custom properties the utilities set. (The
+ * polyfill turns itself off where `interestfor` is native.)
  *
- * Fixture contract (ids the tests rely on), for each case id in CASES:
+ * Fixture contract (ids the tests rely on), for "default" and each case id in
+ * CASES:
  * - #<id>         <button interestfor="<id>-tip"> with the case's classes
+ *                 (#default has none)
  * - #<id>-before  focusable button directly before the invoker
  * - #<id>-tip     popover="hint", positioned away from the invokers
  * - #after        focusable button after the last invoker
@@ -26,16 +28,28 @@ import { loadFixture } from "../../../../test/helpers/fixture-page.ts";
 
 const POLYFILL = createRequire(import.meta.url).resolve("interestfor");
 
-const CASES = [
+/** The browser's (or polyfill's) own delay, measured on #default. */
+const DEFAULT = "default";
+
+const CASES: {
+  id: string;
+  start: number | typeof DEFAULT;
+  end: number | typeof DEFAULT;
+}[] = [
   { id: "longhand-bare", start: 1000, end: 700 },
   { id: "longhand-arbitrary", start: 1000, end: 700 },
   { id: "shorthand-bare", start: 1000, end: 1000 },
-  { id: "shorthand-arbitrary", start: 1000, end: 700 },
+  { id: "shorthand-arbitrary", start: 1000, end: 1000 },
+  { id: "shorthand-calc", start: 1000, end: 1000 },
   { id: "zero", start: 0, end: 0 },
   { id: "shorthand-start-override", start: 200, end: 1000 },
   { id: "shorthand-end-override", start: 1000, end: 200 },
-  { id: "shorthand-variant-override", start: 1000, end: 700 },
-] as const;
+  { id: "shorthand-variant-override", start: 1000, end: 1000 },
+  { id: "bare-start-normal", start: DEFAULT, end: 2000 },
+  { id: "bare-end-normal", start: 2000, end: DEFAULT },
+  { id: "arbitrary-start-normal", start: DEFAULT, end: 2000 },
+  { id: "arbitrary-end-normal", start: 2000, end: DEFAULT },
+];
 
 // Timers never fire early, but event timestamps can be a few ms apart.
 const EARLY_TOLERANCE_MS = 50;
@@ -48,6 +62,8 @@ type InterestWindow = Window & {
     waitFor(key: string, timeoutMs: number): Promise<number>;
   };
 };
+
+type Interaction = "hover" | "focus";
 
 test.beforeEach(async ({ page }) => {
   await loadFixture(page, new URL("./interest.e2e.html", import.meta.url));
@@ -73,34 +89,52 @@ test(
 );
 
 for (const { id, start, end } of CASES) {
-  test.describe(`#${id}`, () => {
-    test(`hover opens after ${start}ms and closes ${end}ms after leaving`, async ({
+  for (const interaction of ["hover", "focus"] as const) {
+    test(`#${id}: ${interaction} opens after ${label(start)} and closes after ${label(end)}`, async ({
       page,
     }) => {
-      await page.hover(`#${id}`);
-      const opened = await waitFor(page, `${id}-tip:open`);
-      expectDelay(opened - (await eventTime(page, `${id}:mouseover`)), start);
+      const actual = await measure(page, id, interaction);
+      const defaults =
+        start === DEFAULT || end === DEFAULT ?
+          await measure(page, "default", interaction)
+        : undefined;
 
-      await page.mouse.move(700, 20);
-      const closed = await waitFor(page, `${id}-tip:closed`);
-      expectDelay(closed - (await eventTime(page, `${id}:mouseout`)), end);
+      expectDelay(actual.start, start, defaults?.start);
+      expectDelay(actual.end, end, defaults?.end);
     });
+  }
+}
 
-    test(`keyboard focus opens after ${start}ms and closes ${end}ms after blur`, async ({
-      page,
-    }) => {
-      await page.focus(`#${id}-before`);
-      await page.keyboard.press("Tab");
-      await expect(page.locator(`#${id}`)).toBeFocused();
-      const opened = await waitFor(page, `${id}-tip:open`);
-      expectDelay(opened - (await eventTime(page, `${id}:focusin`)), start);
+/**
+ * Shows interest in `#id` by hovering or keyboard-focusing it, then loses it,
+ * and returns how long the popover took to open and to close.
+ */
+async function measure(page: Page, id: string, interaction: Interaction) {
+  const [gain, lose] =
+    interaction === "hover" ?
+      (["mouseover", "mouseout"] as const)
+    : (["focusin", "focusout"] as const);
 
-      await page.keyboard.press("Tab");
-      await expect(page.locator(`#${id}`)).not.toBeFocused();
-      const closed = await waitFor(page, `${id}-tip:closed`);
-      expectDelay(closed - (await eventTime(page, `${id}:focusout`)), end);
-    });
-  });
+  if (interaction === "hover") {
+    await page.hover(`#${id}`);
+  } else {
+    await page.focus(`#${id}-before`);
+    await page.keyboard.press("Tab");
+    await expect(page.locator(`#${id}`)).toBeFocused();
+  }
+  const opened = await waitFor(page, `${id}-tip:open`);
+  const start = opened - (await eventTime(page, `${id}:${gain}`));
+
+  if (interaction === "hover") {
+    await page.mouse.move(700, 20);
+  } else {
+    await page.keyboard.press("Tab");
+    await expect(page.locator(`#${id}`)).not.toBeFocused();
+  }
+  const closed = await waitFor(page, `${id}-tip:closed`);
+  const end = closed - (await eventTime(page, `${id}:${lose}`));
+
+  return { start, end };
 }
 
 /**
@@ -148,7 +182,7 @@ function recordInterestEvents(page: Page) {
           );
       }
     },
-    CASES.map(({ id }) => id),
+    [DEFAULT, ...CASES.map(({ id }) => id)],
   );
 }
 
@@ -172,7 +206,27 @@ function eventTime(page: Page, key: string) {
   );
 }
 
-function expectDelay(actualMs: number, expectedMs: number) {
-  expect(actualMs).toBeGreaterThanOrEqual(expectedMs - EARLY_TOLERANCE_MS);
-  expect(actualMs).toBeLessThanOrEqual(expectedMs + LATE_TOLERANCE_MS);
+/**
+ * Checks a measured delay against an expected one in ms, or against the
+ * browser's default (`defaultMs`, measured on #default) when expected is DEFAULT.
+ */
+function expectDelay(
+  actualMs: number,
+  expected: number | typeof DEFAULT,
+  defaultMs?: number,
+) {
+  if (expected === DEFAULT) {
+    // Defaults are a few hundred ms, so this rules out both 0 and the 2000ms
+    // shorthand while allowing for timing noise in the default measurement.
+    expect(actualMs).toBeGreaterThanOrEqual(defaultMs! / 2);
+    expect(actualMs).toBeLessThanOrEqual(defaultMs! + LATE_TOLERANCE_MS);
+    return;
+  }
+
+  expect(actualMs).toBeGreaterThanOrEqual(expected - EARLY_TOLERANCE_MS);
+  expect(actualMs).toBeLessThanOrEqual(expected + LATE_TOLERANCE_MS);
+}
+
+function label(delay: number | typeof DEFAULT) {
+  return delay === DEFAULT ? "the default" : `${delay}ms`;
 }
