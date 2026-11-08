@@ -19,7 +19,7 @@ Paths are relative to the repo root. Run commands from the repo root unless note
 | Docs types                     | `showcase-v2/types/showcase.d.ts`                                                                | `Documentation<T>`, `DocShowcaseEntry` (supports `table` rendered under the example).                                                               |
 | Docs page renderer             | `showcase-v2/app/(docs)/[...designItem]/page.tsx`                                                | Shared `ShowcaseEntry`.                                                                                                                             |
 | React attribute typings        | `showcase-v2/types/*.d.ts`                                                                       | e.g. `invoker-commands.d.ts` for attributes missing from `@types/react`.                                                                            |
-| Playwright tests               | `showcase-v2/e2e/<name>.spec.ts`                                                                 | Config: `showcase-v2/playwright.config.ts`.                                                                                                         |
+| Playwright tests               | `packages/core-v2/src/tailwind/components/<name>.e2e.spec.ts` + `<name>.e2e.html` (next to `<name>.css.ts`) | Config: `packages/core-v2/playwright.config.ts` (Chromium + Firefox, matches `**/*.e2e.spec.ts`). `test/helpers/fixture-page.ts` mounts a fixture with natcore compiled from source. |
 | CI                             | `.github/workflows/ci.yml`                                                                       | Unit tests + E2E on PRs to `develop`.                                                                                                               |
 
 ## Commands
@@ -33,9 +33,9 @@ Paths are relative to the repo root. Run commands from the repo root unless note
 | core-v2 type-check                                                        | `pnpm --filter ./packages/core-v2 type-check`                                                              |
 | Rebuild core-v2 CSS (all / one file)                                      | `pnpm --filter ./packages/core-v2 build:css` / `... build:css -- --file components/<name>.css.ts`          |
 | Showcase dev server (http://localhost:3001)                               | `cd showcase-v2; pnpm dev`                                                                                 |
-| E2E, production build (what CI runs)                                      | `pnpm --filter showcase-v2 test:e2e`                                                                       |
-| E2E against a running dev server (fast)                                   | In `showcase-v2/`: `$env:E2E_REUSE_SERVER='1'; $env:E2E_PORT='3001'; pnpm exec playwright test`            |
-| Install Playwright browser (first time)                                   | `pnpm --filter showcase-v2 exec playwright install chromium`                                               |
+| E2E (Chromium + Firefox; what CI runs)                                    | `pnpm --filter ./packages/core-v2 test:e2e`                                                                |
+| E2E, one browser                                                          | `pnpm --filter ./packages/core-v2 test:e2e --project=firefox`                                              |
+| Install Playwright browsers (first time)                                  | `pnpm --filter ./packages/core-v2 exec playwright install chromium firefox`                                |
 | Release check for the published package                                   | `pnpm test:core:2x`                                                                                        |
 | Lint changed files                                                        | `pnpm exec eslint --no-warn-ignored <files>`                                                               |
 | Format check                                                              | `pnpm exec prettier --check --end-of-line auto <files>`                                                    |

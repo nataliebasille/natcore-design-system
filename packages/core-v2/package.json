@@ -51,6 +51,7 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
     "check:exports": "tsx scripts/assert-plugin-exports.ts"
   },
   "keywords": [
@@ -85,6 +86,7 @@
   "devDependencies": {
     "@nataliebasille/css-engine": "workspace:*",
     "@nataliebasille/preview-jsx-runtime": "workspace:*",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/cli": "^4.1.16",
     "@types/chroma-js": "^3.1.2",
     "@types/culori": "^4.0.1",

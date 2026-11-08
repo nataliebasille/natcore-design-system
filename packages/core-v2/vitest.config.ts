@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import path from "path";
 
 export default defineConfig({
@@ -7,6 +7,8 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    // *.e2e.spec.ts files are Playwright specs; run them with `pnpm test:e2e`.
+    exclude: [...configDefaults.exclude, "**/*.e2e.spec.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
