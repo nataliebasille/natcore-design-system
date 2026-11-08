@@ -91,7 +91,7 @@ export default {
     ],
   },
 } satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/tray.css.ts").default
+  typeof import("../../../../../packages/core-v2/src/tailwind/components/tray/tray.css.ts").default
 >;
 
 function directionShowcase() {

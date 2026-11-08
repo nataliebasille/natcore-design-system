@@ -76,7 +76,7 @@ export default {
     },
   ],
 } satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/divider.css.ts").default
+  typeof import("../../../../../packages/core-v2/src/tailwind/components/divider/divider.css.ts").default
 >;
 
 function horizontalShowcase() {

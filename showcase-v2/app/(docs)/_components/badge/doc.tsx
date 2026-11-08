@@ -38,7 +38,7 @@ export default {
     },
   },
 } satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/badge.css.ts").default
+  typeof import("../../../../../packages/core-v2/src/tailwind/components/badge/badge.css.ts").default
 >;
 
 function variantShowcase(variant: "solid" | "soft" | "outline" | "ghost") {

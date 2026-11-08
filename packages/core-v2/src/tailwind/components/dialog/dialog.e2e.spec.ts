@@ -19,8 +19,8 @@
  * - #dialog-js             opened with dialog.showModal() by button[aria-controls]
  */
 import { type Locator, type Page } from "@playwright/test";
-import { browsers, expect, test } from "../../../test/helpers/browser-test.ts";
-import { loadFixture } from "../../../test/helpers/fixture-page.ts";
+import { browsers, expect, test } from "../../../../test/helpers/browser-test.ts";
+import { loadFixture } from "../../../../test/helpers/fixture-page.ts";
 
 const DEFAULT_WIDTH_PX = 512; // 32rem
 

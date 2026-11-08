@@ -31,7 +31,7 @@ type ConstructReferenceProps = {
  * Renders a single {@link UtilityReference} for one {@link ConstructMeta}.
  *
  * ```tsx
- * import buttonCss from "../../packages/core-v2/src/tailwind/components/button.css.ts";
+ * import buttonCss from "../../packages/core-v2/src/tailwind/components/button/button.css.ts";
  * import { CssFileReference } from "@/app/_ui/doc/construct-reference";
  *
  * <CssFileReference constructs={buttonCss} />

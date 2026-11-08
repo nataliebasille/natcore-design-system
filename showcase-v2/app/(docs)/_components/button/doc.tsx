@@ -241,7 +241,7 @@ export default {
     "--gap": "Gap between content elements (e.g. icon + label).",
   },
 } satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/button.css.ts").default
+  typeof import("../../../../../packages/core-v2/src/tailwind/components/button/button.css.ts").default
 >;
 
 function AlertCircleIcon() {

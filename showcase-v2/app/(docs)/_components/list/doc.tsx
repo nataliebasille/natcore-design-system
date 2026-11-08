@@ -64,7 +64,7 @@ export default {
     ],
   },
 } satisfies Documentation<
-  typeof import('../../../../../packages/core-v2/src/tailwind/components/list.css.ts').default
+  typeof import('../../../../../packages/core-v2/src/tailwind/components/list/list.css.ts').default
 >
 
 function plainList(className: string) {
