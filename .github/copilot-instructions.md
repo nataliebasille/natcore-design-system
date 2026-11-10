@@ -70,7 +70,7 @@ Run `pnpm type-check` before opening a PR.
 
 ### Core Styles
 
-Styles live in `packages/core-v2/src/tailwind/` (`components/`, `themes/`, `utilities/`, `variants/`) as `*.css.ts` files authored with the `@nataliebasille/css-engine` DSL and compiled to CSS by `packages/core-v2/src/compile/`. `natcore.css` is the stylesheet entry point. Each component lives in its own folder (`components/<name>/<name>.css.ts`) alongside its tests (`<name>.test.ts`, `<name>.e2e.spec.ts`, `<name>.e2e.html`).
+Styles live in `packages/core-v2/src/tailwind/` (`components/`, `typography/`, `utilities/`, `themes/`, `variants/`) as `*.css.ts` files authored with the `@nataliebasille/css-engine` DSL and compiled to CSS by `packages/core-v2/src/compile/`. `natcore.css` is the stylesheet entry point. Each component lives in its own folder (`components/<name>/<name>.css.ts`, `typography/<name>/<name>.css.ts`) alongside its tests (`<name>.test.ts`, `<name>.e2e.spec.ts`, `<name>.e2e.html`). Element defaults (e.g. `h1`, `article`) come from the builder's `.applyTo(selector, variant?)`, which keeps them in the components layer so Tailwind utilities override them.
 
 ### React Component Pattern
 

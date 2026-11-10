@@ -156,6 +156,17 @@ export type ComponentBuilder<T extends ComponentState = ComponentState> = {
       child: ComponentBuilder<InitialChildState<N, T>>,
     ) => ComponentBuilder<C>,
   ): ComponentBuilder<UpdateState<C, { parent: T }>>;
+
+  /**
+   * Also styles `selector` as this component, or as one of its variants:
+   * `.applyTo(dsl.select.element("h1"), "1")` emits `h1 { @apply heading-1; }`.
+   * The rule lands in the same cascade layer as the component, so Tailwind
+   * utilities still override it.
+   */
+  applyTo<const V extends DefinedVariants<T>>(
+    selector: Selector,
+    variant?: V,
+  ): ComponentBuilder<T>;
 };
 
 class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
@@ -320,6 +331,25 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
       childBuilder as ComponentBuilder<InitialChildState<N, T>>,
     ) as unknown as ComponentBuilder<UpdateState<C, { parent: T }>>;
   }
+
+  applyTo<const V extends DefinedVariants<T>>(selector: Selector, variant?: V) {
+    if (variant !== undefined && !definesVariant(this.state, String(variant))) {
+      throw new Error(
+        `Component "${this.state.name}" has no variant "${String(variant)}" to apply to ${selector}`,
+      );
+    }
+
+    return new ComponentBuilderImpl({
+      ...this.state,
+      appliesTo: [
+        ...(this.state.appliesTo ?? []),
+        {
+          selector,
+          variant: variant === undefined ? undefined : String(variant),
+        },
+      ],
+    });
+  }
 }
 
 export function component<const N extends string>(name: N) {
@@ -344,4 +374,11 @@ export function component<const N extends string>(name: N) {
 
 export function isComponentBuilder(value: unknown): value is ComponentBuilder {
   return value instanceof ComponentBuilderImpl;
+}
+
+function definesVariant(state: ComponentState, variant: string): boolean {
+  return (
+    variant in state.variants.values ||
+    (!!state.parent && definesVariant(state.parent, variant))
+  );
 }

@@ -39,7 +39,14 @@ export type ComponentState = {
   utilities: Record<string, StyleRuleBodyBuilder[]>;
   guards: Record<string, Selector>;
   body: StyleRuleBodyBuilder[];
+  /** Selectors that get the component (or one of its variants) applied. */
+  appliesTo?: ComponentApplyTo[];
   parent?: ComponentState;
+};
+
+export type ComponentApplyTo = {
+  selector: Selector;
+  variant?: string;
 };
 
 export type ControlledVar = {

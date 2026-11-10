@@ -23,7 +23,7 @@ Each of these cost time while building the dialog component. Check the relevant 
 
 ## Showcase docs
 
-- **Global heading styles win.** natcore's `h1`–`h6` styles override Tailwind text sizes, so example titles should be `<p className="font-semibold">`, not `<h2>`.
+- **Docs pages render inside an `<article>`.** Article and heading defaults (margins, sizes) apply to every example. They sit in the components layer, so Tailwind utilities override them; to reset spacing in a preview without touching the copyable snippet, put `*:m-0` on a `ui-div` wrapper.
 - **`<code>` is block-level.** Inline code in docs text needs `<code className="inline">`.
 - **Preview vs. snippet.** In doc JSX, `ui-*` elements (e.g. `<ui-div>`) render only in the live preview, and `<markup>` content only in the code snippet. Use this for wrappers that shouldn't appear in copyable code.
 - **No React event handlers in examples.** Examples are server-rendered. For script-driven examples, render the same HTML into both preview and snippet (see `ScriptTrigger` in `_components/dialog/doc.tsx`).
@@ -35,4 +35,5 @@ Each of these cost time while building the dialog component. Check the relevant 
 
 - **`pnpm dev` doesn't rebuild core-v2 CSS.** Its predev filter resolves from `showcase-v2/` and matches nothing. After editing `*.css.ts`, run `pnpm --filter ./packages/core-v2 build:css` from the repo root.
 - **Stopping servers on Windows can leave orphans.** After stopping `next start`/`next dev`, check the port (`Get-NetTCPConnection -LocalPort <port>`) and stop leftovers by PID, only if the command line points at this worktree.
+- **Port 3001 may belong to another worktree.** If `pnpm dev` fails with `EADDRINUSE`, don't stop the other server; run `pnpm exec next dev -p 3011` from `showcase-v2/` (after building core-v2 CSS yourself).
 - **Prettier on Windows reports every file** because of CRLF. Always pass `--end-of-line auto`. Several files were unformatted before this work; check `HEAD`'s version before reformatting a whole file.

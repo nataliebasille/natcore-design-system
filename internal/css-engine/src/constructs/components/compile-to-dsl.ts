@@ -264,6 +264,49 @@ const guardsGenerator: GeneratorReduceFn = (acc, curr) => {
   return acc;
 };
 
+const appliesToGenerator: GeneratorReduceFn = (acc, curr) => {
+  const generatedUtilities = new Set(
+    acc.body.flatMap((node) =>
+      node.$ast === "at-rule" && node.name === "utility" ?
+        [String(node.prelude)]
+      : [],
+    ),
+  );
+  const dynamicValueRoots = valueRootsOf(
+    acc.body.find(
+      (node) =>
+        node.$ast === "at-rule" &&
+        node.name === "utility" &&
+        node.prelude === `${curr.name}-*`,
+    ),
+  ).map((root) => curr.themeBag.tryScope(root));
+
+  (curr.state.appliesTo ?? []).forEach(({ selector, variant }) => {
+    const className =
+      variant === undefined ? curr.name : `${curr.name}-${variant}`;
+    // Tailwind only generates `name-<variant>` from `name-*` when at least one
+    // of its `--value(--x-*)` lookups has a `--x-<variant>` theme value.
+    const generated =
+      generatedUtilities.has(className) ||
+      (variant !== undefined &&
+        dynamicValueRoots.some(
+          (root) => acc.themes.inline[`${root}-${variant}`] !== undefined,
+        ));
+
+    if (!generated) {
+      throw new Error(
+        variant === undefined ?
+          `Component "${curr.name}" requires a variant to apply to ${selector}: no bare "${curr.name}" class is generated`
+        : `Class "${className}" isn't generated, so it can't be applied to ${selector}. Reference the variant's vars in the body.`,
+      );
+    }
+
+    acc.body.push(dsl.styleRule(selector, className as StyleRuleBodyBuilder));
+  });
+
+  return acc;
+};
+
 const generators: GeneratorReduceFn[] = [
   varsGenerator,
   variantVarsGenerator,
@@ -273,6 +316,7 @@ const generators: GeneratorReduceFn[] = [
   controlledVarGenerator,
   utilitiesGenerator,
   guardsGenerator,
+  appliesToGenerator,
 ];
 
 export function componentBuilderToDsl({
@@ -524,4 +568,25 @@ function wrapComponentLayer(
 
 function camelCase(str: string) {
   return str.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+}
+
+/** Roots of every `--value(--x-*)` lookup in a node, e.g. `--size`. */
+function valueRootsOf(
+  node: dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst | undefined,
+) {
+  const roots: `--${string}`[] = [];
+  if (!node) return roots;
+
+  stylesheetVisitorBuilder()
+    .on("match-value", (ast) => {
+      for (const candidate of ast.candidates) {
+        if (candidate.$twCandidate === "variable") {
+          roots.push(candidate.root as `--${string}`);
+        }
+      }
+      return ast;
+    })
+    .visit(node);
+
+  return roots;
 }

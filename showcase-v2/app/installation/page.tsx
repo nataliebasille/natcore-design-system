@@ -145,7 +145,7 @@ function StepSection({
             {number}
           </span>
           <div>
-            <h2 className="mt-0! mb-1 text-2xl tracking-tight">{title}</h2>
+            <h2 className="mt-0 mb-1 text-2xl tracking-tight">{title}</h2>
             <p className="text-sm/7 text-surface-950/65">{description}</p>
           </div>
         </div>
