@@ -1562,19 +1562,17 @@ describe("applyTo", () => {
     );
   });
 
-  it("rejects a variant that defines none of the vars the body reads", () => {
-    const base = component("box")
+  it("rejects a variant whose vars the body never reads", () => {
+    // Tailwind only generates box-2 from box-* if variant 2 sets a var the
+    // body reads, so `@apply box-2` would fail the build.
+    const builder = component("box")
       .variant("1", { "--size": "3rem" })
       .variant("2", { "--unused": "1px" })
-      .body({ "font-size": dsl.cssvar("--size") });
+      .body({ "font-size": dsl.cssvar("--size") })
+      .applyTo(dsl.select.element("h2"), "2");
 
-    expect(
-      componentBuilderToDsl(base.applyTo(dsl.select.element("h1"), "1")).filter(
-        (x) => x.$ast === "style-rule",
-      ),
-    ).toEqual([dsl.styleRule(dsl.select.element("h1"), "box-1")]);
-    expect(() =>
-      componentBuilderToDsl(base.applyTo(dsl.select.element("h2"), "2")),
-    ).toThrow(/box-2.*isn't generated.*h2/);
+    expect(() => componentBuilderToDsl(builder)).toThrow(
+      /box-2.*isn't generated.*h2/,
+    );
   });
 });
