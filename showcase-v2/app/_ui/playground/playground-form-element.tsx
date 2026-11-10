@@ -42,13 +42,18 @@ export function PlaygroundFormElement<T extends Record<string, unknown>>(
   );
 
   const CustomInput = Input as React.FC<CustomInputProps<T[typeof name]>>;
+  const id =
+    typeof Input === "function" ? undefined : (
+      ((Input.props as { id?: string }).id ?? `playground-${name}`)
+    );
 
   return (
     <div className="form-control">
-      <label htmlFor={name}>{label ?? name}</label>
+      <label htmlFor={id}>{label ?? name}</label>
       {typeof Input === "function" ?
         <CustomInput value={value} onChange={onChange} />
       : cloneElement(Input, {
+          id,
           name,
           value,
           onChange,
