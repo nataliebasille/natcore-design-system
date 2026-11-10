@@ -33,13 +33,16 @@ describe("heading levels", () => {
     },
   );
 
-  it.each(LEVELS)("bare <h%i> is styled like heading-%i", async (level) => {
-    const root = await buildNatcoreCss([`heading-${level}`]);
+  it.each(LEVELS.map(([level]) => ({ level })))(
+    "bare <h$level> is styled like heading-$level",
+    async ({ level }) => {
+      const root = await buildNatcoreCss([`heading-${level}`]);
 
-    expect(typography(root, `h${level}`)).toEqual(
-      typography(root, `.heading-${level}`),
-    );
-  });
+      expect(typography(root, `h${level}`)).toEqual(
+        typography(root, `.heading-${level}`),
+      );
+    },
+  );
 });
 
 describe("heading cascade layer", () => {
