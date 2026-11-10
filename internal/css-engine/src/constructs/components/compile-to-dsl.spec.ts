@@ -1561,4 +1561,20 @@ describe("applyTo", () => {
       /box-1.*isn't generated.*h1/,
     );
   });
+
+  it("rejects a variant that defines none of the vars the body reads", () => {
+    const base = component("box")
+      .variant("1", { "--size": "3rem" })
+      .variant("2", { "--unused": "1px" })
+      .body({ "font-size": dsl.cssvar("--size") });
+
+    expect(
+      componentBuilderToDsl(base.applyTo(dsl.select.element("h1"), "1")).filter(
+        (x) => x.$ast === "style-rule",
+      ),
+    ).toEqual([dsl.styleRule(dsl.select.element("h1"), "box-1")]);
+    expect(() =>
+      componentBuilderToDsl(base.applyTo(dsl.select.element("h2"), "2")),
+    ).toThrow(/box-2.*isn't generated.*h2/);
+  });
 });

@@ -272,15 +272,26 @@ const appliesToGenerator: GeneratorReduceFn = (acc, curr) => {
       : [],
     ),
   );
+  const dynamicValueRoots = valueRootsOf(
+    acc.body.find(
+      (node) =>
+        node.$ast === "at-rule" &&
+        node.name === "utility" &&
+        node.prelude === `${curr.name}-*`,
+    ),
+  ).map((root) => curr.themeBag.tryScope(root));
 
   (curr.state.appliesTo ?? []).forEach(({ selector, variant }) => {
     const className =
       variant === undefined ? curr.name : `${curr.name}-${variant}`;
+    // Tailwind only generates `name-<variant>` from `name-*` when at least one
+    // of its `--value(--x-*)` lookups has a `--x-<variant>` theme value.
     const generated =
       generatedUtilities.has(className) ||
       (variant !== undefined &&
-        curr.variants.hasVariants &&
-        generatedUtilities.has(`${curr.name}-*`));
+        dynamicValueRoots.some(
+          (root) => acc.themes.inline[`${root}-${variant}`] !== undefined,
+        ));
 
     if (!generated) {
       throw new Error(
@@ -557,4 +568,25 @@ function wrapComponentLayer(
 
 function camelCase(str: string) {
   return str.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+}
+
+/** Roots of every `--value(--x-*)` lookup in a node, e.g. `--size`. */
+function valueRootsOf(
+  node: dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst | undefined,
+) {
+  const roots: `--${string}`[] = [];
+  if (!node) return roots;
+
+  stylesheetVisitorBuilder()
+    .on("match-value", (ast) => {
+      for (const candidate of ast.candidates) {
+        if (candidate.$twCandidate === "variable") {
+          roots.push(candidate.root as `--${string}`);
+        }
+      }
+      return ast;
+    })
+    .visit(node);
+
+  return roots;
 }
