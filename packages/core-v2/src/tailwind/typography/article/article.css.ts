@@ -3,6 +3,8 @@ import { component, dsl } from "@nataliebasille/css-engine";
 const { child, cls, compound, descendant, element, list, parent, pseudo } =
   dsl.select;
 
+const FIRST_CHILD = compound("*", pseudo("first-child"));
+
 /**
  * Long-form text spacing for paragraphs, list items, and headings. Bare
  * `<article>` gets the class. Everything lands in the components layer, so
@@ -32,7 +34,12 @@ export default component("article")
         color: dsl.cssvar("--tone-current-fg"),
       },
       // Last and more specific than `& h1`, so it wins over the heading margins.
-      [child(parent(), compound("*", pseudo("first-child")))]: ["mt-0"],
+      // Also resets nested bare <article>s: their own reset sits in the lower
+      // `components` layer and would lose to this class's heading margins.
+      [list(
+        child(parent(), FIRST_CHILD),
+        within(child(element("article"), FIRST_CHILD)),
+      )]: ["mt-0"],
     },
   })
   .applyTo(element("article"));

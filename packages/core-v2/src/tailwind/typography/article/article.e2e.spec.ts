@@ -18,6 +18,11 @@
  * - #<kind>-p-leading-tight        <p class="leading-tight">
  * - #<kind>-list-item-leading-tight <li class="list-item leading-tight">
  * - #<kind>-h3-text-primary        <h3 class="text-primary-500">
+ * Nested articles (`<kind>` is the inner article's kind; the outer one is the
+ * other kind):
+ * - #nested-<kind>-first           first-child <h2> of the inner article
+ * - #nested-<kind>-first-mt-4      first-child <h2 class="mt-4"> of another
+ *                                  inner article
  */
 import { type Page } from "@playwright/test";
 import { expect, test } from "../../../../test/helpers/browser-test.ts";
@@ -101,6 +106,22 @@ for (const kind of KINDS) {
       const plain = await computed(page, `${kind}-h2`);
 
       expect(colored.color).not.toBe(plain.color);
+    });
+  });
+
+  test.describe(`${kind} article nested in the other kind`, () => {
+    test("its first child still has no top margin", async ({ page }) => {
+      expect((await computed(page, `nested-${kind}-first`)).marginTop).toBe(
+        "0px",
+      );
+    });
+
+    test("mt-4 still adds a top margin to its first child", async ({
+      page,
+    }) => {
+      expect(
+        (await computed(page, `nested-${kind}-first-mt-4`)).marginTop,
+      ).toBe("16px");
     });
   });
 }
