@@ -50,7 +50,7 @@ Standard todo order (drop any that don't apply):
 ### 2. Unit tests first (core-v2 / css-engine)
 
 - **core-v2:** create `packages/core-v2/src/tailwind/components/<name>/<name>.test.ts` (next to `<name>.css.ts`) using the harness in `packages/core-v2/test/helpers/build-natcore-css.ts` (`buildNatcoreCss`, `declarations`, `findDecls`, `flatten`, `resolveVars`). It compiles the real `natcore.css` from source through Tailwind, so it also catches a component that isn't imported in `natcore-base.css`. Model it on `src/tailwind/components/dialog/dialog.test.ts`.
-- Assert behavior, not implementation details: generated rules per class, breakpoint variants (`atRule`), and **cascade layer** (`findDecls(...).layer`). Component bodies land in `utilities.components`, so a test that a Tailwind utility (layer `utilities`) overrides a default is how to prove "Tailwind can override this".
+- Assert behavior, not implementation details: generated rules per class, breakpoint variants (`atRule`), and **cascade layer** (`findDecls(...).layer`). Component bodies land in `utilities.components.base` and a component's own utilities in `utilities.components`; plain Tailwind utilities (layer `utilities`) beat both. `winsByLayer(root, tailwindDecl, componentDecl)` is how to prove "Tailwind can override this".
 - **css-engine helpers:** add cases to the colocated spec (`internal/css-engine/src/dsl/ast/**/*.spec.ts`) and, if the helper affects compiled output, to `packages/core-v2/test/compile/module-to-css.test.ts`.
 - Run, confirm every new test fails for the right reason, then stop for approval.
 
@@ -84,7 +84,7 @@ Run all of these, then delegate an independent review of the full diff to a `cod
 - `pnpm --filter ./packages/core-v2 test:e2e` with `CI=true` (Chromium + Firefox)
 - `pnpm exec eslint --no-warn-ignored <changed files>`
 - `pnpm exec prettier --check --end-of-line auto <changed files>`; only fix files that were formatted at `HEAD` (see [pitfalls](./references/pitfalls.md))
-- css-engine type-check, compared before vs. after, if css-engine changed (it has pre-existing errors)
+- css-engine type-check if css-engine changed (`pnpm --filter @nataliebasille/css-engine type-check`; must report 0 errors)
 
 ### 7. Commit and open the PR
 

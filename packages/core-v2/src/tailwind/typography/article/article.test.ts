@@ -1,9 +1,10 @@
 /**
  * Spec for the `article` typography module (article.css.ts): long-form text
  * spacing for paragraphs, list items, and headings inside an article. Bare
- * `<article>` gets the class automatically. Everything sits in the components
- * layer, without `!important`, so Tailwind utilities on the article's children
- * (e.g. `m-0`, `leading-tight`) override it.
+ * `<article>` gets the class automatically. Element rules sit in
+ * `components.base` and the class in `utilities.components.base`, without
+ * `!important`, so Tailwind utilities on the article's children (e.g. `m-0`,
+ * `leading-tight`) override them.
  */
 import { describe, expect, it } from "vitest";
 import {
@@ -27,8 +28,8 @@ const STYLES = [
 ] as const;
 
 const ROOTS = [
-  [".article", "utilities.components"],
-  ["article", "components"],
+  [".article", "utilities.components.base"],
+  ["article", "components.base"],
 ] as const;
 
 describe("article styles", () => {
@@ -95,8 +96,10 @@ describe("article overrides", () => {
         ),
       ];
 
-      expect(layerOf(`.article ${child}`)).toEqual(["utilities.components"]);
-      expect(layerOf(`article ${child}`)).toEqual(["components"]);
+      expect(layerOf(`.article ${child}`)).toEqual([
+        "utilities.components.base",
+      ]);
+      expect(layerOf(`article ${child}`)).toEqual(["components.base"]);
       expect(layerOf(`.${cls}`)).toEqual(["utilities"]);
     },
   );

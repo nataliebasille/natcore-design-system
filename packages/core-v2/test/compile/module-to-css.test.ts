@@ -49,7 +49,7 @@ describe("moduleToCss with nested at-rules", () => {
     );
 
     expect(normalize(css)).toContain(
-      "@utility fade { @layer components { opacity: 1; @starting-style { opacity: 0.5; } } }",
+      "@utility fade { @layer components { @layer base { opacity: 1; @starting-style { opacity: 0.5; } } } }",
     );
   });
 });

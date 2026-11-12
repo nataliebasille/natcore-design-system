@@ -8,9 +8,10 @@ Each of these cost time while building the dialog component. Check the relevant 
 - **Numeric values can be dropped.** `opacity: 0` (a number) disappears from the output. Use strings: `opacity: "0"`.
 - **New DSL helpers need a css-engine rebuild.** core-v2 and the showcase import css-engine's built `dist`, so run `pnpm --filter @nataliebasille/css-engine build` after adding a helper, or core-v2 tests fail with "x is not a function".
 - **At-rules go in the body, not string keys.** Pass `dsl.startingStyle(...)`, `dsl.prefersReducedMotion(...)`, etc. as body arguments rather than `"@starting-style"` keys in `$`.
-- **Cascade layers.** Component bodies compile into `@layer utilities { @layer components { … } }`, so plain Tailwind utilities override them; `.utility(...)` classes land in `utilities`. Test this with `findDecls(...).layer` rather than assuming.
+- **Cascade layers.** Inside `@layer utilities`, component bodies (static, dynamic, themeable, derived) compile into `@layer components { @layer base { … } }` (`utilities.components.base`), and `.utility()`/`.controlled()` utilities into `@layer components` (`utilities.components`). Styles directly in a layer beat its nested layers, so plain Tailwind utilities beat component utilities, which beat bodies, regardless of specificity or candidate order. Element defaults from `.applyTo()` land in the top-level `components.base`. Don't wrap utilities in `dsl.layer.*` by hand. Test with `findDecls(...).layer` and `winsByLayer(...)`; `test/cascade-layers.test.ts` covers each compiler path on raw and minified output.
+- **Avoid `!important` in components.** `!important` reverses layer order: an important declaration in a nested layer beats important ones in outer layers, so a component's `!important` would beat a user's `!` utility. Rank with layers and specificity instead.
 - **Refactors must not change output.** Before changing the compiler or an existing component, copy `packages/core-v2/dist`, rebuild, and diff every `.css` file.
-- **css-engine type-check is already failing** (31 errors at the time of the dialog PR). Compare the error list before and after your change; don't treat a non-zero exit as your regression, and don't add it to CI.
+- **css-engine type-check must stay clean.** It reports 0 errors and `pnpm test:core:2x` runs it, so any new error fails the release check.
 
 ## Tests
 
@@ -23,7 +24,7 @@ Each of these cost time while building the dialog component. Check the relevant 
 
 ## Showcase docs
 
-- **Docs pages render inside an `<article>`.** Article and heading defaults (margins, sizes) apply to every example. They sit in the components layer, so Tailwind utilities override them; to reset spacing in a preview without touching the copyable snippet, put `*:m-0` on a `ui-div` wrapper.
+- **Docs pages render inside an `<article>`.** Article and heading defaults (margins, sizes) apply to every example. They sit in the `components.base` layer, so Tailwind utilities override them; to reset spacing in a preview without touching the copyable snippet, put `*:m-0` on a `ui-div` wrapper.
 - **`<code>` is block-level.** Inline code in docs text needs `<code className="inline">`.
 - **Preview vs. snippet.** In doc JSX, `ui-*` elements (e.g. `<ui-div>`) render only in the live preview, and `<markup>` content only in the code snippet. Use this for wrappers that shouldn't appear in copyable code.
 - **No React event handlers in examples.** Examples are server-rendered. For script-driven examples, render the same HTML into both preview and snippet (see `ScriptTrigger` in `_components/dialog/doc.tsx`).

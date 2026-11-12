@@ -1,0 +1,30 @@
+<!-- Tray examples exercised by tray.e2e.spec.ts. Each tray is w-40 (160px)
+     inside a clipped, positioned frame. -->
+
+<div class="relative h-24 w-80 overflow-hidden">
+  <div id="tray-closed" class="tray-left w-40">Closed</div>
+</div>
+
+<div class="relative h-24 w-80 overflow-hidden">
+  <div id="tray-open-attribute" class="tray-left w-40" open>Open attribute</div>
+</div>
+
+<div class="relative h-24 w-80 overflow-hidden">
+  <div id="tray-open-utility" class="tray-left tray-open w-40">tray-open</div>
+</div>
+
+<div class="relative h-24 w-80 overflow-hidden">
+  <label id="tray-open-toggle" class="tray-left w-40">
+    <input type="checkbox" data-slot="toggle" checked />
+    Checked toggle slot
+  </label>
+</div>
+
+<div class="relative h-24 w-80 overflow-hidden">
+  <div
+    id="tray-user-transform"
+    class="tray-left tray-open w-40 [transform:translateX(10px)]"
+  >
+    tray-open with a Tailwind transform
+  </div>
+</div>

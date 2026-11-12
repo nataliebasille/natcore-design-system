@@ -7,8 +7,9 @@ const FIRST_CHILD = compound("*", pseudo("first-child"));
 
 /**
  * Long-form text spacing for paragraphs, list items, and headings. Bare
- * `<article>` gets the class. Everything lands in the components layer, so
- * Tailwind utilities on the children (`m-0`, `leading-tight`, …) override it.
+ * `<article>` gets the class. Everything lands in the `components.base` layer,
+ * so Tailwind utilities on the children (`m-0`, `leading-tight`, …) override
+ * it.
  */
 export default component("article")
   .body({
