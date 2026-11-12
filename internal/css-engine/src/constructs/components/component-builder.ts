@@ -160,8 +160,8 @@ export type ComponentBuilder<T extends ComponentState = ComponentState> = {
   /**
    * Also styles `selector` as this component, or as one of its variants:
    * `.applyTo(dsl.select.element("h1"), "1")` emits `h1 { @apply heading-1; }`.
-   * The rule lands in the same cascade layer as the component, so Tailwind
-   * utilities still override it.
+   * The applied class brings its `components.base` layer along, so the rule
+   * lands in `components.base` and Tailwind utilities still override it.
    */
   applyTo<const V extends DefinedVariants<T>>(
     selector: Selector,

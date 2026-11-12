@@ -130,7 +130,7 @@ describe("dialog width", () => {
     const layerOf = (selector: string) =>
       findDecls(root, { selector, prop: "width", atRule: null })[0]?.layer;
 
-    expect(layerOf(".dialog")).toBe("utilities.components");
+    expect(layerOf(".dialog")).toBe("utilities.components.base");
     expect(layerOf(".w-3xl")).toBe("utilities");
   });
 
@@ -146,7 +146,7 @@ describe("dialog width", () => {
       const layerOf = (selector: string) =>
         findDecls(root, { selector, prop, atRule: null })[0]?.layer;
 
-      expect(layerOf(".dialog")).toBe("utilities.components");
+      expect(layerOf(".dialog")).toBe("utilities.components.base");
       expect(layerOf(`.${cls}`)).toBe("utilities");
     },
   );
@@ -174,7 +174,7 @@ describe("dialog backdrop", () => {
       findDecls(root, { selector, prop, atRule: null })[0]?.layer;
 
     expect(layerOf(".dialog::backdrop", "background-color")).toBe(
-      "utilities.components",
+      "utilities.components.base",
     );
     expect(
       layerOf(".backdrop\\:bg-black\\/60::backdrop", "background-color"),
@@ -197,7 +197,7 @@ describe("dialog backdrop", () => {
     expect(
       findDecls(root, { selector: ".dialog-backdrop-none::backdrop" })[0]
         ?.layer,
-    ).toBe("utilities");
+    ).toBe("utilities.components");
   });
 });
 

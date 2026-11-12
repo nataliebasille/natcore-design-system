@@ -2,8 +2,8 @@ import { component, dsl } from "@nataliebasille/css-engine";
 
 /**
  * Heading sizes: `heading-1` … `heading-6`. Bare `<h1>`–`<h6>` get the matching
- * class. Everything lands in the components layer, so Tailwind utilities like
- * `text-sm` or `leading-loose` override it.
+ * class. Everything lands in the `components.base` layer, so Tailwind
+ * utilities like `text-sm` or `leading-loose` override it.
  */
 export default component("heading")
   .variant("1", { "--font-size": dsl.cssvar("--text-5xl") })

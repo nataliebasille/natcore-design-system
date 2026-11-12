@@ -1,8 +1,9 @@
 /**
  * Spec for the `heading` typography module (heading.css.ts): `heading-1` …
  * `heading-6` size text like h1–h6, and bare `<h1>`–`<h6>` get the matching
- * class automatically. Everything sits in the components layer so Tailwind
- * utilities (e.g. `text-sm`, `leading-loose`) override it without `!`.
+ * class automatically. Element rules sit in `components.base` and the classes
+ * in `utilities.components.base`, so Tailwind utilities (e.g. `text-sm`,
+ * `leading-loose`) override them without `!`.
  */
 import { describe, expect, it } from "vitest";
 import {
@@ -46,17 +47,25 @@ describe("heading levels", () => {
 });
 
 describe("heading cascade layer", () => {
-  it.each(LEVELS)("heading-%i is in the components layer", async (level) => {
-    const root = await buildNatcoreCss([`heading-${level}`]);
+  it.each(LEVELS)(
+    "heading-%i is in the components base layer",
+    async (level) => {
+      const root = await buildNatcoreCss([`heading-${level}`]);
 
-    expect(layers(root, `.heading-${level}`)).toEqual(["utilities.components"]);
-  });
+      expect(layers(root, `.heading-${level}`)).toEqual([
+        "utilities.components.base",
+      ]);
+    },
+  );
 
-  it.each(LEVELS)("bare <h%i> is in the components layer", async (level) => {
-    const root = await buildNatcoreCss([]);
+  it.each(LEVELS)(
+    "bare <h%i> is in the components base layer",
+    async (level) => {
+      const root = await buildNatcoreCss([]);
 
-    expect(layers(root, `h${level}`)).toEqual(["components"]);
-  });
+      expect(layers(root, `h${level}`)).toEqual(["components.base"]);
+    },
+  );
 
   it("never uses !important", async () => {
     const root = await buildNatcoreCss(LEVELS.map(([l]) => `heading-${l}`));
@@ -81,9 +90,9 @@ describe("heading overrides", () => {
         .map((decl) => decl.layer);
 
     expect(new Set(layerOf(".heading-1"))).toEqual(
-      new Set(["utilities.components"]),
+      new Set(["utilities.components.base"]),
     );
-    expect(new Set(layerOf("h1"))).toEqual(new Set(["components"]));
+    expect(new Set(layerOf("h1"))).toEqual(new Set(["components.base"]));
     expect(layerOf(`.${cls}`)).toContain("utilities");
   });
 });

@@ -4,6 +4,7 @@ import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import postcss, { type AtRule, type Root, type Rule } from "postcss";
 import { compile } from "tailwindcss";
+import { optimize } from "@tailwindcss/node";
 import { moduleToCss } from "../../src/compile/ts-to-css/compile.ts";
 
 export type FlatDecl = {
@@ -34,14 +35,18 @@ const stylesheetCache = new Map<string, Promise<string>>();
 /**
  * Compiles the real `natcore.css` entry from source (compiling `*.css.ts`
  * imports exactly like the package build does), runs it through Tailwind, and
- * generates CSS for the given class candidates.
+ * generates CSS for the given class candidates. `extraCss` is appended to the
+ * entry, e.g. test-only components compiled with `moduleToCss`.
  */
-export async function buildNatcoreCss(candidates: string[]): Promise<Root> {
+export async function buildNatcoreCss(
+  candidates: string[],
+  extraCss = "",
+): Promise<Root> {
   const entry = path.join(natcoreSrcDir, "natcore.css");
-  const compiler = await compile(await readCssOrCompile(entry), {
-    base: natcoreSrcDir,
-    loadStylesheet,
-  });
+  const compiler = await compile(
+    `${await readCssOrCompile(entry)}\n${extraCss}`,
+    { base: natcoreSrcDir, loadStylesheet },
+  );
 
   return postcss.parse(compiler.build(candidates));
 }
@@ -130,6 +135,42 @@ export function resolveVars(
     );
 }
 
+/**
+ * Runs Tailwind output through the lightningcss minifier that Tailwind's
+ * PostCSS/Vite/CLI pipelines use, which un-nests and rewrites at-rules.
+ */
+export function minify(root: Root): Root {
+  return postcss.parse(optimize(root.toString(), { minify: true }).code);
+}
+
+/**
+ * Whether `winner` beats `loser` on cascade layer alone (normal declarations).
+ * Styles directly in a layer beat its nested layers; sibling layers are ranked
+ * by first declaration. Returns false for the same layer, where specificity and
+ * source order decide instead.
+ */
+export function winsByLayer(root: Root, winner: FlatDecl, loser: FlatDecl) {
+  if (winner.important || loser.important) {
+    throw new Error("!important reverses layer order; compare normal decls");
+  }
+
+  const a = winner.layer ? winner.layer.split(".") : [];
+  const b = loser.layer ? loser.layer.split(".") : [];
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+
+  if (i === a.length && i === b.length) return false;
+  if (i === a.length) return true;
+  if (i === b.length) return false;
+
+  const order = layerOrder(root);
+  const prefix = a.slice(0, i);
+  return (
+    order.indexOf([...prefix, a[i]].join(".")) >
+    order.indexOf([...prefix, b[i]].join("."))
+  );
+}
+
 async function loadStylesheet(id: string, base: string) {
   const file =
     id === "tailwindcss" ? path.join(tailwindDir, "index.css")
@@ -215,4 +256,23 @@ function splitSelectorList(selector: string) {
   }
   if (current.trim()) parts.push(current.trim());
   return parts;
+}
+
+/** Dotted layer paths in the order the cascade first sees them. */
+function layerOrder(root: Root) {
+  const order: string[] = [];
+  root.walkAtRules("layer", (atRule) => {
+    const parents: string[] = [];
+    for (let p = atRule.parent; p && p.type !== "root"; p = p.parent) {
+      if (p.type === "atrule" && (p as AtRule).name === "layer") {
+        parents.unshift((p as AtRule).params);
+      }
+    }
+    const names = atRule.nodes ? [atRule.params] : atRule.params.split(",");
+    for (const name of names) {
+      const path = [...parents, name.trim()].join(".");
+      if (!order.includes(path)) order.push(path);
+    }
+  });
+  return order;
 }

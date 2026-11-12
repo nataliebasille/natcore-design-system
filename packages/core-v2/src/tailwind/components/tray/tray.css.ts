@@ -57,10 +57,10 @@ export default component("tray")
         display: "none",
       },
       [`&:has(${slot("toggle")}:checked), &[open]`]: {
-        transform: "translate(0, 0) !important",
+        transform: "translate(0, 0)",
       },
     },
   }))
   .utility("open", {
-    transform: "translate(0, 0) !important",
+    transform: "translate(0, 0)",
   });

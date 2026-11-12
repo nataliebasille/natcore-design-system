@@ -96,7 +96,7 @@ const staticComponentGenerator: GeneratorReduceFn = (acc, curr) => {
     // A static component that references a dynamic component needs to be generated
     // when the component has a default theme or variant.
 
-    appendComponentIfExists(acc.body, curr.name, [
+    appendAliasIfExists(acc.body, curr.name, [
       curr.themeable.default ?
         !curr.variants.hasVariants ? `${curr.name}/${curr.themeable.default}`
         : curr.variants.selection.mode === "default" ?
@@ -120,25 +120,28 @@ const themeableStaticComponentsGenerator: GeneratorReduceFn = (acc, curr) => {
   if (!curr.themeable.isThemeable) return acc;
 
   for (const palette of PALETTE) {
-    appendComponentIfExists(
-      acc.body,
-      `${curr.name}/${palette}`,
-      !curr.variants.hasVariants ?
-        [`palette-${palette}`, ...applyCurrentPalette(palette, curr.body)]
-      : curr.variants.selection.mode === "optional" ?
-        [
-          `palette-${palette}`,
-          ...applyCurrentPalette(
-            palette,
-            resolveOptionalVariantReferences(curr, curr.body),
-          ),
-        ]
-      : [
-          curr.variants.selection?.mode === "default" ?
-            `${curr.name}-${curr.variants.selection.key}/${palette}`
-          : null,
-        ],
-    );
+    const name = `${curr.name}/${palette}`;
+
+    if (!curr.variants.hasVariants) {
+      appendComponentIfExists(acc.body, name, [
+        `palette-${palette}`,
+        ...applyCurrentPalette(palette, curr.body),
+      ]);
+    } else if (curr.variants.selection.mode === "optional") {
+      appendComponentIfExists(acc.body, name, [
+        `palette-${palette}`,
+        ...applyCurrentPalette(
+          palette,
+          resolveOptionalVariantReferences(curr, curr.body),
+        ),
+      ]);
+    } else {
+      appendAliasIfExists(acc.body, name, [
+        curr.variants.selection?.mode === "default" ?
+          `${curr.name}-${curr.variants.selection.key}/${palette}`
+        : null,
+      ]);
+    }
   }
 
   return acc;
@@ -228,10 +231,16 @@ const controlledVarGenerator: GeneratorReduceFn = (acc, curr) => {
 
     if (matchers.length > 0) {
       acc.body.push(
-        dsl.atRule("utility", `${scopedVarName.slice(2)}-*`, {
-          [scopedVarName]:
-            matchers.length === 1 ? matchers[0]! : dsl.match.oneOf(...matchers),
-        }),
+        dsl.atRule(
+          "utility",
+          `${scopedVarName.slice(2)}-*`,
+          componentUtilityLayer({
+            [scopedVarName]:
+              matchers.length === 1 ?
+                matchers[0]!
+              : dsl.match.oneOf(...matchers),
+          }),
+        ),
       );
     }
   });
@@ -246,7 +255,7 @@ const utilitiesGenerator: GeneratorReduceFn = (acc, curr) => {
       dsl.atRule(
         "utility",
         fullUtilityName,
-        ...normalizeStyleBuilders(curr.state, body),
+        componentUtilityLayer(...normalizeStyleBuilders(curr.state, body)),
       ),
     );
   });
@@ -388,8 +397,29 @@ function appendComponentIfExists(
       dsl.atRule(
         "utility",
         componentName,
-        wrapComponentLayer(...filtered),
+        componentBodyLayer(...filtered),
       ) as AtRuleAst,
+    );
+  }
+}
+
+/**
+ * An alias only `@apply`s another generated component class, which brings its
+ * own layers with it, so wrapping the alias would nest them a second time.
+ */
+function appendAliasIfExists(
+  body: DesignSystemAst[],
+  componentName: string,
+  appliedClasses: (string | null)[],
+) {
+  const filtered = appliedClasses.filter((x): x is string => !!x);
+  if (filtered.length > 0) {
+    body.push(
+      dsl.atRule(
+        "utility",
+        componentName,
+        ...(filtered as AtRuleBodyBuilder[]),
+      ),
     );
   }
 }
@@ -560,9 +590,17 @@ function isEmptyStyleRuleBody(entry: dsl.StyleRuleBody) {
   return isEmptyStyleNode(entry);
 }
 
-function wrapComponentLayer(
-  ...styles: Parameters<typeof dsl.layer.components>
-) {
+/*
+ * Every component class lands in Tailwind's `utilities` layer. Styles directly
+ * in a layer beat its nested layers, so nesting bodies one level deeper than
+ * the component's own utilities ranks them, by layer alone:
+ *   plain Tailwind utility > component utility (`components`) > body (`components.base`)
+ */
+function componentBodyLayer(...styles: AtRuleBodyBuilder[]) {
+  return dsl.layer.components(dsl.layer.base(...styles));
+}
+
+function componentUtilityLayer(...styles: AtRuleBodyBuilder[]) {
   return dsl.layer.components(...styles);
 }
 
