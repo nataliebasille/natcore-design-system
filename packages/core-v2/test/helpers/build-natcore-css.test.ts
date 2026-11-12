@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import postcss from "postcss";
 import {
   buildNatcoreCss,
   declarations,
@@ -74,6 +75,17 @@ describe("buildNatcoreCss", () => {
         decl(".max-w-none", "max-width"),
       ),
     ).toBe(false);
+  });
+
+  it("ranks dotted layer names like the equivalent nesting", () => {
+    const root = postcss.parse(
+      "@layer utilities.alpha.base { .a { color: red } } @layer utilities.beta.base { .b { color: blue } }",
+    );
+    const [alpha] = findDecls(root, { selector: ".a" });
+    const [beta] = findDecls(root, { selector: ".b" });
+
+    expect(winsByLayer(root, beta!, alpha!)).toBe(true);
+    expect(winsByLayer(root, alpha!, beta!)).toBe(false);
   });
 
   it("minify keeps declarations and their layers", async () => {

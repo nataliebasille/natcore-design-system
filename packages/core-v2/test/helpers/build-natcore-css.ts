@@ -258,7 +258,10 @@ function splitSelectorList(selector: string) {
   return parts;
 }
 
-/** Dotted layer paths in the order the cascade first sees them. */
+/**
+ * Dotted layer paths in the order the cascade first sees them. A dotted name
+ * (`@layer a.b.c`) also declares its ancestors (`a`, `a.b`), like nesting.
+ */
 function layerOrder(root: Root) {
   const order: string[] = [];
   root.walkAtRules("layer", (atRule) => {
@@ -270,8 +273,11 @@ function layerOrder(root: Root) {
     }
     const names = atRule.nodes ? [atRule.params] : atRule.params.split(",");
     for (const name of names) {
-      const path = [...parents, name.trim()].join(".");
-      if (!order.includes(path)) order.push(path);
+      const segments = [...parents, name.trim()].join(".").split(".");
+      for (let i = 1; i <= segments.length; i++) {
+        const path = segments.slice(0, i).join(".");
+        if (!order.includes(path)) order.push(path);
+      }
     }
   });
   return order;
