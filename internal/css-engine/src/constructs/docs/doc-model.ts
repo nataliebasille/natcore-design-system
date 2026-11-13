@@ -145,7 +145,12 @@ export function toDocModel(tree: unknown): DocModel {
   return {
     title: page.title,
     description: page.description,
-    ...(page.atAGlance !== undefined ? { atAGlance: page.atAGlance } : {}),
+    ...((
+      page.atAGlance !== undefined &&
+      reportNestedMarkers(page.atAGlance, "page", issues)
+    ) ?
+      { atAGlance: page.atAGlance }
+    : {}),
     ...(page.nav ? { nav: page.nav } : {}),
     blocks,
     ...(api ? { api } : {}),

@@ -62,8 +62,11 @@ type OwnPresets<S extends ComponentState> = {
   : never]: PresetKeys<S["vars"][K]>;
 };
 
+// A derived component's presets replace its parent's for the same value.
 type AllPresets<S extends ComponentState> = OwnPresets<S> &
-  (S extends { parent: infer P extends ComponentState } ? AllPresets<P> : {});
+  (S extends { parent: infer P extends ComponentState } ?
+    Omit<AllPresets<P>, keyof OwnPresets<S>>
+  : {});
 
 type DerivedValues<S extends ComponentState> = ([VariantNames<S>] extends (
   [never]
@@ -171,6 +174,14 @@ export function resolvePlaygroundControls(
       );
       return;
     }
+    if (value.kind === "select" && !value.options.includes(value.default)) {
+      const fallback = value.options[0]!;
+      issues.push(
+        `Playground control "${name}" defaults to "${value.default}", which is not one of its options; using "${fallback}".`,
+      );
+      controls.push(toResolved(name, { ...value, default: fallback }));
+      return;
+    }
     controls.push(toResolved(name, value));
   };
 
@@ -262,11 +273,15 @@ function deriveControls(state: ComponentState) {
       }
 
       if (options.length > 0) {
-        presets.push({
+        const preset = {
           name: varName.slice(2),
           options,
           default: defaultKey ?? options[0]!,
-        });
+        };
+        // Traversal runs root to leaf, so the most-derived definition wins.
+        const existing = presets.findIndex((p) => p.name === preset.name);
+        if (existing === -1) presets.push(preset);
+        else presets[existing] = preset;
       }
     }
   });

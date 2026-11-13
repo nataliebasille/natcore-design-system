@@ -659,6 +659,17 @@ describe("helper components", () => {
     expect(sectionsOf(model)[0]?.content).toMatchObject([{ kind: "prose" }]);
   });
 
+  it("validates at-a-glance content and omits it when a helper throws", () => {
+    const model = toDocModel(
+      <Page title="Button" description="Buttons." atAGlance={<Broken />} />,
+    );
+
+    expect(model.issues).toEqual([
+      '<Broken> threw "boom"; the content using it is omitted.',
+    ]);
+    expect(model.atAGlance).toBeUndefined();
+  });
+
   function Broken(): ShowcaseJsxNode {
     throw new Error("boom");
   }
@@ -674,6 +685,73 @@ describe("helper components", () => {
   function SolidSection() {
     return <Section title="Solid section" />;
   }
+});
+
+describe("controls a parent and a derived component both define", () => {
+  const sized = component("sz")
+    .vars({ "--size": "1rem" })
+    .controlled("--size", { sm: "0.5rem", md: "1rem" })
+    .body({ "font-size": dsl.cssvar("--size") })
+    .derive("child", (child) =>
+      child
+        .vars({ "--size": "3rem" })
+        .controlled("--size", { xs: "0.25rem", xl: "3rem" })
+        .body({ "font-size": dsl.cssvar("--size") }),
+    );
+
+  it("take the derived component's presets in the types", () => {
+    expectTypeOf<PlaygroundValues<typeof sized>>().toEqualTypeOf<{
+      size: "xs" | "xl";
+    }>();
+  });
+
+  it("produce one control with the derived component's presets", () => {
+    const { Page, Playground } = docsFor(sized);
+    const model = toDocModel(
+      <Page title="Sized" description="d">
+        <Playground render={() => <div />} />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      {
+        name: "size",
+        label: "Size",
+        kind: "select",
+        options: ["xs", "xl"],
+        default: "xl",
+      },
+    ]);
+  });
+});
+
+describe("custom select defaults", () => {
+  it("fall back to the first option when not one of the options", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            tone: { kind: "select", options: ["primary"], default: "accent" },
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      {
+        name: "tone",
+        label: "Tone",
+        kind: "select",
+        options: ["primary"],
+        default: "primary",
+      },
+    ]);
+    expect(model.issues).toEqual([
+      'Playground control "tone" defaults to "accent", which is not one of its options; using "primary".',
+    ]);
+  });
 });
 
 describe("resolveDocLocation", () => {
