@@ -29,12 +29,35 @@ type IntrinsicAttributesExtras = {
   key?: string | number;
 };
 
+// Invoker commands (Chrome/Edge 135, Firefox 144, Safari 26.2) and interest
+// invokers (Chrome/Edge 142) aren't in @types/react yet. Lowercase names
+// render as plain attributes.
+type PendingHtmlAttributes = {
+  button: {
+    commandfor?: string;
+    command?:
+      | "show-modal"
+      | "close"
+      | "request-close"
+      | "show-popover"
+      | "hide-popover"
+      | "toggle-popover"
+      | `--${string}`;
+    interestfor?: string;
+  };
+  a: { interestfor?: string };
+};
+
+type ElementAttributes<K extends keyof ReactJSX.IntrinsicElements> =
+  ReactJSX.IntrinsicElements[K] &
+    (K extends keyof PendingHtmlAttributes ? PendingHtmlAttributes[K] : {});
+
 type IntrinsicElementsWithChildren = {
   [K in keyof ReactJSX.IntrinsicElements as
     | K
     | `ui-${string & K}`
     | `markup-${string & K}`]: AddChildren<
-    FrameworkExtras<ReactJSX.IntrinsicElements[K]>
+    FrameworkExtras<ElementAttributes<K>>
   >;
 } & {
   ui: AddChildren<{}>;

@@ -6,25 +6,14 @@ import {
   type DocLocation,
   type DocModel,
 } from '@nataliebasille/css-engine'
-import { access, readdir } from 'node:fs/promises'
+import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { cache } from 'react'
 
-export type DocsEntry = DocLocation &
-  (
-    | {
-        /** A `*.docs.tsx` in core-v2. */
-        source: 'colocated'
-        /** Path under core-v2's `src/`, without `.docs.tsx`. */
-        module: string
-      }
-    | {
-        /** A not-yet-migrated `app/(docs)/_<category>/<name>/doc.tsx` folder. */
-        source: 'legacy'
-        category: string[]
-        name: string
-      }
-  )
+export type DocsEntry = DocLocation & {
+  /** Path under core-v2's `src/`, without `.docs.tsx`. */
+  module: string
+}
 
 export type DocsNavNode =
   | { kind: 'link'; label: string; href: string; order?: number }
@@ -34,20 +23,17 @@ const DOCS_SUFFIX = '.docs.tsx'
 
 /**
  * Every docs page: each `*.docs.tsx` under core-v2's `src/`, placed by its
- * file location and `<Page nav>`, then legacy folders not yet migrated.
+ * file location and `<Page nav>`.
  */
-export const listDocsEntries = cache(async (): Promise<DocsEntry[]> => {
-  const colocated = await Promise.all(
-    (await findDocsModules()).map(async (module): Promise<DocsEntry> => {
-      const model = await loadDocsModule(module)
-      return { ...resolveDocLocation(module, model), source: 'colocated', module }
-    })
-  )
-  const taken = new Set(colocated.map(pathKey))
-  const legacy = (await listLegacyEntries()).filter((entry) => !taken.has(pathKey(entry)))
-
-  return [...colocated, ...legacy]
-})
+export const listDocsEntries = cache(
+  async (): Promise<DocsEntry[]> =>
+    Promise.all(
+      (await findDocsModules()).map(async (module) => {
+        const model = await loadDocsModule(module)
+        return { ...resolveDocLocation(module, model), module }
+      })
+    )
+)
 
 export async function findDocsEntry(segments: string[]) {
   const target = segments.join('/')
@@ -126,48 +112,6 @@ async function findDocsModules() {
     .sort()
 }
 
-async function listLegacyEntries(): Promise<DocsEntry[]> {
-  const docsDir = path.resolve(process.cwd(), 'app/(docs)')
-  const entries: DocsEntry[] = []
-
-  for (const group of await readdir(docsDir, { withFileTypes: true })) {
-    if (!group.isDirectory() || !group.name.startsWith('_')) continue
-
-    const category = group.name.slice(1)
-    for (const item of await readdir(path.join(docsDir, group.name), { withFileTypes: true })) {
-      if (!item.isDirectory()) continue
-
-      const folder = path.join(docsDir, group.name, item.name)
-      if (
-        (await exists(path.join(folder, 'doc.tsx'))) &&
-        (await exists(path.join(folder, 'playground.tsx')))
-      ) {
-        entries.push({
-          path: [category, item.name],
-          group: [capitalize(category)],
-          label: capitalize(item.name),
-          source: 'legacy',
-          category: [category],
-          name: item.name,
-        })
-      }
-    }
-  }
-
-  return entries
-}
-
 function srcDir() {
   return path.resolve(process.cwd(), '../packages/core-v2/src')
-}
-
-function capitalize(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1)
-}
-
-async function exists(file: string) {
-  return access(file).then(
-    () => true,
-    () => false
-  )
 }

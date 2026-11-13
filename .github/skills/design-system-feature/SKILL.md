@@ -25,7 +25,7 @@ Builds a feature end to end: questions → plan → failing tests → implementa
 
 ### 1. Plan (plan mode)
 
-1. Explore the closest existing feature first (for overlays, start from `dialog`; for positional surfaces, `tray`; for tone/variant styling, `card` or `btn`). Read its `*.css.ts`, its docs page (`<name>.docs.tsx`, or the legacy `showcase-v2/app/(docs)/_<category>/<name>/` folder if not yet migrated), and tests. `button.docs.tsx` is the reference docs page.
+1. Explore the closest existing feature first (for overlays, start from `dialog`; for positional surfaces, `tray`; for tone/variant styling, `card` or `btn`). Read its `*.css.ts`, its docs page (`<name>.docs.tsx`), and tests. `button.docs.tsx` is the reference docs page.
 2. Ask questions in focused rounds with `ask_user`:
    - **Scope:** which packages (core-v2 / css-engine / showcase-v2), what's in and out (e.g. no React component).
    - **API:** class names, variants vs utilities, defaults, how it composes with existing classes (e.g. surfaces come from `card-*`).

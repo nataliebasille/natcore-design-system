@@ -91,7 +91,7 @@ A component's docs page is `<name>.docs.tsx` next to its `<name>.css.ts` (e.g. `
 - The API reference is generated from the builder; descriptions come from the sections.
 - Every `*.docs.tsx` under `packages/core-v2/src/` is a page, not just components (guides too). Its URL and sidebar group come from its folders (the leading `tailwind/` is dropped, and `button/button.docs.tsx` is `/components/button`), and its sidebar label from `<Page title>`. `<Page nav={{ label, group, order, path }}>` overrides any of them.
 
-Docs files use the preview JSX runtime with no per-file pragma (core-v2 `tsconfig.json`/`vitest.config.ts`, and a Turbopack rule in `showcase-v2/next.config.js`). They never ship: core-v2 publishes only `dist/`. `packages/core-v2/test/docs.test.ts` checks every docs file. `showcase-v2` is the site shell that renders them; components not yet migrated still use a legacy `showcase-v2/app/(docs)/_<category>/<name>/doc.tsx` folder.
+Docs files use the preview JSX runtime with no per-file pragma (core-v2 `tsconfig.json`/`vitest.config.ts`, and a Turbopack rule in `showcase-v2/next.config.js`). They never ship: core-v2 publishes only `dist/`. `packages/core-v2/test/docs.test.ts` checks every docs file. `showcase-v2` is the site shell that renders them.
 
 ## File Naming Conventions
 
