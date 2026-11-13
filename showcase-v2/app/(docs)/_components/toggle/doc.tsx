@@ -2,8 +2,10 @@
 
 import type { ShowcaseJsxNode } from "@nataliebasille/preview-jsx-runtime";
 import { scopeAttr } from "@nataliebasille/preview-jsx-runtime/jsx-runtime";
+import toggle from "../../../../../packages/core-v2/src/tailwind/components/toggle/toggle.css.ts";
 
 export default {
+  module: toggle,
   title: "Toggle",
   description:
     "A CSS-only toggle switch built on a native checkbox, aria-checked state, or a JavaScript-driven active class. Pick a variant and a palette; the track, thumb, and transition states are already wired in.",
@@ -109,9 +111,7 @@ export default {
     "--h": "Height of the toggle track.",
     "--p": "Inner padding between the track edge and the thumb.",
   },
-} satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/toggle/toggle.css.ts").default
->;
+} satisfies Documentation<typeof toggle>;
 
 function variantShowcase(variant: "solid" | "soft" | "outline" | "ghost") {
   const classes = {

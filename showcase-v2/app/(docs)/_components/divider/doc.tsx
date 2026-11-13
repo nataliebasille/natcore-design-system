@@ -1,6 +1,9 @@
 /** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
+import divider from "../../../../../packages/core-v2/src/tailwind/components/divider/divider.css.ts";
+
 export default {
+  module: divider,
   title: "Divider",
   description:
     "Flexible separators for splitting content horizontally or vertically. Add optional label content, switch orientation with the v variant, and adjust where the label sits with the placement utility.",
@@ -75,9 +78,7 @@ export default {
       ],
     },
   ],
-} satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/divider/divider.css.ts").default
->;
+} satisfies Documentation<typeof divider>;
 
 function horizontalShowcase() {
   return (

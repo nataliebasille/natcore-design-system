@@ -6,8 +6,10 @@ import {
   slotShowcase,
   variantShowcase,
 } from "./showcases";
+import card from "../../../../../packages/core-v2/src/tailwind/components/card/card.css.ts";
 
 export default {
+  module: card,
   title: "Card",
   description:
     "Sectioned content containers with variant-driven tone styling and an optional hover modifier. Mark child sections with data-slot attributes to inherit the card layout structure.",
@@ -65,6 +67,4 @@ export default {
       },
     ],
   },
-} satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/card/card.css.ts").default
->;
+} satisfies Documentation<typeof card>;

@@ -70,7 +70,7 @@ Standard todo order (drop any that don't apply):
 
 ### 5. Build the docs page
 
-- Create `showcase-v2/app/(docs)/_components/<name>/` following `dialog/`: `doc.tsx`, `playground.tsx`, `<name>-playground-client.tsx`, `<name>-playground-controls.tsx`, `<name>-playground-showcase-ui.tsx`, `get-showcase.tsx`. The page and sidebar entry appear automatically once the module, `doc.tsx`, and `playground.tsx` all exist.
+- Create `showcase-v2/app/(docs)/_components/<name>/` following `dialog/`: `doc.tsx`, `playground.tsx`, `<name>-playground-client.tsx`, `<name>-playground-controls.tsx`, `<name>-playground-showcase-ui.tsx`, `get-showcase.tsx`. The page and sidebar entry appear automatically once the module, `doc.tsx`, and `playground.tsx` all exist. In `doc.tsx`, import the builder and set `module: <builder>` with `satisfies Documentation<typeof <builder>>`.
 - Put explanations next to the example they describe: a showcase entry's `table` renders **beneath** its code. Don't add generic "how it works" rows to section headers.
 - Check the page in the dev server (`pnpm dev`, see [file map](./references/file-map.md)). Take Playwright screenshots of key states and look at them; fix anything clipped, oversized, or misplaced.
 - Stop for approval.

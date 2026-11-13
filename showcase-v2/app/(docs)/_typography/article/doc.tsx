@@ -1,6 +1,9 @@
 /** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
+import article from '../../../../../packages/core-v2/src/tailwind/typography/article/article.css.ts'
+
 export default {
+  module: article,
   title: 'Article',
   description:
     'Long-form text spacing for paragraphs, list items, and headings. Bare <article> elements get it automatically, and the article class applies it to any element. Tailwind utilities on the children override it without !.',
@@ -65,9 +68,7 @@ export default {
       ],
     },
   ],
-} satisfies Documentation<
-  typeof import('../../../../../packages/core-v2/src/tailwind/typography/article/article.css.ts').default
->
+} satisfies Documentation<typeof article>
 
 function typicalShowcase() {
   return (

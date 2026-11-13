@@ -1,6 +1,9 @@
 /** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
+import list from '../../../../../packages/core-v2/src/tailwind/components/list/list.css.ts'
+
 export default {
+  module: list,
   title: 'List',
   description:
     'Structured lists with optional interactive rows, unordered markers, or decimal counters. Mark each child item with data-slot="item" so the list component can apply spacing, markers, and row states.',
@@ -63,9 +66,7 @@ export default {
       },
     ],
   },
-} satisfies Documentation<
-  typeof import('../../../../../packages/core-v2/src/tailwind/components/list/list.css.ts').default
->
+} satisfies Documentation<typeof list>
 
 function plainList(className: string) {
   return (
