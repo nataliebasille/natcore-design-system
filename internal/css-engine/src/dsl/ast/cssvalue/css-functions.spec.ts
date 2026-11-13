@@ -1,9 +1,13 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
+  anchor,
+  anchorSize,
   calc,
+  clamp,
   cssColor,
   cssvar,
   match,
+  max,
   primitive,
   scale,
   translateY,
@@ -56,6 +60,53 @@ describe("transform functions", () => {
 
   it("scale() renders a uniform scale factor", () => {
     expect(scale(0.95).toString()).toBe("scale(0.95)");
+  });
+});
+
+describe("anchor()", () => {
+  it("renders a side of the default anchor", () => {
+    expect(anchor("bottom").toString()).toBe("anchor(bottom)");
+    expect(anchor("center").toString()).toBe("anchor(center)");
+  });
+
+  it("renders a side of a named anchor", () => {
+    expect(anchor("--popover", "top").toString()).toBe(
+      "anchor(--popover top)",
+    );
+  });
+
+  it("is a length, so it works in calc(), max(), and clamp()", () => {
+    const top = anchor("--self", "top");
+
+    expect(
+      calc`${max(anchor("center"), top)} - ${top}`.toString(),
+    ).toBe("calc(max(anchor(center), anchor(--self top)) - anchor(--self top))");
+    expect(
+      clamp(top, anchor("center"), anchor("--self", "bottom")).toString(),
+    ).toBe("clamp(anchor(--self top), anchor(center), anchor(--self bottom))");
+    expectTypeOf(top).toMatchTypeOf<CssValue<"length">>();
+  });
+});
+
+describe("anchorSize()", () => {
+  it("renders a size of the default anchor", () => {
+    expect(anchorSize("width").toString()).toBe("anchor-size(width)");
+    expect(anchorSize("block").toString()).toBe("anchor-size(block)");
+  });
+
+  it("renders a size of a named anchor", () => {
+    expect(anchorSize("--popover", "height").toString()).toBe(
+      "anchor-size(--popover height)",
+    );
+  });
+
+  it("is a length, so it works in calc()", () => {
+    const height = anchorSize("--self", "height");
+
+    expect(calc`${height} - ${primitive.length.px(4)}`.toString()).toBe(
+      "calc(anchor-size(--self height) - 4px)",
+    );
+    expectTypeOf(height).toMatchTypeOf<CssValue<"length">>();
   });
 });
 

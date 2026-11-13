@@ -152,7 +152,42 @@ export type CssFunction =
       $function: "scale";
       value: CssValue<"number" | "percentage">;
       toString: () => string;
+    }
+  | {
+      $function: "anchor";
+      name?: `--${string}`;
+      side: AnchorSide;
+      toString: () => string;
+    }
+  | {
+      $function: "anchor-size";
+      name?: `--${string}`;
+      size: AnchorSize;
+      toString: () => string;
     };
+
+/** A side of an anchor box, for anchor(). */
+export type AnchorSide =
+  | "top"
+  | "right"
+  | "bottom"
+  | "left"
+  | "start"
+  | "end"
+  | "self-start"
+  | "self-end"
+  | "inside"
+  | "outside"
+  | "center";
+
+/** A dimension of an anchor box, for anchor-size(). */
+export type AnchorSize =
+  | "width"
+  | "height"
+  | "block"
+  | "inline"
+  | "self-block"
+  | "self-inline";
 
 // Helper to convert value to string
 function valueToString(value: any): string {
@@ -549,6 +584,67 @@ export function scale(value: CssValue<"number" | "percentage">) {
     },
     scaleToString,
   );
+}
+
+/**
+ * CSS anchor(): the position of a side of an anchor box. Without a name it
+ * reads the element's default anchor (`position-anchor`). Valid in inset
+ * properties, including inside math functions.
+ */
+export function anchor(side: AnchorSide): AnchorFunction;
+export function anchor(name: `--${string}`, side: AnchorSide): AnchorFunction;
+export function anchor(
+  nameOrSide: `--${string}` | AnchorSide,
+  side?: AnchorSide,
+): AnchorFunction {
+  return withToString(
+    side === undefined ?
+      { $function: "anchor" as const, side: nameOrSide as AnchorSide }
+    : {
+        $function: "anchor" as const,
+        name: nameOrSide as `--${string}`,
+        side,
+      },
+    anchorToString,
+  );
+}
+
+type AnchorFunction = Extract<CssFunction, { $function: "anchor" }>;
+
+function anchorToString(this: AnchorFunction) {
+  return `anchor(${this.name ? `${this.name} ` : ""}${this.side})`;
+}
+
+/**
+ * CSS anchor-size(): a dimension of an anchor box. Without a name it reads
+ * the element's default anchor (`position-anchor`). Valid in sizing, inset,
+ * and margin properties, including inside math functions.
+ */
+export function anchorSize(size: AnchorSize): AnchorSizeFunction;
+export function anchorSize(
+  name: `--${string}`,
+  size: AnchorSize,
+): AnchorSizeFunction;
+export function anchorSize(
+  nameOrSize: `--${string}` | AnchorSize,
+  size?: AnchorSize,
+): AnchorSizeFunction {
+  return withToString(
+    size === undefined ?
+      { $function: "anchor-size" as const, size: nameOrSize as AnchorSize }
+    : {
+        $function: "anchor-size" as const,
+        name: nameOrSize as `--${string}`,
+        size,
+      },
+    anchorSizeToString,
+  );
+}
+
+type AnchorSizeFunction = Extract<CssFunction, { $function: "anchor-size" }>;
+
+function anchorSizeToString(this: AnchorSizeFunction) {
+  return `anchor-size(${this.name ? `${this.name} ` : ""}${this.size})`;
 }
 
 function translateYToString(this: { $function: "translateY"; value: any }) {

@@ -8,6 +8,7 @@ import type {
   ComponentSlot,
   ComponentState,
   ControlledVar,
+  RegisteredProperty,
   VarsProperty,
 } from "./types";
 
@@ -149,6 +150,17 @@ export type ComponentBuilder<T extends ComponentState = ComponentState> = {
     name: U,
     ...styles: B
   ): ComponentBuilder<UpdateState<T, { utilities: UtilityMap<T, U, B> }>>;
+
+  /**
+   * Registers a custom property with @property, scoped to the component like
+   * a var (`--delay` on `component("tip")` is `--tip-delay`). A registered
+   * property only accepts values matching `syntax`; others fall back to the
+   * inherited or initial value.
+   */
+  property(
+    name: `--${string}`,
+    descriptor: RegisteredProperty,
+  ): ComponentBuilder<T>;
 
   derive<const N extends string, C extends ComponentState>(
     childName: N,
@@ -303,6 +315,13 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
         [name]: updatedUtilities,
       },
     } as unknown as UpdateState<T, { utilities: UtilityMap<T, U, B> }>);
+  }
+
+  property(name: `--${string}`, descriptor: RegisteredProperty) {
+    return new ComponentBuilderImpl({
+      ...this.state,
+      properties: { ...this.state.properties, [name]: descriptor },
+    } as T);
   }
 
   derive<const N extends string, C extends ComponentState>(

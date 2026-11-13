@@ -617,6 +617,48 @@ describe("createDoc", () => {
         },
       });
     });
+
+    it("a -* utility's pattern lists the values its body matches", () => {
+      const delay = [
+        dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.time.ms(1)}`,
+        dsl.match.arbitrary.any(),
+      ];
+      const builder = component("tip").utility("delay-*", {
+        "transition-delay": delay,
+        $: { "& > *": { "--delay": delay } },
+      });
+
+      const result = createDoc(builder, {
+        title: "Tip",
+        description: "...",
+        components: { tip: { name: "Tip", description: "Base" } },
+        utilities: { "delay-*": { name: "Delay", description: "Delay" } },
+      });
+
+      expect(result.utilities["delay-*"]!.pattern).toEqual({
+        root: "tip-delay",
+        value: {
+          name: "value",
+          tokens: [
+            { type: "bare", dataType: "integer" },
+            { type: "arbitrary", dataType: "*" },
+          ],
+        },
+      });
+    });
+
+    it("a utility without -* keeps its plain name", () => {
+      const builder = component("tip").utility("flip", { display: "block" });
+
+      const result = createDoc(builder, {
+        title: "Tip",
+        description: "...",
+        components: { tip: { name: "Tip", description: "Base" } },
+        utilities: { flip: { name: "Flip", description: "Flip" } },
+      });
+
+      expect(result.utilities["flip"]!.pattern).toEqual({ root: "tip-flip" });
+    });
   });
 
   describe("slots and custom variants", () => {

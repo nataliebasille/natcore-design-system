@@ -125,6 +125,13 @@ export class ThemeBag {
   }
 
   #addStateVars(state: ComponentState) {
+    Object.keys(state.properties ?? {}).forEach((name) => {
+      this.#toScoped[name as `--${string}`] = this.#getScopedName(
+        state,
+        name as `--${string}`,
+      );
+    });
+
     Object.entries(state.vars).forEach(([varName, value]) => {
       const scopedName = this.#getScopedName(state, varName as `--${string}`);
       this.#toScoped[varName as `--${string}`] = scopedName;
