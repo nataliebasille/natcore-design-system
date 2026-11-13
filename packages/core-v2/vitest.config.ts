@@ -2,6 +2,11 @@ import { configDefaults, defineConfig } from "vitest/config";
 import path from "path";
 
 export default defineConfig({
+  // *.docs.tsx files are written for the preview JSX runtime (see tsconfig.json).
+  esbuild: {
+    jsx: "automatic",
+    jsxImportSource: "@nataliebasille/preview-jsx-runtime",
+  },
   test: {
     testTimeout: 100000,
     globals: true,

@@ -74,7 +74,7 @@ type ExtractCssVars<T extends ComponentState, V extends PropertyKey> = keyof {
   : K]: T["vars"][K];
 };
 
-type DocComponentMeta = {
+export type DocComponentMeta = {
   name: string;
   description: string;
 };
@@ -173,12 +173,24 @@ export type ComponentDoc = {
   customVariants?: DerivedDocSection;
 };
 
-export function createDoc<T extends ComponentBuilder>(
-  builder: T,
-  meta: ComponentDocMeta<T> & {
-    slots?: DerivedDocSectionMeta;
-    customVariants?: DerivedDocSectionMeta;
-  },
+/** Optional names and descriptions for the entities `createDoc` derives from a builder. */
+export type ComponentDocDescriptions = {
+  title: string;
+  description: string;
+  components?: Partial<Record<string, Partial<DocComponentMeta>>>;
+  utilities?: Partial<Record<string, Partial<DocComponentMeta>>>;
+  cssvars?: Partial<Record<string, string>>;
+  slots?: DerivedDocSectionMeta;
+  customVariants?: DerivedDocSectionMeta;
+};
+
+/**
+ * Derives a component's API docs from its builder. Entities without an entry
+ * in `descriptions` get a default name and an empty description.
+ */
+export function createDoc(
+  builder: ComponentBuilder,
+  descriptions: ComponentDocDescriptions,
 ): ComponentDoc {
   const { state } = builder;
   const varReferenceMap = new VarReferenceMap();
@@ -188,8 +200,6 @@ export function createDoc<T extends ComponentBuilder>(
   const slotEntries: DerivedDocEntry[] = [];
   const customVariantEntries: DerivedDocEntry[] = [];
   const variantVars = getVariantVars(state);
-  const cssvarDescriptions = (meta as { cssvars?: Record<string, string> })
-    .cssvars;
 
   const resolvedSlots = getSlots(state);
   for (const [name] of Object.entries(resolvedSlots)) {
@@ -211,7 +221,7 @@ export function createDoc<T extends ComponentBuilder>(
 
     for (const [varName, varValue] of Object.entries(current.vars)) {
       if (isControlledVar(varValue)) {
-        const varKey = varName.slice(2) as keyof typeof meta.utilities;
+        const varKey = varName.slice(2);
         const utilityName = `${componentName}-${varKey}`;
         const utilityValues = [
           varValue.default,
@@ -224,10 +234,8 @@ export function createDoc<T extends ComponentBuilder>(
           },
         ]);
 
-        const utilityMeta = meta.utilities[varKey]!;
-
         utilities[varKey] = {
-          ...utilityMeta,
+          ...utilityMeta(descriptions, varKey),
           pattern: createPattern(
             utilityName,
             {
@@ -242,7 +250,7 @@ export function createDoc<T extends ComponentBuilder>(
         if (!variantVars.has(varName as `--${string}`)) {
           cssvars.push({
             varName: `--${componentName}-${varName.slice(2)}`,
-            description: cssvarDescriptions?.[varName] || "",
+            description: descriptions.cssvars?.[varName] ?? "",
             defaultValue: `${varValue}`,
           });
         }
@@ -258,9 +266,7 @@ export function createDoc<T extends ComponentBuilder>(
         id.endsWith("-*") ? `${componentName}-${id.slice(0, -2)}` : undefined;
 
       utilities[id] = {
-        name: meta.utilities[id as keyof typeof meta.utilities]?.name || id,
-        description:
-          meta.utilities[id as keyof typeof meta.utilities]?.description || "",
+        ...utilityMeta(descriptions, id),
         pattern:
           wildcardRoot ?
             createPattern(
@@ -290,15 +296,13 @@ export function createDoc<T extends ComponentBuilder>(
       variants,
       themeable,
     )) {
-      const componentMeta =
-        meta.components[entryKey as keyof typeof meta.components];
-
-      if (!componentMeta) {
-        throw new Error(`Missing component doc metadata for \"${entryKey}\".`);
-      }
+      const componentMeta = descriptions.components?.[entryKey];
 
       components[entryKey] = {
-        ...componentMeta,
+        name:
+          componentMeta?.name ??
+          defaultComponentName(entryKey, !current.parent, descriptions.title),
+        description: componentMeta?.description ?? "",
         pattern,
         composesWith: componentComposesWith,
       };
@@ -306,8 +310,8 @@ export function createDoc<T extends ComponentBuilder>(
   });
 
   return {
-    title: meta.title,
-    description: meta.description,
+    title: descriptions.title,
+    description: descriptions.description,
     components,
     utilities,
     cssvars,
@@ -315,12 +319,12 @@ export function createDoc<T extends ComponentBuilder>(
       {
         slots: {
           title:
-            meta.slots?.title ??
+            descriptions.slots?.title ??
             (slotEntries.length === 1 ?
               `${capitalize(slotEntries[0]!.name)} Slot`
             : "Slots"),
-          description: meta.slots?.description,
-          showcases: meta.slots?.showcases,
+          description: descriptions.slots?.description,
+          showcases: descriptions.slots?.showcases,
           entries: slotEntries,
         },
       }
@@ -328,9 +332,9 @@ export function createDoc<T extends ComponentBuilder>(
     ...(customVariantEntries.length > 0 ?
       {
         customVariants: {
-          title: meta.customVariants?.title ?? "Custom Variants",
-          description: meta.customVariants?.description,
-          showcases: meta.customVariants?.showcases,
+          title: descriptions.customVariants?.title ?? "Custom Variants",
+          description: descriptions.customVariants?.description,
+          showcases: descriptions.customVariants?.showcases,
           entries: customVariantEntries,
         },
       }
@@ -340,6 +344,30 @@ export function createDoc<T extends ComponentBuilder>(
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// `placement-*` → `Placement`.
+function toLabel(key: string) {
+  return capitalize(key.replace(/-\*$/, "").replace(/-/g, " "));
+}
+
+function utilityMeta(descriptions: ComponentDocDescriptions, key: string) {
+  const meta = descriptions.utilities?.[key];
+  return {
+    name: meta?.name ?? toLabel(key),
+    description: meta?.description ?? "",
+  };
+}
+
+// The root component is named after the page; `<key>@variant` after its base.
+function defaultComponentName(
+  entryKey: string,
+  isRoot: boolean,
+  pageTitle: string,
+) {
+  const isVariant = entryKey.endsWith("@variant");
+  const base = isRoot ? pageTitle : toLabel(entryKey.replace(/@variant$/, ""));
+  return isVariant ? `${base} Variants` : base;
 }
 
 function getVariantVars(state: ComponentState) {

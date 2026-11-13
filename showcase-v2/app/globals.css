@@ -2,6 +2,10 @@
 
 @import "@nataliebasille/natcore-design-system";
 
+/* Docs pages live next to their source in core-v2, outside this app, so
+   Tailwind must scan them for the classes their examples use. */
+@source "../../packages/core-v2/src/**/*.docs.tsx";
+
 /* Custom palettes. The `@natcore-palettes` at-rule — expanded by the
    `@nataliebasille/natcore-design-system/postcss` plugin (see postcss.config.js)
    — generates each palette with the full anchor model, so `palette-{name}`,
