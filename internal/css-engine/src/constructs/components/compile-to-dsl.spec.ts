@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { componentBuilderToDsl } from "./compile-to-dsl.ts";
 import { dsl, PALETTE } from "../../dsl/public.ts";
 import { component } from "./component-builder.ts";
+import type { RegisteredProperty } from "./types.ts";
 import { colorKeyWithoutPalette, renderPalette } from "../palette-utils.ts";
 
 describe("vars", () => {
@@ -1698,3 +1699,159 @@ function layerPath(node: ReturnType<typeof utilityNamed>) {
   }
   return path;
 }
+
+describe("property", () => {
+  it("emits a top-level @property, scoped to the component", () => {
+    const result = componentBuilderToDsl(
+      component("tip").property("--delay", {
+        syntax: "<time>",
+        inherits: false,
+        initialValue: "500ms",
+      }),
+    );
+
+    expect(result).toEqual([
+      dsl.atRule("property", "--tip-delay", {
+        syntax: '"<time>"',
+        inherits: "false",
+        "initial-value": "500ms",
+      }),
+    ]);
+  });
+
+  it("renders inherits: true", () => {
+    const result = componentBuilderToDsl(
+      component("tip").property("--color", {
+        syntax: "<color>",
+        inherits: true,
+        initialValue: "black",
+      }),
+    );
+
+    expect(result).toEqual([
+      dsl.atRule("property", "--tip-color", {
+        syntax: '"<color>"',
+        inherits: "true",
+        "initial-value": "black",
+      }),
+    ]);
+  });
+
+  it("emits one @property per registered property, in order", () => {
+    const result = componentBuilderToDsl(
+      component("tip")
+        .property("--open", {
+          syntax: "<time>",
+          inherits: false,
+          initialValue: "500ms",
+        })
+        .property("--close", {
+          syntax: "<time>",
+          inherits: false,
+          initialValue: "250ms",
+        }),
+    );
+
+    expect(
+      result
+        .filter((x) => x.$ast === "at-rule" && x.name === "property")
+        .map((x) => (x as { prelude: string }).prelude),
+    ).toEqual(["--tip-open", "--tip-close"]);
+  });
+
+  it("scopes references and assignments in the body and utilities", () => {
+    const result = componentBuilderToDsl(
+      component("tip")
+        .property("--delay", {
+          syntax: "<time>",
+          inherits: false,
+          initialValue: "500ms",
+        })
+        .body({ "transition-delay": dsl.cssvar("--delay") })
+        .utility("slow", { "--delay": "1s" }),
+    );
+    const utility = (name: string) =>
+      result.find(
+        (x) =>
+          x.$ast === "at-rule" && x.name === "utility" && x.prelude === name,
+      );
+
+    expect(utility("tip")).toEqual(
+      dsl.atRule(
+        "utility",
+        "tip",
+        dsl.layer.components(
+          dsl.layer.base({ "transition-delay": dsl.cssvar("--tip-delay") }),
+        ),
+      ),
+    );
+    expect(utility("tip-slow")).toEqual(
+      dsl.atRule(
+        "utility",
+        "tip-slow",
+        dsl.layer.components({ "--tip-delay": "1s" }),
+      ),
+    );
+  });
+
+  it("joins several syntax components with |", () => {
+    const result = componentBuilderToDsl(
+      component("tip").property("--size", {
+        syntax: ["<length>", "<percentage>"],
+        inherits: false,
+        initialValue: "0px",
+      }),
+    );
+
+    expect(result).toEqual([
+      dsl.atRule("property", "--tip-size", {
+        syntax: '"<length> | <percentage>"',
+        inherits: "false",
+        "initial-value": "0px",
+      }),
+    ]);
+  });
+
+  it("types syntax as the @property data types and their list forms", () => {
+    const valid: RegisteredProperty["syntax"][] = [
+      "*",
+      "<time>",
+      "<length-percentage>",
+      "<custom-ident>+",
+      "<color>#",
+      ["<length>", "<percentage>"],
+    ];
+    expect(valid).toHaveLength(6);
+
+    // @ts-expect-error - not a data type
+    const typo: RegisteredProperty["syntax"] = "<tme>";
+    // @ts-expect-error - data types are written in angle brackets
+    const bare: RegisteredProperty["syntax"] = "time";
+    // @ts-expect-error - <transform-list> is already a list
+    const list: RegisteredProperty["syntax"] = "<transform-list>+";
+    expect([typo, bare, list]).toHaveLength(3);
+  });
+
+  it("keeps the @property out of the component's utilities", () => {
+    const result = componentBuilderToDsl(
+      component("tip")
+        .property("--delay", {
+          syntax: "<time>",
+          inherits: false,
+          initialValue: "500ms",
+        })
+        .body({ "transition-delay": dsl.cssvar("--delay") }),
+    );
+    const nestedProperty = result.some(
+      (x) =>
+        x.$ast === "at-rule" &&
+        x.name === "utility" &&
+        JSON.stringify(x).includes('"name":"property"'),
+    );
+
+    expect(nestedProperty).toBe(false);
+    expect(
+      result.some((x) => x.$ast === "at-rule" && x.name === "property"),
+    ).toBe(true);
+  });
+});

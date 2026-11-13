@@ -17,12 +17,11 @@ export async function loadFixture(page: Page, fixture: URL) {
 /**
  * Mounts `html` as the page body with the natcore stylesheet it needs. The body
  * gets `palette-surface`, like an app root, so tone-based surfaces (`card-*`)
- * have colors.
+ * have colors. The page is rendered with the stylesheet already in `<head>`,
+ * like a real page, so nothing transitions from unstyled to styled on load.
  */
 export async function mountHtml(page: Page, html: string) {
-  await page.setContent(
-    `<!doctype html><html><head><meta charset="utf-8"></head><body class="${BODY_CLASS}">${html}</body></html>`,
-  );
+  await page.setContent(documentFor(html));
   // Read candidates from the parsed DOM, so every valid way of writing a class
   // attribute (quoted, unquoted, spaced, entity-encoded) is picked up.
   const candidates = await page.evaluate(() => [
@@ -32,7 +31,12 @@ export async function mountHtml(page: Page, html: string) {
       ]),
     ),
   ]);
-  await page.addStyleTag({ content: await stylesheetFor(candidates) });
+  const css = await stylesheetFor(candidates);
+  await page.setContent(documentFor(html, css));
+}
+
+function documentFor(html: string, css = "") {
+  return `<!doctype html><html><head><meta charset="utf-8"><style>${css.replaceAll("</style", "<\\/style")}</style></head><body class="${BODY_CLASS}">${html}</body></html>`;
 }
 
 function stylesheetFor(candidates: string[]) {

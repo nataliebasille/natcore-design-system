@@ -1,6 +1,9 @@
 /** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
+import heading from '../../../../../packages/core-v2/src/tailwind/typography/heading/heading.css.ts'
+
 export default {
+  module: heading,
   title: 'Heading',
   description:
     'Type scale for headings. Bare <h1>–<h6> elements are sized automatically, and heading-1 … heading-6 apply the same sizes to any element. Tailwind text, leading, tracking, and spacing utilities override them without !.',
@@ -63,9 +66,7 @@ export default {
       ],
     },
   ],
-} satisfies Documentation<
-  typeof import('../../../../../packages/core-v2/src/tailwind/typography/heading/heading.css.ts').default
->
+} satisfies Documentation<typeof heading>
 
 function levelsShowcase() {
   return (

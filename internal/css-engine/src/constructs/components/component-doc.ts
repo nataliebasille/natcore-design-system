@@ -253,12 +253,22 @@ export function createDoc<T extends ComponentBuilder>(
 
     for (const [id, body] of Object.entries(current.utilities)) {
       const utilityName = `${componentName}-${id}`;
+      // `name-*` takes a value: document the values its body matches.
+      const wildcardRoot =
+        id.endsWith("-*") ? `${componentName}-${id.slice(0, -2)}` : undefined;
 
       utilities[id] = {
         name: meta.utilities[id as keyof typeof meta.utilities]?.name || id,
         description:
           meta.utilities[id as keyof typeof meta.utilities]?.description || "",
-        pattern: createPattern(utilityName, undefined, undefined),
+        pattern:
+          wildcardRoot ?
+            createPattern(
+              wildcardRoot,
+              { name: "value", tokens: resolveMatchedPatternTokens(body) },
+              undefined,
+            )
+          : createPattern(utilityName, undefined, undefined),
         composesWith: varReferenceMap
           .composesWith(body)
           .map((id) => ({ type: "utility", id: `${componentName}-${id}` })),
@@ -462,6 +472,33 @@ function resolveControlledPatternTokens(
   }
 
   return tokens;
+}
+
+/**
+ * The values a utility body matches, from every match value anywhere in it
+ * (including inside calc() and nested selectors), without repeats.
+ */
+function resolveMatchedPatternTokens(body: unknown): PatternValueToken[] {
+  const matches: MatchValueAst<CssDataType>[] = [];
+  const seen = new WeakSet<object>();
+  const visit = (node: unknown) => {
+    if (typeof node !== "object" || node === null || seen.has(node)) return;
+    seen.add(node);
+    if ((node as { $ast?: unknown }).$ast === "match-value") {
+      matches.push(node as MatchValueAst<CssDataType>);
+      return;
+    }
+    for (const child of Object.values(node)) visit(child);
+  };
+  visit(body);
+
+  const tokens = resolveControlledPatternTokens(matches);
+  return tokens.filter(
+    (token, i) =>
+      tokens.findIndex(
+        (other) => JSON.stringify(other) === JSON.stringify(token),
+      ) === i,
+  );
 }
 
 function isMatchValueCandidate(

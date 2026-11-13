@@ -316,9 +316,30 @@ const appliesToGenerator: GeneratorReduceFn = (acc, curr) => {
   return acc;
 };
 
+// Registered properties are top-level @property rules: browsers ignore
+// @property nested inside a rule.
+const propertiesGenerator: GeneratorReduceFn = (acc, curr) => {
+  Object.entries(curr.state.properties ?? {}).forEach(([name, descriptor]) => {
+    acc.body.push(
+      dsl.atRule("property", curr.themeBag.tryScope(name as `--${string}`), {
+        syntax: `"${[descriptor.syntax].flat().join(" | ")}"`,
+        inherits: String(descriptor.inherits),
+        // Numbers as strings, so a 0 isn't dropped as falsy when serialized.
+        "initial-value":
+          typeof descriptor.initialValue === "number" ?
+            String(descriptor.initialValue)
+          : descriptor.initialValue,
+      }),
+    );
+  });
+
+  return acc;
+};
+
 const generators: GeneratorReduceFn[] = [
   varsGenerator,
   variantVarsGenerator,
+  propertiesGenerator,
   dynamicComponentGenerator,
   themeableStaticComponentsGenerator,
   staticComponentGenerator,

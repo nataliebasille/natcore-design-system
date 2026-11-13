@@ -13,9 +13,6 @@
 @import "./variants/dark.css";
 @import "./variants/interactive.css";
 
-/* Utilities */
-@import "./utilities/interest/interest.css";
-
 /* Typography */
 @import "./typography/article/article.css";
 @import "./typography/heading/heading.css";
@@ -31,6 +28,7 @@
 @import "./components/forms/select.css";
 @import "./components/forms/form-control.css";
 @import "./components/list/list.css";
+@import "./components/popover/popover.css";
 @import "./components/radio-group/radio-group.css";
 @import "./components/tabs/tabs.css";
 @import "./components/toggle/toggle.css";

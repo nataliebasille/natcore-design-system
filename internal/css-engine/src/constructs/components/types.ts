@@ -41,6 +41,8 @@ export type ComponentState = {
   body: StyleRuleBodyBuilder[];
   /** Selectors that get the component (or one of its variants) applied. */
   appliesTo?: ComponentApplyTo[];
+  /** Custom properties registered with @property (see `.property()`). */
+  properties?: Record<`--${string}`, RegisteredProperty>;
   parent?: ComponentState;
 };
 
@@ -48,6 +50,40 @@ export type ComponentApplyTo = {
   selector: Selector;
   variant?: string;
 };
+
+/** An @property registration: its value syntax, inheritance, and initial value. */
+export type RegisteredProperty = {
+  /** One syntax, or several alternatives (rendered as `<a> | <b>`). */
+  syntax: PropertySyntax | PropertySyntaxComponent[];
+  inherits: boolean;
+  initialValue: StylePropertyValue;
+};
+
+/** The data types an @property syntax can name. */
+export type PropertySyntaxDataType =
+  | "length"
+  | "number"
+  | "percentage"
+  | "length-percentage"
+  | "color"
+  | "image"
+  | "url"
+  | "integer"
+  | "angle"
+  | "time"
+  | "resolution"
+  | "transform-function"
+  | "custom-ident"
+  | "string"
+  | "transform-list";
+
+/** A data type, or a space- (`+`) or comma-separated (`#`) list of one. */
+export type PropertySyntaxComponent =
+  | `<${PropertySyntaxDataType}>`
+  | `<${Exclude<PropertySyntaxDataType, "transform-list">}>${"+" | "#"}`;
+
+/** A single syntax component, or `*` for any value. */
+export type PropertySyntax = "*" | PropertySyntaxComponent;
 
 export type ControlledVar = {
   default: StylePropertyValue | StylePropertyValue[];

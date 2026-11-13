@@ -1,6 +1,9 @@
 /** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
+import badge from "../../../../../packages/core-v2/src/tailwind/components/badge/badge.css.ts";
+
 export default {
+  module: badge,
   title: "Badge",
   description:
     "Compact status labels for tags, counts, and inline metadata. Pick a variant and palette, then drop the badge alongside other UI without extra setup.",
@@ -37,9 +40,7 @@ export default {
       ],
     },
   },
-} satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/badge/badge.css.ts").default
->;
+} satisfies Documentation<typeof badge>;
 
 function variantShowcase(variant: "solid" | "soft" | "outline" | "ghost") {
   const classes = {

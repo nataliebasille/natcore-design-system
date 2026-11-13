@@ -1,8 +1,10 @@
 /** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
 import { uiAttr } from "@nataliebasille/preview-jsx-runtime/jsx-runtime";
+import button from "../../../../../packages/core-v2/src/tailwind/components/button/button.css.ts";
 
 export default {
+  module: button,
   title: "Button",
   description:
     "Composable button utilities: pick a variant, a tone, and a size. Everything else (hover, focus, active) is built in.",
@@ -240,9 +242,7 @@ export default {
     "--py": "Block (vertical) padding. Override to decouple from --btn-size.",
     "--gap": "Gap between content elements (e.g. icon + label).",
   },
-} satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/button/button.css.ts").default
->;
+} satisfies Documentation<typeof button>;
 
 function AlertCircleIcon() {
   return (

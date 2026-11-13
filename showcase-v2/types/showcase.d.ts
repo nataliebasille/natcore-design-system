@@ -33,6 +33,8 @@ declare global {
   };
 
   type Documentation<T extends ComponentBuilder> = ComponentDocMeta<T> & {
+    /** The component builder this page documents. */
+    module: T;
     atAGlance: ShowcaseJsxNode;
     sections?: DocStandaloneSection[];
     slots?: {

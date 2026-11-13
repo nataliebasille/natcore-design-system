@@ -1,6 +1,7 @@
 /** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
 import type { ShowcaseJsxNode } from '@nataliebasille/preview-jsx-runtime'
+import dialog from '../../../../../packages/core-v2/src/tailwind/components/dialog/dialog.css.ts'
 
 const SUPPORT_INVOKERS =
   'Invoker commands (commandfor/command) work in Chrome and Edge 135+, Firefox 144+, and Safari 26.2+. For older browsers, open the dialog from JavaScript with showModal().'
@@ -9,6 +10,7 @@ const SUPPORT_CLOSEDBY =
   'closedby works in Chrome and Edge 134+ and Firefox 141+, but not yet in Safari. Where it is unsupported the dialog falls back to Esc only.'
 
 export default {
+  module: dialog,
   title: 'Dialog',
   description:
     'Styles for the native <dialog> element: placement, width, a dimmed backdrop, open and close animations, and page scroll lock. The dialog adds no surface of its own, so pair it with card classes, and open it with invoker commands or showModal().',
@@ -433,9 +435,7 @@ export default {
     '--duration': 'Length of the open and close animations. The default is 200ms.',
     '--backdrop': 'Default backdrop color. The default is black at 50% opacity.',
   },
-} satisfies Documentation<
-  typeof import('../../../../../packages/core-v2/src/tailwind/components/dialog/dialog.css.ts').default
->
+} satisfies Documentation<typeof dialog>
 
 function ExampleDialog({
   id,

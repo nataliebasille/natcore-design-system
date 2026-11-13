@@ -484,7 +484,9 @@ function patternValueToNodes(value: PatternValue | undefined) {
   return value.tokens.flatMap((t) =>
     typeof t === "string" ? t
     : t.type === "arbitrary" ?
-      <span className="font-mono text-accent-500">[{t.dataType}]</span>
+      <span className="font-mono text-accent-500">
+        [{t.dataType === "*" ? "any" : t.dataType}]
+      </span>
     : <span className="font-mono text-accent-500">{t.dataType}</span>,
   );
 }

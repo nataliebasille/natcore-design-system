@@ -1,8 +1,10 @@
 /** @jsxImportSource @nataliebasille/preview-jsx-runtime */
 
 import type { ShowcaseJsxNode } from "@nataliebasille/preview-jsx-runtime";
+import tray from "../../../../../packages/core-v2/src/tailwind/components/tray/tray.css.ts";
 
 export default {
+  module: tray,
   title: "Tray",
   description:
     "A positional disclosure surface that slides in from an edge or participates inline. Use a direction variant, then open it with the open attribute, tray-open utility, or a checked toggle slot.",
@@ -90,9 +92,7 @@ export default {
       },
     ],
   },
-} satisfies Documentation<
-  typeof import("../../../../../packages/core-v2/src/tailwind/components/tray/tray.css.ts").default
->;
+} satisfies Documentation<typeof tray>;
 
 function directionShowcase() {
   return (
