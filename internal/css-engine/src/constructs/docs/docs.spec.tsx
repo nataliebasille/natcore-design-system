@@ -514,6 +514,137 @@ function playgroundOf(model: DocModel): DocPlaygroundBlock {
   return playground ?? { kind: "playground", controls: [], render: () => null };
 }
 
+describe("empty option lists", () => {
+  const { Page, Playground } = docsFor(btn);
+
+  it("are type errors", () => {
+    // @ts-expect-error a select needs at least one option
+    void control.select([]);
+    // @ts-expect-error a palette select needs at least one option
+    void control.palette([]);
+    void (
+      <Playground
+        // @ts-expect-error an override needs at least one option
+        controls={{ size: { options: [] } }}
+        render={() => <button />}
+      />
+    );
+  });
+
+  it("fall back to a derived control's own options and report an issue", () => {
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <Playground
+          // @ts-expect-error simulates an untyped empty list
+          controls={{ size: { options: [] } }}
+          render={() => <button />}
+        />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toContainEqual(
+      expect.objectContaining({
+        name: "size",
+        options: ["sm", "md", "lg"],
+        default: "md",
+      }),
+    );
+    expect(model.issues).toEqual([
+      'Playground control "size" has no options; using the component\'s options.',
+    ]);
+  });
+
+  it("omit the playground when a custom select has no options", () => {
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <Playground
+          // @ts-expect-error simulates an untyped empty list
+          controls={{ tone: control.select([]) }}
+          render={() => <button />}
+        />
+      </Page>,
+    );
+
+    expect(model.blocks).toEqual([]);
+    expect(model.issues).toEqual([
+      'Playground control "tone" has no options, so the playground is omitted.',
+    ]);
+  });
+});
+
+describe("helper components", () => {
+  const { Page, Section, Example } = docsFor(btn);
+
+  it("an Example returned by a helper inside a Section is an example", () => {
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <Section title="S">
+          <SolidExample />
+        </Section>
+      </Page>,
+    );
+
+    expect(model.issues).toEqual([]);
+    expect(sectionsOf(model)[0]?.content).toMatchObject([
+      { kind: "example", title: "Solid" },
+    ]);
+  });
+
+  it("a Section returned by a helper under the Page is a section", () => {
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <SolidSection />
+      </Page>,
+    );
+
+    expect(model.issues).toEqual([]);
+    expect(sectionsOf(model).map((s) => s.title)).toEqual(["Solid section"]);
+  });
+
+  it("reports an Example returned by a helper directly under the Page", () => {
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <SolidExample />
+      </Page>,
+    );
+
+    expect(model.issues).toEqual(["<Example> must be inside a <Section>."]);
+    expect(model.blocks).toEqual([]);
+  });
+
+  it("reports a marker a helper returns inside an example or prose", () => {
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <Section title="S">
+          <div>
+            <SolidSection />
+          </div>
+          <Example>
+            <SolidExample />
+          </Example>
+        </Section>
+      </Page>,
+    );
+
+    expect(model.issues).toEqual([
+      "<Section> must be a direct child of <Page>.",
+      "<Example> cannot be inside another <Example>.",
+    ]);
+  });
+
+  function SolidExample() {
+    return (
+      <Example title="Solid">
+        <button className="btn-solid" />
+      </Example>
+    );
+  }
+
+  function SolidSection() {
+    return <Section title="Solid section" />;
+  }
+});
+
 describe("resolveDocLocation", () => {
   it("derives the path and group from a component's folder", () => {
     expect(

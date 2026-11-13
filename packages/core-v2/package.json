@@ -65,8 +65,8 @@
   "author": "Natalie Basille",
   "license": "MIT",
   "peerDependencies": {
-    "tailwindcss": "^4.1.16",
     "postcss": "^8.4.0",
+    "tailwindcss": "^4.1.16",
     "vite": ">=5"
   },
   "peerDependenciesMeta": {
@@ -89,6 +89,7 @@
     "@playwright/test": "^1.64.1",
     "@tailwindcss/cli": "^4.1.16",
     "@tailwindcss/node": "^4.1.16",
+    "@tailwindcss/oxide": "^4.1.16",
     "@types/chroma-js": "^3.1.2",
     "@types/culori": "^4.0.1",
     "@types/node": "^22.19.0",

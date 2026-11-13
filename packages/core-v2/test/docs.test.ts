@@ -19,6 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
+import { Scanner } from "@tailwindcss/oxide";
 import {
   resolveDocLocation,
   toDocModel,
@@ -34,9 +35,26 @@ const NO_CSS_BY_DESIGN = new Set(["group", "peer"]);
 
 const srcDir = fileURLToPath(new URL("../src/", import.meta.url));
 const docsFiles = findDocsFiles(srcDir);
+const scanner = new Scanner({});
 const literalClasses = new Set(
-  docsFiles.flatMap((file) => tokenize(fs.readFileSync(file, "utf8"))),
+  docsFiles.flatMap((file) => scanCandidates(fs.readFileSync(file, "utf8"))),
 );
+
+describe("scanCandidates", () => {
+  it("keeps arbitrary values with CSS functions whole", () => {
+    expect(
+      scanCandidates(
+        `<div className="w-[calc(100%-1rem)] bg-[rgb(0,0,0)] btn-solid/primary" />`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "w-[calc(100%-1rem)]",
+        "bg-[rgb(0,0,0)]",
+        "btn-solid/primary",
+      ]),
+    );
+  });
+});
 
 describe("docs files", () => {
   it("finds the docs files", () => {
@@ -223,9 +241,12 @@ function cssEscape(className: string) {
     .join("");
 }
 
-// Roughly how Tailwind's scanner splits source text into class candidates.
-function tokenize(source: string) {
-  return source.split(/[\s"'`{}<>()=,;]+/).filter(Boolean);
+// The class candidates Tailwind's own scanner finds in source text, which is
+// what decides whether the showcase build generates a class.
+function scanCandidates(content: string) {
+  return scanner
+    .getCandidatesWithPositions({ content, extension: "tsx" })
+    .map(({ candidate }) => candidate);
 }
 
 function findDocsFiles(dir: string): string[] {

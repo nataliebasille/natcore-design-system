@@ -83,10 +83,14 @@ export type PlaygroundControlsInput<D, C> = {
   : CustomControl;
 };
 
-// When `options` narrows a derived control, `default` must be one of them.
+// When `options` narrows a derived control, it can't be empty and `default` must be one of them.
 type DerivedOverrideFor<V extends string, X> =
   X extends { options: readonly (infer O)[] } ?
-    { label?: string; options: readonly (O & V)[]; default?: O & V }
+    {
+      label?: string;
+      options: readonly [O & V, ...(O & V)[]];
+      default?: O & V;
+    }
   : { label?: string; default?: V };
 
 type ControlValue<C> =
@@ -112,13 +116,13 @@ export type ResolvedPlaygroundValues<D, C> = Simplify<
 
 export const control = {
   select<const O extends string>(
-    options: readonly O[],
+    options: readonly [O, ...O[]],
     defaultValue?: NoInfer<O>,
   ): SelectControl<O> {
     return {
       kind: "select",
       options,
-      default: defaultValue ?? options[0]!,
+      default: defaultValue ?? options[0],
     };
   },
 
@@ -140,7 +144,8 @@ export type PlaygroundControls = Partial<
 >;
 
 export type ResolvedPlaygroundControls = {
-  controls: ResolvedControl[];
+  /** Absent when a control has no usable options, so the playground can't render. */
+  controls: ResolvedControl[] | undefined;
   issues: string[];
 };
 
@@ -156,18 +161,36 @@ export function resolvePlaygroundControls(
   const issues: string[] = [];
   const derived = builder ? deriveControls(builder.state) : [];
   const derivedNames = new Set(derived.map((c) => c.name));
+  let usable = true;
+
+  const addCustom = (name: string, value: CustomControl) => {
+    if (value.kind === "select" && value.options.length === 0) {
+      usable = false;
+      issues.push(
+        `Playground control "${name}" has no options, so the playground is omitted.`,
+      );
+      return;
+    }
+    controls.push(toResolved(name, value));
+  };
 
   for (const base of derived) {
     const override = overrides[base.name];
     if (override === false) continue;
 
     if (isCustomControl(override)) {
-      controls.push(toResolved(base.name, override));
+      addCustom(base.name, override);
       continue;
     }
 
-    const finalOptions =
-      override?.options ? [...override.options] : base.options;
+    let finalOptions = override?.options ? [...override.options] : base.options;
+    if (finalOptions.length === 0) {
+      finalOptions = base.options;
+      issues.push(
+        `Playground control "${base.name}" has no options; using the component's options.`,
+      );
+    }
+
     const requested = override?.default;
     let defaultValue =
       finalOptions.includes(base.default) ? base.default : finalOptions[0]!;
@@ -200,10 +223,10 @@ export function resolvePlaygroundControls(
       );
       continue;
     }
-    controls.push(toResolved(name, value));
+    addCustom(name, value);
   }
 
-  return { controls, issues };
+  return { controls: usable ? controls : undefined, issues };
 }
 
 export function playgroundDefaults(
@@ -265,7 +288,7 @@ function deriveControls(state: ComponentState) {
 
 function paletteControl(): SelectControl<Palette>;
 function paletteControl<const O extends Palette>(
-  options: readonly O[],
+  options: readonly [O, ...O[]],
   defaultValue?: NoInfer<O>,
 ): SelectControl<O>;
 function paletteControl(

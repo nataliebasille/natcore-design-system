@@ -118,6 +118,7 @@ export function toDocModel(tree: unknown): DocModel {
 
       const resolved = resolvePlaygroundControls(builder, child.props.controls);
       issues.push(...resolved.issues);
+      if (!resolved.controls) continue;
       blocks.push({
         kind: "playground",
         controls: resolved.controls,
@@ -282,16 +283,18 @@ function reportNestedMarkers(
   if (typeof child !== "object" || child === null) return;
 
   const misplaced = getDocMarker(child)?.kind;
-  if (misplaced) issues.push(misplacedMarkerIssue(misplaced, context, true));
+  if (misplaced) {
+    issues.push(misplacedMarkerIssue(misplaced, context));
+  } else if (typeof child.type === "function") {
+    // A helper component: check what it renders.
+    reportNestedMarkers(child.type(child.props), context, issues);
+    return;
+  }
 
   reportNestedMarkers(child.props.children, context, issues);
 }
 
-function misplacedMarkerIssue(
-  kind: DocMarkerKind,
-  context: MarkerContext,
-  nested = false,
-) {
+function misplacedMarkerIssue(kind: DocMarkerKind, context: MarkerContext) {
   switch (kind) {
     case "page":
       return "<Page> must be the root of a docs file.";
@@ -302,7 +305,8 @@ function misplacedMarkerIssue(
     case "example":
       return (
         context === "page" ? "<Example> must be inside a <Section>."
-        : nested ? "<Example> must be a direct child of <Section>."
+        : context === "section" ?
+          "<Example> must be a direct child of <Section>."
         : "<Example> cannot be inside another <Example>."
       );
   }
@@ -314,6 +318,8 @@ function rootName(builder: ComponentBuilder | undefined) {
   return state?.name ?? "";
 }
 
+// Expands fragments and helper components (never markers), so what a helper
+// renders is placed and validated as if it were written inline.
 function flatten(children: ShowcaseJsxChild): ShowcaseJsxChild[] {
   if (Array.isArray(children)) return children.flatMap(flatten);
   if (children === null || children === undefined) return [];
@@ -321,6 +327,13 @@ function flatten(children: ShowcaseJsxChild): ShowcaseJsxChild[] {
   if (typeof children === "string" && children.trim() === "") return [];
   if (typeof children === "object" && children.type === Fragment) {
     return flatten(children.props.children);
+  }
+  if (
+    typeof children === "object" &&
+    typeof children.type === "function" &&
+    !getDocMarker(children)
+  ) {
+    return flatten(children.type(children.props));
   }
   return [children];
 }
