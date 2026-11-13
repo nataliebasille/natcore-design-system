@@ -1,4 +1,8 @@
-import type { ShowcaseJsxChild } from "@nataliebasille/preview-jsx-runtime";
+import type {
+  ShowcaseJsxChild,
+  ShowcaseJsxElementType,
+  ShowcaseJsxNode,
+} from "@nataliebasille/preview-jsx-runtime";
 import { Fragment } from "@nataliebasille/preview-jsx-runtime/jsx-runtime";
 import type { ComponentBuilder } from "../components/component-builder";
 import {
@@ -92,14 +96,14 @@ export function toDocModel(tree: unknown): DocModel {
 
   const page = tree.props;
   const builder = getDocMarker(tree)?.builder;
-  const children = flatten(page.children);
+  const issues: string[] = [];
+  const children = flatten(page.children, issues);
   const sections = children
     .filter((child) => isDocMarker(child, "section"))
     .map((section) => section.props);
   const api =
     builder && buildApi(builder, page.title, page.description, sections);
 
-  const issues: string[] = [];
   const blocks: DocBlock[] = [];
 
   for (const child of children) {
@@ -133,8 +137,9 @@ export function toDocModel(tree: unknown): DocModel {
       continue;
     }
 
-    reportNestedMarkers(child, "page", issues);
-    blocks.push({ kind: "prose", node: child });
+    if (reportNestedMarkers(child, "page", issues)) {
+      blocks.push({ kind: "prose", node: child });
+    }
   }
 
   return {
@@ -247,11 +252,12 @@ function toSectionContent(
 ): DocSectionContent[] {
   const content: DocSectionContent[] = [];
 
-  for (const child of flatten(children)) {
+  for (const child of flatten(children, issues)) {
     if (isDocMarker(child, "example")) {
       const { children: source, ...rest } = child.props;
-      reportNestedMarkers(source, "example", issues);
-      content.push({ kind: "example", ...rest, source });
+      if (reportNestedMarkers(source, "example", issues)) {
+        content.push({ kind: "example", ...rest, source });
+      }
       continue;
     }
 
@@ -261,8 +267,9 @@ function toSectionContent(
       continue;
     }
 
-    reportNestedMarkers(child, "section", issues);
-    content.push({ kind: "prose", node: child });
+    if (reportNestedMarkers(child, "section", issues)) {
+      content.push({ kind: "prose", node: child });
+    }
   }
 
   return content;
@@ -270,28 +277,32 @@ function toSectionContent(
 
 type MarkerContext = "page" | "section" | "example";
 
+/**
+ * Reports doc markers nested where they don't belong, looking inside helper
+ * components. Returns `false` when a helper throws, so the content is omitted.
+ */
 function reportNestedMarkers(
   child: ShowcaseJsxChild,
   context: MarkerContext,
   issues: string[],
-) {
+): boolean {
   if (Array.isArray(child)) {
-    child.forEach((c) => reportNestedMarkers(c, context, issues));
-    return;
+    return child
+      .map((c) => reportNestedMarkers(c, context, issues))
+      .every(Boolean);
   }
 
-  if (typeof child !== "object" || child === null) return;
+  if (typeof child !== "object" || child === null) return true;
 
   const misplaced = getDocMarker(child)?.kind;
   if (misplaced) {
     issues.push(misplacedMarkerIssue(misplaced, context));
   } else if (typeof child.type === "function") {
-    // A helper component: check what it renders.
-    reportNestedMarkers(child.type(child.props), context, issues);
-    return;
+    const rendered = tryRender(child, child.type, issues);
+    return rendered.ok && reportNestedMarkers(rendered.output, context, issues);
   }
 
-  reportNestedMarkers(child.props.children, context, issues);
+  return reportNestedMarkers(child.props.children, context, issues);
 }
 
 function misplacedMarkerIssue(kind: DocMarkerKind, context: MarkerContext) {
@@ -319,21 +330,44 @@ function rootName(builder: ComponentBuilder | undefined) {
 }
 
 // Expands fragments and helper components (never markers), so what a helper
-// renders is placed and validated as if it were written inline.
-function flatten(children: ShowcaseJsxChild): ShowcaseJsxChild[] {
-  if (Array.isArray(children)) return children.flatMap(flatten);
+// renders is placed and validated as if it were written inline. A helper that
+// throws is reported and dropped.
+function flatten(
+  children: ShowcaseJsxChild,
+  issues: string[],
+): ShowcaseJsxChild[] {
+  if (Array.isArray(children)) {
+    return children.flatMap((child) => flatten(child, issues));
+  }
   if (children === null || children === undefined) return [];
   if (typeof children === "boolean") return [];
   if (typeof children === "string" && children.trim() === "") return [];
   if (typeof children === "object" && children.type === Fragment) {
-    return flatten(children.props.children);
+    return flatten(children.props.children, issues);
   }
   if (
     typeof children === "object" &&
     typeof children.type === "function" &&
     !getDocMarker(children)
   ) {
-    return flatten(children.type(children.props));
+    const rendered = tryRender(children, children.type, issues);
+    return rendered.ok ? flatten(rendered.output, issues) : [];
   }
   return [children];
+}
+
+function tryRender(
+  node: ShowcaseJsxNode,
+  helper: Extract<ShowcaseJsxElementType, (props: never) => unknown>,
+  issues: string[],
+): { ok: true; output: ShowcaseJsxChild } | { ok: false } {
+  try {
+    return { ok: true, output: helper(node.props) };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    issues.push(
+      `<${helper.name || "anonymous"}> threw "${message}"; the content using it is omitted.`,
+    );
+    return { ok: false };
+  }
 }

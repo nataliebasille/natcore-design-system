@@ -1,5 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { renderToMarkup } from "@nataliebasille/preview-jsx-runtime";
+import {
+  renderToMarkup,
+  type ShowcaseJsxNode,
+} from "@nataliebasille/preview-jsx-runtime";
 import { component } from "../components/component-builder.ts";
 import { dsl, PALETTE } from "../../dsl/public.ts";
 import {
@@ -631,6 +634,34 @@ describe("helper components", () => {
       "<Example> cannot be inside another <Example>.",
     ]);
   });
+
+  it("reports a helper that throws and omits the content it was in", () => {
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <Broken />
+        <Section title="S">
+          <Broken />
+          <div>
+            <Broken />
+          </div>
+          <Example>
+            <Broken />
+          </Example>
+          <p>Kept.</p>
+        </Section>
+      </Page>,
+    );
+
+    expect(model.issues).toEqual(
+      Array(4).fill('<Broken> threw "boom"; the content using it is omitted.'),
+    );
+    expect(model.blocks.map((b) => b.kind)).toEqual(["section"]);
+    expect(sectionsOf(model)[0]?.content).toMatchObject([{ kind: "prose" }]);
+  });
+
+  function Broken(): ShowcaseJsxNode {
+    throw new Error("boom");
+  }
 
   function SolidExample() {
     return (
