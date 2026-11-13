@@ -261,6 +261,8 @@ function normalizeScopedPropKey(key: string, type: "ui" | "markup") {
     return scopedKey;
   }
 
+  if (scopedKey === "htmlFor") return "for";
+
   return scopedKey === "className" ? "class" : scopedKey;
 }
 

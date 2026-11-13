@@ -283,6 +283,26 @@ describe("toDocModel", () => {
     );
   });
 
+  it("writes React's htmlFor as for in an example's copyable markup", () => {
+    const { Page, Section, Example } = docsFor(btn);
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <Section title="Labels">
+          <Example>
+            <label htmlFor="toggle" className="btn-solid">
+              Toggle
+            </label>
+          </Example>
+        </Section>
+      </Page>,
+    );
+
+    const [example] = sectionsOf(model)[0]?.content ?? [];
+    expect(example?.kind === "example" && renderToMarkup(example.source)).toBe(
+      '<label for="toggle" class="btn-solid">Toggle</label>',
+    );
+  });
+
   it("attaches the builder entity to a keyed section and uses its title", () => {
     const { Page, Section } = docsFor(btn);
     const model = toDocModel(
