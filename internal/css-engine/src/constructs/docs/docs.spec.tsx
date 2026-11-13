@@ -965,6 +965,30 @@ describe("playground control labels", () => {
     expect(model.issues).toEqual([]);
   });
 
+  it("show an option's value when its name is an inherited object property", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            key: control.select(["constructor", "toString"]),
+            proto: control.select(["__proto__"]),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    const [key, proto] = playgroundOf(model).controls;
+    expect(key).toMatchObject({
+      optionLabels: { constructor: "constructor", toString: "toString" },
+    });
+    expect(proto?.kind === "select" && proto.optionLabels["__proto__"]).toBe(
+      "__proto__",
+    );
+    expect(model.issues).toEqual([]);
+  });
+
   it("report a label for an option that isn't one of the final options", () => {
     const { Page, Playground } = docsFor(btn);
     const model = toDocModel(

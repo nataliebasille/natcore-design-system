@@ -426,7 +426,9 @@ function resolveOptionLabels(
       );
     }
   }
-  return Object.fromEntries(options.map((o) => [o, labels[o] ?? o]));
+  return Object.fromEntries(
+    options.map((o) => [o, Object.hasOwn(labels, o) ? labels[o]! : o]),
+  );
 }
 
 function toLabel(name: string) {
