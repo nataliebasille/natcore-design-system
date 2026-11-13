@@ -1,0 +1,490 @@
+<!-- Popovers exercised by popover.e2e.spec.ts (see its header for the
+     fixture contract). Normal-flow examples sit in the left column; triggers
+     that need a fixed spot on screen (placements, flipping) sit on the right
+     half, so nothing overlaps. -->
+
+<div class="ml-20 flex w-[40%] flex-col items-start gap-6 p-4">
+  <!-- Native: popovertarget / commandfor / interestfor, no wrapper -->
+  <button id="native-click-trigger" popovertarget="native-click">
+    Native click
+  </button>
+  <div id="native-click" popover class="popover card-soft w-48 p-2">
+    Native click
+  </div>
+
+  <button
+    id="native-command-trigger"
+    commandfor="native-command"
+    command="toggle-popover"
+  >
+    Native command
+  </button>
+  <div id="native-command" popover class="popover card-soft w-48 p-2">
+    Native command
+  </div>
+
+  <button
+    id="native-interest-trigger"
+    interestfor="native-interest"
+    class="popover-trigger-delay-0"
+  >
+    Native interest
+  </button>
+  <div id="native-interest" popover="hint" class="popover card-soft p-2">
+    Native interest
+  </div>
+
+  <!-- Wrapper: hover -->
+  <span id="hover-anchor" class="popover-anchor">
+    <button
+      id="hover-trigger"
+      class="popover-trigger-hover popover-trigger-delay-0"
+    >
+      Hover
+    </button>
+    <div
+      id="hover-popover"
+      data-slot="popover"
+      class="popover card-soft w-48 p-2"
+    >
+      Hover popover
+    </div>
+  </span>
+
+  <span id="hover-default-anchor" class="popover-anchor">
+    <button id="hover-default-trigger" class="popover-trigger-hover">
+      Hover, default delays
+    </button>
+    <div
+      id="hover-default-popover"
+      data-slot="popover"
+      class="popover card-soft p-2"
+    >
+      Default delays
+    </div>
+  </span>
+
+  <span id="hover-slow-anchor" class="popover-anchor">
+    <button
+      id="hover-slow-trigger"
+      class="popover-trigger-hover popover-trigger-delay-1000"
+    >
+      Hover, 1s delay
+    </button>
+    <div
+      id="hover-slow-popover"
+      data-slot="popover"
+      class="popover card-soft p-2"
+    >
+      Slow
+    </div>
+  </span>
+
+  <span id="deep-anchor" class="popover-anchor">
+    <span class="inline-flex p-1">
+      <button
+        id="deep-trigger"
+        class="popover-trigger-hover popover-trigger-delay-0"
+      >
+        Wrapped trigger
+      </button>
+    </span>
+    <div id="deep-popover" data-slot="popover" class="popover card-soft p-2">
+      Deep
+    </div>
+  </span>
+
+  <!-- Nested: a popover-anchor inside another popover's content -->
+  <span id="outer-anchor" class="popover-anchor">
+    <button
+      id="outer-trigger"
+      class="popover-trigger-hover popover-trigger-delay-0"
+    >
+      Outer
+    </button>
+    <div
+      id="outer-popover"
+      data-slot="popover"
+      class="popover-right card-soft w-56 p-2"
+    >
+      <span id="inner-anchor" class="popover-anchor">
+        <button
+          id="inner-trigger"
+          class="popover-trigger-hover popover-trigger-delay-0"
+        >
+          Inner
+        </button>
+        <div
+          id="inner-popover"
+          data-slot="popover"
+          class="popover card-soft p-2"
+        >
+          Inner popover
+        </div>
+      </span>
+    </div>
+  </span>
+
+  <!-- Wrapper with a native hint popover: CSS hover plus interestfor -->
+  <span id="mixed-anchor" class="popover-anchor">
+    <button
+      id="mixed-trigger"
+      class="popover-trigger-hover popover-trigger-delay-0"
+      interestfor="mixed-popover"
+    >
+      Mixed
+    </button>
+    <div
+      id="mixed-popover"
+      data-slot="popover"
+      popover="hint"
+      class="popover card-soft p-2"
+    >
+      Mixed popover
+    </div>
+  </span>
+
+  <!-- Wrapper: focus -->
+  <button id="before-focus">Before focus</button>
+  <span id="focus-anchor" class="popover-anchor">
+    <button
+      id="focus-trigger"
+      class="popover-trigger-focus popover-trigger-delay-0"
+    >
+      Focus
+    </button>
+    <div id="focus-popover" data-slot="popover" class="popover card-soft p-2">
+      <a id="focus-link" href="#focus-link">Link inside</a>
+    </div>
+  </span>
+  <button id="after-focus">After focus</button>
+
+  <button id="before-focus-slow">Before focus, 1s delay</button>
+  <span id="focus-slow-anchor" class="popover-anchor">
+    <button
+      id="focus-slow-trigger"
+      class="popover-trigger-focus popover-trigger-delay-1000"
+    >
+      Focus, 1s delay
+    </button>
+    <div
+      id="focus-slow-popover"
+      data-slot="popover"
+      class="popover card-soft p-2"
+    >
+      Slow focus
+    </div>
+  </span>
+
+  <!-- Wrapper: checked (label around a checkbox, and a bare checkbox) -->
+  <span id="checked-anchor" class="popover-anchor">
+    <label
+      id="checked-trigger"
+      class="popover-trigger-checked btn-outline/surface"
+    >
+      <input id="checked-input" type="checkbox" class="sr-only" />
+      Toggle
+    </label>
+    <div id="checked-popover" data-slot="popover" class="popover card-soft p-2">
+      <label><input id="checked-inner" type="checkbox" /> Inside</label>
+    </div>
+  </span>
+
+  <span id="checkbox-anchor" class="popover-anchor">
+    <input
+      id="checkbox-trigger"
+      type="checkbox"
+      class="popover-trigger-checked"
+    />
+    <div
+      id="checkbox-popover"
+      data-slot="popover"
+      class="popover card-soft p-2"
+    >
+      Checkbox
+    </div>
+  </span>
+
+  <!-- A checkbox inside the content doesn't open it -->
+  <span id="content-checkbox-anchor" class="popover-anchor">
+    <button>No trigger</button>
+    <div
+      id="content-checkbox-popover"
+      data-slot="popover"
+      class="popover card-soft p-2"
+    >
+      <input id="content-checkbox" type="checkbox" />
+    </div>
+  </span>
+
+  <!-- Stacking: a later positioned block sits where each popover opens -->
+  <span id="stack-hover-anchor" class="popover-anchor">
+    <button
+      id="stack-hover-trigger"
+      class="popover-trigger-hover popover-trigger-delay-0"
+    >
+      Stacking (hover)
+    </button>
+    <div
+      id="stack-hover-popover"
+      data-slot="popover"
+      class="popover card-soft h-16 w-48 p-2"
+    >
+      Above later content
+    </div>
+  </span>
+  <div class="relative -mt-4 h-20 w-64 bg-black/10">
+    Later positioned content
+  </div>
+
+  <span id="stack-checked-anchor" class="popover-anchor">
+    <label id="stack-checked-trigger" class="popover-trigger-checked">
+      <input type="checkbox" class="sr-only" />
+      Stacking (checkbox)
+    </label>
+    <div
+      id="stack-checked-popover"
+      data-slot="popover"
+      class="popover card-soft h-16 w-48 p-2"
+    >
+      Above later content
+    </div>
+  </span>
+  <div class="relative -mt-4 h-20 w-64 bg-black/10">
+    Later positioned content
+  </div>
+
+  <!-- Wrapper whose popover and trigger classes have breakpoint variants -->
+  <span id="responsive-anchor" class="popover-anchor">
+    <button
+      id="responsive-trigger"
+      class="md:popover-trigger-focus popover-trigger-hover popover-trigger-delay-0"
+    >
+      Responsive
+    </button>
+    <div
+      id="responsive-popover"
+      data-slot="popover"
+      class="popover-bottom md:popover-right card-soft p-2"
+    >
+      Responsive
+    </div>
+  </span>
+
+  <!-- Wrapper: details -->
+  <details id="details-anchor" class="popover-anchor">
+    <summary id="details-trigger">Details</summary>
+    <div
+      id="details-popover"
+      data-slot="popover"
+      class="popover card-soft w-48 p-2"
+    >
+      Details popover
+    </div>
+  </details>
+
+  <!-- Overflow containers -->
+  <div id="clip-box" class="h-16 w-64 overflow-hidden border p-2">
+    <span class="popover-anchor">
+      <label id="clip-trigger" class="popover-trigger-checked">
+        <input id="clip-input" type="checkbox" class="sr-only" />
+        Clipped?
+      </label>
+      <div
+        id="clip-popover"
+        data-slot="popover"
+        class="popover card-soft h-24 w-48 p-2"
+      >
+        Not clipped
+      </div>
+    </span>
+  </div>
+
+  <div id="scroll-box" class="h-32 w-64 overflow-auto border">
+    <div class="h-[600px] pt-10 pl-4">
+      <span class="popover-anchor">
+        <label id="scroll-trigger" class="popover-trigger-checked">
+          <input id="scroll-input" type="checkbox" class="sr-only" />
+          Scroll me
+        </label>
+        <div
+          id="scroll-popover"
+          data-slot="popover"
+          class="popover card-soft w-32 p-2"
+        >
+          Follows
+        </div>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Placements: one trigger near the middle of the right half; tests point its
+     popovertarget at the popover under test. -->
+<button
+  id="place-trigger"
+  class="fixed top-1/2 left-[70%] h-10 w-24"
+  popovertarget="place-bottom"
+>
+  Place
+</button>
+<div id="place-default" popover class="popover card-soft h-12 w-40">
+  default
+</div>
+<div id="place-top" popover class="popover-top card-soft h-12 w-40">top</div>
+<div id="place-top-start" popover class="popover-top-start card-soft h-12 w-40">
+  top-start
+</div>
+<div id="place-top-end" popover class="popover-top-end card-soft h-12 w-40">
+  top-end
+</div>
+<div id="place-bottom" popover class="popover-bottom card-soft h-12 w-40">
+  bottom
+</div>
+<div
+  id="place-bottom-start"
+  popover
+  class="popover-bottom-start card-soft h-12 w-40"
+>
+  bottom-start
+</div>
+<div
+  id="place-bottom-end"
+  popover
+  class="popover-bottom-end card-soft h-12 w-40"
+>
+  bottom-end
+</div>
+<div id="place-left" popover class="popover-left card-soft h-12 w-40">left</div>
+<div
+  id="place-left-start"
+  popover
+  class="popover-left-start card-soft h-12 w-40"
+>
+  left-start
+</div>
+<div id="place-left-end" popover class="popover-left-end card-soft h-12 w-40">
+  left-end
+</div>
+<div id="place-right" popover class="popover-right card-soft h-12 w-40">
+  right
+</div>
+<div
+  id="place-right-start"
+  popover
+  class="popover-right-start card-soft h-12 w-40"
+>
+  right-start
+</div>
+<div id="place-right-end" popover class="popover-right-end card-soft h-12 w-40">
+  right-end
+</div>
+<div id="place-gap" popover class="popover-top card-soft mb-1 h-12 w-40">
+  top, mb-1
+</div>
+<div
+  id="place-responsive"
+  popover
+  class="popover-bottom md:popover-right card-soft h-12 w-40"
+>
+  responsive
+</div>
+
+<!-- A native popover inside a wrapper -->
+<span
+  id="native-wrapped-anchor"
+  class="popover-anchor fixed top-[8%] left-[50%]"
+>
+  <button
+    id="native-wrapped-trigger"
+    class="h-10 w-24"
+    popovertarget="native-wrapped-popover"
+  >
+    Native
+  </button>
+  <div
+    id="native-wrapped-popover"
+    data-slot="popover"
+    popover
+    class="popover card-soft h-12 w-40"
+  >
+    native, wrapped
+  </div>
+</span>
+
+<!-- Right-to-left: start/end follow the writing direction -->
+<div dir="rtl">
+  <button
+    id="rtl-trigger"
+    class="fixed top-[20%] left-[70%] h-10 w-24"
+    popovertarget="rtl-top-start"
+  >
+    RTL
+  </button>
+  <div id="rtl-top-start" popover class="popover-top-start card-soft h-12 w-40">
+    rtl start
+  </div>
+  <div id="rtl-top-end" popover class="popover-top-end card-soft h-12 w-40">
+    rtl end
+  </div>
+</div>
+
+<!-- Near the bottom and right edges: popover-flip flips; without it, it stays -->
+<button
+  id="flip-block-trigger"
+  class="fixed bottom-1 left-[60%] h-10 w-24"
+  popovertarget="flip-block"
+>
+  Flip block
+</button>
+<div id="flip-block" popover class="popover popover-flip card-soft h-24 w-40">
+  flipped above
+</div>
+<div id="stay-block" popover class="popover card-soft h-24 w-40">
+  stays below
+</div>
+
+<span id="flip-wrapped-anchor" class="popover-anchor fixed bottom-1 left-[30%]">
+  <label
+    id="flip-wrapped-trigger"
+    class="popover-trigger-checked btn-outline/surface"
+  >
+    <input id="flip-wrapped-input" type="checkbox" class="sr-only" />
+    Flip wrapped
+  </label>
+  <div
+    id="flip-wrapped-popover"
+    data-slot="popover"
+    class="popover popover-flip card-soft h-24 w-40"
+  >
+    flipped above
+  </div>
+</span>
+
+<button
+  id="flip-inline-trigger"
+  class="fixed top-[35%] right-1 h-10 w-24"
+  popovertarget="flip-inline"
+>
+  Flip inline
+</button>
+<div
+  id="flip-inline"
+  popover
+  class="popover-right popover-flip card-soft h-12 w-40"
+>
+  flipped left
+</div>
+<div id="stay-inline" popover class="popover-right card-soft h-12 w-40">
+  stays right
+</div>
+
+<!-- Near the left edge: a centered popover shifts to stay on screen -->
+<button
+  id="edge-trigger"
+  class="fixed top-[80%] left-1 h-10 w-12"
+  popovertarget="edge"
+>
+  Edge
+</button>
+<div id="edge" popover class="popover card-soft h-12 w-64">stays on screen</div>
