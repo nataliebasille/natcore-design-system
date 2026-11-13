@@ -120,6 +120,29 @@ describe("moduleToCss with registered component properties", () => {
     });
     expect(normalize(css)).toContain("transition-delay: var(--tip-delay);");
   });
+
+  it("keeps a numeric initial value of 0", () => {
+    const css = moduleToCss(
+      component("bar").property("--progress", {
+        syntax: "<number>",
+        inherits: false,
+        initialValue: 0,
+      }),
+    );
+    const property = postcss
+      .parse(css)
+      .nodes.find(
+        (node): node is AtRule =>
+          node.type === "atrule" && node.params === "--bar-progress",
+      );
+
+    expect(
+      (property!.nodes ?? []).map((node) => [
+        (node as Declaration).prop,
+        (node as Declaration).value,
+      ]),
+    ).toContainEqual(["initial-value", "0"]);
+  });
 });
 
 function normalize(css: string) {
