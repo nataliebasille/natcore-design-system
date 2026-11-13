@@ -9,7 +9,7 @@ import {
   type ResolvedControl,
 } from '@nataliebasille/css-engine'
 import { renderToMarkup, renderToUi } from '@nataliebasille/preview-jsx-runtime'
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 import { Playground } from './playground'
 import { PlaygroundFormElement } from './playground-form-element'
 import { usePlayground } from './playground-provider'
@@ -94,7 +94,7 @@ function ControlField({ control }: { control: ResolvedControl }) {
             <select>
               {control.options.map((option) => (
                 <option key={option} value={option}>
-                  {toLabel(option)}
+                  {control.optionLabels[option] ?? option}
                 </option>
               ))}
             </select>
@@ -110,33 +110,48 @@ function ControlField({ control }: { control: ResolvedControl }) {
         />
       )
     case 'boolean':
-      return (
-        <PlaygroundFormElement<Values>
-          name={control.name}
-          label={control.label}
-          input={BooleanControl}
-        />
-      )
+      return <BooleanField control={control} />
   }
+}
+
+function BooleanField({ control }: { control: Extract<ResolvedControl, { kind: 'boolean' }> }) {
+  const { offLabel, onLabel } = control
+  // Stable so the radios aren't remounted (and their name changed) on every render.
+  const input = useMemo(
+    () =>
+      function Input(props: {
+        value: PlaygroundControlValue
+        onChange: (value: PlaygroundControlValue) => void
+      }) {
+        return <BooleanControl {...props} offLabel={offLabel} onLabel={onLabel} />
+      },
+    [offLabel, onLabel]
+  )
+
+  return <PlaygroundFormElement<Values> name={control.name} label={control.label} input={input} />
 }
 
 function BooleanControl({
   value,
   onChange,
+  offLabel,
+  onLabel,
 }: {
   value: PlaygroundControlValue
   onChange: (value: PlaygroundControlValue) => void
+  offLabel: string
+  onLabel: string
 }) {
   const name = useId()
 
   return (
     <div className="-ml-(--btn-padding-inline) btn-group-ghost btn-size-sm">
       <label>
-        Off
+        {offLabel}
         <input type="radio" name={name} checked={value !== true} onChange={() => onChange(false)} />
       </label>
       <label>
-        On
+        {onLabel}
         <input type="radio" name={name} checked={value === true} onChange={() => onChange(true)} />
       </label>
     </div>
@@ -145,8 +160,4 @@ function BooleanControl({
 
 function isPlayground(block: DocBlock): block is DocPlaygroundBlock {
   return block.kind === 'playground'
-}
-
-function toLabel(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1)
 }

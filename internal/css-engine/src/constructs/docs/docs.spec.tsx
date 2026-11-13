@@ -145,6 +145,72 @@ describe("docsFor typing", () => {
     );
   });
 
+  it("control helpers' config form keeps the values narrowed", () => {
+    void (
+      <Playground
+        controls={{
+          closedby: control.select(["any", "closerequest", "none"], {
+            default: "any",
+            label: "Dismissal (closedby)",
+            optionLabels: { closerequest: "Esc only" },
+          }),
+          palette: control.palette(["primary", "secondary"], {
+            default: "secondary",
+            label: "Tone",
+            optionLabels: { primary: "Brand" },
+          }),
+          thumb: control.boolean({ label: "Thumb", onLabel: "Custom" }),
+          text: control.text({ default: "Overview", label: "Label" }),
+        }}
+        render={(v) => {
+          expectTypeOf(v).toEqualTypeOf<{
+            variant: "solid" | "soft";
+            size: "sm" | "md" | "lg";
+            closedby: "any" | "closerequest" | "none";
+            palette: "primary" | "secondary";
+            thumb: boolean;
+            text: string;
+          }>();
+          return <button />;
+        }}
+      />
+    );
+  });
+
+  it("a config's default must be one of the options", () => {
+    // @ts-expect-error "c" is not one of the options
+    void control.select(["a", "b"], { default: "c" });
+    // @ts-expect-error "accent" is not one of the palettes listed
+    void control.palette(["primary"], { default: "accent" });
+  });
+
+  it("optionLabels only accepts the control's options", () => {
+    // @ts-expect-error "c" is not one of the options
+    void control.select(["a", "b"], { optionLabels: { c: "C" } });
+    // @ts-expect-error "accent" is not one of the palettes listed
+    void control.palette(["primary"], { optionLabels: { accent: "A" } });
+    void (
+      <Playground
+        controls={{ variant: { optionLabels: { solid: "Solid fill" } } }}
+        render={() => <button />}
+      />
+    );
+    void (
+      <Playground
+        // @ts-expect-error "ghost" is not a btn variant
+        controls={{ variant: { optionLabels: { solid: "S", ghost: "G" } } }}
+        render={() => <button />}
+      />
+    );
+    void (
+      <Playground
+        // @ts-expect-error "lg" was narrowed out of the options
+        controls={{ size: { options: ["sm"], optionLabels: { lg: "L" } } }}
+        render={() => <button />}
+      />
+    );
+  });
+
   it("docs() (no builder) only allows titled sections and custom controls", () => {
     const guide = docs();
     void (<guide.Section title="Install" />);
@@ -317,6 +383,7 @@ describe("toDocModel", () => {
         label: "Style",
         kind: "select",
         options: ["solid", "soft"],
+        optionLabels: { solid: "solid", soft: "soft" },
         default: "soft",
       },
       {
@@ -324,6 +391,7 @@ describe("toDocModel", () => {
         label: "Size",
         kind: "select",
         options: ["sm", "md", "lg"],
+        optionLabels: { sm: "sm", md: "md", lg: "lg" },
         default: "md",
       },
       {
@@ -331,10 +399,18 @@ describe("toDocModel", () => {
         label: "Palette",
         kind: "select",
         options: ["primary", "accent"],
+        optionLabels: { primary: "primary", accent: "accent" },
         default: "primary",
       },
       { name: "label", label: "Label", kind: "text", default: "Button" },
-      { name: "rounded", label: "Rounded", kind: "boolean", default: true },
+      {
+        name: "rounded",
+        label: "Rounded",
+        kind: "boolean",
+        default: true,
+        offLabel: "Off",
+        onLabel: "On",
+      },
     ]);
 
     const defaults = playgroundDefaults(playground.controls);
@@ -392,6 +468,7 @@ describe("toDocModel", () => {
         label: "Variant",
         kind: "select",
         options: ["solid"],
+        optionLabels: { solid: "solid" },
         default: "solid",
       },
     ]);
@@ -719,6 +796,7 @@ describe("controls a parent and a derived component both define", () => {
         label: "Size",
         kind: "select",
         options: ["xs", "xl"],
+        optionLabels: { xs: "xs", xl: "xl" },
         default: "xl",
       },
     ]);
@@ -745,11 +823,232 @@ describe("custom select defaults", () => {
         label: "Tone",
         kind: "select",
         options: ["primary"],
+        optionLabels: { primary: "primary" },
         default: "primary",
       },
     ]);
     expect(model.issues).toEqual([
       'Playground control "tone" defaults to "accent", which is not one of its options; using "primary".',
+    ]);
+  });
+});
+
+describe("playground control labels", () => {
+  it("control helpers accept a config object", () => {
+    expect(
+      control.select(["any", "closerequest", "none"], {
+        default: "closerequest",
+        label: "Dismissal (closedby)",
+        optionLabels: {
+          any: "Esc or backdrop click",
+          closerequest: "Esc only",
+        },
+      }),
+    ).toEqual({
+      kind: "select",
+      options: ["any", "closerequest", "none"],
+      default: "closerequest",
+      label: "Dismissal (closedby)",
+      optionLabels: { any: "Esc or backdrop click", closerequest: "Esc only" },
+    });
+    expect(
+      control.palette(["primary", "secondary"], {
+        default: "secondary",
+        label: "Tone",
+        optionLabels: { primary: "Brand" },
+      }),
+    ).toEqual({
+      kind: "select",
+      options: ["primary", "secondary"],
+      default: "secondary",
+      label: "Tone",
+      optionLabels: { primary: "Brand" },
+    });
+    expect(
+      control.boolean({
+        label: "Thumb",
+        offLabel: "Default",
+        onLabel: "Custom",
+      }),
+    ).toEqual({
+      kind: "boolean",
+      default: false,
+      label: "Thumb",
+      offLabel: "Default",
+      onLabel: "Custom",
+    });
+    expect(control.text({ default: "Overview", label: "Label" })).toEqual({
+      kind: "text",
+      default: "Overview",
+      label: "Label",
+    });
+  });
+
+  it("the config form falls back to the same defaults as the positional form", () => {
+    expect(control.select(["a", "b"], {})).toMatchObject({ default: "a" });
+    expect(control.palette(["accent", "primary"], {})).toMatchObject({
+      default: "primary",
+    });
+    expect(control.boolean({})).toMatchObject({ default: false });
+    expect(control.text({})).toMatchObject({ default: "" });
+  });
+
+  it("resolve every option's label, every boolean's state labels, and the control labels", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            closedby: control.select(["any", "closerequest", "none"], {
+              label: "Dismissal (closedby)",
+              optionLabels: { closerequest: "Esc only" },
+            }),
+            thumb: control.boolean({
+              default: true,
+              label: "Thumb",
+              offLabel: "Default",
+              onLabel: "Custom",
+            }),
+            heading: control.text({ default: "Overview", label: "Heading" }),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      {
+        name: "closedby",
+        label: "Dismissal (closedby)",
+        kind: "select",
+        options: ["any", "closerequest", "none"],
+        optionLabels: { any: "any", closerequest: "Esc only", none: "none" },
+        default: "any",
+      },
+      {
+        name: "thumb",
+        label: "Thumb",
+        kind: "boolean",
+        default: true,
+        offLabel: "Default",
+        onLabel: "Custom",
+      },
+      { name: "heading", label: "Heading", kind: "text", default: "Overview" },
+    ]);
+    expect(model.issues).toEqual([]);
+  });
+
+  it("apply a derived control override's optionLabels", () => {
+    const { Page, Playground } = docsFor(btn);
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <Playground
+          controls={{
+            variant: { label: "Style", optionLabels: { solid: "Solid fill" } },
+            size: false,
+          }}
+          render={() => <button />}
+        />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      {
+        name: "variant",
+        label: "Style",
+        kind: "select",
+        options: ["solid", "soft"],
+        optionLabels: { solid: "Solid fill", soft: "soft" },
+        default: "soft",
+      },
+    ]);
+    expect(model.issues).toEqual([]);
+  });
+
+  it("show an option's value when its label is undefined", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            tone: control.select(["primary", "accent"], {
+              optionLabels: { primary: undefined, accent: "Accent" },
+            }),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      expect.objectContaining({
+        optionLabels: { primary: "primary", accent: "Accent" },
+      }),
+    ]);
+    expect(model.issues).toEqual([]);
+  });
+
+  it("show an option's value when its name is an inherited object property", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            key: control.select(["constructor", "toString"]),
+            proto: control.select(["__proto__"]),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    const [key, proto] = playgroundOf(model).controls;
+    expect(key).toMatchObject({
+      optionLabels: { constructor: "constructor", toString: "toString" },
+    });
+    expect(proto?.kind === "select" && proto.optionLabels["__proto__"]).toBe(
+      "__proto__",
+    );
+    expect(model.issues).toEqual([]);
+  });
+
+  it("report a label for an option that isn't one of the final options", () => {
+    const { Page, Playground } = docsFor(btn);
+    const model = toDocModel(
+      <Page title="Button" description="Buttons.">
+        <Playground
+          controls={{
+            variant: {
+              options: ["solid"],
+              // @ts-expect-error simulates a label for an option narrowed out
+              optionLabels: { solid: "Solid fill", soft: "soft" },
+            },
+            size: false,
+            tone: {
+              kind: "select",
+              options: ["primary"],
+              default: "primary",
+              optionLabels: { accent: "Accent" },
+            },
+          }}
+          render={() => <button />}
+        />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      expect.objectContaining({
+        name: "variant",
+        optionLabels: { solid: "Solid fill" },
+      }),
+      expect.objectContaining({
+        name: "tone",
+        optionLabels: { primary: "primary" },
+      }),
+    ]);
+    expect(model.issues).toEqual([
+      'Playground control "variant" has a label for "soft", which is not one of its options.',
+      'Playground control "tone" has a label for "accent", which is not one of its options.',
     ]);
   });
 });
