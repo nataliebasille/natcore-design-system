@@ -427,7 +427,7 @@ function resolveOptionLabels(
     }
   }
   return Object.fromEntries(
-    options.map((o) => [o, Object.hasOwn(labels, o) ? labels[o]! : o]),
+    options.map((o) => [o, (Object.hasOwn(labels, o) ? labels[o] : o) ?? o]),
   );
 }
 

@@ -965,6 +965,29 @@ describe("playground control labels", () => {
     expect(model.issues).toEqual([]);
   });
 
+  it("show an option's value when its label is undefined", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            tone: control.select(["primary", "accent"], {
+              optionLabels: { primary: undefined, accent: "Accent" },
+            }),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      expect.objectContaining({
+        optionLabels: { primary: "primary", accent: "Accent" },
+      }),
+    ]);
+    expect(model.issues).toEqual([]);
+  });
+
   it("show an option's value when its name is an inherited object property", () => {
     const { Page, Playground } = docs();
     const model = toDocModel(
