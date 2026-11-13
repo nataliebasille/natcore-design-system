@@ -324,8 +324,11 @@ const propertiesGenerator: GeneratorReduceFn = (acc, curr) => {
       dsl.atRule("property", curr.themeBag.tryScope(name as `--${string}`), {
         syntax: `"${[descriptor.syntax].flat().join(" | ")}"`,
         inherits: String(descriptor.inherits),
-        // A string, so a numeric 0 isn't dropped as falsy when serialized.
-        "initial-value": String(descriptor.initialValue),
+        // Numbers as strings, so a 0 isn't dropped as falsy when serialized.
+        "initial-value":
+          typeof descriptor.initialValue === "number" ?
+            String(descriptor.initialValue)
+          : descriptor.initialValue,
       }),
     );
   });

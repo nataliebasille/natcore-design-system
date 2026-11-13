@@ -143,6 +143,29 @@ describe("moduleToCss with registered component properties", () => {
       ]),
     ).toContainEqual(["initial-value", "0"]);
   });
+
+  it("serializes a DSL initial value like any other value", () => {
+    const css = moduleToCss(
+      component("bar").property("--edges", {
+        syntax: "<length>+",
+        inherits: false,
+        initialValue: dsl.cssv`${dsl.primitive.length.px(1)} ${dsl.primitive.length.px(2)}`,
+      }),
+    );
+    const property = postcss
+      .parse(css)
+      .nodes.find(
+        (node): node is AtRule =>
+          node.type === "atrule" && node.params === "--bar-edges",
+      );
+
+    expect(
+      (property!.nodes ?? []).map((node) => [
+        (node as Declaration).prop,
+        (node as Declaration).value,
+      ]),
+    ).toContainEqual(["initial-value", "1px 2px"]);
+  });
 });
 
 function normalize(css: string) {
