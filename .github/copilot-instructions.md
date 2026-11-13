@@ -70,7 +70,7 @@ Run `pnpm type-check` before opening a PR.
 
 ### Core Styles
 
-Styles live in `packages/core-v2/src/tailwind/` (`components/`, `typography/`, `utilities/`, `themes/`, `variants/`) as `*.css.ts` files authored with the `@nataliebasille/css-engine` DSL and compiled to CSS by `packages/core-v2/src/compile/`. `natcore.css` is the stylesheet entry point. Each component lives in its own folder (`components/<name>/<name>.css.ts`, `typography/<name>/<name>.css.ts`) alongside its tests (`<name>.test.ts`, `<name>.e2e.spec.ts`, `<name>.e2e.html`). Element defaults (e.g. `h1`, `article`) come from the builder's `.applyTo(selector, variant?)`, which puts them in the `components.base` layer so Tailwind utilities override them. Inside `@layer utilities`, component bodies compile to `components.base` and a component's `.utility()`/`.controlled()` utilities to `components`, so plain Tailwind utilities beat component utilities, which beat bodies.
+Styles live in `packages/core-v2/src/tailwind/` (`components/`, `typography/`, `utilities/`, `themes/`, `variants/`) as `*.css.ts` files authored with the `@nataliebasille/css-engine` DSL and compiled to CSS by `packages/core-v2/src/compile/`. `natcore.css` is the stylesheet entry point. Each component lives in its own folder (`components/<name>/<name>.css.ts`, `typography/<name>/<name>.css.ts`) alongside its docs page (`<name>.docs.tsx`) and tests (`<name>.test.ts`, `<name>.e2e.spec.ts`, `<name>.e2e.html`). Element defaults (e.g. `h1`, `article`) come from the builder's `.applyTo(selector, variant?)`, which puts them in the `components.base` layer so Tailwind utilities override them. Inside `@layer utilities`, component bodies compile to `components.base` and a component's `.utility()`/`.controlled()` utilities to `components`, so plain Tailwind utilities beat component utilities, which beat bodies.
 
 ### React Component Pattern
 
@@ -81,9 +81,17 @@ React components in `packages/react/src/` follow:
 3. Use `classnames` for conditional CSS classes
 4. Map props to design system class names (e.g., `btn-primary`, `btn-lg`)
 
-### Showcase Documentation Pattern
+### Documentation Pattern
 
-Each component in `showcase-v2/app/(docs)/_components/[component]/` includes a `doc.tsx` plus optional playground files (`playground.tsx`, `*-playground-client.tsx`, `*-playground-controls.tsx`, `get-showcase.tsx`).
+A component's docs page is `<name>.docs.tsx` next to its `<name>.css.ts` (e.g. `packages/core-v2/src/tailwind/components/button/button.docs.tsx`). It default-exports a page built from `docsFor(builder)` (`Page`, `Section`, `Example`, `Playground` from `@nataliebasille/css-engine`):
+
+- `<Section of="key">` documents a builder entity (component, utility, `@slots`, `@custom-variants`); `of` and `vars` only accept the builder's keys. A `<Section title="…">` without `of` is free-form.
+- `<Example>` children are both the live preview and the copyable HTML.
+- `<Playground render={(v) => …}>` derives its controls (variant, controlled-value presets) from the builder; add others with `control.palette/select/text/boolean`.
+- The API reference is generated from the builder; descriptions come from the sections.
+- Every `*.docs.tsx` under `packages/core-v2/src/` is a page, not just components (guides too). Its URL and sidebar group come from its folders (the leading `tailwind/` is dropped, and `button/button.docs.tsx` is `/components/button`), and its sidebar label from `<Page title>`. `<Page nav={{ label, group, order, path }}>` overrides any of them.
+
+Docs files use the preview JSX runtime with no per-file pragma (core-v2 `tsconfig.json`/`vitest.config.ts`, and a Turbopack rule in `showcase-v2/next.config.js`). They never ship: core-v2 publishes only `dist/`. `packages/core-v2/test/docs.test.ts` checks every docs file. `showcase-v2` is the site shell that renders them; components not yet migrated still use a legacy `showcase-v2/app/(docs)/_<category>/<name>/doc.tsx` folder.
 
 ## File Naming Conventions
 
@@ -95,7 +103,7 @@ Each component in `showcase-v2/app/(docs)/_components/[component]/` includes a `
 
 ### Tailwind Configuration
 
-`showcase-v2/app/globals.css` imports the stylesheet, and `showcase-v2/postcss.config.js` registers the `@nataliebasille/natcore-design-system/postcss` plugin (which expands `@natcore-palettes`).
+`showcase-v2/app/globals.css` imports the stylesheet and adds an `@source` for core-v2's `*.docs.tsx` (they live outside the app, so Tailwind wouldn't scan them otherwise), and `showcase-v2/postcss.config.js` registers the `@nataliebasille/natcore-design-system/postcss` plugin (which expands `@natcore-palettes`).
 
 ### Build System
 

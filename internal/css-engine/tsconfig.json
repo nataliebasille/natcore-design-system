@@ -16,7 +16,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@nataliebasille/preview-jsx-runtime"
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]

@@ -16,7 +16,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@nataliebasille/preview-jsx-runtime"
   },
   "include": [
     "*.ts",
@@ -27,6 +29,7 @@
     "src/vite/**/*",
     "scripts/**/*",
     "src/compile",
+    "src/**/*.docs.tsx",
     "test/**/*"
   ],
   "exclude": ["dist", "node_modules"]

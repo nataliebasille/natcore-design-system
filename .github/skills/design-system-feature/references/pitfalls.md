@@ -24,13 +24,18 @@ Each of these cost time while building the dialog component. Check the relevant 
 
 ## Showcase docs
 
+- **Write every class out literally.** The showcase's Tailwind build finds classes by scanning source text. A class only built from a template (`btn-${v.variant}/${v.palette}` in a playground `render`) renders unstyled unless the exact class also appears somewhere in a docs file, usually in an example. `test/docs.test.ts` fails with the class and where it's used; add an example (or narrow the control's options) rather than an allowlist entry.
+- **Docs live outside the showcase app.** `showcase-v2/app/globals.css` has `@source "../../packages/core-v2/src/**/*.docs.tsx"` so Tailwind scans them. Without it, every class only used by docs renders unstyled.
+- **The showcase build needs at least one `*.docs.tsx` under `packages/core-v2/src/`.** The docs index and playground import docs files with a template (``import(`…/core-v2/src/${path}.docs.tsx`)``); with zero matching files Turbopack fails with "Module not found". Don't delete the last docs file, and keep docs files under `src/` (files elsewhere are neither pages nor tested).
+- **Two docs files can't share a URL.** `tailwind/components/button.docs.tsx` and `tailwind/components/button/button.docs.tsx` both resolve to `/components/button`; `test/docs.test.ts` fails and names both. Change a folder or set `<Page nav={{ path }}>`.
+- **`toDocModel` reports, it doesn't throw.** A misplaced `<Example>`, a nested `<Section>`, a second `<Playground>`, or an `of` key the builder no longer has is skipped or rendered plainly and listed in `model.issues`; the page shows them in a red box and `test/docs.test.ts` fails on them.
 - **Docs pages render inside an `<article>`.** Article and heading defaults (margins, sizes) apply to every example. They sit in the `components.base` layer, so Tailwind utilities override them; to reset spacing in a preview without touching the copyable snippet, put `*:m-0` on a `ui-div` wrapper.
 - **`<code>` is block-level.** Inline code in docs text needs `<code className="inline">`.
-- **Preview vs. snippet.** In doc JSX, `ui-*` elements (e.g. `<ui-div>`) render only in the live preview, and `<markup>` content only in the code snippet. Use this for wrappers that shouldn't appear in copyable code.
-- **No React event handlers in examples.** Examples are server-rendered. For script-driven examples, render the same HTML into both preview and snippet (see `ScriptTrigger` in `_components/dialog/doc.tsx`).
+- **Preview vs. snippet.** In docs JSX, `ui-*` elements (e.g. `<ui-div>`) render only in the live preview, and `<markup>` content only in the code snippet. Use this for wrappers that shouldn't appear in copyable code.
+- **No React event handlers in examples.** Examples are server-rendered. For script-driven examples, render the same HTML into both preview and snippet (see `ScriptTrigger` in the dialog docs).
 - **Unknown attributes need types, not camelCase.** React warns on `commandFor`; use lowercase attributes and add a type augmentation in `showcase-v2/types/`.
 - **Fallback examples must work without the feature they fall back from.** For example, the JavaScript `showModal()` example closes with `<form method="dialog">`, not `command="close"`.
-- **Explain in context.** Put reference tables beneath the example they describe (`DocShowcaseEntry.table`), not in the section header. Keep shared copy (like the installation page) generic so it doesn't need editing for every new component.
+- **Explain in context.** Put reference tables beneath the example they describe (`<Example table={…}>`), not in the section header. Keep shared copy (like the installation page) generic so it doesn't need editing for every new component.
 
 ## Dev environment
 

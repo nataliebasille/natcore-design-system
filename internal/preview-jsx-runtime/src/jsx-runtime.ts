@@ -1,4 +1,4 @@
-import { type JSX as ReactJSX } from "react";
+import type { JSX as ReactJSX } from "react";
 import type { ShowcaseJsxElementType, ShowcaseJsxNode } from "./types.ts";
 
 type ScopedAttributes = Record<string, unknown>;
@@ -80,7 +80,7 @@ export function jsxDEV<
   return createNode(type, props, key);
 }
 
-export const Fragment = Symbol.for("my-jsx.fragment");
+export const Fragment = /* @__PURE__ */ Symbol.for("my-jsx.fragment");
 
 export function scopeAttr(
   ui?: ScopedAttributes,
@@ -140,5 +140,7 @@ export namespace JSX {
 
   export interface IntrinsicElements extends IntrinsicElementsWithChildren {}
 
-  export type LibraryManagedAttributes<C, P> = AddChildren<P>;
+  // Distributes over union props so `{ of: K } | { title: string }` stays a union.
+  export type LibraryManagedAttributes<C, P> =
+    P extends unknown ? AddChildren<P> : never;
 }

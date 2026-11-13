@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import type { ShowcaseJsxNode } from "@nataliebasille/preview-jsx-runtime";
-import { createDoc } from "./component-doc.ts";
+import { createDoc, type ComponentDocMeta } from "./component-doc.ts";
 import { component } from "./component-builder.ts";
 import { dsl, PALETTE } from "../../dsl/public.ts";
 
@@ -295,19 +295,22 @@ describe("createDoc", () => {
       });
     });
 
-    it("throws when optional variant metadata is missing", () => {
+    it("names optional variant entries by default when metadata is missing", () => {
       const builder = component("btn")
         .variant("primary", { "--color": "blue" })
         .optionalVariants()
         .body({ color: dsl.cssvar("--color") });
 
-      expect(() =>
-        createDoc(builder, {
-          title: "Button",
-          description: "...",
-          components: { btn: { name: "Button", description: "Base" } },
-        }),
-      ).toThrow('Missing component doc metadata for "btn@variant".');
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: { btn: { name: "Button", description: "Base" } },
+      });
+
+      expect(result.components["btn@variant"]).toMatchObject({
+        name: "Button Variants",
+        description: "",
+      });
     });
 
     it("component pattern has no modifier when not themeable", () => {
@@ -390,7 +393,7 @@ describe("createDoc", () => {
         .vars({ "--size": "1rem" })
         .controlled("--size", { sm: "0.875rem" });
 
-      createDoc(builder, {
+      void ({
         title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
@@ -399,7 +402,7 @@ describe("createDoc", () => {
         },
         // @ts-expect-error - controlled vars are documented as utilities
         cssvars: { "--size": "Controls the size" },
-      });
+      } satisfies ComponentDocMeta<typeof builder>);
     });
 
     it("does not register variant vars as cssvars", () => {
@@ -430,7 +433,7 @@ describe("createDoc", () => {
         .vars({ "--size": "1rem", "--color": "blue" })
         .variant("primary", { "--color": "red" });
 
-      createDoc(builder, {
+      void ({
         title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
@@ -439,7 +442,7 @@ describe("createDoc", () => {
           // @ts-expect-error - variant vars are not public CSS variable docs
           "--color": "Controls the color",
         },
-      });
+      } satisfies ComponentDocMeta<typeof builder>);
     });
 
     it("treats vars set by only some variants as variant vars", () => {
@@ -448,7 +451,7 @@ describe("createDoc", () => {
         .variant("primary", { "--color": "red" })
         .variant("decimal", { "--color": "green", "--marker": "1rem" });
 
-      const result = createDoc(builder, {
+      const meta = {
         title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
@@ -457,7 +460,8 @@ describe("createDoc", () => {
           // @ts-expect-error - set by the decimal variant, so not a public CSS variable
           "--marker": "Controls the marker",
         },
-      });
+      } satisfies ComponentDocMeta<typeof builder>;
+      const result = createDoc(builder, meta);
 
       expect(result.cssvars.map((v) => v.varName)).toEqual(["--btn-size"]);
     });
@@ -471,7 +475,7 @@ describe("createDoc", () => {
             .body({ color: dsl.cssvar("--color") }),
         );
 
-      createDoc(builder, {
+      void ({
         title: "Button",
         description: "...",
         components: {
@@ -483,7 +487,7 @@ describe("createDoc", () => {
           // @ts-expect-error - child variant vars are not public CSS variable docs
           "--color": "Controls the color",
         },
-      });
+      } satisfies ComponentDocMeta<typeof builder>);
     });
   });
 
@@ -514,13 +518,13 @@ describe("createDoc", () => {
     it("requires meta for all defined utilities (TypeScript error if missing)", () => {
       const builder = component("btn").utility("disabled", { opacity: "0.5" });
 
-      createDoc(builder, {
+      void ({
         title: "Button",
         description: "...",
         components: { btn: { name: "Button", description: "Base" } },
         // @ts-expect-error - 'disabled' must be present in utilities meta
         utilities: {},
-      });
+      } satisfies ComponentDocMeta<typeof builder>);
     });
 
     it("utility composesWith utilities that define vars it references", () => {
