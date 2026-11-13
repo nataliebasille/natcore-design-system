@@ -87,7 +87,7 @@ A component's docs page is `<name>.docs.tsx` next to its `<name>.css.ts` (e.g. `
 
 - `<Section of="key">` documents a builder entity (component, utility, `@slots`, `@custom-variants`); `of` and `vars` only accept the builder's keys. A `<Section title="…">` without `of` is free-form.
 - `<Example>` children are both the live preview and the copyable HTML.
-- `<Playground render={(v) => …}>` derives its controls (variant, controlled-value presets) from the builder; add others with `control.palette/select/text/boolean`.
+- `<Playground render={(v) => …}>` derives its controls (variant, controlled-value presets) from the builder; add others with `control.palette/select/text/boolean`. Each helper takes its default or a config object with `label` (plus `optionLabels` for select/palette, `offLabel`/`onLabel` for boolean); derived-control overrides also accept `optionLabels`.
 - The API reference is generated from the builder; descriptions come from the sections.
 - Every `*.docs.tsx` under `packages/core-v2/src/` is a page, not just components (guides too). Its URL and sidebar group come from its folders (the leading `tailwind/` is dropped, and `button/button.docs.tsx` is `/components/button`), and its sidebar label from `<Page title>`. `<Page nav={{ label, group, order, path }}>` overrides any of them.
 

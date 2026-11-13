@@ -3,11 +3,15 @@ import type { ComponentBuilder } from "../components/component-builder";
 import { isControlledVar, type ComponentState } from "../components/types";
 import { traverseTopDown } from "../components/utils";
 
+/** Text shown for each option; an option without one shows its value. */
+export type OptionLabels<O extends string> = Partial<Record<O, string>>;
+
 export type SelectControl<O extends string = string> = {
   kind: "select";
   options: readonly O[];
   default: O;
   label?: string;
+  optionLabels?: OptionLabels<O>;
 };
 
 export type TextControl = { kind: "text"; default: string; label?: string };
@@ -16,15 +20,32 @@ export type BooleanControl = {
   kind: "boolean";
   default: boolean;
   label?: string;
+  /** Text for the `false` state. Defaults to "Off". */
+  offLabel?: string;
+  /** Text for the `true` state. Defaults to "On". */
+  onLabel?: string;
 };
 
 export type CustomControl = SelectControl | TextControl | BooleanControl;
+
+/** The object form of `control.select()` and `control.palette()`. */
+export type SelectControlConfig<O extends string> = Omit<
+  Partial<SelectControl<O>>,
+  "kind" | "options"
+>;
+
+/** The object form of `control.text()`. */
+export type TextControlConfig = Omit<Partial<TextControl>, "kind">;
+
+/** The object form of `control.boolean()`. */
+export type BooleanControlConfig = Omit<Partial<BooleanControl>, "kind">;
 
 /** Overrides a control derived from the builder (variant, controlled values). */
 export type DerivedControlOverride<V extends string> = {
   label?: string;
   options?: readonly V[];
   default?: V;
+  optionLabels?: OptionLabels<V>;
 };
 
 export type ResolvedControl =
@@ -33,10 +54,19 @@ export type ResolvedControl =
       label: string;
       kind: "select";
       options: string[];
+      /** Every option's text, keyed by option. */
+      optionLabels: Record<string, string>;
       default: string;
     }
   | { name: string; label: string; kind: "text"; default: string }
-  | { name: string; label: string; kind: "boolean"; default: boolean };
+  | {
+      name: string;
+      label: string;
+      kind: "boolean";
+      default: boolean;
+      offLabel: string;
+      onLabel: string;
+    };
 
 export type PlaygroundControlValue = string | boolean;
 
@@ -86,18 +116,25 @@ export type PlaygroundControlsInput<D, C> = {
   : CustomControl;
 };
 
-// When `options` narrows a derived control, it can't be empty and `default` must be one of them.
+// When `options` narrows a derived control, it can't be empty and `default` and `optionLabels` must use them.
 type DerivedOverrideFor<V extends string, X> =
   X extends { options: readonly (infer O)[] } ?
     {
       label?: string;
       options: readonly [O & V, ...(O & V)[]];
       default?: O & V;
+      optionLabels?: OptionLabelsFor<O & V, X>;
     }
-  : { label?: string; default?: V };
+  : { label?: string; default?: V; optionLabels?: OptionLabelsFor<V, X> };
+
+// Typed from the labels given: generic constraints skip excess-property checks, so a key that isn't an option would otherwise pass.
+type OptionLabelsFor<V extends string, X> =
+  X extends { optionLabels: infer L } ?
+    { [K in keyof L]: K extends V ? string : never }
+  : OptionLabels<V>;
 
 type ControlValue<C> =
-  C extends SelectControl<infer O> ? O
+  C extends { kind: "select"; options: readonly (infer O extends string)[] } ? O
   : C extends TextControl ? string
   : C extends BooleanControl ? boolean
   : never;
@@ -118,23 +155,26 @@ export type ResolvedPlaygroundValues<D, C> = Simplify<
 >;
 
 export const control = {
+  /** A select; pass its default, or `{ default, label, optionLabels }`. */
   select<const O extends string>(
     options: readonly [O, ...O[]],
-    defaultValue?: NoInfer<O>,
+    config?: NoInfer<O> | SelectControlConfig<NoInfer<O>>,
   ): SelectControl<O> {
-    return {
-      kind: "select",
-      options,
-      default: defaultValue ?? options[0],
-    };
+    return selectControl(options, config, options[0]);
   },
 
-  text(defaultValue = ""): TextControl {
-    return { kind: "text", default: defaultValue };
+  /** A text input; pass its default, or `{ default, label }`. */
+  text(config: string | TextControlConfig = ""): TextControl {
+    const { default: defaultValue = "", ...rest } =
+      typeof config === "string" ? { default: config } : config;
+    return { kind: "text", default: defaultValue, ...rest };
   },
 
-  boolean(defaultValue = false): BooleanControl {
-    return { kind: "boolean", default: defaultValue };
+  /** An off/on toggle; pass its default, or `{ default, label, offLabel, onLabel }`. */
+  boolean(config: boolean | BooleanControlConfig = false): BooleanControl {
+    const { default: defaultValue = false, ...rest } =
+      typeof config === "boolean" ? { default: config } : config;
+    return { kind: "boolean", default: defaultValue, ...rest };
   },
 
   /** A palette select; defaults to every palette and to `primary` when listed. */
@@ -179,10 +219,10 @@ export function resolvePlaygroundControls(
       issues.push(
         `Playground control "${name}" defaults to "${value.default}", which is not one of its options; using "${fallback}".`,
       );
-      controls.push(toResolved(name, { ...value, default: fallback }));
+      controls.push(toResolved(name, { ...value, default: fallback }, issues));
       return;
     }
-    controls.push(toResolved(name, value));
+    controls.push(toResolved(name, value, issues));
   };
 
   for (const base of derived) {
@@ -222,6 +262,12 @@ export function resolvePlaygroundControls(
       label: override?.label ?? toLabel(base.name),
       kind: "select",
       options: finalOptions,
+      optionLabels: resolveOptionLabels(
+        base.name,
+        finalOptions,
+        override?.optionLabels,
+        issues,
+      ),
       default: defaultValue,
     });
   }
@@ -304,25 +350,38 @@ function deriveControls(state: ComponentState) {
 function paletteControl(): SelectControl<Palette>;
 function paletteControl<const O extends Palette>(
   options: readonly [O, ...O[]],
-  defaultValue?: NoInfer<O>,
+  config?: NoInfer<O> | SelectControlConfig<NoInfer<O>>,
 ): SelectControl<O>;
 function paletteControl(
   options: readonly Palette[] = PALETTE,
-  defaultValue?: Palette,
+  config?: Palette | SelectControlConfig<Palette>,
 ): SelectControl<Palette> {
-  return {
-    kind: "select",
+  return selectControl(
     options,
-    default:
-      defaultValue ?? (options.includes("primary") ? "primary" : options[0]!),
-  };
+    config,
+    options.includes("primary") ? "primary" : options[0]!,
+  );
+}
+
+function selectControl<O extends string>(
+  options: readonly O[],
+  config: O | SelectControlConfig<O> | undefined,
+  fallback: O,
+): SelectControl<O> {
+  const { default: defaultValue = fallback, ...rest } =
+    typeof config === "object" ? config : { default: config };
+  return { kind: "select", options, default: defaultValue, ...rest };
 }
 
 function isCustomControl(value: unknown): value is CustomControl {
   return typeof value === "object" && value !== null && "kind" in value;
 }
 
-function toResolved(name: string, value: CustomControl): ResolvedControl {
+function toResolved(
+  name: string,
+  value: CustomControl,
+  issues: string[],
+): ResolvedControl {
   const label = value.label ?? toLabel(name);
 
   switch (value.kind) {
@@ -332,13 +391,42 @@ function toResolved(name: string, value: CustomControl): ResolvedControl {
         label,
         kind: "select",
         options: [...value.options],
+        optionLabels: resolveOptionLabels(
+          name,
+          value.options,
+          value.optionLabels,
+          issues,
+        ),
         default: value.default,
       };
     case "text":
       return { name, label, kind: "text", default: value.default };
     case "boolean":
-      return { name, label, kind: "boolean", default: value.default };
+      return {
+        name,
+        label,
+        kind: "boolean",
+        default: value.default,
+        offLabel: value.offLabel ?? "Off",
+        onLabel: value.onLabel ?? "On",
+      };
   }
+}
+
+function resolveOptionLabels(
+  name: string,
+  options: readonly string[],
+  labels: OptionLabels<string> = {},
+  issues: string[],
+): Record<string, string> {
+  for (const key of Object.keys(labels)) {
+    if (!options.includes(key)) {
+      issues.push(
+        `Playground control "${name}" has a label for "${key}", which is not one of its options.`,
+      );
+    }
+  }
+  return Object.fromEntries(options.map((o) => [o, labels[o] ?? o]));
 }
 
 function toLabel(name: string) {
