@@ -34,6 +34,8 @@
  *   each followed by a `position: relative` block where their popover opens
  * - #scroll-box (overflow auto) holding #scroll-popover, opened by
  *   #scroll-trigger (a label around #scroll-input)
+ * - #reflip-anchor (in the page flow, room to scroll; -trigger, a checked
+ *   label around #reflip-input; -popover has popover-flip)
  * - #place-trigger (fixed, right half) and popovers #place-<placement> for
  *   default and the 12 placements, #place-gap (popover-top mb-1),
  *   #place-responsive (popover-bottom md:popover-right); every one h-12 w-40
@@ -240,6 +242,38 @@ test.describe("placement", () => {
     expectNear(bottom(await box(popover)), trigger.y - GAP);
   });
 
+  test("a reopened popover-flip picks its side from where it is now", async ({
+    page,
+  }) => {
+    const anchor = page.locator("#reflip-anchor");
+    const trigger = page.locator("#reflip-trigger");
+    const popover = page.locator("#reflip-popover");
+
+    // Room below: it opens below.
+    await centerInView(anchor);
+    await trigger.click();
+    await settle(popover);
+    expectNear((await box(popover)).y, bottom(await box(anchor)) + GAP);
+
+    // Close it fully, then scroll it near the bottom edge while it's hidden.
+    await trigger.click();
+    await expect(popover).toBeHidden();
+    await popover.evaluate((el) =>
+      Promise.all(el.getAnimations().map((a) => a.finished.catch(() => {}))),
+    );
+    await anchor.evaluate((el) => {
+      const { bottom } = el.getBoundingClientRect();
+      window.scrollBy(0, bottom - (window.innerHeight - 20));
+    });
+    await nextFrames(page);
+
+    // No room below now: it reopens above, fully faded in.
+    await trigger.click();
+    await settle(popover);
+    await expect(popover).toHaveCSS("opacity", "1");
+    expectNear(bottom(await box(popover)), (await box(anchor)).y - GAP);
+  });
+
   test("popover-flip flips it left when there is no room on the right, keeping the gap", async ({
     page,
   }) => {
@@ -415,6 +449,26 @@ test.describe("hover trigger", () => {
       await expect
         .poll(() => popover.evaluate((el) => el.matches(":popover-open")))
         .toBe(true);
+    },
+  );
+
+  test(
+    "Escape closes a native-controlled popover even while the trigger is hovered",
+    browsers("chromium"),
+    async ({ page }) => {
+      const popover = page.locator("#mixed-popover");
+      await page.locator("#mixed-trigger").hover();
+      await expect
+        .poll(() => popover.evaluate((el) => el.matches(":popover-open")))
+        .toBe(true);
+      await settle(popover);
+
+      await page.keyboard.press("Escape");
+
+      await expect
+        .poll(() => popover.evaluate((el) => el.matches(":popover-open")))
+        .toBe(false);
+      await expect(popover).toBeHidden();
     },
   );
 });

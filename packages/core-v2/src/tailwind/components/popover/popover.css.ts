@@ -35,11 +35,25 @@ const SHOWN = {
 // Firefox only: it supports the prefixed property and nothing else does.
 const FIREFOX = "-moz-appearance: none";
 
+// Browsers that place popovers with anchor positioning.
+const ANCHOR_PLACEMENT = "position-area: bottom";
+
+// A trigger whose popover the browser shows natively on hover and focus, and
+// browsers that do (they support its pseudo-classes).
+const INTEREST_INVOKER = select.attr("interestfor");
+const NATIVE_INTEREST = "selector(:interest-source)";
+
 // Above later positioned content when CSS opens it (natively opened popovers
 // are in the top layer, which ignores z-index). Like Tailwind's z-50.
 const RAISED = "50";
 
 type Side = "top" | "right" | "bottom" | "left";
+
+/** A selector that shows the popover, and the delay before it does. */
+type ShowRule = [
+  selector: string,
+  delay: dsl.StylePropertyValue | dsl.CssVarAst,
+];
 
 const FACING: Record<Side, Side> = {
   top: "bottom",
@@ -98,7 +112,8 @@ export default component("popover")
     {
       position: "fixed",
       "position-anchor": "auto",
-      inset: dsl.cssvar("--inset"),
+      // Without anchor positioning, it stays where it would be in flow.
+      inset: "auto",
       "align-self": dsl.cssvar("--align-self"),
       "justify-self": dsl.cssvar("--justify-self"),
       padding: "0",
@@ -122,6 +137,9 @@ export default component("popover")
     dsl.startingStyle({
       $: { [select.parent(select.pseudo("popover-open"))]: CLOSED },
     }),
+    // Only with anchor positioning: without it, the stretched inset would push
+    // the popover off screen.
+    dsl.supports(ANCHOR_PLACEMENT, { inset: dsl.cssvar("--inset") }),
     // Reduced motion drops the animation but keeps the delays.
     dsl.prefersReducedMotion({ "transition-duration": "0s" }),
   )
@@ -162,14 +180,22 @@ export default component("popover")
   )
   .utility(
     "trigger-hover",
-    ...showWhen(
-      [triggerPopover(select.pseudo("hover")), dsl.cssvar("--delay-open")],
+    ...showUnlessNative(
+      [
+        (trigger, popover) =>
+          select.child(
+            ownWrapper(`${select.pseudo("hover")}${trigger}`),
+            `${SLOT}${popover}`,
+          ),
+        dsl.cssvar("--delay-open"),
+      ],
       // Stays open while the pointer is anywhere in the wrapper, popover included.
       [
-        select.child(
-          select.compound(ownWrapper(""), select.pseudo("hover")),
-          SLOT,
-        ),
+        (trigger, popover) =>
+          select.child(
+            select.compound(ownWrapper(trigger), select.pseudo("hover")),
+            `${SLOT}${popover}`,
+          ),
         dsl.cssvar("--delay-open"),
       ],
     ),
@@ -200,32 +226,41 @@ export default component("popover")
   )
   .utility(
     "trigger-focus",
-    ...showWhen(
+    ...showUnlessNative(
       // Keyboard focus waits like interestfor; a click opens right away.
       [
-        triggerPopover(select.pseudo("focus-visible")),
+        (trigger, popover) =>
+          select.child(
+            ownWrapper(`${select.pseudo("focus-visible")}${trigger}`),
+            `${SLOT}${popover}`,
+          ),
         dsl.cssvar("--delay-open"),
       ],
       [
-        triggerPopover(
-          select.compound(
-            select.pseudo("focus"),
-            select.pseudo(`not(${select.pseudo("focus-visible")})`),
+        (trigger, popover) =>
+          select.child(
+            ownWrapper(
+              `${select.compound(
+                select.pseudo("focus"),
+                select.pseudo(`not(${select.pseudo("focus-visible")})`),
+              )}${trigger}`,
+            ),
+            `${SLOT}${popover}`,
           ),
-        ),
         "0s",
       ],
       // Stays open while focus is inside the popover.
       [
-        select.child(
-          select.compound(
-            ownWrapper(""),
-            select.has(
-              `> ${select.compound(SLOT, select.pseudo("focus-within"))}`,
+        (trigger, popover) =>
+          select.child(
+            select.compound(
+              ownWrapper(trigger),
+              select.has(
+                `> ${select.compound(SLOT, select.pseudo("focus-within"))}`,
+              ),
             ),
+            `${SLOT}${popover}`,
           ),
-          SLOT,
-        ),
         "0s",
       ],
     ),
@@ -339,9 +374,7 @@ function hoveredWrapper() {
  * from a starting style. The starting styles sit beside the rules they undo:
  * in the same layer and later, so they win when the popover first renders.
  */
-function showWhen(
-  ...rules: [selector: string, delay: dsl.StylePropertyValue | dsl.CssVarAst][]
-) {
+function showWhen(...rules: ShowRule[]) {
   return [
     {
       $: Object.fromEntries(
@@ -370,5 +403,39 @@ function showWhen(
     dsl.startingStyle({
       $: Object.fromEntries(rules.map(([selector]) => [selector, CLOSED])),
     }),
+  ];
+}
+
+/**
+ * showWhen for triggers that can also have `interestfor`. Where the browser
+ * supports it, it controls a `[popover]` popover itself (Escape closes it), so
+ * CSS doesn't force that popover open; CSS shows only popovers it doesn't
+ * control. Elsewhere, CSS shows them all. Each rule builds its selector from a
+ * suffix for the trigger's state and one for the popover.
+ */
+function showUnlessNative(
+  ...rules: [
+    rule: (trigger: string, popover: string) => string,
+    delay: ShowRule[1],
+  ][]
+) {
+  return [
+    ...showWhen(
+      ...rules.map(
+        ([rule, delay]): ShowRule => [
+          select.list(
+            rule(select.pseudo(`not(${INTEREST_INVOKER})`), ""),
+            rule("", select.pseudo(`not(${select.attr("popover")})`)),
+          ),
+          delay,
+        ],
+      ),
+    ),
+    dsl.supports(
+      `not ${NATIVE_INTEREST}`,
+      ...showWhen(
+        ...rules.map(([rule, delay]): ShowRule => [rule("", ""), delay]),
+      ),
+    ),
   ];
 }

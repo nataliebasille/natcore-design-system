@@ -117,10 +117,30 @@ describe("popover element", () => {
     const root = await buildNatcoreCss(["popover"]);
     const decls = placementDecls(root, ["popover"]);
 
-    // Below the anchor; the bottom inset stretches its space past the screen.
-    expect(decls.inset).toBe("auto auto -100vh auto");
+    // Without anchor positioning it stays on screen, where it would be in flow.
+    expect(decls.inset).toBe("auto");
     expect(decls.padding).toBe("0");
   });
+
+  it.each(PLACEMENTS)(
+    "popover-$name stretches its side's space past the screen only with anchor positioning",
+    async ({ name, side }) => {
+      const root = await buildNatcoreCss([`popover-${name}`]);
+      const supported = findDecls(root, {
+        selector: classSelector(`popover-${name}`),
+        prop: "inset",
+      }).filter((decl) => decl.atRules.length > 0);
+      const past = side === "top" || side === "bottom" ? "-100vh" : "-100vw";
+      const expected = SIDES.map((edge) => (edge === side ? past : "auto"));
+
+      expect(supported.map((decl) => decl.atRules)).toEqual([
+        ["@supports (position-area: bottom)"],
+      ]);
+      expect(resolveVars(root, supported[0]!.value, {})).toBe(
+        expected.join(" "),
+      );
+    },
+  );
 
   it("leaves background, color, and border to surface classes like card", async () => {
     const root = await buildNatcoreCss(["popover"]);

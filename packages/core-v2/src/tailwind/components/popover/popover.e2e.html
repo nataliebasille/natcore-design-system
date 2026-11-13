@@ -317,6 +317,21 @@
       </span>
     </div>
   </div>
+
+  <!-- In the page flow, so scrolling moves it across the bottom edge -->
+  <span id="reflip-anchor" class="popover-anchor mb-[60vh]">
+    <label id="reflip-trigger" class="popover-trigger-checked">
+      <input id="reflip-input" type="checkbox" class="sr-only" />
+      Reflip
+    </label>
+    <div
+      id="reflip-popover"
+      data-slot="popover"
+      class="popover popover-flip card-soft h-24 w-40"
+    >
+      reflips
+    </div>
+  </span>
 </div>
 
 <!-- Placements: one trigger near the middle of the right half; tests point its
