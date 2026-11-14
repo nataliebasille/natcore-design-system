@@ -184,11 +184,12 @@ export default (
             label: "commandfor",
             content: (
               <span>
-                The <code className="inline">id</code> of the popover the button
-                controls, with <code className="inline">command</code> set to{" "}
-                <code className="inline">toggle-popover</code>,{" "}
-                <code className="inline">show-popover</code>, or{" "}
-                <code className="inline">hide-popover</code>.
+                The <code className="code-inline">id</code> of the popover the
+                button controls, with{" "}
+                <code className="code-inline">command</code> set to{" "}
+                <code className="code-inline">toggle-popover</code>,{" "}
+                <code className="code-inline">show-popover</code>, or{" "}
+                <code className="code-inline">hide-popover</code>.
               </span>
             ),
           },
@@ -197,7 +198,7 @@ export default (
             content: (
               <span>
                 The older attribute for the same thing:{" "}
-                <code className="inline">
+                <code className="code-inline">
                   popovertarget=&quot;popover-click&quot;
                 </code>{" "}
                 on the button toggles the popover.
@@ -236,14 +237,14 @@ export default (
             label: "interestfor",
             content: (
               <span>
-                The <code className="inline">id</code> of the popover. The
+                The <code className="code-inline">id</code> of the popover. The
                 browser shows it after 0.5s of hover or focus and hides it 0.25s
                 after interest is lost; change that with{" "}
-                <code className="inline">
+                <code className="code-inline">
                   popover-trigger-delay-{"{value}"}
                 </code>{" "}
                 on the button, for example{" "}
-                <code className="inline">popover-trigger-delay-300</code>.
+                <code className="code-inline">popover-trigger-delay-300</code>.
               </span>
             ),
           },
@@ -436,11 +437,15 @@ export default (
             label: "Values",
             content: (
               <span>
-                <code className="inline">popover-trigger-delay-300</code> is
-                300ms,{" "}
-                <code className="inline">popover-trigger-delay-[1.5s]</code> any
-                time, and{" "}
-                <code className="inline">popover-trigger-delay-[normal]</code>{" "}
+                <code className="code-inline">popover-trigger-delay-300</code>{" "}
+                is 300ms,{" "}
+                <code className="code-inline">
+                  popover-trigger-delay-[1.5s]
+                </code>{" "}
+                any time, and{" "}
+                <code className="code-inline">
+                  popover-trigger-delay-[normal]
+                </code>{" "}
                 the default.
               </span>
             ),
@@ -452,9 +457,9 @@ export default (
                 The delays a wrapped popover waits, 500ms and 250ms by default.
                 The delay classes set them; you can also set them on the
                 popover, for example{" "}
-                <code className="inline">[--popover-delay-open:1s]</code>, or on
-                every wrapped popover with{" "}
-                <code className="inline">
+                <code className="code-inline">[--popover-delay-open:1s]</code>,
+                or on every wrapped popover with{" "}
+                <code className="code-inline">
                   .popover-anchor &gt; [data-slot=&quot;popover&quot;]
                 </code>{" "}
                 in your CSS.

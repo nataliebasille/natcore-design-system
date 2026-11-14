@@ -218,8 +218,8 @@ export default (
             label: "commandfor",
             content: (
               <span>
-                The <code className="inline">id</code> of the dialog the button
-                controls.
+                The <code className="code-inline">id</code> of the dialog the
+                button controls.
               </span>
             ),
           },
@@ -227,7 +227,7 @@ export default (
             label: 'command="show-modal"',
             content: (
               <span>
-                Same as <code className="inline">dialog.showModal()</code>:
+                Same as <code className="code-inline">dialog.showModal()</code>:
                 opens the dialog in the top layer with a backdrop, makes the
                 page behind inert, and moves focus inside.
               </span>
@@ -237,9 +237,10 @@ export default (
             label: 'command="close"',
             content: (
               <span>
-                Same as <code className="inline">dialog.close()</code>: closes
-                immediately. The button's <code className="inline">value</code>{" "}
-                becomes <code className="inline">dialog.returnValue</code>.
+                Same as <code className="code-inline">dialog.close()</code>:
+                closes immediately. The button's{" "}
+                <code className="code-inline">value</code> becomes{" "}
+                <code className="code-inline">dialog.returnValue</code>.
               </span>
             ),
           },
@@ -247,10 +248,11 @@ export default (
             label: 'command="request-close"',
             content: (
               <span>
-                Same as <code className="inline">dialog.requestClose()</code>:
+                Same as{" "}
+                <code className="code-inline">dialog.requestClose()</code>:
                 closes as if Esc were pressed, firing a cancelable{" "}
-                <code className="inline">cancel</code> event first so a script
-                can keep the dialog open.
+                <code className="code-inline">cancel</code> event first so a
+                script can keep the dialog open.
               </span>
             ),
           },
@@ -263,11 +265,12 @@ export default (
             label: "Limits",
             content: (
               <span>
-                Only <code className="inline">&lt;button&gt;</code> elements
-                support <code className="inline">commandfor</code>, and the
-                dialog must be in the same document. A command button inside a
-                form does not submit it. There is no command for a non-modal
-                dialog; use <code className="inline">dialog.show()</code>.
+                Only <code className="code-inline">&lt;button&gt;</code>{" "}
+                elements support <code className="code-inline">commandfor</code>
+                , and the dialog must be in the same document. A command button
+                inside a form does not submit it. There is no command for a
+                non-modal dialog; use{" "}
+                <code className="code-inline">dialog.show()</code>.
               </span>
             ),
           },

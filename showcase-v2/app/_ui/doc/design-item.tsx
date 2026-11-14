@@ -144,7 +144,7 @@ export function ExampleEntry({
 }) {
   return (
     <DocSection
-      className="mt-4"
+      className="mt-4 last:mb-0"
       title={title ?? ''}
       description={<div className="mb-2">{description}</div>}
     >

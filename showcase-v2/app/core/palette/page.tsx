@@ -520,7 +520,7 @@ function SchemeRamp({
     <div className="grid gap-1.5">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3">
         <div className="text-sm font-semibold">{label}</div>
-        <code className="code-soft/surface code text-[0.65rem]">{hint}</code>
+        <code className="code text-[0.65rem]">{hint}</code>
       </div>
       <div className="grid grid-cols-11 overflow-hidden rounded-md border border-surface-600/20">
         {PALETTE_SHADES.map((shade) => (
@@ -583,7 +583,7 @@ function BuiltinPalette({
       <div data-slot="content" className="gap-3">
         <div className="text-sm font-semibold capitalize">{name}</div>
         <div className="overflow-hidden rounded-md border border-surface-600/20">
-          <code className="code-soft/surface code block w-full rounded-none border-b border-surface-600/20 text-xs">
+          <code className="code block w-full rounded-none border-b border-surface-600/20 text-xs">
             bg-{name}-500 · {paletteClass}
           </code>
           <PaletteRamp name={name} flush />
@@ -711,5 +711,5 @@ function GuidancePanel({
 }
 
 function InlineCode({ children }: { children: ReactNode }) {
-  return <code className="code-soft/surface code text-xs">{children}</code>;
+  return <code className="code-inline text-xs">{children}</code>;
 }

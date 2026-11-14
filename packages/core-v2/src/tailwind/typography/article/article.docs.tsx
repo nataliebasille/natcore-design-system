@@ -102,41 +102,5 @@ export default (
         </div>
       </Example>
     </Section>
-
-    <Section
-      title="Overriding with Tailwind"
-      description="Article styles sit in the components layer, so Tailwind utilities on its children win without the ! important modifier."
-    >
-      <Example
-        title="Utilities on article content"
-        table={[
-          { label: "m-0 on a <p>", content: "Removes the paragraph spacing." },
-          {
-            label: "mt-2 on an <h2>",
-            content: "Replaces the 2rem space above the heading.",
-          },
-          {
-            label: "leading-tight on a <p>",
-            content: "Replaces the relaxed line height.",
-          },
-          {
-            label: "text-* on a heading",
-            content: "Replaces the tone text color.",
-          },
-        ]}
-      >
-        <article className="w-full">
-          <h2>Compact section</h2>
-          <p className="m-0">
-            This paragraph uses m-0, so it sits right under the heading.
-          </p>
-          <h2 className="text-primary-600 mt-2">Close heading</h2>
-          <p className="leading-tight">
-            This paragraph uses leading-tight, so its lines sit closer together
-            than the relaxed default used in the rest of the article.
-          </p>
-        </article>
-      </Example>
-    </Section>
   </Page>
 );
