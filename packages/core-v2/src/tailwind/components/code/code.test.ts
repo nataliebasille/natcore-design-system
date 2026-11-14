@@ -1,6 +1,7 @@
 /**
  * Spec for the `code` component (code.css.ts): `code` is a full-width,
- * horizontally scrolling monospace block on the surface 100 tone, and
+ * horizontally scrolling monospace block with a translucent surface tint (so
+ * it shows on any container), and
  * `code-inline` is a small chip in running text. Bare `<code>` gets the `code` class.
  * Element rules sit in `components.base` and the classes in
  * `utilities.components.base`, so Tailwind utilities (e.g. `p-0`,
@@ -20,7 +21,7 @@ const MONOSPACE =
   "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace";
 
 describe("code", () => {
-  it("is a full-width, horizontally scrolling monospace block on surface 100", async () => {
+  it("is a full-width, horizontally scrolling monospace block with a translucent surface tint", async () => {
     const root = await buildNatcoreCss(["code", "p-4"]);
 
     expect(styles(root, ".code")).toEqual({
@@ -30,8 +31,9 @@ describe("code", () => {
       "border-radius": "var(--radius-md)",
       "white-space": "pre",
       "line-height": "var(--leading-relaxed)",
-      "background-color": "var(--bg-tone-100-surface)",
-      color: "var(--fg-tone-100-surface)",
+      "background-color": expect.stringMatching(
+        /^color-mix\(in srgb, .*surface-500.* 15%, transparent\)$/,
+      ),
       padding: tailwindValue(root, ".p-4", "padding"),
       "font-family": MONOSPACE,
       "font-size": "0.875em",

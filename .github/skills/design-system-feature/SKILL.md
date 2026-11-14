@@ -88,11 +88,11 @@ export default (
       <Example title="Solid">…</Example>
     </Section>
     <Section of="size" title="Sizes" description="…" vars={{ "--px": "…" }}>…</Section>
-    <Section title="Overriding with Tailwind">…</Section>
   </Page>
 );
 ```
 
+- Document only what the component adds. Don't re-explain Tailwind's built-in utilities (no "Overriding with Tailwind" sections, utility tables, or override demos).
 - No JSX pragma: core-v2 compiles docs files with the preview JSX runtime. Helpers (icons, repeated markup) go **below** the export as `function` declarations.
 - `Section of` takes the builder's components, utilities, `@slots`, and `@custom-variants`; `vars` takes its CSS variables. A section's `description` (and `title`) also feed the generated API reference, so write it once there. A `Section` without `of` needs a `title`.
 - `Example` children are both the preview and the copyable HTML. Use `<ui>`/`<markup>`, `ui-div`, and `uiAttr()` for preview-only or code-only parts. `table` rows render beneath the example.

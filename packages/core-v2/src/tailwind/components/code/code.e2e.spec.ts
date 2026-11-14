@@ -12,6 +12,9 @@
  * - #inline              <code class="code-inline">
  * - #responsive-inline   <code class="min-[1px]:code-inline">
  * - #block-overrides     <code class="rounded-none p-0">
+ * - #card                container with its own background and text color
+ * - #block-on-card       bare <code> inside #card
+ * - #inline-on-card      <code class="code-inline"> inside #card
  * - #inline-overrides    <code class="code-inline rounded-none p-0 text-base">
  */
 import { type Page } from "@playwright/test";
@@ -81,6 +84,22 @@ test.describe("code-inline", () => {
   });
 });
 
+test.describe("on a container", () => {
+  for (const id of ["block-on-card", "inline-on-card"]) {
+    test(`#${id} tints the container's background and keeps its text color`, async ({
+      page,
+    }) => {
+      const style = await computed(page, id);
+      const card = await computed(page, "card");
+      const tint = alpha(style.backgroundColor);
+
+      expect(tint).toBeGreaterThan(0);
+      expect(tint).toBeLessThan(1);
+      expect(style.color).toBe(card.color);
+    });
+  }
+});
+
 test.describe("Tailwind overrides", () => {
   for (const id of ["block-overrides", "inline-overrides"]) {
     test(`p-0 and rounded-none override #${id}`, async ({ page }) => {
@@ -114,6 +133,8 @@ async function computed(page: Page, id: string) {
       overflowX: style.overflowX,
       verticalAlign: style.verticalAlign,
       fontSize: style.fontSize,
+      backgroundColor: style.backgroundColor,
+      color: style.color,
     };
   });
 }
@@ -127,4 +148,13 @@ async function contentWidth(page: Page, id: string) {
       Number.parseFloat(style.paddingRight)
     );
   });
+}
+
+/** Alpha of a computed color (`rgb()`, `rgba()`, `color()`, `oklab()`, …). */
+function alpha(color: string) {
+  const slash = /\/\s*([\d.]+)(%?)\s*\)$/.exec(color);
+  if (slash) return Number(slash[1]) / (slash[2] ? 100 : 1);
+
+  const rgba = /^rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)$/.exec(color);
+  return rgba ? Number(rgba[1]) : 1;
 }

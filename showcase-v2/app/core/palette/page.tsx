@@ -711,5 +711,5 @@ function GuidancePanel({
 }
 
 function InlineCode({ children }: { children: ReactNode }) {
-  return <code className="code text-xs">{children}</code>;
+  return <code className="code-inline text-xs">{children}</code>;
 }

@@ -87,31 +87,5 @@ export default (
         </ui-div>
       </Example>
     </Section>
-
-    <Section
-      title="Overriding with Tailwind"
-      description="Heading styles sit in the components layer, so Tailwind utilities on the element win without the ! important modifier."
-    >
-      <Example
-        title="Utilities on headings"
-        table={[
-          { label: "text-*", content: "Replaces the font size." },
-          { label: "leading-*", content: "Replaces the tight line height." },
-          { label: "tracking-*", content: "Replaces the wide letter spacing." },
-          {
-            label: "m-*, p-*, …",
-            content: "Spacing utilities apply as usual.",
-          },
-        ]}
-      >
-        <ui-div className="flex w-full flex-col gap-2 *:m-0">
-          <h1 className="text-2xl">h1 with text-2xl</h1>
-          <h2 className="leading-loose tracking-normal">
-            h2 with leading-loose and tracking-normal
-          </h2>
-          <h3 className="text-primary-600">h3 with text-primary-600</h3>
-        </ui-div>
-      </Example>
-    </Section>
   </Page>
 );

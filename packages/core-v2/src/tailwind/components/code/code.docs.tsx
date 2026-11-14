@@ -48,7 +48,7 @@ export default (
 
     <Section
       of="code"
-      description="A full-width monospace block on the surface 100 tone with rounded corners, at 0.875em of the surrounding text. Whitespace and line breaks are kept, and lines wider than the block scroll sideways. Bare <code> elements get it automatically; add the class to style another element the same way."
+      description="A full-width monospace block with a translucent surface tint, so it shows on any background, at 0.875em of the surrounding text. Whitespace and line breaks are kept, and lines wider than the block scroll sideways. Bare <code> elements get it automatically; add the class to style another element the same way."
       vars={{
         "--display": "Display of the block. The default is block.",
         "--width": "Width of the block. The default is 100%.",
