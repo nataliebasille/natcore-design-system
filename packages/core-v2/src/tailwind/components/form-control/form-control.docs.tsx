@@ -235,9 +235,25 @@ export default (
             aria-labelledby="slots-color-label"
             className="flex gap-2"
           >
-            <span className="bg-primary-500 size-5 rounded-full" />
-            <span className="bg-secondary-500 size-5 rounded-full" />
-            <span className="bg-accent-500 size-5 rounded-full" />
+            <input
+              type="radio"
+              name="slots-accent"
+              aria-label="Primary"
+              className="bg-primary-500 size-5 appearance-none rounded-full border-0 p-0 outline-offset-2 checked:outline-2 checked:outline-current focus-visible:outline-2"
+              checked
+            />
+            <input
+              type="radio"
+              name="slots-accent"
+              aria-label="Secondary"
+              className="bg-secondary-500 size-5 appearance-none rounded-full border-0 p-0 outline-offset-2 checked:outline-2 checked:outline-current focus-visible:outline-2"
+            />
+            <input
+              type="radio"
+              name="slots-accent"
+              aria-label="Accent"
+              className="bg-accent-500 size-5 appearance-none rounded-full border-0 p-0 outline-offset-2 checked:outline-2 checked:outline-current focus-visible:outline-2"
+            />
           </div>
         </div>
       </Example>

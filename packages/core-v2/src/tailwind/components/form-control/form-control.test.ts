@@ -174,6 +174,17 @@ describe("form-control error state", () => {
 });
 
 describe("form-control internals", () => {
+  it("keeps a focus outline for the input in forced-colors mode", async () => {
+    const root = await buildNatcoreCss(["form-control"]);
+
+    expect(
+      findDecls(root, {
+        selector: `.form-control > ${INPUT}`,
+        atRule: "forced-colors: active",
+      }).map((decl) => decl.prop),
+    ).toContain("outline");
+  });
+
   it("sets no internal --state-* variables", async () => {
     const root = await buildNatcoreCss([
       "form-control",

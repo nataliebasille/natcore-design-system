@@ -141,18 +141,21 @@ export default component("form-control")
             },
           ],
 
-          [input]: {
-            "grid-area": "input",
-            "min-width": "0",
-            outline: "none",
-            "padding-inline-start": dsl.cssvar("--field-indent"),
-            "padding-inline-end": paddingInline,
-            "padding-block": paddingBlock,
-            "border-top-width": edge,
-            "border-inline-width": edge,
-            "border-bottom-width": dsl.cssvar("--bottom-width"),
-            "border-radius": radius,
-          },
+          // outline-hidden keeps a focus outline in forced-colors mode.
+          [input]: [
+            "outline-hidden",
+            {
+              "grid-area": "input",
+              "min-width": "0",
+              "padding-inline-start": dsl.cssvar("--field-indent"),
+              "padding-inline-end": paddingInline,
+              "padding-block": paddingBlock,
+              "border-top-width": edge,
+              "border-inline-width": edge,
+              "border-bottom-width": dsl.cssvar("--bottom-width"),
+              "border-radius": radius,
+            },
+          ],
 
           [prefix]: [
             "flex",
