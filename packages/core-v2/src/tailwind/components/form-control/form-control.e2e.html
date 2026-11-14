@@ -1,0 +1,113 @@
+<!-- Form-control examples exercised by form-control.e2e.spec.ts. Each control
+     is w-80 (320px). -->
+
+<button id="btn-soft" class="btn-soft">Soft button</button>
+<button id="btn-solid" class="btn-solid">Solid button</button>
+
+<div id="fc-full" class="form-control w-80">
+  <label for="fc-full-input">Amount</label>
+  <span data-slot="prefix">$</span>
+  <input id="fc-full-input" />
+  <span data-slot="suffix">.00</span>
+  <small data-slot="hint">Whole dollars only</small>
+</div>
+
+<div id="fc-custom" class="form-control w-80">
+  <span data-slot="label">Custom label</span>
+  <div data-slot="input" tabindex="0">Custom input</div>
+</div>
+
+<div id="fc-no-input" class="form-control w-80">
+  <label>No input</label>
+  <div>Custom content</div>
+</div>
+
+<div id="fc-outline" class="form-control-outline w-80">
+  <label for="fc-outline-input">Outline</label>
+  <input id="fc-outline-input" />
+  <small data-slot="hint">outline hint</small>
+</div>
+
+<div id="fc-soft" class="form-control-soft w-80">
+  <label for="fc-soft-input">Soft</label>
+  <input id="fc-soft-input" />
+  <small data-slot="hint">soft hint</small>
+</div>
+
+<div id="fc-solid" class="form-control-solid w-80">
+  <label for="fc-solid-input">Solid</label>
+  <input id="fc-solid-input" />
+  <small data-slot="hint">solid hint</small>
+</div>
+
+<div id="fc-underline" class="form-control-underline w-80">
+  <label for="fc-underline-input">Underline</label>
+  <input id="fc-underline-input" />
+  <small data-slot="hint">underline hint</small>
+</div>
+
+<div id="fc-danger" class="form-control/danger w-80">
+  <label for="fc-danger-input">Danger</label>
+  <input id="fc-danger-input" />
+  <small data-slot="hint">danger hint</small>
+</div>
+
+<div id="fc-soft-danger" class="form-control-soft/danger w-80">
+  <label for="fc-soft-danger-input">Soft danger</label>
+  <input id="fc-soft-danger-input" />
+</div>
+
+<div
+  id="fc-soft-aria"
+  class="form-control-soft/primary has-aria-invalid:form-control-soft/danger w-80"
+>
+  <label for="fc-soft-aria-input">Soft aria-invalid</label>
+  <input id="fc-soft-aria-input" aria-invalid="true" />
+</div>
+
+<div
+  id="fc-aria"
+  class="form-control has-aria-invalid:form-control/danger w-80"
+>
+  <label for="fc-aria-input">aria-invalid</label>
+  <input id="fc-aria-input" aria-invalid="true" />
+</div>
+
+<div id="fc-plain-invalid" class="form-control w-80">
+  <label for="fc-plain-invalid-input">No opt-in class</label>
+  <input id="fc-plain-invalid-input" aria-invalid="true" />
+</div>
+
+<div
+  id="fc-user-invalid"
+  class="form-control has-user-invalid:form-control/danger w-80"
+>
+  <label for="fc-user-invalid-input">Email</label>
+  <input id="fc-user-invalid-input" class="peer" type="email" />
+  <small data-slot="hint" class="peer-user-invalid:text-danger-700">
+    Email hint
+  </small>
+</div>
+
+<div
+  id="fc-custom-invalid"
+  class="form-control/primary has-aria-invalid:form-control/danger w-80"
+>
+  <span data-slot="label">Custom</span>
+  <div
+    id="fc-custom-invalid-input"
+    data-slot="input"
+    class="peer"
+    tabindex="0"
+    aria-invalid="true"
+  >
+    Custom input
+  </div>
+  <small data-slot="hint" class="peer-aria-invalid:text-danger-700">
+    Custom hint
+  </small>
+</div>
+
+<div id="danger-text" class="text-danger-700">Danger text</div>
+
+<button id="elsewhere" type="button">Elsewhere</button>
