@@ -13,6 +13,12 @@
  * - #radio                         `tabs tabs-style-pill` <ul>; radios in label tabs, the first checked
  * - #r-tab-1..3, #r-input-1..3, #r-panel-1..3   its labels, radios, and panels
  * - #r-panel-radio                 a radio inside #r-panel-1 (not a tab)
+ * - #popover-radio                 `tabs`; radio tabs, the first checked, whose panel holds an
+ *                                  already-open `popover-anchor` <details> with #pr-popover-button
+ * - #pr-tab-1..2                   its label tabs
+ * - #popover-details               `tabs`; <details> tabs, the first open, whose panel holds an
+ *                                  already-open `popover-anchor` <details> with #pd-popover-button
+ * - #pd-tab-1..2                   its <summary> tabs
  * - #aria                          `tabs tabs-style-boxed`; an empty role="tablist" item that
  *                                  aria-owns the tabs, then button tabs with aria-selected,
  *                                  #a-tab-1 selected
@@ -190,6 +196,28 @@ test.describe("radio tabs", () => {
     expect(alpha(other.backgroundColor)).toBe(0);
     expect(Number.parseFloat(selected.borderTopLeftRadius)).toBeGreaterThan(0);
   });
+});
+
+test.describe("closed panels", () => {
+  for (const [markup, prefix] of [
+    ["radio", "pr"],
+    ["<details>", "pd"],
+  ] as const) {
+    test(`hide an open popover inside them, and its controls can't be focused (${markup})`, async ({
+      page,
+    }) => {
+      const button = page.locator(`#${prefix}-popover-button`);
+      await expect(button).toBeVisible();
+
+      await page.locator(`#${prefix}-tab-2`).click();
+      await expect(button).toBeHidden();
+      await button.focus();
+      await expect(button).not.toBeFocused();
+
+      await page.locator(`#${prefix}-tab-1`).click();
+      await expect(button).toBeVisible();
+    });
+  }
 });
 
 test.describe("aria-selected tabs", () => {

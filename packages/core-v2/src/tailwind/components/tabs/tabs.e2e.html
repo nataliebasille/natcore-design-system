@@ -46,6 +46,46 @@
     </li>
   </ul>
 
+  <ul id="popover-radio" class="tabs">
+    <li>
+      <label id="pr-tab-1" data-slot="tab">
+        <input type="radio" name="popover-radio" checked />
+        One
+      </label>
+      <div data-slot="panel">
+        <details class="popover-anchor" open>
+          <summary>More</summary>
+          <div class="popover" data-slot="popover">
+            <button id="pr-popover-button" type="button">In a popover</button>
+          </div>
+        </details>
+      </div>
+    </li>
+    <li>
+      <label id="pr-tab-2" data-slot="tab">
+        <input type="radio" name="popover-radio" />
+        Two
+      </label>
+      <div data-slot="panel">Panel two</div>
+    </li>
+  </ul>
+
+  <div id="popover-details" class="tabs">
+    <details name="popover-details" open>
+      <summary id="pd-tab-1">One</summary>
+      <details class="popover-anchor" open>
+        <summary>More</summary>
+        <div class="popover" data-slot="popover">
+          <button id="pd-popover-button" type="button">In a popover</button>
+        </div>
+      </details>
+    </details>
+    <details name="popover-details">
+      <summary id="pd-tab-2">Two</summary>
+      Panel two
+    </details>
+  </div>
+
   <div id="aria" class="tabs tabs-style-boxed">
     <div role="tablist" aria-owns="a-tab-1 a-tab-2"></div>
     <div>

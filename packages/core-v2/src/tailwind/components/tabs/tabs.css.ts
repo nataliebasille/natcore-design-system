@@ -28,30 +28,41 @@ const PANEL = select.list(
 );
 
 // The panels of every item that isn't selected.
-const CLOSED_PANEL = select.list(
-  select.child(
-    select.child(
-      select.parent(),
-      select.not(
-        DETAILS,
-        select.has(
-          `> ${select.descendant(TAB_SLOT, select.pseudo("checked"))}`,
-        ),
-        select.has(
-          `> ${select.compound(TAB_SLOT, select.attr('aria-selected="true"'))}`,
-        ),
-      ),
-    ),
-    PANEL_SLOT,
-  ),
+const CLOSED_SLOT_PANEL = select.child(
   select.child(
     select.parent(),
-    select.compound(
+    select.not(
       DETAILS,
-      select.not(select.attr("open")),
-      select.pseudoElement("details-content"),
+      select.has(`> ${select.descendant(TAB_SLOT, select.pseudo("checked"))}`),
+      select.has(
+        `> ${select.compound(TAB_SLOT, select.attr('aria-selected="true"'))}`,
+      ),
     ),
   ),
+  PANEL_SLOT,
+);
+const CLOSED_DETAILS = select.compound(
+  DETAILS,
+  select.not(select.attr("open")),
+);
+const CLOSED_PANEL = select.list(
+  CLOSED_SLOT_PANEL,
+  select.child(
+    select.parent(),
+    select.compound(CLOSED_DETAILS, select.pseudoElement("details-content")),
+  ),
+);
+
+// Everything inside a closed panel, including what a closed <details> holds
+// besides its <summary>.
+const CLOSED_DETAILS_CONTENT = select.child(
+  select.child(select.parent(), CLOSED_DETAILS),
+  select.not(select.element("summary")),
+);
+const CLOSED_SUBTREE = select.list(
+  select.descendant(CLOSED_SLOT_PANEL, select.any()),
+  CLOSED_DETAILS_CONTENT,
+  select.descendant(CLOSED_DETAILS_CONTENT, select.any()),
 );
 
 const GAP = dsl.spacing("1");
@@ -292,6 +303,10 @@ export default component("tabs")
           visibility: "hidden",
           "content-visibility": "visible",
         },
+        // Hidden even where a descendant sets its own visibility, like an
+        // open popover, whose rule sits in a higher layer. Important is the
+        // only way past that, and nothing in a closed panel should show.
+        [CLOSED_SUBTREE]: { visibility: "hidden !important" },
       },
     },
     dsl.prefersReducedMotion({

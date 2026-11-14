@@ -329,16 +329,29 @@ describe("tabs cascade layer", () => {
     expect(layers(root, cls)).toEqual(["utilities.components.base"]);
   });
 
-  it("never uses !important", async () => {
+  it("uses !important only to hide everything inside closed panels", async () => {
     const root = await buildNatcoreCss([
       "tabs",
       "tabs-v",
       ...STYLES.map((s) => `tabs-style-${s}`),
     ]);
     const decls = findDecls(root, { selector: /\.tabs/ });
+    const important = decls.filter((d) => d.important);
 
     expect(decls).not.toEqual([]);
-    expect(decls.filter((d) => d.important)).toEqual([]);
+    expect(important).not.toEqual([]);
+    expect(
+      important.filter(
+        (d) =>
+          !(
+            d.prop === "visibility" &&
+            d.value === "hidden" &&
+            /(\[data-slot="panel"\] \*|details:not\(\[open\]\) > :not\(summary\)( \*)?)$/.test(
+              d.selector,
+            )
+          ),
+      ),
+    ).toEqual([]);
   });
 });
 

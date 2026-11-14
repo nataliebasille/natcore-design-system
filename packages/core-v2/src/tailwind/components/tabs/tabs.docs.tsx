@@ -40,9 +40,13 @@ const ITEMS = [
   },
 ];
 
-// Selects the clicked tab and deselects the others in the same tabs element.
+// Click and keyboard handling for the aria-selected example, on the tabs
+// element. Clicking selects a tab; the arrow keys, Home, and End move to
+// another tab and select it. Only the selected tab is in the Tab order.
 const SELECT_TAB =
-  "this.parentElement.parentElement.querySelectorAll('[role=tab]').forEach((tab) => tab.setAttribute('aria-selected', tab === this))";
+  "const tab = event.target.closest('[role=tab]'); if (!tab || tab.parentElement.parentElement !== this) return; this.querySelectorAll(':scope > * > [role=tab]').forEach((t) => { t.setAttribute('aria-selected', t === tab); t.tabIndex = t === tab ? 0 : -1; });";
+const MOVE_TAB =
+  "const tabs = [...this.querySelectorAll(':scope > * > [role=tab]')]; const i = tabs.indexOf(event.target); const to = { ArrowLeft: i - 1, ArrowUp: i - 1, ArrowRight: i + 1, ArrowDown: i + 1, Home: 0, End: tabs.length - 1 }[event.key]; if (i < 0 || to === undefined) return; event.preventDefault(); const tab = tabs[(to + tabs.length) % tabs.length]; tab.focus(); tab.click();";
 
 export default (
   <Page
@@ -168,7 +172,7 @@ export default (
 
       <Example
         title="aria-selected"
-        description="Your script decides which tab is selected. Use it when the selection comes from your app's state, such as the URL. Here, a small click handler moves aria-selected."
+        description="Your script decides which tab is selected. Use it when the selection comes from your app's state, such as the URL. Here, a small script on the tabs element selects a tab on click, and the arrow keys, Home, and End move between tabs."
         table={[
           {
             label: "aria-selected",
@@ -177,6 +181,18 @@ export default (
                 <code className="code-inline">"true"</code> on the selected tab
                 and <code className="code-inline">"false"</code> on the others.
                 The panel next to the selected tab shows.
+              </span>
+            ),
+          },
+          {
+            label: "tabindex",
+            content: (
+              <span>
+                <code className="code-inline">0</code> on the selected tab and{" "}
+                <code className="code-inline">-1</code> on the others, so Tab
+                enters the tabs once and the arrow keys move between them. Keep
+                it in step with{" "}
+                <code className="code-inline">aria-selected</code>.
               </span>
             ),
           },
@@ -286,7 +302,12 @@ function RadioTabs({ className, name }: { className: string; name: string }) {
       {ITEMS.map((item, i) => (
         <li>
           <label data-slot="tab">
-            <input type="radio" name={name} checked={i === 0} />
+            <input
+              type="radio"
+              name={name}
+              value={item.label.toLowerCase()}
+              checked={i === 0}
+            />
             {item.label}
           </label>
           <div data-slot="panel">{item.panel}</div>
@@ -297,18 +318,18 @@ function RadioTabs({ className, name }: { className: string; name: string }) {
 }
 
 /**
- * Inline onclick handlers can't be passed through server-rendered JSX, so the
+ * Inline event handlers can't be passed through server-rendered JSX, so the
  * preview injects the same HTML the snippet shows.
  */
 function ScriptTabs({ className, id }: { className: string; id: string }) {
   const tabIds = ITEMS.map((_, i) => `${id}-tab-${i}`);
   const items = ITEMS.map(
     (item, i) => `  <div>
-    <button type="button" role="tab" id="${tabIds[i]}" aria-controls="${id}-panel-${i}" aria-selected="${i === 0}" data-slot="tab" onclick="${SELECT_TAB}">${item.label}</button>
+    <button type="button" role="tab" id="${tabIds[i]}" aria-controls="${id}-panel-${i}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-slot="tab">${item.label}</button>
     <div role="tabpanel" id="${id}-panel-${i}" aria-labelledby="${tabIds[i]}" data-slot="panel">${item.panel}</div>
   </div>`,
   );
-  const html = `<div class="${className}">
+  const html = `<div class="${className}" onclick="${SELECT_TAB}" onkeydown="${MOVE_TAB}">
   <div role="tablist" aria-label="Project" aria-owns="${tabIds.join(" ")}"></div>
 ${items.join("\n")}
 </div>`;
