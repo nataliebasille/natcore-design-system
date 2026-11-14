@@ -340,6 +340,12 @@ function deriveControls(state: ComponentState) {
       default:
         selection.mode === "default" && variants.includes(selection.key) ?
           selection.key
+        : (
+          selection.mode === "optional" &&
+          selection.default !== undefined &&
+          variants.includes(selection.default)
+        ) ?
+          selection.default
         : variants[0]!,
     });
   }

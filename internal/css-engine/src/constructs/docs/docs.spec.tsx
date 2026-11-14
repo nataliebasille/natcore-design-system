@@ -470,6 +470,24 @@ describe("toDocModel", () => {
     ]);
   });
 
+  it("defaults the derived variant control to the optional default variant", () => {
+    const field = component("field")
+      .variant("primary", { "--color": "blue" })
+      .variant("secondary", { "--color": "gray" })
+      .optionalVariants("secondary")
+      .body({ color: dsl.cssvar("--color") });
+    const { Page, Playground } = docsFor(field);
+    const model = toDocModel(
+      <Page title="Field" description="Fields.">
+        <Playground render={() => <div />} />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toContainEqual(
+      expect.objectContaining({ name: "variant", default: "secondary" }),
+    );
+  });
+
   it("hides a derived control set to false and narrows options", () => {
     const { Page, Playground } = docsFor(btn);
     const model = toDocModel(

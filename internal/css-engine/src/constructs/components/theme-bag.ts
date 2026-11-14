@@ -41,6 +41,11 @@ export class ThemeBag {
     originalName: `--${string}`;
     value: ControlledVar;
   }> = [];
+  /** Vars the optional default variant sets, by scoped name (most-derived wins). */
+  #selectedDefaults: Record<
+    `--${string}`,
+    StylePropertyValue | StylePropertyValue[]
+  > = {};
 
   constructor(state: ComponentState) {
     this.#toScoped = {};
@@ -120,6 +125,11 @@ export class ThemeBag {
     return this.#controlledVars;
   }
 
+  /** Vars the optional default variant sets, keyed by scoped name. */
+  get selectedDefaults() {
+    return this.#selectedDefaults;
+  }
+
   #getScopedName(state: ComponentState, varName: `--${string}`) {
     return `--${resolveComponentName(state)}-${varName.slice(2)}` as const;
   }
@@ -184,16 +194,29 @@ export class ThemeBag {
     const { selection } = state.variants;
     const defaultVariant =
       selection.mode === "optional" && selection.default !== undefined ?
-        state.variants.values[selection.default]
+        findVariantValues(state, selection.default)
       : undefined;
 
     Object.entries(defaultVariant ?? {}).forEach(([varName, value]) => {
-      const entry =
-        this.#bag[this.#getScopedName(state, varName as `--${string}`)];
+      const scopedName = this.#toScoped[varName as `--${string}`];
+      const entry = scopedName ? this.#bag[scopedName] : undefined;
 
-      if (entry?.type === "variant") {
+      if (scopedName && entry?.type === "variant") {
         entry.default = value;
+        this.#selectedDefaults[scopedName] = value;
       }
     });
   }
+}
+
+/** A variant's vars, looked up on the state or the nearest ancestor that defines it. */
+function findVariantValues(
+  state: ComponentState,
+  variant: string,
+): ComponentState["variants"]["values"][string] | undefined {
+  for (let s: ComponentState | undefined = state; s; s = s.parent) {
+    const values = s.variants.values[variant];
+    if (values) return values;
+  }
+  return undefined;
 }
