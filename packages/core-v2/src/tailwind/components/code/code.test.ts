@@ -58,6 +58,7 @@ describe("code", () => {
       ...styles(root, ".code"),
       display: "inline",
       width: "auto",
+      "white-space": "normal",
       padding: `${tailwindValue(root, ".py-0\\.5", "padding-block")} ${tailwindValue(root, ".px-1\\.5", "padding-inline")}`,
       "border-radius": "var(--radius-sm)",
     });

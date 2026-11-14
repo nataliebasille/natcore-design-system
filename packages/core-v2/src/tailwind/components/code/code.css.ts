@@ -13,19 +13,22 @@ export default component("code")
     "--width": dsl.primitive.percentage(100),
     "--padding": dsl.spacing("4"),
     "--radius": dsl.cssvar("--radius-md"),
+    "--white-space": "pre",
   })
   .variant("inline", {
     "--display": "inline",
     "--width": "auto",
     "--padding": dsl.cssv`${dsl.spacing("0.5")} ${dsl.spacing("1.5")}`,
     "--radius": dsl.cssvar("--radius-sm"),
+    "--white-space": "normal",
   })
   .optionalVariants()
-  .body("overflow-x-auto", "whitespace-pre", "leading-relaxed", {
+  .body("overflow-x-auto", "leading-relaxed", {
     display: dsl.cssvar("--display"),
     width: dsl.cssvar("--width"),
     padding: dsl.cssvar("--padding"),
     "border-radius": dsl.cssvar("--radius"),
+    "white-space": dsl.cssvar("--white-space"),
     "background-color": dsl.adaptive("surface", 500, 0.15),
     "font-family":
       "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace",

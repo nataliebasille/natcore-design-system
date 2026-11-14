@@ -54,6 +54,8 @@ export default (
         "--width": "Width of the block. The default is 100%.",
         "--padding": "Padding inside the block. The default is 1rem (4).",
         "--radius": "Corner radius. The default is --radius-md.",
+        "--white-space":
+          "Whitespace handling. The default is pre, which keeps line breaks and scrolls long lines.",
       }}
     >
       <Example
@@ -74,7 +76,7 @@ export default (
     <Section
       of="code@variant"
       title="Inline code"
-      description="The inline variant turns code into a small chip inside a line of text: inline display, auto width, tight padding, and a smaller radius. It works with responsive modifiers, e.g. min-[48rem]:code-inline."
+      description="The inline variant turns code into a small chip inside a line of text: inline display, auto width, tight padding, a smaller radius, and normal wrapping so long code breaks across lines. It works with responsive modifiers, e.g. min-[48rem]:code-inline."
     >
       <Example title="In a sentence">
         <p className="m-0">

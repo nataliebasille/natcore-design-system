@@ -10,6 +10,8 @@
  * - #block-long          bare <code>, one line wider than #container
  * - #prose               <p> containing #inline
  * - #inline              <code class="code-inline">
+ * - #narrow              200px-wide <p> containing #inline-long
+ * - #inline-long         <code class="code-inline"> with spaces, wider than #narrow
  * - #responsive-inline   <code class="min-[1px]:code-inline">
  * - #block-overrides     <code class="rounded-none p-0">
  * - #card                container with its own background and text color
@@ -73,6 +75,22 @@ test.describe("code-inline", () => {
     expect(style.borderRadius).toBe("4px");
     expect(code!.width).toBeLessThan(prose!.width / 2);
     expect(code!.y).toBeLessThan(prose!.y + code!.height);
+  });
+
+  test("long code with spaces wraps inside a narrow container", async ({
+    page,
+  }) => {
+    const layout = await page.locator("#inline-long").evaluate((el) => {
+      const container = el.parentElement!.getBoundingClientRect();
+      const lines = [...el.getClientRects()];
+      return {
+        lines: lines.length,
+        overflow: Math.max(...lines.map((r) => r.right)) - container.right,
+      };
+    });
+
+    expect(layout.lines).toBeGreaterThan(1);
+    expect(layout.overflow).toBeLessThanOrEqual(1);
   });
 
   test("works behind a responsive modifier", async ({ page }) => {
