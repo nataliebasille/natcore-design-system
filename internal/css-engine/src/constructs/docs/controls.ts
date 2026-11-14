@@ -508,33 +508,38 @@ function resolveOptionLabels(
   );
 }
 
-/** A number control's default (moved into range and onto its step), min, max, and step. */
+/** A number control's default (moved onto a step within its range), min, max, and step. */
 function resolveNumber(
   name: string,
   { default: requested, min, max, step }: NumberControl,
   issues: string[],
 ): { default: number } & ResolvedNumberRange {
+  const base = min ?? 0;
+  const problem =
+    min !== undefined && requested < min ? `is below its min ${min}`
+    : max !== undefined && requested > max ? `is above its max ${max}`
+    : step !== undefined && !isOnStep(requested, base, step) ?
+      `is not a multiple of its step ${step} from ${base}`
+    : undefined;
   let value = requested;
 
-  if (min !== undefined && value < min) {
-    value = min;
-    issues.push(
-      `Playground control "${name}" defaults to ${requested}, which is below its min ${min}; using ${value}.`,
-    );
-  } else if (max !== undefined && value > max) {
-    value = max;
-    issues.push(
-      `Playground control "${name}" defaults to ${requested}, which is above its max ${max}; using ${value}.`,
-    );
-  } else if (step !== undefined) {
-    const base = min ?? 0;
-    const onStep = base + Math.round((value - base) / step) * step;
-    if (onStep !== value) {
-      value = onStep;
-      issues.push(
-        `Playground control "${name}" defaults to ${requested}, which is not a multiple of its step ${step} from ${base}; using ${value}.`,
+  if (problem) {
+    value = Math.min(Math.max(value, min ?? -Infinity), max ?? Infinity);
+    if (step !== undefined) {
+      let steps = Math.round((value - base) / step);
+      // Rounding can land past max; take the last step that fits instead.
+      if (max !== undefined && stepValue(base, steps, step) > max) {
+        steps = Math.floor((max - base) / step + FLOAT_TOLERANCE);
+      }
+      value = stepValue(
+        base,
+        Math.max(steps, min === undefined ? -Infinity : 0),
+        step,
       );
     }
+    issues.push(
+      `Playground control "${name}" defaults to ${requested}, which ${problem}; using ${value}.`,
+    );
   }
 
   return {
@@ -543,6 +548,20 @@ function resolveNumber(
     ...(max !== undefined && { max }),
     ...(step !== undefined && { step }),
   };
+}
+
+// How far a value may be from a step and still count as on it, so a valid
+// fractional default like 0.3 (step 0.1) isn't flagged.
+const FLOAT_TOLERANCE = 1e-9;
+
+function isOnStep(value: number, base: number, step: number) {
+  const steps = (value - base) / step;
+  return Math.abs(steps - Math.round(steps)) < FLOAT_TOLERANCE;
+}
+
+/** `base + steps * step`, without floating-point noise (0.30000000000000004 is 0.3). */
+function stepValue(base: number, steps: number, step: number) {
+  return Number((base + steps * step).toPrecision(12));
 }
 
 function toLabel(name: string) {

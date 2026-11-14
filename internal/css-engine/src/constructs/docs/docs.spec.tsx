@@ -1030,6 +1030,71 @@ describe("number controls", () => {
       'Playground control "odd" defaults to 7, which is not a multiple of its step 5 from 0; using 5.',
     ]);
   });
+
+  it("fix a default onto a step that's also within the range", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            // Rounds up to 10, past the max: the nearest step below is 5.
+            rounded: control.number({ default: 9, min: 0, max: 9, step: 5 }),
+            // Clamps to 9, off the step: the nearest step below is 5.
+            clamped: control.number({ default: 12, min: 0, max: 9, step: 5 }),
+            // Clamps to 1, off the step: the nearest step above is 3.
+            low: control.number({ default: -4, min: 1, max: 9, step: 2 }),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    expect(
+      playgroundOf(model).controls.map((c) =>
+        c.kind === "number" ? c.default : undefined,
+      ),
+    ).toEqual([5, 5, 1]);
+    expect(model.issues).toEqual([
+      'Playground control "rounded" defaults to 9, which is not a multiple of its step 5 from 0; using 5.',
+      'Playground control "clamped" defaults to 12, which is above its max 9; using 5.',
+      'Playground control "low" defaults to -4, which is below its min 1; using 1.',
+    ]);
+  });
+
+  it("accept a fractional step without floating-point error", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            valid: control.number({ default: 0.3, min: 0, max: 1, step: 0.1 }),
+            snapped: control.number({
+              default: 0.33,
+              min: 0,
+              max: 1,
+              step: 0.1,
+            }),
+            offset: control.number({
+              default: 0.7,
+              min: 0.1,
+              max: 1,
+              step: 0.2,
+            }),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    expect(
+      playgroundOf(model).controls.map((c) =>
+        c.kind === "number" ? c.default : undefined,
+      ),
+    ).toEqual([0.3, 0.3, 0.7]);
+    expect(model.issues).toEqual([
+      'Playground control "snapped" defaults to 0.33, which is not a multiple of its step 0.1 from 0; using 0.3.',
+    ]);
+  });
 });
 
 describe("playground control labels", () => {
