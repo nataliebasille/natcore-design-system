@@ -643,6 +643,36 @@ describe("createDoc", () => {
       });
     });
 
+    it("controlled var utility pattern lists the matcher inside a calc", () => {
+      const builder = component("btn")
+        .vars({ "--size": "1rem" })
+        .controlled(
+          "--size",
+          { sm: "0.875rem" },
+          dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.percentage(1)}`,
+          dsl.match.arbitrary.length(),
+        );
+
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+        components: { btn: { name: "Button", description: "Base" } },
+        utilities: { size: { name: "Size", description: "Size" } },
+      });
+
+      expect(result.utilities["size"]!.pattern).toEqual({
+        root: "btn-size",
+        value: {
+          name: "size",
+          tokens: [
+            "sm",
+            { type: "bare", dataType: "integer" },
+            { type: "arbitrary", dataType: "length" },
+          ],
+        },
+      });
+    });
+
     it("a -* utility's pattern lists the values its body matches", () => {
       const delay = [
         dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.time.ms(1)}`,

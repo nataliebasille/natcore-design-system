@@ -1415,6 +1415,74 @@ describe("controlled vars", () => {
     );
   });
 
+  it("a calc around a matcher is a lookup, declared before the other matchers", () => {
+    const percent = dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.percentage(1)}`;
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--size": "1rem" })
+        .controlled(
+          "--size",
+          { sm: "0.875rem" },
+          percent,
+          dsl.match.arbitrary.length(),
+        )
+        .body({ padding: dsl.cssvar("--size") }),
+    );
+
+    expect(
+      result.find(
+        (x) =>
+          x.$ast === "at-rule" &&
+          x.name === "utility" &&
+          x.prelude === "btn-size-*",
+      ),
+    ).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn-size-*",
+        dsl.layer.components(
+          dsl.styleList({
+            "--btn-size": [
+              percent,
+              dsl.match.oneOf(
+                dsl.match.variable("--btn-size"),
+                dsl.match.arbitrary.length(),
+              ),
+            ],
+          }),
+        ),
+      ),
+    );
+    expect(
+      result.find((x) => x.$ast === "at-rule" && x.name === "theme"),
+    ).not.toHaveProperty("body.--btn-size-$function");
+  });
+
+  it("only a calc lookup is a single declaration", () => {
+    const percent = dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.percentage(1)}`;
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--size": "1rem" })
+        .controlled("--size", percent)
+        .body({ padding: dsl.cssvar("--size") }),
+    );
+
+    expect(
+      result.find(
+        (x) =>
+          x.$ast === "at-rule" &&
+          x.name === "utility" &&
+          x.prelude === "btn-size-*",
+      ),
+    ).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn-size-*",
+        dsl.layer.components(dsl.styleList({ "--btn-size": percent })),
+      ),
+    );
+  });
+
   it("mixed candidates use single token variable lookup plus arbitrary/bare candidates", () => {
     const result = componentBuilderToDsl(
       component("btn")

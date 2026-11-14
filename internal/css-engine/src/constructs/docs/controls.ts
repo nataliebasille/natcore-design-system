@@ -1,6 +1,10 @@
 import { PALETTE, type Palette } from "../../dsl/public";
 import type { ComponentBuilder } from "../components/component-builder";
-import { isControlledVar, type ComponentState } from "../components/types";
+import {
+  isControlledLookup,
+  isControlledVar,
+  type ComponentState,
+} from "../components/types";
 import { traverseTopDown } from "../components/utils";
 
 /** Text shown for each option; an option without one shows its value. */
@@ -12,9 +16,20 @@ export type SelectControl<O extends string = string> = {
   default: O;
   label?: string;
   optionLabels?: OptionLabels<O>;
+  /** Adds a last option that switches to a number input; `render` then gets the number. */
+  custom?: NumberControl;
 };
 
 export type TextControl = { kind: "text"; default: string; label?: string };
+
+export type NumberControl = {
+  kind: "number";
+  default: number;
+  label?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+};
 
 export type BooleanControl = {
   kind: "boolean";
@@ -26,7 +41,11 @@ export type BooleanControl = {
   onLabel?: string;
 };
 
-export type CustomControl = SelectControl | TextControl | BooleanControl;
+export type CustomControl =
+  | SelectControl
+  | TextControl
+  | NumberControl
+  | BooleanControl;
 
 /** The object form of `control.select()` and `control.palette()`. */
 export type SelectControlConfig<O extends string> = Omit<
@@ -36,6 +55,9 @@ export type SelectControlConfig<O extends string> = Omit<
 
 /** The object form of `control.text()`. */
 export type TextControlConfig = Omit<Partial<TextControl>, "kind">;
+
+/** The object form of `control.number()`. */
+export type NumberControlConfig = Omit<Partial<NumberControl>, "kind">;
 
 /** The object form of `control.boolean()`. */
 export type BooleanControlConfig = Omit<Partial<BooleanControl>, "kind">;
@@ -48,6 +70,9 @@ export type DerivedControlOverride<V extends string> = {
   optionLabels?: OptionLabels<V>;
 };
 
+/** A number input's bounds and step, as resolved for rendering. */
+export type ResolvedNumberRange = { min?: number; max?: number; step?: number };
+
 export type ResolvedControl =
   | {
       name: string;
@@ -57,8 +82,16 @@ export type ResolvedControl =
       /** Every option's text, keyed by option. */
       optionLabels: Record<string, string>;
       default: string;
+      /** The custom number option, when the select has one; `label` is that option's text. */
+      custom?: { label: string; default: number } & ResolvedNumberRange;
     }
   | { name: string; label: string; kind: "text"; default: string }
+  | ({
+      name: string;
+      label: string;
+      kind: "number";
+      default: number;
+    } & ResolvedNumberRange)
   | {
       name: string;
       label: string;
@@ -68,7 +101,7 @@ export type ResolvedControl =
       onLabel: string;
     };
 
-export type PlaygroundControlValue = string | boolean;
+export type PlaygroundControlValue = string | number | boolean;
 
 type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
@@ -79,7 +112,7 @@ type VariantNames<S extends ComponentState> =
 
 type PresetKeys<V> =
   V extends { candidates: readonly (infer E)[] } ?
-    E extends { $ast: unknown } ?
+    E extends { $ast: unknown } | { $function: unknown } ?
       never
     : keyof E & string
   : never;
@@ -134,8 +167,10 @@ type OptionLabelsFor<V extends string, X> =
   : OptionLabels<V>;
 
 type ControlValue<C> =
-  C extends { kind: "select"; options: readonly (infer O extends string)[] } ? O
+  C extends { kind: "select"; options: readonly (infer O extends string)[] } ?
+    O | (C extends { custom: NumberControl } ? number : never)
   : C extends TextControl ? string
+  : C extends NumberControl ? number
   : C extends BooleanControl ? boolean
   : never;
 
@@ -155,19 +190,23 @@ export type ResolvedPlaygroundValues<D, C> = Simplify<
 >;
 
 export const control = {
-  /** A select; pass its default, or `{ default, label, optionLabels }`. */
-  select<const O extends string>(
-    options: readonly [O, ...O[]],
-    config?: NoInfer<O> | SelectControlConfig<NoInfer<O>>,
-  ): SelectControl<O> {
-    return selectControl(options, config, options[0]);
-  },
+  select: selectHelper,
 
   /** A text input; pass its default, or `{ default, label }`. */
   text(config: string | TextControlConfig = ""): TextControl {
     const { default: defaultValue = "", ...rest } =
       typeof config === "string" ? { default: config } : config;
     return { kind: "text", default: defaultValue, ...rest };
+  },
+
+  /**
+   * A number input; pass its default, or `{ default, label, min, max, step }`.
+   * Without a default it starts at `min`, or 0. Also a select's `custom` option.
+   */
+  number(config: number | NumberControlConfig = {}): NumberControl {
+    const { default: defaultValue, ...rest } =
+      typeof config === "number" ? { default: config } : config;
+    return { kind: "number", default: defaultValue ?? rest.min ?? 0, ...rest };
   },
 
   /** An off/on toggle; pass its default, or `{ default, label, offLabel, onLabel }`. */
@@ -276,7 +315,7 @@ export function resolvePlaygroundControls(
     if (derivedNames.has(name) || value === undefined) continue;
     if (!isCustomControl(value)) {
       issues.push(
-        `Playground control "${name}" is not derived from the component; use control.select(), control.text(), control.boolean(), or control.palette().`,
+        `Playground control "${name}" is not derived from the component; use control.select(), control.text(), control.number(), control.boolean(), or control.palette().`,
       );
       continue;
     }
@@ -311,7 +350,7 @@ function deriveControls(state: ComponentState) {
       const options: string[] = [];
       let defaultKey: string | undefined;
       for (const candidate of value.candidates) {
-        if ("$ast" in candidate) continue;
+        if (isControlledLookup(candidate)) continue;
         for (const [key, presetValue] of Object.entries(candidate)) {
           options.push(key);
           if (sameValue(presetValue, value.default)) defaultKey ??= key;
@@ -351,6 +390,25 @@ function deriveControls(state: ComponentState) {
   }
 
   return [...controls, ...presets];
+}
+
+/**
+ * A select; pass its default, or `{ default, label, optionLabels, custom }`.
+ * With `custom`, `render` also gets the number entered for the custom option.
+ */
+function selectHelper<const O extends string>(
+  options: readonly [O, ...O[]],
+  config: SelectControlConfig<NoInfer<O>> & { custom: NumberControl },
+): SelectControl<O> & { custom: NumberControl };
+function selectHelper<const O extends string>(
+  options: readonly [O, ...O[]],
+  config?: NoInfer<O> | SelectControlConfig<NoInfer<O>>,
+): SelectControl<O>;
+function selectHelper<const O extends string>(
+  options: readonly [O, ...O[]],
+  config?: NoInfer<O> | SelectControlConfig<NoInfer<O>>,
+): SelectControl<O> {
+  return selectControl(options, config, options[0]);
 }
 
 function paletteControl(): SelectControl<Palette>;
@@ -404,9 +462,22 @@ function toResolved(
           issues,
         ),
         default: value.default,
+        ...(value.custom && {
+          custom: {
+            label: value.custom.label ?? "Custom",
+            ...resolveNumber(name, value.custom, issues),
+          },
+        }),
       };
     case "text":
       return { name, label, kind: "text", default: value.default };
+    case "number":
+      return {
+        name,
+        label,
+        kind: "number",
+        ...resolveNumber(name, value, issues),
+      };
     case "boolean":
       return {
         name,
@@ -435,6 +506,62 @@ function resolveOptionLabels(
   return Object.fromEntries(
     options.map((o) => [o, (Object.hasOwn(labels, o) ? labels[o] : o) ?? o]),
   );
+}
+
+/** A number control's default (moved onto a step within its range), min, max, and step. */
+function resolveNumber(
+  name: string,
+  { default: requested, min, max, step }: NumberControl,
+  issues: string[],
+): { default: number } & ResolvedNumberRange {
+  const base = min ?? 0;
+  const problem =
+    min !== undefined && requested < min ? `is below its min ${min}`
+    : max !== undefined && requested > max ? `is above its max ${max}`
+    : step !== undefined && !isOnStep(requested, base, step) ?
+      `is not a multiple of its step ${step} from ${base}`
+    : undefined;
+  let value = requested;
+
+  if (problem) {
+    value = Math.min(Math.max(value, min ?? -Infinity), max ?? Infinity);
+    if (step !== undefined) {
+      let steps = Math.round((value - base) / step);
+      // Rounding can land past max; take the last step that fits instead.
+      if (max !== undefined && stepValue(base, steps, step) > max) {
+        steps = Math.floor((max - base) / step + FLOAT_TOLERANCE);
+      }
+      value = stepValue(
+        base,
+        Math.max(steps, min === undefined ? -Infinity : 0),
+        step,
+      );
+    }
+    issues.push(
+      `Playground control "${name}" defaults to ${requested}, which ${problem}; using ${value}.`,
+    );
+  }
+
+  return {
+    default: value,
+    ...(min !== undefined && { min }),
+    ...(max !== undefined && { max }),
+    ...(step !== undefined && { step }),
+  };
+}
+
+// How far a value may be from a step and still count as on it, so a valid
+// fractional default like 0.3 (step 0.1) isn't flagged.
+const FLOAT_TOLERANCE = 1e-9;
+
+function isOnStep(value: number, base: number, step: number) {
+  const steps = (value - base) / step;
+  return Math.abs(steps - Math.round(steps)) < FLOAT_TOLERANCE;
+}
+
+/** `base + steps * step`, without floating-point noise (0.30000000000000004 is 0.3). */
+function stepValue(base: number, steps: number, step: number) {
+  return Number((base + steps * step).toPrecision(12));
 }
 
 function toLabel(name: string) {

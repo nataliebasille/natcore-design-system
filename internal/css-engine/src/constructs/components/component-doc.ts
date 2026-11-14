@@ -10,7 +10,9 @@ import type { MatchValueAst } from "../../dsl/ast/cssvalue/match-value";
 import type { CssDataType, StylePropertyValue } from "../../dsl/public";
 import { type ComponentBuilder } from "./component-builder";
 import {
+  isControlledLookup,
   isControlledVar,
+  isMatchValueCandidate,
   type ComponentState,
   type ControlledVar,
 } from "./types";
@@ -464,7 +466,7 @@ function resolveControlledVarValues(
   const values: Array<StylePropertyValue | StylePropertyValue[]> = [];
 
   for (const candidate of candidates) {
-    if (isMatchValueCandidate(candidate)) {
+    if (isControlledLookup(candidate)) {
       continue;
     }
 
@@ -480,8 +482,13 @@ function resolveControlledPatternTokens(
   const tokens: PatternValueToken[] = [];
 
   for (const candidate of candidates) {
-    if (isMatchValueCandidate(candidate) === false) {
+    if (!isControlledLookup(candidate)) {
       tokens.push(...Object.keys(candidate));
+      continue;
+    }
+
+    if (!isMatchValueCandidate(candidate)) {
+      tokens.push(...resolveMatchedPatternTokens(candidate));
       continue;
     }
 
@@ -527,10 +534,4 @@ function resolveMatchedPatternTokens(body: unknown): PatternValueToken[] {
         (other) => JSON.stringify(other) === JSON.stringify(token),
       ) === i,
   );
-}
-
-function isMatchValueCandidate(
-  candidate: ControlledVar["candidates"][number],
-): candidate is MatchValueAst<CssDataType> {
-  return "$ast" in candidate && candidate.$ast === "match-value";
 }
