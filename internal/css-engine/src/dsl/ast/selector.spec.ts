@@ -9,6 +9,42 @@ describe("select.has()", () => {
   });
 });
 
+describe("select.is()", () => {
+  it("wraps a selector list in :is()", () => {
+    const result = select.is(
+      select.element("input"),
+      select.element("select"),
+      select.attr('data-slot="input"'),
+    );
+    expectTypeOf(result).toEqualTypeOf<
+      ':is(input, select, [data-slot="input"])'
+    >();
+    expect(result).toEqual(':is(input, select, [data-slot="input"])');
+  });
+
+  it("keeps a combinator valid when its operand is a list", () => {
+    const result = select.child(
+      select.parent(),
+      select.is(select.element("input"), select.element("textarea")),
+    );
+    expect(result).toEqual("& > :is(input, textarea)");
+  });
+});
+
+describe("select.not()", () => {
+  it("wraps a selector list in :not()", () => {
+    const result = select.not(select.has("> input"));
+    expectTypeOf(result).toEqualTypeOf<":not(:has(> input))">();
+    expect(result).toEqual(":not(:has(> input))");
+  });
+
+  it("joins multiple selectors", () => {
+    const result = select.not(select.cls("a"), select.cls("b"));
+    expectTypeOf(result).toEqualTypeOf<":not(.a, .b)">();
+    expect(result).toEqual(":not(.a, .b)");
+  });
+});
+
 describe("selector type tests", () => {
   describe("select.element()", () => {
     it("returns Lowercase<T> selector string", () => {
