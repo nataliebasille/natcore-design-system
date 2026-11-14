@@ -201,7 +201,11 @@ function controlCombinations(controls: readonly ResolvedControl[]) {
   return controls.reduce<Record<string, PlaygroundControlValue>[]>(
     (combinations, control) => {
       const options: PlaygroundControlValue[] =
-        control.kind === "select" ? control.options
+        control.kind === "select" ?
+          [
+            ...control.options,
+            ...(control.custom ? [control.custom.default] : []),
+          ]
         : control.kind === "boolean" ? [false, true]
         : [control.default];
 

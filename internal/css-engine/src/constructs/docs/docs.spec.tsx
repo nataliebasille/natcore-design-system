@@ -177,6 +177,29 @@ describe("docsFor typing", () => {
     );
   });
 
+  it("a select with a custom number also passes numbers to render", () => {
+    void (
+      <Playground
+        controls={{
+          value: control.select(["unset", "0", "50"], {
+            default: "50",
+            custom: control.number({ min: 0, max: 100, step: 1 }),
+          }),
+          count: control.number(3),
+        }}
+        render={(v) => {
+          expectTypeOf(v).toEqualTypeOf<{
+            variant: "solid" | "soft";
+            size: "sm" | "md" | "lg";
+            value: "unset" | "0" | "50" | number;
+            count: number;
+          }>();
+          return <button />;
+        }}
+      />
+    );
+  });
+
   it("a config's default must be one of the options", () => {
     // @ts-expect-error "c" is not one of the options
     void control.select(["a", "b"], { default: "c" });
@@ -841,6 +864,41 @@ describe("controls a parent and a derived component both define", () => {
   });
 });
 
+describe("controls with a calc lookup", () => {
+  const percent = dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.percentage(1)}`;
+  const withPresets = component("ring")
+    .vars({ "--size": "1rem", "--thickness": "25%" })
+    .controlled("--size", { sm: "0.5rem", md: "1rem" }, percent)
+    .controlled("--thickness", percent, dsl.match.arbitrary.length())
+    .body({ width: dsl.cssvar("--size") });
+
+  it("only presets become playground values", () => {
+    expectTypeOf<PlaygroundValues<typeof withPresets>>().toEqualTypeOf<{
+      size: "sm" | "md";
+    }>();
+  });
+
+  it("only presets become a playground control's options", () => {
+    const { Page, Playground } = docsFor(withPresets);
+    const model = toDocModel(
+      <Page title="Ring" description="d">
+        <Playground render={() => <div />} />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      {
+        name: "size",
+        label: "Size",
+        kind: "select",
+        options: ["sm", "md"],
+        optionLabels: { sm: "sm", md: "md" },
+        default: "md",
+      },
+    ]);
+  });
+});
+
 describe("custom select defaults", () => {
   it("fall back to the first option when not one of the options", () => {
     const { Page, Playground } = docs();
@@ -867,6 +925,109 @@ describe("custom select defaults", () => {
     ]);
     expect(model.issues).toEqual([
       'Playground control "tone" defaults to "accent", which is not one of its options; using "primary".',
+    ]);
+  });
+});
+
+describe("number controls", () => {
+  it("control.number() takes its default, or a config object", () => {
+    expect(control.number()).toEqual({ kind: "number", default: 0 });
+    expect(control.number(5)).toEqual({ kind: "number", default: 5 });
+    expect(
+      control.number({ default: 50, min: 0, max: 100, step: 1, label: "%" }),
+    ).toEqual({
+      kind: "number",
+      default: 50,
+      min: 0,
+      max: 100,
+      step: 1,
+      label: "%",
+    });
+  });
+
+  it("without a default, starts at min", () => {
+    expect(control.number({ min: 10, max: 20 })).toMatchObject({
+      default: 10,
+    });
+  });
+
+  it("resolve a number control and a select's custom number", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            count: control.number({ default: 2, min: 1, label: "Items" }),
+            value: control.select(["unset", "0"], {
+              optionLabels: { unset: "Not set" },
+              custom: control.number({
+                default: 50,
+                min: 0,
+                max: 100,
+                step: 1,
+              }),
+            }),
+            amount: control.select(["none"], {
+              custom: control.number({ label: "Exact amount" }),
+            }),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    expect(playgroundOf(model).controls).toEqual([
+      { name: "count", label: "Items", kind: "number", default: 2, min: 1 },
+      {
+        name: "value",
+        label: "Value",
+        kind: "select",
+        options: ["unset", "0"],
+        optionLabels: { unset: "Not set", "0": "0" },
+        default: "unset",
+        custom: { label: "Custom", default: 50, min: 0, max: 100, step: 1 },
+      },
+      {
+        name: "amount",
+        label: "Amount",
+        kind: "select",
+        options: ["none"],
+        optionLabels: { none: "none" },
+        default: "none",
+        custom: { label: "Exact amount", default: 0 },
+      },
+    ]);
+    expect(model.issues).toEqual([]);
+  });
+
+  it("report a default outside the range or off the step, and fix it", () => {
+    const { Page, Playground } = docs();
+    const model = toDocModel(
+      <Page title="Guide" description="d">
+        <Playground
+          controls={{
+            high: control.number({ default: 150, min: 0, max: 100 }),
+            low: control.select(["a"], {
+              custom: control.number({ default: -5, min: 0 }),
+            }),
+            odd: control.number({ default: 7, min: 0, step: 5 }),
+          }}
+          render={() => <div />}
+        />
+      </Page>,
+    );
+
+    expect(
+      playgroundOf(model).controls.map((c) =>
+        c.kind === "number" ? c.default
+        : c.kind === "select" ? c.custom?.default
+        : undefined,
+      ),
+    ).toEqual([100, 0, 5]);
+    expect(model.issues).toEqual([
+      'Playground control "high" defaults to 150, which is above its max 100; using 100.',
+      'Playground control "low" defaults to -5, which is below its min 0; using 0.',
+      'Playground control "odd" defaults to 7, which is not a multiple of its step 5 from 0; using 5.',
     ]);
   });
 });

@@ -1,0 +1,81 @@
+<!-- Fixture for progress.e2e.spec.ts. See the spec header for the contract. -->
+<main
+  id="stage"
+  class="flex flex-wrap items-start gap-4 p-4"
+  style="background-color: rgb(255, 0, 255)"
+>
+  <div
+    id="quarter"
+    class="progress-radial/primary progress-size-7xl"
+    style="--progress-value: 25%"
+  ></div>
+  <div
+    id="quarter-9xl"
+    class="progress-radial/primary progress-size-9xl"
+    style="--progress-value: 25%"
+  ></div>
+  <div class="palette-success">
+    <div
+      id="inherited"
+      class="progress-radial progress-size-7xl"
+      style="--progress-value: 25%"
+    ></div>
+  </div>
+
+  <div id="default" class="progress-radial"></div>
+  <div id="size-xs" class="progress-radial progress-size-xs"></div>
+  <div id="size-sm" class="progress-radial progress-size-sm"></div>
+  <div id="size-base" class="progress-radial progress-size-base"></div>
+  <div id="size-lg" class="progress-radial progress-size-lg"></div>
+  <div id="size-xl" class="progress-radial progress-size-xl"></div>
+  <div id="size-2xl" class="progress-radial progress-size-2xl"></div>
+  <div id="size-3xl" class="progress-radial progress-size-3xl"></div>
+  <div id="size-4xl" class="progress-radial progress-size-4xl"></div>
+  <div id="size-5xl" class="progress-radial progress-size-5xl"></div>
+  <div id="size-6xl" class="progress-radial progress-size-6xl"></div>
+  <div id="size-7xl" class="progress-radial progress-size-7xl"></div>
+  <div id="size-8xl" class="progress-radial progress-size-8xl"></div>
+  <div id="size-9xl" class="progress-radial progress-size-9xl"></div>
+  <div id="custom-px" class="progress-radial progress-size-[40px]"></div>
+  <div id="custom-rem" class="progress-radial progress-size-[7rem]"></div>
+  <div
+    id="responsive"
+    class="progress-radial min-[1px]:progress-size-5xl"
+  ></div>
+  <div id="override" class="progress-radial w-12"></div>
+  <div
+    id="thick-px"
+    class="progress-radial/primary progress-size-7xl progress-thickness-[4px]"
+    style="--progress-value: 25%"
+  ></div>
+  <div
+    id="thick-pct"
+    class="progress-radial/primary progress-size-7xl progress-thickness-[50%]"
+    style="--progress-value: 25%"
+  ></div>
+  <div
+    id="thick-bare"
+    class="progress-radial/primary progress-size-7xl progress-thickness-50"
+    style="--progress-value: 25%"
+  ></div>
+
+  <div id="value-utility" class="progress-radial progress-value-40"></div>
+  <div
+    id="value-arbitrary"
+    class="progress-radial progress-value-[37.5%]"
+  ></div>
+  <div
+    id="value-invalid"
+    class="progress-radial"
+    style="--progress-value: 3rem"
+  ></div>
+  <div style="--progress-value: 50%">
+    <div id="value-child" class="progress-radial"></div>
+  </div>
+  <div id="animated" class="progress-radial" style="--progress-value: 0%"></div>
+
+  <div id="swatch-primary-500" class="bg-primary-500 size-8"></div>
+  <div id="swatch-primary-200" class="bg-primary-200 size-8"></div>
+  <div id="swatch-success-500" class="bg-success-500 size-8"></div>
+  <div id="swatch-success-200" class="bg-success-200 size-8"></div>
+</main>

@@ -20,9 +20,12 @@ import { colorKeyWithoutPalette, renderPalette } from "../palette-utils.ts";
 import { ComponentStateRef } from "./component-state-ref.ts";
 import { normalizeStyleBuilders } from "./utils.ts";
 import {
+  isControlledLookup,
   isControlledVar,
+  isMatchValueCandidate,
   type ComponentBodyAst,
   type ComponentState,
+  type ControlledExpression,
   type ControlledVar,
   type VarsProperty,
 } from "./types.ts";
@@ -199,10 +202,13 @@ const dynamicComponentGenerator: GeneratorReduceFn = (acc, curr) => {
 const controlledVarGenerator: GeneratorReduceFn = (acc, curr) => {
   curr.themeBag.controlledVars.forEach(({ scopedVarName, value }) => {
     const matchers: MatchValueAst<CssDataType>[] = [];
+    const expressions: ControlledExpression[] = [];
 
     value.candidates.forEach((candidate) => {
-      if ("$ast" in candidate && candidate.$ast === "match-value") {
-        matchers.push(candidate as MatchValueAst<CssDataType>);
+      if (isMatchValueCandidate(candidate)) {
+        matchers.push(candidate);
+      } else if (isControlledLookup(candidate)) {
+        expressions.push(candidate);
       } else {
         acc.themes.inline = {
           ...acc.themes.inline,
@@ -221,16 +227,22 @@ const controlledVarGenerator: GeneratorReduceFn = (acc, curr) => {
       acc.themes.default[scopedVarName] = value.default;
     }
 
-    if (matchers.length > 0) {
+    // Tailwind drops a declaration whose lookup doesn't match the class, so
+    // each calc lookup gets its own declaration alongside the plain matchers.
+    const lookups: StylePropertyValue[] = [
+      ...expressions,
+      ...(matchers.length === 0 ? []
+      : matchers.length === 1 ? [matchers[0]!]
+      : [dsl.match.oneOf(...matchers)]),
+    ];
+
+    if (lookups.length > 0) {
       acc.body.push(
         dsl.atRule(
           "utility",
           `${scopedVarName.slice(2)}-*`,
           componentUtilityLayer({
-            [scopedVarName]:
-              matchers.length === 1 ?
-                matchers[0]!
-              : dsl.match.oneOf(...matchers),
+            [scopedVarName]: lookups.length === 1 ? lookups[0]! : lookups,
           }),
         ),
       );

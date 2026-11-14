@@ -29,6 +29,7 @@
 @import "./components/forms/select.css";
 @import "./components/list/list.css";
 @import "./components/popover/popover.css";
+@import "./components/progress/progress.css";
 @import "./components/radio-group/radio-group.css";
 @import "./components/tabs/tabs.css";
 @import "./components/toggle/toggle.css";
