@@ -32,7 +32,7 @@ export type ComponentState = {
     values: Record<string, ThemeProperties>;
     selection:
       | { mode: "required" }
-      | { mode: "optional" }
+      | { mode: "optional"; default?: string }
       | { mode: "default"; key: string };
   };
   slots: Record<string, ComponentSlot>;

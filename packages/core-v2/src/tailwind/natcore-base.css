@@ -24,9 +24,9 @@
 @import "./components/code/code.css";
 @import "./components/dialog/dialog.css";
 @import "./components/divider/divider.css";
+@import "./components/form-control/form-control.css";
 @import "./components/forms/inputs.css";
 @import "./components/forms/select.css";
-@import "./components/forms/form-control.css";
 @import "./components/list/list.css";
 @import "./components/popover/popover.css";
 @import "./components/radio-group/radio-group.css";

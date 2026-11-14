@@ -87,6 +87,20 @@ export function has<T extends string>(relative: T): `:has(${T})` {
 }
 
 /**
+ * Matches any selector in the list; keeps a list valid inside a combinator
+ */
+export function is<S extends string[]>(...selectors: S) {
+  return `:is(${list(...selectors)})` as const;
+}
+
+/**
+ * Matches elements that match none of the selectors
+ */
+export function not<S extends string[]>(...selectors: S) {
+  return `:not(${list(...selectors)})` as const;
+}
+
+/**
  * Helper to create a parent reference selector
  */
 export function parent<T extends string = "">(suffix?: T): `&${T}` {
@@ -172,6 +186,8 @@ export const select = {
   pseudo,
   pseudoElement,
   has,
+  is,
+  not,
   parent,
   descendant,
   child,

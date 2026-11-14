@@ -89,7 +89,10 @@ const staticComponentGenerator: GeneratorReduceFn = (acc, curr) => {
       acc.body,
       curr.name,
       curr.variants.hasVariants && curr.variants.selection.mode === "optional" ?
-        resolveOptionalVariantReferences(curr, curr.body)
+        [
+          defaultVariantBridge(curr),
+          ...resolveOptionalVariantReferences(curr, curr.body),
+        ]
       : curr.body,
     );
   } else {
@@ -128,12 +131,13 @@ const themeableStaticComponentsGenerator: GeneratorReduceFn = (acc, curr) => {
         ...applyCurrentPalette(palette, curr.body),
       ]);
     } else if (curr.variants.selection.mode === "optional") {
+      const bridge = defaultVariantBridge(curr);
       appendComponentIfExists(acc.body, name, [
         `palette-${palette}`,
-        ...applyCurrentPalette(
-          palette,
-          resolveOptionalVariantReferences(curr, curr.body),
-        ),
+        ...applyCurrentPalette(palette, [
+          ...(bridge ? [bridge] : []),
+          ...resolveOptionalVariantReferences(curr, curr.body),
+        ]),
       ]);
     } else {
       appendAliasIfExists(acc.body, name, [
@@ -151,19 +155,7 @@ const dynamicComponentGenerator: GeneratorReduceFn = (acc, curr) => {
   if (curr.variants.hasVariants) {
     // Bridge variant vars used in utilities onto the dynamic element so
     // utilities can read them via plain var().
-    const utilityVariantVarNames = new Set<`--${string}`>();
-    Object.values(curr.utilities).forEach((body) => {
-      stylesheetVisitorBuilder()
-        .on("css-var", (ast) => {
-          if (curr.themeBag.getVariantVar(ast.name as `--${string}`)) {
-            utilityVariantVarNames.add(
-              curr.themeBag.tryScope(ast.name as `--${string}`),
-            );
-          }
-          return ast;
-        })
-        .visit(normalizeStyleBuilders(curr.state, body));
-    });
+    const utilityVariantVarNames = utilityVariantVars(curr);
 
     const bridge =
       utilityVariantVarNames.size > 0 ?
@@ -454,6 +446,39 @@ function applyCurrentPalette(palette: Palette, body: ComponentBodyAst[]) {
       };
     })
     .visit(body);
+}
+
+/** Scoped variant vars that the component's utilities read. */
+function utilityVariantVars(curr: ComponentStateRef) {
+  const names = new Set<`--${string}`>();
+  Object.values(curr.utilities).forEach((body) => {
+    stylesheetVisitorBuilder()
+      .on("css-var", (ast) => {
+        if (curr.themeBag.getVariantVar(ast.name as `--${string}`)) {
+          names.add(curr.themeBag.tryScope(ast.name as `--${string}`));
+        }
+        return ast;
+      })
+      .visit(normalizeStyleBuilders(curr.state, body));
+  });
+  return names;
+}
+
+/**
+ * On the bare class, sets the optional default variant's values for the vars
+ * utilities read, so `name name-utility` matches the default variant.
+ */
+function defaultVariantBridge(curr: ComponentStateRef) {
+  const defaults = curr.themeBag.selectedDefaults;
+  const entries = [...utilityVariantVars(curr)].flatMap((name) =>
+    name in defaults ? [[name, defaults[name]] as const] : [],
+  );
+
+  return entries.length > 0 ?
+      (dsl.styleList(
+        Object.fromEntries(entries) as dsl.StyleProperties,
+      ) as unknown as ComponentBodyAst)
+    : null;
 }
 
 function resolveOptionalVariantReferences(
