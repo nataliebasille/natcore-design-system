@@ -192,7 +192,10 @@ export default (
                 <code className="code-inline">-1</code> on the others, so Tab
                 enters the tabs once and the arrow keys move between them. Keep
                 it in step with{" "}
-                <code className="code-inline">aria-selected</code>.
+                <code className="code-inline">aria-selected</code>. Also{" "}
+                <code className="code-inline">0</code> on each panel, so the
+                next Tab reaches the open panel even when it holds only text;
+                closed panels are hidden, so Tab skips them.
               </span>
             ),
           },
@@ -326,7 +329,7 @@ function ScriptTabs({ className, id }: { className: string; id: string }) {
   const items = ITEMS.map(
     (item, i) => `  <div>
     <button type="button" role="tab" id="${tabIds[i]}" aria-controls="${id}-panel-${i}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-slot="tab">${item.label}</button>
-    <div role="tabpanel" id="${id}-panel-${i}" aria-labelledby="${tabIds[i]}" data-slot="panel">${item.panel}</div>
+    <div role="tabpanel" id="${id}-panel-${i}" aria-labelledby="${tabIds[i]}" tabindex="0" data-slot="panel">${item.panel}</div>
   </div>`,
   );
   const html = `<div class="${className}" onclick="${SELECT_TAB}" onkeydown="${MOVE_TAB}">
