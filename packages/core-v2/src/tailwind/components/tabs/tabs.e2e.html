@@ -1,0 +1,161 @@
+<!-- Fixture for tabs.e2e.spec.ts. See the spec header for the contract. -->
+<main class="flex w-[600px] flex-col gap-8 p-6">
+  <div id="details" class="tabs">
+    <details name="details" open>
+      <summary id="d-tab-1">One</summary>
+      <div id="d-panel-1">Panel one</div>
+    </details>
+    <details name="details">
+      <summary id="d-tab-2">Two</summary>
+      <div id="d-panel-2">Panel two</div>
+      <p id="d-panel-2b">A second element in the same panel.</p>
+    </details>
+    <details name="details">
+      <summary id="d-tab-3">Three</summary>
+      <div id="d-panel-3">Panel three</div>
+    </details>
+  </div>
+
+  <button id="before-radio" type="button">Before</button>
+  <ul id="radio" class="tabs tabs-style-pill">
+    <li>
+      <label id="r-tab-1" data-slot="tab">
+        <input id="r-input-1" type="radio" name="radio" checked />
+        One
+      </label>
+      <div id="r-panel-1" data-slot="panel">
+        <label>
+          <input id="r-panel-radio" type="radio" name="inside" /> A radio in a
+          panel
+        </label>
+      </div>
+    </li>
+    <li>
+      <label id="r-tab-2" data-slot="tab">
+        <input id="r-input-2" type="radio" name="radio" />
+        Two
+      </label>
+      <div id="r-panel-2" data-slot="panel">Panel two</div>
+    </li>
+    <li>
+      <label id="r-tab-3" data-slot="tab">
+        <input id="r-input-3" type="radio" name="radio" />
+        Three
+      </label>
+      <div id="r-panel-3" data-slot="panel">Panel three</div>
+    </li>
+  </ul>
+
+  <div id="aria" class="tabs tabs-style-boxed">
+    <div role="tablist" aria-owns="a-tab-1 a-tab-2"></div>
+    <div>
+      <button id="a-tab-1" data-slot="tab" type="button" aria-selected="true">
+        One
+      </button>
+      <div id="a-panel-1" data-slot="panel">Panel one</div>
+    </div>
+    <div>
+      <button id="a-tab-2" data-slot="tab" type="button" aria-selected="false">
+        Two
+      </button>
+      <div id="a-panel-2" data-slot="panel">Panel two</div>
+    </div>
+  </div>
+
+  <div id="palette" class="tabs/primary tabs-style-pill">
+    <div>
+      <button id="p-tab-1" data-slot="tab" type="button" aria-selected="true">
+        One
+      </button>
+      <div data-slot="panel">Panel one</div>
+    </div>
+  </div>
+
+  <div id="vertical" class="tabs-v">
+    <details name="vertical" open>
+      <summary id="v-tab-1">One</summary>
+      <div id="v-panel-1" class="h-[200px]">Tall panel</div>
+    </details>
+    <details name="vertical">
+      <summary id="v-tab-2">Two</summary>
+      <div id="v-panel-2">Panel two</div>
+    </details>
+    <details name="vertical">
+      <summary id="v-tab-3">Three</summary>
+      <div id="v-panel-3">Panel three</div>
+    </details>
+  </div>
+
+  <div id="responsive" class="tabs min-[1px]:tabs-v">
+    <div>
+      <button data-slot="tab" type="button" aria-selected="true">One</button>
+      <div data-slot="panel">Panel one</div>
+    </div>
+  </div>
+
+  <div id="wrap" class="tabs w-[150px]">
+    <div>
+      <button id="w-tab-1" data-slot="tab" type="button" aria-selected="true">
+        First
+      </button>
+      <div id="w-panel-1" data-slot="panel">Panel one</div>
+    </div>
+    <div>
+      <button data-slot="tab" type="button">Second</button>
+      <div data-slot="panel">Panel two</div>
+    </div>
+    <div>
+      <button data-slot="tab" type="button">Third</button>
+      <div data-slot="panel">Panel three</div>
+    </div>
+    <div>
+      <button id="w-tab-4" data-slot="tab" type="button">Fourth</button>
+      <div data-slot="panel">Panel four</div>
+    </div>
+  </div>
+
+  <div class="flex justify-center">
+    <div id="centered" class="tabs">
+      <details name="centered" open>
+        <summary id="c-tab-1">One</summary>
+        <div>Short.</div>
+      </details>
+      <details name="centered">
+        <summary id="c-tab-2">Two</summary>
+        <div class="h-[120px]">A longer panel, much wider than the first.</div>
+      </details>
+      <details name="centered">
+        <summary id="c-tab-3">Three</summary>
+        <div>Medium panel text.</div>
+      </details>
+    </div>
+  </div>
+
+  <div class="flex justify-center">
+    <ul id="centered-vertical" class="tabs-v tabs-style-boxed">
+      <li>
+        <label id="cv-tab-1" data-slot="tab">
+          <input type="radio" name="centered-vertical" checked />
+          One
+        </label>
+        <div data-slot="panel">Short.</div>
+      </li>
+      <li>
+        <label id="cv-tab-2" data-slot="tab">
+          <input type="radio" name="centered-vertical" />
+          Two
+        </label>
+        <div data-slot="panel" class="h-[120px]">
+          A longer panel, much wider than the first.
+        </div>
+      </li>
+      <li>
+        <label id="cv-tab-3" data-slot="tab">
+          <input type="radio" name="centered-vertical" />
+          Three
+        </label>
+        <div data-slot="panel">Medium panel text.</div>
+      </li>
+    </ul>
+  </div>
+</main>
