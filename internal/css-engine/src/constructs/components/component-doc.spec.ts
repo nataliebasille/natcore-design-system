@@ -156,6 +156,27 @@ describe("createDoc", () => {
       });
     });
 
+    it("optional variants report a named default variant on the variant pattern", () => {
+      const builder = component("btn")
+        .variant("primary", { "--color": "blue" })
+        .variant("secondary", { "--color": "gray" })
+        .optionalVariants("secondary")
+        .body({ color: dsl.cssvar("--color") });
+
+      const result = createDoc(builder, {
+        title: "Button",
+        description: "...",
+      });
+
+      expect(result.components["btn"]).toMatchObject({
+        pattern: { root: "btn" },
+      });
+      expect(result.components["btn@variant"]?.pattern.value).toMatchObject({
+        name: "variant",
+        default: "secondary",
+      });
+    });
+
     it("optional single variant entries resolve to static component patterns", () => {
       const builder = component("divider")
         .variant("v", { "--direction": "column" })

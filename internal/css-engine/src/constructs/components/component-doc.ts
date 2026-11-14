@@ -435,8 +435,8 @@ function resolveComponentEntries(
     {
       name: "variant",
       default:
-        variants.selection.mode === "default" ?
-          variants.selection.key
+        variants.selection.mode === "default" ? variants.selection.key
+        : variants.selection.mode === "optional" ? variants.selection.default
         : undefined,
       tokens: variantTokens,
     },
