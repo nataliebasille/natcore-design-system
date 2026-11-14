@@ -101,13 +101,21 @@ export type ComponentBuilder<T extends ComponentState = ComponentState> = {
       }
     >
   >;
-  optionalVariants(): ComponentBuilder<
+  /**
+   * Variants become optional: the bare class renders on its own. Name a
+   * `defaultVariant` to give the bare class that variant's values; vars it
+   * doesn't set fall back to `.vars()`.
+   */
+  optionalVariants<const V extends DefinedVariants<T> | undefined = undefined>(
+    defaultVariant?: V,
+  ): ComponentBuilder<
     UpdateState<
       T,
       {
         variants: {
           values: T["variants"]["values"];
-          selection: { mode: "optional" };
+          selection: V extends string ? { mode: "optional"; default: V }
+          : { mode: "optional" };
         };
       }
     >
@@ -223,12 +231,24 @@ class ComponentBuilderImpl<T extends ComponentState = ComponentState> {
     >);
   }
 
-  optionalVariants() {
+  optionalVariants(defaultVariant?: string) {
+    if (
+      defaultVariant !== undefined &&
+      !definesVariant(this.state, defaultVariant)
+    ) {
+      throw new Error(
+        `Component "${this.state.name}" has no variant "${defaultVariant}" to use as its default`,
+      );
+    }
+
     return new ComponentBuilderImpl({
       ...this.state,
       variants: {
         values: this.state.variants.values,
-        selection: { mode: "optional" },
+        selection: {
+          mode: "optional",
+          ...(defaultVariant !== undefined && { default: defaultVariant }),
+        },
       },
     } as UpdateState<
       T,

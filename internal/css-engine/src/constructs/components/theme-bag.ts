@@ -180,5 +180,20 @@ export class ThemeBag {
         }
       });
     });
+
+    const { selection } = state.variants;
+    const defaultVariant =
+      selection.mode === "optional" && selection.default !== undefined ?
+        state.variants.values[selection.default]
+      : undefined;
+
+    Object.entries(defaultVariant ?? {}).forEach(([varName, value]) => {
+      const entry =
+        this.#bag[this.#getScopedName(state, varName as `--${string}`)];
+
+      if (entry?.type === "variant") {
+        entry.default = value;
+      }
+    });
   }
 }

@@ -433,6 +433,63 @@ describe("themeable = FALSE / variants - OPTIONAL", () => {
 
     expect(result).toEqual(expected);
   });
+
+  it("renders a named default variant as the bare component", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("solid", { "--color": "blue" })
+        .variant("outline", { "--bg": "red" })
+        .optionalVariants("solid")
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+          padding: dsl.spacing("4"),
+        }),
+    );
+
+    expect(utilityNamed(result, "btn")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn",
+        componentBody(
+          dsl.styleList({ color: "blue", padding: dsl.spacing("4") }),
+        ),
+      ),
+    );
+  });
+
+  it("prefers the default variant's value over .vars(), which fills the rest", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--color": "black", "--bg": "white" })
+        .variant("solid", { "--color": "blue" })
+        .variant("outline", { "--bg": "red" })
+        .optionalVariants("solid")
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+        }),
+    );
+
+    expect(utilityNamed(result, "btn")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn",
+        componentBody(
+          dsl.styleList({ color: "blue", "background-color": "white" }),
+        ),
+      ),
+    );
+  });
+
+  it("only accepts a defined variant as the default", () => {
+    const builder = component("btn").variant("solid", { "--color": "blue" });
+
+    // @ts-expect-error "ghost" is not a defined variant
+    expect(() => builder.optionalVariants("ghost")).toThrow(
+      'Component "btn" has no variant "ghost"',
+    );
+  });
 });
 
 describe("themeable = TRUE NO DEFAULT / variants - NO DEFAULT", () => {
@@ -602,6 +659,34 @@ describe("themeable = TRUE NO DEFAULT / variants - OPTIONAL", () => {
     ];
 
     expect(result).toEqual(expected);
+  });
+
+  it("applies each palette to the named default variant", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("solid", { "--color": dsl.currentText(700) })
+        .variant("outline", { "--color": dsl.currentText(500) })
+        .optionalVariants("solid")
+        .body({ color: dsl.cssvar("--color") }),
+    );
+
+    expect(utilityNamed(result, "btn/primary")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn/primary",
+        componentBody(
+          "palette-primary",
+          dsl.styleList({ color: dsl.adaptiveText("primary", 700) }),
+        ),
+      ),
+    );
+    expect(utilityNamed(result, "btn")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn",
+        componentBody(dsl.styleList({ color: dsl.currentText(700) })),
+      ),
+    );
   });
 });
 

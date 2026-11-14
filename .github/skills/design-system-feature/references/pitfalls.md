@@ -4,7 +4,7 @@ Each of these cost time while building the dialog component. Check the relevant 
 
 ## css-engine / core-v2 CSS
 
-- **`.defaultVariant()` can create a circular `@apply`.** If the bare class (`dialog`) and the variants (`dialog-*`) share a root, `.defaultVariant("center")` emits `@utility dialog { @apply dialog-center }`, which Tailwind rejects. Use `.optionalVariants()` and put the default values in `.vars()` instead.
+- **`.defaultVariant()` can create a circular `@apply`.** If the bare class (`dialog`) and the variants (`dialog-*`) share a root, `.defaultVariant("center")` emits `@utility dialog { @apply dialog-center }`, which Tailwind rejects. Use `.optionalVariants("center")` instead: the bare class gets that variant's values. Keep `.vars()` for documented and controlled vars, not variant defaults.
 - **Numeric values can be dropped.** `opacity: 0` (a number) disappears from the output. Use strings: `opacity: "0"`.
 - **New DSL helpers need a css-engine rebuild.** core-v2 and the showcase import css-engine's built `dist`, so run `pnpm --filter @nataliebasille/css-engine build` after adding a helper, or core-v2 tests fail with "x is not a function".
 - **At-rules go in the body, not string keys.** Pass `dsl.startingStyle(...)`, `dsl.prefersReducedMotion(...)`, etc. as body arguments rather than `"@starting-style"` keys in `$`.
