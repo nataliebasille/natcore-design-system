@@ -223,7 +223,7 @@ function TokenFamilyCard({
 function InlineCode({ children }: { children: ReactNode }) {
   return (
     <span className="inline-block">
-      <code className="code-soft/surface code text-xs">{children}</code>
+      <code className="code text-xs">{children}</code>
     </span>
   );
 }

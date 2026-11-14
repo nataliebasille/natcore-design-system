@@ -303,7 +303,7 @@ function RolePanel({ role }: { role: Palette }) {
 }
 
 function InlineCode({ children }: { children: ReactNode }) {
-  return <code className="code-soft/surface code text-xs">{children}</code>;
+  return <code className="code text-xs">{children}</code>;
 }
 
 function colorToken(palette: Palette, shade: Shade) {
