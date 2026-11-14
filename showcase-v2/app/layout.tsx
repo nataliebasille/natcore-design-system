@@ -13,7 +13,6 @@ import {
   listDocsEntries,
   type DocsNavNode,
 } from "@/server/docs-index";
-import Script from "next/script";
 import { THEME_STORAGE_KEY } from "@/utlls/constants";
 
 const roboto = Roboto({ subsets: ["latin"] });
@@ -25,11 +24,12 @@ export const metadata = {
   },
 };
 
+// Serialized into a blocking inline <script> in <head> so the saved theme is
+// applied before first paint. next/script's beforeInteractive only queues code
+// until Next's client runtime loads, which causes a flash of the default theme.
 function initTheme(storageKey: string) {
   try {
-    console.log(`Initializing theme from localStorage with key: ${storageKey}`);
     const theme = localStorage.getItem(storageKey);
-    console.log(`Initializing theme from localStorage: ${theme}`);
     if (theme) {
       document.documentElement.dataset.theme = theme;
     }
@@ -47,19 +47,17 @@ export default async function RootLayout({
   return (
     <html lang="en" className={roboto.className} suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(${initTheme.toString()})(${JSON.stringify(THEME_STORAGE_KEY)});`,
+          }}
+        />
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"
         />
       </head>
       <body className="grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_minmax(32rem,1fr)] grid-rows-[auto_1fr] overflow-hidden bg-surface-50 palette-surface max-tablet:grid-cols-1 max-tablet:grid-rows-[auto_auto_1fr]">
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(${initTheme.toString()})(${JSON.stringify(THEME_STORAGE_KEY)});`,
-          }}
-        />
         <ThemeProvider>
           <SidebarProvider>
             <Header className="col-span-2 border-b border-b-surface-600/30 bg-surface-50" />
