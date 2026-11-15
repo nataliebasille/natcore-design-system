@@ -7,6 +7,7 @@ describe("theme type tests", () => {
       const result = theme({ "--primary": "blue" });
       expectTypeOf(result).toEqualTypeOf<{
         $construct: "theme";
+        mode?: never;
         properties: { "--primary": "blue" };
       }>();
       expect(result).toEqual({
@@ -25,6 +26,7 @@ describe("theme type tests", () => {
 
       expectTypeOf(result).toEqualTypeOf<{
         $construct: "theme";
+        mode?: never;
         properties: {
           "--primary": "blue";
           "--secondary": "red";
@@ -55,6 +57,7 @@ describe("theme type tests", () => {
       const result = theme({});
       expectTypeOf(result).toEqualTypeOf<{
         $construct: "theme";
+        mode?: never;
         properties: {};
       }>();
       expect(result).toEqual({

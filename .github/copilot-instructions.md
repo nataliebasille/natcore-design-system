@@ -8,62 +8,69 @@
 - **Open every pull request against `develop`** unless the user explicitly asks for
   a different base. Never target `main` directly.
 
+### GitHub CLI authentication
+
+`gh` is not logged in on this machine (`gh auth status` reports no hosts), and the
+user-scope `GITHUB_TOKEN` env var is stale (GitHub returns HTTP 401). `git push` works
+through Git Credential Manager, so reuse that credential for `gh` commands. Do not
+give up and hand the user a compare URL.
+
+```powershell
+$cred = "protocol=https`nhost=github.com`n`n" | git credential fill 2>$null
+$env:GH_TOKEN = ($cred | Select-String '^password=').Line -replace '^password=',''
+gh pr create --base develop --head <branch> --title "<title>" --body-file <file>
+```
+
+- Set `GH_TOKEN` in the same command as the `gh` call; env vars don't persist between
+  tool calls.
+- Never print, log, or commit the token.
+
 ## Architecture Overview
 
-This is a **monorepo design system** with three main packages and a Next.js showcase app:
+This is a **monorepo design system** for Tailwind CSS 4:
 
-- `packages/core`: Tailwind CSS plugin with themes, colors, and component styles
+- `packages/core-v2`: The published `@nataliebasille/natcore-design-system` package — compiled CSS (themes, components, utilities), plus `./utils`, `./postcss`, and `./vite` entry points
 - `packages/react`: React components using design system classes
 - `packages/icons`: SVG icon components
-- `showcase`: Next.js documentation site demonstrating components
+- `internal/css-engine`: Private DSL/compiler used to author `core-v2` styles (bundled into the published build)
+- `internal/preview-jsx-runtime`: Private JSX runtime used for showcase previews
+- `showcase-v2`: Next.js documentation site demonstrating components
 
 ## Development Workflow
 
 ### Building & Running
 
 ```bash
-# Build all packages
+# Build the showcase (builds all natcore-* packages first)
 pnpm build
 
-# Start showcase dev server (automatically includes all packages)
+# Start the showcase dev server
 pnpm dev
 
 # Clean all build artifacts
 pnpm clean
+
+# Type-check every workspace package (CI runs this; build the libraries first)
+pnpm --filter "@nataliebasille/natcore-*" build
+pnpm type-check
 ```
 
-**Critical**: Always run `pnpm build` after modifying core packages before testing in showcase, as it uses workspace dependencies.
+`vitest run` does not type-check, so passing tests do not mean the code compiles.
+Run `pnpm type-check` before opening a PR.
+
+**Critical**: `showcase-v2` consumes workspace packages through `workspace:*`, so rebuild `core-v2` (`pnpm --filter ./packages/core-v2 build:css`) after changing its styles.
 
 ### Package Structure
 
-- Each package has its own `tsup.config.ts` for building multiple entry points
-- Core package exports: `index`, `plugin`, and `utils` as separate modules
-- React components import from `@nataliebasille/natcore-design-system` and use `classnames` for conditional classes
+- Each package has its own `tsup.config.ts` for its JS entry points
+- `core-v2` exports: `.`/`./css` (`natcore.css`), `./utils`, `./postcss`, and `./vite`
+- React components use `classnames` for conditional classes
 
 ## Design System Patterns
 
-### Color System Architecture
+### Core Styles
 
-Colors are defined in `packages/core/src/themes/colors.ts` as:
-
-```typescript
-primary: toRgb("#230288"),
-surface: {
-  color: toRgb("#ebe0ff"),
-  shade: 200,
-  variables: { border: "300" }
-}
-```
-
-The plugin auto-generates 10 shades (50-900) plus contrast text colors, creating CSS variables like `--primary-500`, `--primary-500-text`.
-
-### Component Theme Pattern
-
-All component styles follow this pattern in `packages/core/src/themes/components/`:
-
-1. Import `createVariants` helper
-2. Define component-specific CSS variables using color variants
-3. Export function that takes Tailwind theme and returns style object
+Styles live in `packages/core-v2/src/tailwind/` (`components/`, `typography/`, `utilities/`, `themes/`, `variants/`) as `*.css.ts` files authored with the `@nataliebasille/css-engine` DSL and compiled to CSS by `packages/core-v2/src/compile/`. `natcore.css` is the stylesheet entry point. Each component lives in its own folder (`components/<name>/<name>.css.ts`, `typography/<name>/<name>.css.ts`) alongside its docs page (`<name>.docs.tsx`) and tests (`<name>.test.ts`, `<name>.e2e.spec.ts`, `<name>.e2e.html`). Element defaults (e.g. `h1`, `article`) come from the builder's `.applyTo(selector, variant?)`, which puts them in the `components.base` layer so Tailwind utilities override them. Inside `@layer utilities`, component bodies compile to `components.base` and a component's `.utility()`/`.controlled()` utilities to `components`, so plain Tailwind utilities beat component utilities, which beat bodies.
 
 ### React Component Pattern
 
@@ -74,45 +81,37 @@ React components in `packages/react/src/` follow:
 3. Use `classnames` for conditional CSS classes
 4. Map props to design system class names (e.g., `btn-primary`, `btn-lg`)
 
-### Showcase Documentation Pattern
+### Documentation Pattern
 
-Each component page in `showcase/app/components/[component]/` includes:
+A component's docs page is `<name>.docs.tsx` next to its `<name>.css.ts` (e.g. `packages/core-v2/src/tailwind/components/button/button.docs.tsx`). It default-exports a page built from `docsFor(builder)` (`Page`, `Section`, `Example`, `Playground` from `@nataliebasille/css-engine`):
 
-- `page.tsx`: Main documentation with playground
-- `ButtonPlaygroundExample.tsx`: Interactive component demo
-- `examples/`: Static HTML examples
-- Uses `generateThemeInfo()` to display available CSS classes
+- `<Section of="key">` documents a builder entity (component, utility, `@slots`, `@custom-variants`); `of` and `vars` only accept the builder's keys. A `<Section title="…">` without `of` is free-form.
+- `<Example>` children are both the live preview and the copyable HTML.
+- `<Playground render={(v) => …}>` derives its controls (variant, controlled-value presets) from the builder; add others with `control.palette/select/text/boolean`. Each helper takes its default or a config object with `label` (plus `optionLabels` for select/palette, `offLabel`/`onLabel` for boolean); derived-control overrides also accept `optionLabels`.
+- The API reference is generated from the builder; descriptions come from the sections.
+- Every `*.docs.tsx` under `packages/core-v2/src/` is a page, not just components (guides too). Its URL and sidebar group come from its folders (the leading `tailwind/` is dropped, and `button/button.docs.tsx` is `/components/button`), and its sidebar label from `<Page title>`. `<Page nav={{ label, group, order, path }}>` overrides any of them.
+
+Docs files use the preview JSX runtime with no per-file pragma (core-v2 `tsconfig.json`/`vitest.config.ts`, and a Turbopack rule in `showcase-v2/next.config.js`). They never ship: core-v2 publishes only `dist/`. `packages/core-v2/test/docs.test.ts` checks every docs file. `showcase-v2` is the site shell that renders them.
 
 ## File Naming Conventions
 
 - **Packages**: Use `kebab-case` for file names, `PascalCase` for React components
-- **Showcase**: Next.js App Router with `page.tsx` files, `+folder` for shared layouts
+- **Showcase**: Next.js App Router with `page.tsx` files
 - **Components**: Match component name (e.g., `Button.tsx` → `btn` CSS classes)
 
 ## Key Integration Points
 
 ### Tailwind Configuration
 
-`showcase/wrapper.ts` imports and configures the core plugin:
-
-```typescript
-import natcorePlugin from "../packages/core/src/plugin";
-export const plugin = natcorePlugin();
-```
-
-### Workspace Dependencies
-
-`showcase/package.json` uses `workspace:*` for local packages, allowing development without publishing.
+`showcase-v2/app/globals.css` imports the stylesheet and adds an `@source` for core-v2's `*.docs.tsx` (they live outside the app, so Tailwind wouldn't scan them otherwise), and `showcase-v2/postcss.config.js` registers the `@nataliebasille/natcore-design-system/postcss` plugin (which expands `@natcore-palettes`).
 
 ### Build System
 
-- Core uses `tsup` to output `.mjs` (ESM) and `.cjs` (CommonJS) with TypeScript declarations
-- Builds are required before showcase can use updated packages
+- `core-v2` uses `tsup` to output `.js` (ESM) and `.cjs` (CommonJS) with TypeScript declarations, and its compile step emits CSS into `dist/`
 - No hot-reloading between packages - requires rebuild
 
 ## Common Gotchas
 
-1. **Missing builds**: Showcase won't reflect core changes until `pnpm build`
-2. **Path resolution**: Showcase uses absolute imports from workspace packages, not relative paths
-3. **CSS variables**: Component styles depend on plugin-generated variables - check `wrapper.ts` integration
-4. **File imports**: Use `.ts` extensions in imports (handled by bundler)
+1. **Missing builds**: The showcase won't reflect `core-v2` changes until it's rebuilt
+2. **Private packages**: `internal/*` packages are not published; anything the published build needs from them must be bundled (`noExternal`)
+3. **File imports**: Use `.ts` extensions in relative imports (enforced by ESLint)

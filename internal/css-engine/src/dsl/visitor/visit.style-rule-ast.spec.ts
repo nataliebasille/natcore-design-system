@@ -120,7 +120,7 @@ describe("style-rule ast visitor", () => {
       });
       const result = visitor.visit(ast);
 
-      expect(result[0]!.body[0].styles[0]).toEqual({ modified: "true" });
+      expect(styleListAt(result[0]).styles[0]).toEqual({ modified: "true" });
     });
 
     it("allows visitor to transform based on selector", () => {
@@ -138,10 +138,10 @@ describe("style-rule ast visitor", () => {
       });
       const result = visitor.visit(ast);
 
-      const buttonRule = result[0]?.body[0].styles[0]!;
+      const buttonRule = styleListAt(result[0]).styles[0];
       expect(buttonRule).toEqual({ padding: "16px", color: "blue" });
 
-      const inputRule = result[1]?.body[0].styles[0]!;
+      const inputRule = styleListAt(result[1]).styles[0];
       expect(inputRule).toEqual({ color: "red" });
     });
   });
@@ -219,3 +219,14 @@ describe("style-rule ast visitor", () => {
     });
   });
 });
+
+function styleListAt(
+  rule: { body: readonly { $ast: string }[] } | undefined,
+  index = 0,
+): StyleListAst {
+  const entry = rule?.body[index];
+  if (entry?.$ast !== "style-list") {
+    throw new Error(`Expected a style-list at body[${index}]`);
+  }
+  return entry as StyleListAst;
+}

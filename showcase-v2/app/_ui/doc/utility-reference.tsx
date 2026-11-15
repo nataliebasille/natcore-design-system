@@ -128,7 +128,7 @@ export const UtilityReference = ({
 
       {/* Description */}
       {description && (
-        <p className="mt-0! text-surface-950/60">{description}</p>
+        <p className="mt-0 text-surface-950/60">{description}</p>
       )}
 
       {/* Reference table */}

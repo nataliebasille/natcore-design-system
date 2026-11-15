@@ -83,6 +83,8 @@ function styleRuleToCss(node: dsl.StyleRuleAst): css.StyleBlockAst {
             yield styleRuleToCss(item);
           } else if (isStyleListAst(item)) {
             yield* styleListToCss(item);
+          } else if (isAtRuleAst(item)) {
+            yield atRuleToCss(item);
           } else {
             exhaustive(item as never);
           }

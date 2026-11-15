@@ -1,4 +1,4 @@
-import { type JSX as ReactJSX } from "react";
+import type { JSX as ReactJSX } from "react";
 import type { ShowcaseJsxElementType, ShowcaseJsxNode } from "./types.ts";
 
 type ScopedAttributes = Record<string, unknown>;
@@ -29,12 +29,35 @@ type IntrinsicAttributesExtras = {
   key?: string | number;
 };
 
+// Invoker commands (Chrome/Edge 135, Firefox 144, Safari 26.2) and interest
+// invokers (Chrome/Edge 142) aren't in @types/react yet. Lowercase names
+// render as plain attributes.
+type PendingHtmlAttributes = {
+  button: {
+    commandfor?: string;
+    command?:
+      | "show-modal"
+      | "close"
+      | "request-close"
+      | "show-popover"
+      | "hide-popover"
+      | "toggle-popover"
+      | `--${string}`;
+    interestfor?: string;
+  };
+  a: { interestfor?: string };
+};
+
+type ElementAttributes<K extends keyof ReactJSX.IntrinsicElements> =
+  ReactJSX.IntrinsicElements[K] &
+    (K extends keyof PendingHtmlAttributes ? PendingHtmlAttributes[K] : {});
+
 type IntrinsicElementsWithChildren = {
   [K in keyof ReactJSX.IntrinsicElements as
     | K
     | `ui-${string & K}`
     | `markup-${string & K}`]: AddChildren<
-    FrameworkExtras<ReactJSX.IntrinsicElements[K]>
+    FrameworkExtras<ElementAttributes<K>>
   >;
 } & {
   ui: AddChildren<{}>;
@@ -80,7 +103,7 @@ export function jsxDEV<
   return createNode(type, props, key);
 }
 
-export const Fragment = Symbol.for("my-jsx.fragment");
+export const Fragment = /* @__PURE__ */ Symbol.for("my-jsx.fragment");
 
 export function scopeAttr(
   ui?: ScopedAttributes,
@@ -140,5 +163,7 @@ export namespace JSX {
 
   export interface IntrinsicElements extends IntrinsicElementsWithChildren {}
 
-  export type LibraryManagedAttributes<C, P> = AddChildren<P>;
+  // Distributes over union props so `{ of: K } | { title: string }` stays a union.
+  export type LibraryManagedAttributes<C, P> =
+    P extends unknown ? AddChildren<P> : never;
 }

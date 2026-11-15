@@ -11,19 +11,26 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2022",
-    "lib": ["ES2024", "DOM"],
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@nataliebasille/preview-jsx-runtime"
   },
   "include": [
     "*.ts",
     "src/shared/**/*",
     "src/tailwind/**/*",
+    "src/custom-palettes/**/*",
+    "src/postcss/**/*",
+    "src/vite/**/*",
     "scripts/**/*",
-    "src/compile"
+    "src/compile",
+    "src/**/*.docs.tsx",
+    "test/**/*"
   ],
   "exclude": ["dist", "node_modules"]
 }

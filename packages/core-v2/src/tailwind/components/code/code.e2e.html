@@ -1,0 +1,44 @@
+<!-- Fixture for code.e2e.spec.ts. See the spec header for the contract. -->
+<main id="container" class="w-[600px] p-6">
+  <code id="block">const answer = 42;</code>
+
+  <code id="block-long"
+    >https://example.com/a/path/long/enough/to/overflow/the/six-hundred-pixel/container/so/the/block/scrolls/sideways</code
+  >
+
+  <p id="prose">
+    Call <code id="inline" class="code-inline">dialog.showModal()</code> to open
+    the dialog.
+  </p>
+
+  <p id="narrow" class="w-[200px]">
+    <code id="inline-long" class="code-inline"
+      >.popover-anchor > [data-slot="popover"]</code
+    >
+  </p>
+
+  <p>
+    Responsive:
+    <code id="responsive-inline" class="min-[1px]:code-inline">close()</code>
+  </p>
+
+  <code id="block-overrides" class="rounded-none p-0">no padding</code>
+
+  <div
+    id="card"
+    style="background-color: rgb(230, 230, 230); color: rgb(10, 20, 30)"
+  >
+    <code id="block-on-card">on a card</code>
+    <p>
+      Inline on a card:
+      <code id="inline-on-card" class="code-inline">value</code>
+    </p>
+  </div>
+
+  <p>
+    Overrides:
+    <code id="inline-overrides" class="code-inline rounded-none p-0 text-base"
+      >value</code
+    >
+  </p>
+</main>

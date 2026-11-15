@@ -20,8 +20,12 @@ import { colorKeyWithoutPalette, renderPalette } from "../palette-utils.ts";
 import { ComponentStateRef } from "./component-state-ref.ts";
 import { normalizeStyleBuilders } from "./utils.ts";
 import {
+  isControlledLookup,
   isControlledVar,
+  isMatchValueCandidate,
+  type ComponentBodyAst,
   type ComponentState,
+  type ControlledExpression,
   type ControlledVar,
   type VarsProperty,
 } from "./types.ts";
@@ -88,14 +92,17 @@ const staticComponentGenerator: GeneratorReduceFn = (acc, curr) => {
       acc.body,
       curr.name,
       curr.variants.hasVariants && curr.variants.selection.mode === "optional" ?
-        resolveOptionalVariantReferences(curr, curr.body)
+        [
+          defaultVariantBridge(curr),
+          ...resolveOptionalVariantReferences(curr, curr.body),
+        ]
       : curr.body,
     );
   } else {
     // A static component that references a dynamic component needs to be generated
     // when the component has a default theme or variant.
 
-    appendComponentIfExists(acc.body, curr.name, [
+    appendAliasIfExists(acc.body, curr.name, [
       curr.themeable.default ?
         !curr.variants.hasVariants ? `${curr.name}/${curr.themeable.default}`
         : curr.variants.selection.mode === "default" ?
@@ -119,25 +126,29 @@ const themeableStaticComponentsGenerator: GeneratorReduceFn = (acc, curr) => {
   if (!curr.themeable.isThemeable) return acc;
 
   for (const palette of PALETTE) {
-    appendComponentIfExists(
-      acc.body,
-      `${curr.name}/${palette}`,
-      !curr.variants.hasVariants ?
-        [`palette-${palette}`, ...applyCurrentPalette(palette, curr.body)]
-      : curr.variants.selection.mode === "optional" ?
-        [
-          `palette-${palette}`,
-          ...applyCurrentPalette(
-            palette,
-            resolveOptionalVariantReferences(curr, curr.body),
-          ),
-        ]
-      : [
-          curr.variants.selection?.mode === "default" ?
-            `${curr.name}-${curr.variants.selection.key}/${palette}`
-          : null,
-        ],
-    );
+    const name = `${curr.name}/${palette}`;
+
+    if (!curr.variants.hasVariants) {
+      appendComponentIfExists(acc.body, name, [
+        `palette-${palette}`,
+        ...applyCurrentPalette(palette, curr.body),
+      ]);
+    } else if (curr.variants.selection.mode === "optional") {
+      const bridge = defaultVariantBridge(curr);
+      appendComponentIfExists(acc.body, name, [
+        `palette-${palette}`,
+        ...applyCurrentPalette(palette, [
+          ...(bridge ? [bridge] : []),
+          ...resolveOptionalVariantReferences(curr, curr.body),
+        ]),
+      ]);
+    } else {
+      appendAliasIfExists(acc.body, name, [
+        curr.variants.selection?.mode === "default" ?
+          `${curr.name}-${curr.variants.selection.key}/${palette}`
+        : null,
+      ]);
+    }
   }
 
   return acc;
@@ -147,19 +158,7 @@ const dynamicComponentGenerator: GeneratorReduceFn = (acc, curr) => {
   if (curr.variants.hasVariants) {
     // Bridge variant vars used in utilities onto the dynamic element so
     // utilities can read them via plain var().
-    const utilityVariantVarNames = new Set<`--${string}`>();
-    Object.values(curr.utilities).forEach((body) => {
-      stylesheetVisitorBuilder()
-        .on("css-var", (ast) => {
-          if (curr.themeBag.getVariantVar(ast.name as `--${string}`)) {
-            utilityVariantVarNames.add(
-              curr.themeBag.tryScope(ast.name as `--${string}`),
-            );
-          }
-          return ast;
-        })
-        .visit(normalizeStyleBuilders(curr.state, body));
-    });
+    const utilityVariantVarNames = utilityVariantVars(curr);
 
     const bridge =
       utilityVariantVarNames.size > 0 ?
@@ -203,10 +202,13 @@ const dynamicComponentGenerator: GeneratorReduceFn = (acc, curr) => {
 const controlledVarGenerator: GeneratorReduceFn = (acc, curr) => {
   curr.themeBag.controlledVars.forEach(({ scopedVarName, value }) => {
     const matchers: MatchValueAst<CssDataType>[] = [];
+    const expressions: ControlledExpression[] = [];
 
     value.candidates.forEach((candidate) => {
-      if ("$ast" in candidate && candidate.$ast === "match-value") {
-        matchers.push(candidate as MatchValueAst<CssDataType>);
+      if (isMatchValueCandidate(candidate)) {
+        matchers.push(candidate);
+      } else if (isControlledLookup(candidate)) {
+        expressions.push(candidate);
       } else {
         acc.themes.inline = {
           ...acc.themes.inline,
@@ -225,12 +227,24 @@ const controlledVarGenerator: GeneratorReduceFn = (acc, curr) => {
       acc.themes.default[scopedVarName] = value.default;
     }
 
-    if (matchers.length > 0) {
+    // Tailwind drops a declaration whose lookup doesn't match the class, so
+    // each calc lookup gets its own declaration alongside the plain matchers.
+    const lookups: StylePropertyValue[] = [
+      ...expressions,
+      ...(matchers.length === 0 ? []
+      : matchers.length === 1 ? [matchers[0]!]
+      : [dsl.match.oneOf(...matchers)]),
+    ];
+
+    if (lookups.length > 0) {
       acc.body.push(
-        dsl.atRule("utility", `${scopedVarName.slice(2)}-*`, {
-          [scopedVarName]:
-            matchers.length === 1 ? matchers[0]! : dsl.match.oneOf(...matchers),
-        }),
+        dsl.atRule(
+          "utility",
+          `${scopedVarName.slice(2)}-*`,
+          componentUtilityLayer({
+            [scopedVarName]: lookups.length === 1 ? lookups[0]! : lookups,
+          }),
+        ),
       );
     }
   });
@@ -245,7 +259,7 @@ const utilitiesGenerator: GeneratorReduceFn = (acc, curr) => {
       dsl.atRule(
         "utility",
         fullUtilityName,
-        ...normalizeStyleBuilders(curr.state, body),
+        componentUtilityLayer(...normalizeStyleBuilders(curr.state, body)),
       ),
     );
   });
@@ -263,15 +277,80 @@ const guardsGenerator: GeneratorReduceFn = (acc, curr) => {
   return acc;
 };
 
+const appliesToGenerator: GeneratorReduceFn = (acc, curr) => {
+  const generatedUtilities = new Set(
+    acc.body.flatMap((node) =>
+      node.$ast === "at-rule" && node.name === "utility" ?
+        [String(node.prelude)]
+      : [],
+    ),
+  );
+  const dynamicValueRoots = valueRootsOf(
+    acc.body.find(
+      (node) =>
+        node.$ast === "at-rule" &&
+        node.name === "utility" &&
+        node.prelude === `${curr.name}-*`,
+    ),
+  ).map((root) => curr.themeBag.tryScope(root));
+
+  (curr.state.appliesTo ?? []).forEach(({ selector, variant }) => {
+    const className =
+      variant === undefined ? curr.name : `${curr.name}-${variant}`;
+    // Tailwind only generates `name-<variant>` from `name-*` when at least one
+    // of its `--value(--x-*)` lookups has a `--x-<variant>` theme value.
+    const generated =
+      generatedUtilities.has(className) ||
+      (variant !== undefined &&
+        dynamicValueRoots.some(
+          (root) => acc.themes.inline[`${root}-${variant}`] !== undefined,
+        ));
+
+    if (!generated) {
+      throw new Error(
+        variant === undefined ?
+          `Component "${curr.name}" requires a variant to apply to ${selector}: no bare "${curr.name}" class is generated`
+        : `Class "${className}" isn't generated, so it can't be applied to ${selector}. Reference the variant's vars in the body.`,
+      );
+    }
+
+    acc.body.push(dsl.styleRule(selector, className as StyleRuleBodyBuilder));
+  });
+
+  return acc;
+};
+
+// Registered properties are top-level @property rules: browsers ignore
+// @property nested inside a rule.
+const propertiesGenerator: GeneratorReduceFn = (acc, curr) => {
+  Object.entries(curr.state.properties ?? {}).forEach(([name, descriptor]) => {
+    acc.body.push(
+      dsl.atRule("property", curr.themeBag.tryScope(name as `--${string}`), {
+        syntax: `"${[descriptor.syntax].flat().join(" | ")}"`,
+        inherits: String(descriptor.inherits),
+        // Numbers as strings, so a 0 isn't dropped as falsy when serialized.
+        "initial-value":
+          typeof descriptor.initialValue === "number" ?
+            String(descriptor.initialValue)
+          : descriptor.initialValue,
+      }),
+    );
+  });
+
+  return acc;
+};
+
 const generators: GeneratorReduceFn[] = [
   varsGenerator,
   variantVarsGenerator,
+  propertiesGenerator,
   dynamicComponentGenerator,
   themeableStaticComponentsGenerator,
   staticComponentGenerator,
   controlledVarGenerator,
   utilitiesGenerator,
   guardsGenerator,
+  appliesToGenerator,
 ];
 
 export function componentBuilderToDsl({
@@ -343,16 +422,34 @@ function appendComponentIfExists(
       dsl.atRule(
         "utility",
         componentName,
-        wrapComponentLayer(...filtered),
+        componentBodyLayer(...filtered),
       ) as AtRuleAst,
     );
   }
 }
 
-function applyCurrentPalette(
-  palette: Palette,
-  body: (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[],
+/**
+ * An alias only `@apply`s another generated component class, which brings its
+ * own layers with it, so wrapping the alias would nest them a second time.
+ */
+function appendAliasIfExists(
+  body: DesignSystemAst[],
+  componentName: string,
+  appliedClasses: (string | null)[],
 ) {
+  const filtered = appliedClasses.filter((x): x is string => !!x);
+  if (filtered.length > 0) {
+    body.push(
+      dsl.atRule(
+        "utility",
+        componentName,
+        ...(filtered as AtRuleBodyBuilder[]),
+      ),
+    );
+  }
+}
+
+function applyCurrentPalette(palette: Palette, body: ComponentBodyAst[]) {
   return stylesheetVisitorBuilder()
     .on("color", (ast) => {
       return {
@@ -363,9 +460,42 @@ function applyCurrentPalette(
     .visit(body);
 }
 
+/** Scoped variant vars that the component's utilities read. */
+function utilityVariantVars(curr: ComponentStateRef) {
+  const names = new Set<`--${string}`>();
+  Object.values(curr.utilities).forEach((body) => {
+    stylesheetVisitorBuilder()
+      .on("css-var", (ast) => {
+        if (curr.themeBag.getVariantVar(ast.name as `--${string}`)) {
+          names.add(curr.themeBag.tryScope(ast.name as `--${string}`));
+        }
+        return ast;
+      })
+      .visit(normalizeStyleBuilders(curr.state, body));
+  });
+  return names;
+}
+
+/**
+ * On the bare class, sets the optional default variant's values for the vars
+ * utilities read, so `name name-utility` matches the default variant.
+ */
+function defaultVariantBridge(curr: ComponentStateRef) {
+  const defaults = curr.themeBag.selectedDefaults;
+  const entries = [...utilityVariantVars(curr)].flatMap((name) =>
+    name in defaults ? [[name, defaults[name]] as const] : [],
+  );
+
+  return entries.length > 0 ?
+      (dsl.styleList(
+        Object.fromEntries(entries) as dsl.StyleProperties,
+      ) as unknown as ComponentBodyAst)
+    : null;
+}
+
 function resolveOptionalVariantReferences(
   curr: ComponentStateRef,
-  body: (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[],
+  body: ComponentBodyAst[],
 ) {
   if (
     !curr.variants.hasVariants ||
@@ -496,9 +626,15 @@ function rewriteOptionalVariantNode(
     : Object.fromEntries(rewrittenEntries);
 }
 
-function isEmptyStyleNode(entry: dsl.StyleListAst | dsl.StyleRuleAst) {
+function isEmptyStyleNode(
+  entry: dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst,
+) {
   if (entry.$ast === "style-list") {
     return entry.styles.length === 0;
+  }
+
+  if (entry.$ast === "at-rule") {
+    return entry.rules.length === 0;
   }
 
   return entry.body.length === 0;
@@ -512,12 +648,41 @@ function isEmptyStyleRuleBody(entry: dsl.StyleRuleBody) {
   return isEmptyStyleNode(entry);
 }
 
-function wrapComponentLayer(
-  ...styles: Parameters<typeof dsl.layer.components>
-) {
+/*
+ * Every component class lands in Tailwind's `utilities` layer. Styles directly
+ * in a layer beat its nested layers, so nesting bodies one level deeper than
+ * the component's own utilities ranks them, by layer alone:
+ *   plain Tailwind utility > component utility (`components`) > body (`components.base`)
+ */
+function componentBodyLayer(...styles: AtRuleBodyBuilder[]) {
+  return dsl.layer.components(dsl.layer.base(...styles));
+}
+
+function componentUtilityLayer(...styles: AtRuleBodyBuilder[]) {
   return dsl.layer.components(...styles);
 }
 
 function camelCase(str: string) {
   return str.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+}
+
+/** Roots of every `--value(--x-*)` lookup in a node, e.g. `--size`. */
+function valueRootsOf(
+  node: dsl.StyleListAst | dsl.StyleRuleAst | dsl.AtRuleAst | undefined,
+) {
+  const roots: `--${string}`[] = [];
+  if (!node) return roots;
+
+  stylesheetVisitorBuilder()
+    .on("match-value", (ast) => {
+      for (const candidate of ast.candidates) {
+        if (candidate.$twCandidate === "variable") {
+          roots.push(candidate.root as `--${string}`);
+        }
+      }
+      return ast;
+    })
+    .visit(node);
+
+  return roots;
 }

@@ -10,6 +10,42 @@ import { select, type Selector } from "./selector.ts";
 import type { constants } from "buffer";
 import type { WithMetadata } from "../../utils/types.ts";
 import { tw } from "./tailwind-utilities.ts";
+import { prefersReducedMotion } from "./at-rule.ts";
+import type { StyleProperties } from "./style-rule.ts";
+
+describe("StyleProperties: properties csstype does not know yet", () => {
+  it("accepts the interest-delay properties", () => {
+    const props = {
+      "interest-delay": "300ms 100ms",
+      "interest-delay-start": "300ms",
+      "interest-delay-end": "normal",
+    } satisfies StyleProperties;
+
+    expect(styleRule(".trigger", props).body).toEqual([
+      { $ast: "style-list", styles: [props] },
+    ]);
+  });
+
+  it("still rejects unknown properties", () => {
+    const props: StyleProperties = {
+      // @ts-expect-error not a CSS property
+      "interest-delay-middle": "300ms",
+    };
+
+    expect(props).toBeDefined();
+  });
+});
+
+describe("styleRule with nested at-rules", () => {
+  it("keeps at-rule nodes in the body, after the rule's own styles", () => {
+    const reduced = prefersReducedMotion({ transition: "none" });
+    const result = styleRule(".dialog", { opacity: "0" }, reduced);
+
+    expect(result.body).toHaveLength(2);
+    expect(result.body[0]).toMatchObject({ $ast: "style-list" });
+    expect(result.body[1]).toBe(reduced);
+  });
+});
 
 describe("styleRule type tests", () => {
   describe("basic rule creation", () => {

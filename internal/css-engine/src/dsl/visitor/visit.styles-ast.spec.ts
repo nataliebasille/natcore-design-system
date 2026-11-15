@@ -24,19 +24,28 @@ describe("style-list visitor", () => {
 
     it("correctly infers return type of transformation", () => {
       const ast = styleRule(select.cls("test"), { color: "red" });
-      const visitor = stylesheetVisitorBuilder().on("style-list", (node) =>
-        styleList({
-          color: "blue",
-          "font-size": "16px",
-        }),
-      );
-      const actual = visitor.visit(ast);
-      const expected = styleRule(select.cls("test"), {
+      const replacement = styleList({
         color: "blue",
         "font-size": "16px",
       });
+      const visitor = stylesheetVisitorBuilder().on(
+        "style-list",
+        () => replacement,
+      );
+      const actual = visitor.visit(ast);
+      type TransformedStyleList = Extract<
+        (typeof actual)["body"][number],
+        { $ast: "style-list" }
+      >;
 
-      expectTypeOf(actual).toEqualTypeOf(expected);
+      expectTypeOf(actual.$ast).toEqualTypeOf<"style-rule">();
+      expectTypeOf<TransformedStyleList>().toMatchTypeOf<StyleListAst>();
+      expectTypeOf<
+        NonNullable<TransformedStyleList["__metadata"]>
+      >().toEqualTypeOf<{
+        readonly color: "blue";
+        readonly "font-size": "16px";
+      }>();
     });
   });
 
@@ -203,7 +212,7 @@ describe("style-list visitor", () => {
       }));
       const result = visitor.visit(ast);
 
-      expect(result.body[0].styles).toEqual([
+      expect(styleListAt(result).styles).toEqual([
         {
           color: "blue",
           "font-size": "16px",
@@ -228,7 +237,7 @@ describe("style-list visitor", () => {
       }));
       const result = visitor.visit(ast);
 
-      expect(result.body[0].styles[0]).toEqual({
+      expect(styleListAt(result).styles[0]).toEqual({
         color: "red",
         padding: "8px",
         modified: "true",
@@ -253,8 +262,8 @@ describe("style-list visitor", () => {
       });
       const result = visitor.visit(ast);
 
-      expect(result[0]?.body[0].styles).toEqual([{ padding: "16px" }]);
-      expect(result[1]?.body[0].styles).toEqual([{ padding: "24px" }]);
+      expect(styleListAt(result[0]).styles).toEqual([{ padding: "16px" }]);
+      expect(styleListAt(result[1]).styles).toEqual([{ padding: "24px" }]);
     });
   });
 
@@ -318,7 +327,7 @@ describe("style-list visitor", () => {
       }));
       const result = visitor.visit(ast);
 
-      expect(result.body[0].styles[0]).toHaveProperty("modified");
+      expect(styleListAt(result).styles[0]).toHaveProperty("modified");
 
       const childRule = result.body[1];
       expect(
@@ -400,7 +409,7 @@ describe("style-list visitor", () => {
           };
         })
         .visit(ast);
-      const styles = result.body[0]?.styles[0] as StyleProperties;
+      const styles = styleListAt(result).styles[0] as StyleProperties;
 
       expect(styles["background-color"]).toEqual(light("primary", 900));
       expect(styles.color).toEqual(light("primary", 900));
@@ -422,7 +431,7 @@ describe("style-list visitor", () => {
         ],
       }));
       const result = visitor.visit(ast);
-      const styles = result.body[0]?.styles[0] as StyleProperties & {
+      const styles = styleListAt(result).styles[0] as StyleProperties & {
         border: string;
       };
 
@@ -475,3 +484,14 @@ describe("style-list visitor", () => {
     });
   });
 });
+
+function styleListAt(
+  rule: { body: readonly { $ast: string }[] } | undefined,
+  index = 0,
+): StyleListAst {
+  const entry = rule?.body[index];
+  if (entry?.$ast !== "style-list") {
+    throw new Error(`Expected a style-list at body[${index}]`);
+  }
+  return entry as StyleListAst;
+}

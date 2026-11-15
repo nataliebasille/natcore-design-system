@@ -83,10 +83,10 @@ function createListItems(index: number) {
       <a
         key={id}
         className={classnames("list-item", {
-          "pl-4!": index === 1,
-          "pl-8!": index === 2,
-          "pl-12!": index === 3,
-          "pl-14!": index === 4,
+          "pl-4": index === 1,
+          "pl-8": index === 2,
+          "pl-12": index === 3,
+          "pl-14": index === 4,
         })}
         href={`#${id}`}
         onClick={createScrollHandler(id)}

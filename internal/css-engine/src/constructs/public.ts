@@ -4,3 +4,4 @@ export * from "./palette-utils.ts";
 export * from "./theme.ts";
 export * from "./utility.ts";
 export * from "./pattern.ts";
+export * from "./docs/public.ts";

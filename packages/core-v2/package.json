@@ -1,26 +1,45 @@
 {
-  "name": "@nataliebasille/natcore-design-system-v2",
-  "private": true,
-  "version": "2.0.0",
-  "description": "Natcore Design System v2 - Core package for Tailwind CSS 4.0",
+  "name": "@nataliebasille/natcore-design-system",
+  "version": "2.2.1",
+  "description": "Natcore Design System core package for Tailwind CSS 4.0+",
   "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
   "main": "./dist/natcore.css",
   "module": "./dist/natcore.css",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
+      "style": "./dist/natcore.css",
+      "default": "./dist/natcore.css"
+    },
+    "./css": {
       "style": "./dist/natcore.css",
       "default": "./dist/natcore.css"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
       "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs"
+      "require": "./dist/utils.cjs",
+      "default": "./dist/utils.js"
+    },
+    "./postcss": {
+      "types": "./dist/postcss.d.ts",
+      "import": "./dist/postcss.js",
+      "require": "./dist/postcss.cjs",
+      "default": "./dist/postcss.js"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "import": "./dist/vite.js",
+      "require": "./dist/vite.cjs",
+      "default": "./dist/vite.js"
     }
   },
-  "files": [
-    "dist/**/*",
-    "README.md"
-  ],
   "scripts": {
     "build": "node --conditions=source --import tsx scripts/build.ts",
     "build:css": "node --conditions=source --import tsx scripts/build-css.ts",
@@ -31,7 +50,9 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "check:exports": "tsx scripts/assert-plugin-exports.ts"
   },
   "keywords": [
     "design-system",
@@ -43,31 +64,40 @@
   ],
   "author": "Natalie Basille",
   "license": "MIT",
+  "peerDependencies": {
+    "postcss": "^8.4.0",
+    "tailwindcss": "^4.1.16",
+    "vite": ">=5"
+  },
+  "peerDependenciesMeta": {
+    "postcss": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "classnames": "^2.5.1"
+  },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.16",
-    "@types/chroma-js": "^3.1.2",
-    "@types/culori": "^4.0.1",
+    "@nataliebasille/css-engine": "workspace:*",
+    "@nataliebasille/preview-jsx-runtime": "workspace:*",
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/node": "^4.1.16",
+    "@tailwindcss/oxide": "^4.1.16",
     "@types/node": "^22.19.0",
     "@vitest/ui": "^2.1.8",
     "chokidar": "^4.0.3",
-    "dedent": "^1.7.0",
-    "esbuild": "^0.27.0",
-    "globby": "^15.0.0",
+    "interestfor": "^1.0.12",
+    "postcss": "^8.5.6",
     "rimraf": "^6.1.0",
     "tsup": "^8.5.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitest": "^2.1.8"
   },
-  "peerDependencies": {
-    "tailwindcss": "^4.1.16"
-  },
-  "dependencies": {
-    "@nataliebasille/css-engine": "workspace:*",
-    "@nataliebasille/preview-jsx-runtime": "workspace:*",
-    "chroma-js": "^3.2.0",
-    "classnames": "^2.5.1",
-    "culori": "^4.0.2",
-    "next-themes": "^0.4.6"
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }

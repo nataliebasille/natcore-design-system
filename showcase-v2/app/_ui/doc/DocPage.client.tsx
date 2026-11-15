@@ -113,7 +113,7 @@ export function DocOutlineProvider({ children }: PropsWithChildren) {
   );
 }
 
-export function useNextLevel(title: string) {
+function useNextLevel(title: string) {
   const context = useContext(OutlineContext);
 
   if (!context) {
@@ -166,7 +166,7 @@ export function DocSection({
       <div className="relative">
         <CopySectionUrl sectionId={id} />
 
-        <Header id={id} className="mt-0! scroll-mt-20 tracking-tighter">
+        <Header id={id} className="mt-0 scroll-mt-20 tracking-tighter">
           {title}
         </Header>
       </div>

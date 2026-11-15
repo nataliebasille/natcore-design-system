@@ -6,7 +6,7 @@ import type {
 import { stylesheetVisitorBuilder } from "../../dsl/ast/stylesheet-visitor-builder";
 import type { ThemeProperties } from "../theme";
 import { ThemeBag } from "./theme-bag";
-import type { ComponentSlot, ComponentState } from "./types";
+import type { ComponentBodyAst, ComponentSlot, ComponentState } from "./types";
 import {
   normalizeStyleBuilders,
   resolveComponentName,
@@ -30,8 +30,7 @@ export class ComponentStateRef {
     return this.#state;
   }
 
-  #body: (StyleListAst_WithMetadata | StyleRuleAst_WithMetadata)[] | null =
-    null;
+  #body: ComponentBodyAst[] | null = null;
 
   get body() {
     if (!this.#body) {

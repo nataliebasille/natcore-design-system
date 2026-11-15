@@ -1,5 +1,114 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { cssColor, cssvar, primitive, type CssFunction } from "./public.ts";
+import {
+  anchor,
+  anchorSize,
+  calc,
+  clamp,
+  cssColor,
+  cssvar,
+  match,
+  max,
+  primitive,
+  scale,
+  translateY,
+  type CssFunction,
+  type CssValue,
+} from "./public.ts";
+
+describe("time values", () => {
+  it("primitive.time.ms() renders milliseconds", () => {
+    expect(primitive.time.ms(150).toString()).toBe("150ms");
+    expectTypeOf(primitive.time.ms(150)).toMatchTypeOf<CssValue<"time">>();
+  });
+
+  it("primitive.time.s() renders seconds", () => {
+    expect(primitive.time.s(1.5).toString()).toBe("1.5s");
+    expectTypeOf(primitive.time.s(1.5)).toMatchTypeOf<CssValue<"time">>();
+  });
+
+  it("keeps the unit for zero, because a unitless 0 is not a valid <time>", () => {
+    expect(primitive.time.ms(0).toString()).toBe("0ms");
+    expect(primitive.time.s(0).toString()).toBe("0s");
+  });
+
+  it("calc() accepts time values", () => {
+    expect(
+      calc`${primitive.integer(150)} * ${primitive.time.ms(1)}`.toString(),
+    ).toBe("calc(150 * 1ms)");
+  });
+
+  it("calc() accepts a bare-integer match multiplied by a time unit", () => {
+    const delay = calc`${match.bare.integer()} * ${primitive.time.ms(1)}`;
+
+    expect(delay.values).toEqual([
+      match.bare.integer(),
+      primitive.time.ms(1),
+    ]);
+    expectTypeOf(delay).toMatchTypeOf<CssFunction>();
+  });
+});
+
+describe("transform functions", () => {
+  it("translateY() renders a vertical translation", () => {
+    expect(translateY(primitive.length.percent(100)).toString()).toBe(
+      "translateY(100%)",
+    );
+    expect(translateY(primitive.length.rem(-1)).toString()).toBe(
+      "translateY(-1rem)",
+    );
+  });
+
+  it("scale() renders a uniform scale factor", () => {
+    expect(scale(0.95).toString()).toBe("scale(0.95)");
+  });
+});
+
+describe("anchor()", () => {
+  it("renders a side of the default anchor", () => {
+    expect(anchor("bottom").toString()).toBe("anchor(bottom)");
+    expect(anchor("center").toString()).toBe("anchor(center)");
+  });
+
+  it("renders a side of a named anchor", () => {
+    expect(anchor("--popover", "top").toString()).toBe(
+      "anchor(--popover top)",
+    );
+  });
+
+  it("is a length, so it works in calc(), max(), and clamp()", () => {
+    const top = anchor("--self", "top");
+
+    expect(
+      calc`${max(anchor("center"), top)} - ${top}`.toString(),
+    ).toBe("calc(max(anchor(center), anchor(--self top)) - anchor(--self top))");
+    expect(
+      clamp(top, anchor("center"), anchor("--self", "bottom")).toString(),
+    ).toBe("clamp(anchor(--self top), anchor(center), anchor(--self bottom))");
+    expectTypeOf(top).toMatchTypeOf<CssValue<"length">>();
+  });
+});
+
+describe("anchorSize()", () => {
+  it("renders a size of the default anchor", () => {
+    expect(anchorSize("width").toString()).toBe("anchor-size(width)");
+    expect(anchorSize("block").toString()).toBe("anchor-size(block)");
+  });
+
+  it("renders a size of a named anchor", () => {
+    expect(anchorSize("--popover", "height").toString()).toBe(
+      "anchor-size(--popover height)",
+    );
+  });
+
+  it("is a length, so it works in calc()", () => {
+    const height = anchorSize("--self", "height");
+
+    expect(calc`${height} - ${primitive.length.px(4)}`.toString()).toBe(
+      "calc(anchor-size(--self height) - 4px)",
+    );
+    expectTypeOf(height).toMatchTypeOf<CssValue<"length">>();
+  });
+});
 
 describe("css function values", () => {
   describe("cssColor()", () => {

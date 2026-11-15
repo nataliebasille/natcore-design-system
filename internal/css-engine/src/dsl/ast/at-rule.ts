@@ -369,6 +369,14 @@ export const prefersReducedMotion: (
   ...rules: AtRuleBodyBuilder[]
 ) => AtRuleAst = (...rules) => mediaEnv("reduced-motion", "reduce", ...rules);
 
+/**
+ * Styles applied before an element's first style update, so transitions can
+ * animate from them (e.g. when an element is inserted or becomes displayed).
+ */
+export const startingStyle: (...rules: AtRuleBodyBuilder[]) => AtRuleAst = (
+  ...rules
+) => atRule("starting-style", null, ...rules);
+
 export const prefersHighContrast: (
   ...rules: AtRuleBodyBuilder[]
 ) => AtRuleAst = (...rules) => mediaEnv("contrast", "high", ...rules);

@@ -87,7 +87,7 @@ export default function InstallationPage() {
         <div className="grid gap-3 tablet:grid-cols-3">
           <InfoPanel
             title="Components"
-            description="Start with button, card, badge, divider, list, toggle, and tray."
+            description="Browse the component docs for live examples, copyable markup, and the full class reference."
             href="/components/button"
           />
           <InfoPanel
@@ -145,7 +145,7 @@ function StepSection({
             {number}
           </span>
           <div>
-            <h2 className="mt-0! mb-1 text-2xl tracking-tight">{title}</h2>
+            <h2 className="mt-0 mb-1 text-2xl tracking-tight">{title}</h2>
             <p className="text-sm/7 text-surface-950/65">{description}</p>
           </div>
         </div>

@@ -10,7 +10,9 @@ import type { MatchValueAst } from "../../dsl/ast/cssvalue/match-value";
 import type { CssDataType, StylePropertyValue } from "../../dsl/public";
 import { type ComponentBuilder } from "./component-builder";
 import {
+  isControlledLookup,
   isControlledVar,
+  isMatchValueCandidate,
   type ComponentState,
   type ControlledVar,
 } from "./types";
@@ -49,10 +51,9 @@ type ExtractVariantVars<T extends ComponentState> =
     OwnVariantVars<T> | ExtractVariantVars<P>
   : OwnVariantVars<T>;
 
-type OwnVariantVars<T extends ComponentState> =
-  T["variants"]["values"][keyof T["variants"]["values"]] extends infer V ?
-    keyof V
-  : never;
+type OwnVariantVars<T extends ComponentState> = {
+  [K in keyof T["variants"]["values"]]: keyof T["variants"]["values"][K];
+}[keyof T["variants"]["values"]];
 
 type DefinedUtilityKeys<T extends ComponentState> =
   T extends { parent: infer P extends ComponentState } ?
@@ -70,13 +71,12 @@ type DefinedCssVars<
   : ExtractCssVars<T, V>;
 
 type ExtractCssVars<T extends ComponentState, V extends PropertyKey> = keyof {
-  [K in keyof T["vars"] as
-    T["vars"][K] extends ControlledVar ? never
-    : K extends V ? never
-    : K]: T["vars"][K];
+  [K in keyof T["vars"] as T["vars"][K] extends ControlledVar ? never
+  : K extends V ? never
+  : K]: T["vars"][K];
 };
 
-type DocComponentMeta = {
+export type DocComponentMeta = {
   name: string;
   description: string;
 };
@@ -175,13 +175,25 @@ export type ComponentDoc = {
   customVariants?: DerivedDocSection;
 };
 
-export function createDoc<
-  T extends ComponentBuilder,
-  M extends ComponentDocMeta<T> & {
-    slots?: DerivedDocSectionMeta;
-    customVariants?: DerivedDocSectionMeta;
-  },
->(builder: T, meta: M): ComponentDoc {
+/** Optional names and descriptions for the entities `createDoc` derives from a builder. */
+export type ComponentDocDescriptions = {
+  title: string;
+  description: string;
+  components?: Partial<Record<string, Partial<DocComponentMeta>>>;
+  utilities?: Partial<Record<string, Partial<DocComponentMeta>>>;
+  cssvars?: Partial<Record<string, string>>;
+  slots?: DerivedDocSectionMeta;
+  customVariants?: DerivedDocSectionMeta;
+};
+
+/**
+ * Derives a component's API docs from its builder. Entities without an entry
+ * in `descriptions` get a default name and an empty description.
+ */
+export function createDoc(
+  builder: ComponentBuilder,
+  descriptions: ComponentDocDescriptions,
+): ComponentDoc {
   const { state } = builder;
   const varReferenceMap = new VarReferenceMap();
   const components: ComponentDoc["components"] = {};
@@ -190,8 +202,6 @@ export function createDoc<
   const slotEntries: DerivedDocEntry[] = [];
   const customVariantEntries: DerivedDocEntry[] = [];
   const variantVars = getVariantVars(state);
-  const cssvarDescriptions = (meta as { cssvars?: Record<string, string> })
-    .cssvars;
 
   const resolvedSlots = getSlots(state);
   for (const [name] of Object.entries(resolvedSlots)) {
@@ -213,7 +223,7 @@ export function createDoc<
 
     for (const [varName, varValue] of Object.entries(current.vars)) {
       if (isControlledVar(varValue)) {
-        const varKey = varName.slice(2) as keyof typeof meta.utilities;
+        const varKey = varName.slice(2);
         const utilityName = `${componentName}-${varKey}`;
         const utilityValues = [
           varValue.default,
@@ -226,10 +236,8 @@ export function createDoc<
           },
         ]);
 
-        const utilityMeta = meta.utilities[varKey]!;
-
         utilities[varKey] = {
-          ...utilityMeta,
+          ...utilityMeta(descriptions, varKey),
           pattern: createPattern(
             utilityName,
             {
@@ -244,7 +252,7 @@ export function createDoc<
         if (!variantVars.has(varName as `--${string}`)) {
           cssvars.push({
             varName: `--${componentName}-${varName.slice(2)}`,
-            description: cssvarDescriptions?.[varName] || "",
+            description: descriptions.cssvars?.[varName] ?? "",
             defaultValue: `${varValue}`,
           });
         }
@@ -255,12 +263,20 @@ export function createDoc<
 
     for (const [id, body] of Object.entries(current.utilities)) {
       const utilityName = `${componentName}-${id}`;
+      // `name-*` takes a value: document the values its body matches.
+      const wildcardRoot =
+        id.endsWith("-*") ? `${componentName}-${id.slice(0, -2)}` : undefined;
 
       utilities[id] = {
-        name: meta.utilities[id as keyof typeof meta.utilities]?.name || id,
-        description:
-          meta.utilities[id as keyof typeof meta.utilities]?.description || "",
-        pattern: createPattern(utilityName, undefined, undefined),
+        ...utilityMeta(descriptions, id),
+        pattern:
+          wildcardRoot ?
+            createPattern(
+              wildcardRoot,
+              { name: "value", tokens: resolveMatchedPatternTokens(body) },
+              undefined,
+            )
+          : createPattern(utilityName, undefined, undefined),
         composesWith: varReferenceMap
           .composesWith(body)
           .map((id) => ({ type: "utility", id: `${componentName}-${id}` })),
@@ -282,15 +298,13 @@ export function createDoc<
       variants,
       themeable,
     )) {
-      const componentMeta =
-        meta.components[entryKey as keyof typeof meta.components];
-
-      if (!componentMeta) {
-        throw new Error(`Missing component doc metadata for \"${entryKey}\".`);
-      }
+      const componentMeta = descriptions.components?.[entryKey];
 
       components[entryKey] = {
-        ...componentMeta,
+        name:
+          componentMeta?.name ??
+          defaultComponentName(entryKey, !current.parent, descriptions.title),
+        description: componentMeta?.description ?? "",
         pattern,
         composesWith: componentComposesWith,
       };
@@ -298,8 +312,8 @@ export function createDoc<
   });
 
   return {
-    title: meta.title,
-    description: meta.description,
+    title: descriptions.title,
+    description: descriptions.description,
     components,
     utilities,
     cssvars,
@@ -307,12 +321,12 @@ export function createDoc<
       {
         slots: {
           title:
-            meta.slots?.title ??
+            descriptions.slots?.title ??
             (slotEntries.length === 1 ?
               `${capitalize(slotEntries[0]!.name)} Slot`
             : "Slots"),
-          description: meta.slots?.description,
-          showcases: meta.slots?.showcases,
+          description: descriptions.slots?.description,
+          showcases: descriptions.slots?.showcases,
           entries: slotEntries,
         },
       }
@@ -320,9 +334,9 @@ export function createDoc<
     ...(customVariantEntries.length > 0 ?
       {
         customVariants: {
-          title: meta.customVariants?.title ?? "Custom Variants",
-          description: meta.customVariants?.description,
-          showcases: meta.customVariants?.showcases,
+          title: descriptions.customVariants?.title ?? "Custom Variants",
+          description: descriptions.customVariants?.description,
+          showcases: descriptions.customVariants?.showcases,
           entries: customVariantEntries,
         },
       }
@@ -332,6 +346,30 @@ export function createDoc<
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// `placement-*` → `Placement`.
+function toLabel(key: string) {
+  return capitalize(key.replace(/-\*$/, "").replace(/-/g, " "));
+}
+
+function utilityMeta(descriptions: ComponentDocDescriptions, key: string) {
+  const meta = descriptions.utilities?.[key];
+  return {
+    name: meta?.name ?? toLabel(key),
+    description: meta?.description ?? "",
+  };
+}
+
+// The root component is named after the page; `<key>@variant` after its base.
+function defaultComponentName(
+  entryKey: string,
+  isRoot: boolean,
+  pageTitle: string,
+) {
+  const isVariant = entryKey.endsWith("@variant");
+  const base = isRoot ? pageTitle : toLabel(entryKey.replace(/@variant$/, ""));
+  return isVariant ? `${base} Variants` : base;
 }
 
 function getVariantVars(state: ComponentState) {
@@ -399,8 +437,8 @@ function resolveComponentEntries(
     {
       name: "variant",
       default:
-        variants.selection.mode === "default" ?
-          variants.selection.key
+        variants.selection.mode === "default" ? variants.selection.key
+        : variants.selection.mode === "optional" ? variants.selection.default
         : undefined,
       tokens: variantTokens,
     },
@@ -428,7 +466,7 @@ function resolveControlledVarValues(
   const values: Array<StylePropertyValue | StylePropertyValue[]> = [];
 
   for (const candidate of candidates) {
-    if (isMatchValueCandidate(candidate)) {
+    if (isControlledLookup(candidate)) {
       continue;
     }
 
@@ -444,8 +482,13 @@ function resolveControlledPatternTokens(
   const tokens: PatternValueToken[] = [];
 
   for (const candidate of candidates) {
-    if (isMatchValueCandidate(candidate) === false) {
+    if (!isControlledLookup(candidate)) {
       tokens.push(...Object.keys(candidate));
+      continue;
+    }
+
+    if (!isMatchValueCandidate(candidate)) {
+      tokens.push(...resolveMatchedPatternTokens(candidate));
       continue;
     }
 
@@ -466,8 +509,29 @@ function resolveControlledPatternTokens(
   return tokens;
 }
 
-function isMatchValueCandidate(
-  candidate: ControlledVar["candidates"][number],
-): candidate is MatchValueAst<CssDataType> {
-  return "$ast" in candidate && candidate.$ast === "match-value";
+/**
+ * The values a utility body matches, from every match value anywhere in it
+ * (including inside calc() and nested selectors), without repeats.
+ */
+function resolveMatchedPatternTokens(body: unknown): PatternValueToken[] {
+  const matches: MatchValueAst<CssDataType>[] = [];
+  const seen = new WeakSet<object>();
+  const visit = (node: unknown) => {
+    if (typeof node !== "object" || node === null || seen.has(node)) return;
+    seen.add(node);
+    if ((node as { $ast?: unknown }).$ast === "match-value") {
+      matches.push(node as MatchValueAst<CssDataType>);
+      return;
+    }
+    for (const child of Object.values(node)) visit(child);
+  };
+  visit(body);
+
+  const tokens = resolveControlledPatternTokens(matches);
+  return tokens.filter(
+    (token, i) =>
+      tokens.findIndex(
+        (other) => JSON.stringify(other) === JSON.stringify(token),
+      ) === i,
+  );
 }

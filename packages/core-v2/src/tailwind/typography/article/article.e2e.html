@@ -1,0 +1,72 @@
+<!-- Fixture for article.e2e.spec.ts. See the spec header for the contract. -->
+<main class="p-6">
+  <article id="article-bare">
+    <h1 id="bare-first">Title</h1>
+    <p id="bare-p">Paragraph text.</p>
+    <h2 id="bare-h2">Section</h2>
+    <p>More text.</p>
+    <ul>
+      <li id="bare-list-item" class="list-item">List item</li>
+    </ul>
+    <h4 id="bare-h4">Minor heading</h4>
+  </article>
+
+  <div id="article-class" class="article">
+    <h1 id="class-first">Title</h1>
+    <p id="class-p">Paragraph text.</p>
+    <h2 id="class-h2">Section</h2>
+    <p>More text.</p>
+    <ul>
+      <li id="class-list-item" class="list-item">List item</li>
+    </ul>
+    <h4 id="class-h4">Minor heading</h4>
+  </div>
+
+  <article id="article-overrides-bare">
+    <h1 id="bare-first-mt-4" class="mt-4">Title</h1>
+    <p id="bare-p-m-0" class="m-0">Paragraph text.</p>
+    <h2 id="bare-h2-mt-2" class="mt-2">Section</h2>
+    <p id="bare-p-leading-tight" class="leading-tight">Tight text.</p>
+    <ul>
+      <li id="bare-list-item-leading-tight" class="list-item leading-tight">
+        List item
+      </li>
+    </ul>
+    <h3 id="bare-h3-text-primary" class="text-primary-500">Colored</h3>
+  </article>
+
+  <div class="article">
+    <h1 id="class-first-mt-4" class="mt-4">Title</h1>
+    <p id="class-p-m-0" class="m-0">Paragraph text.</p>
+    <h2 id="class-h2-mt-2" class="mt-2">Section</h2>
+    <p id="class-p-leading-tight" class="leading-tight">Tight text.</p>
+    <ul>
+      <li id="class-list-item-leading-tight" class="list-item leading-tight">
+        List item
+      </li>
+    </ul>
+    <h3 id="class-h3-text-primary" class="text-primary-500">Colored</h3>
+  </div>
+
+  <div class="article">
+    <p>Outer content.</p>
+    <article>
+      <h2 id="nested-bare-first">Nested article title</h2>
+      <p>Nested text.</p>
+    </article>
+    <article>
+      <h2 id="nested-bare-first-mt-4" class="mt-4">Nested article title</h2>
+    </article>
+  </div>
+
+  <article>
+    <p>Outer content.</p>
+    <div class="article">
+      <h2 id="nested-class-first">Nested article title</h2>
+      <p>Nested text.</p>
+    </div>
+    <div class="article">
+      <h2 id="nested-class-first-mt-4" class="mt-4">Nested article title</h2>
+    </div>
+  </article>
+</main>

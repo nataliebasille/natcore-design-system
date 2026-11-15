@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { ChevronDownIcon, MoonIcon, SunIcon } from "./icons";
 import type { getCustomThemes, ThemeColor } from "@/server/get-custom-themes";
@@ -19,7 +19,6 @@ export function ThemeToggle({
       document.documentElement.dataset.theme
     : undefined;
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   const { resolvedTheme: resolvedLightOrDark, setTheme: setLightDark } =
     useTheme();
@@ -52,22 +51,21 @@ export function ThemeToggle({
     setIsThemeSelectorOpen(false);
   }, []);
 
-  useLayoutEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   return (
     <div className={twMerge("relative ml-auto w-max", className)}>
       <button
         className="inline-flex btn-ghost/surface transform-none items-center-safe [--btn-px:0.25rem] [--btn-py:0.25rem]"
         onClick={toggleThemeSelector}
       >
+        {/* The server can't know light/dark, so the thumb and icon follow the
+            <html> scheme class (set before first paint by next-themes)
+            instead of React state; otherwise the toggle would pop in and then
+            animate to dark after hydration. */}
         <label
           suppressHydrationWarning
           className={twMerge(
             "toggle-outline/surface toggle-on:text-white toggle-off:palette-surface",
             className,
-            !isMounted && "invisible",
           )}
           title={title}
           aria-label={title}
@@ -78,10 +76,12 @@ export function ThemeToggle({
             checked={isDark}
             onChange={cycleTheme}
           />
-          <span data-slot="thumb" className="flex items-center justify-center">
-            {isDark ?
-              <MoonIcon suppressHydrationWarning className="h-3 w-3" />
-            : <SunIcon suppressHydrationWarning className="h-3 w-3" />}
+          <span
+            data-slot="thumb"
+            className="flex items-center justify-center dark:[transform:translateX(var(--toggle-h))]"
+          >
+            <MoonIcon className="hidden h-3 w-3 dark:block" />
+            <SunIcon className="h-3 w-3 dark:hidden" />
           </span>
         </label>
         <span className="ml-2 hidden tablet:inline">Theme</span>

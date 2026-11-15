@@ -21,17 +21,28 @@ export function Sidebar({ className, children }: SidebarProps) {
 export type SidebarGroupProps = PropsWithChildren<{
   header: React.ReactNode;
   className?: string;
+  /** Renders as an indented item inside a parent group's list. */
+  nested?: boolean;
 }>;
 
-export function SidebarGroup({ header, children }: SidebarGroupProps) {
+export function SidebarGroup({ header, children, nested }: SidebarGroupProps) {
+  const Root = nested ? "li" : "div";
+
   return (
-    <div className="flex flex-col">
-      <Overline className="mb-2 pt-4 pb-0">{header}</Overline>
+    <Root
+      className={twMerge(
+        "flex flex-col",
+        nested && "ml-2 border-l border-surface-600/30 pl-2",
+      )}
+    >
+      <Overline className={twMerge("mb-2 pt-4 pb-0", nested && "mb-1 pt-2")}>
+        {header}
+      </Overline>
 
       <ul className="flex flex-col gap-1 text-primary-500 dark:text-primary-900">
         {children}
       </ul>
-    </div>
+    </Root>
   );
 }
 

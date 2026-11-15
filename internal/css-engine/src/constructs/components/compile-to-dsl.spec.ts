@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { componentBuilderToDsl } from "./compile-to-dsl.ts";
 import { dsl, PALETTE } from "../../dsl/public.ts";
 import { component } from "./component-builder.ts";
+import type { RegisteredProperty } from "./types.ts";
 import { colorKeyWithoutPalette, renderPalette } from "../palette-utils.ts";
 
 describe("vars", () => {
@@ -123,7 +124,7 @@ describe("variants", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.match.variable("--btn-bg"),
           }),
@@ -159,7 +160,7 @@ describe("themeable = FALSE / variants = NONE", () => {
       dsl.atRule(
         "utility",
         "btn",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             "--btn-color": "blue",
             color: dsl.cssvar("--btn-other-color"),
@@ -187,7 +188,7 @@ describe("themeable = TRUE NO DEFAULT / variants = NONE", () => {
         dsl.atRule(
           "utility",
           `btn/${p}`,
-          dsl.layer.components(
+          componentBody(
             `palette-${p}`,
             dsl.styleList({
               color: dsl.adaptive(p, 500),
@@ -199,7 +200,7 @@ describe("themeable = TRUE NO DEFAULT / variants = NONE", () => {
       dsl.atRule(
         "utility",
         "btn",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.current(500),
           }),
@@ -226,7 +227,7 @@ describe("themeable = TRUE WITH DEFAULT / variants = NONE", () => {
         dsl.atRule(
           "utility",
           `btn/${p}`,
-          dsl.layer.components(
+          componentBody(
             `palette-${p}`,
             dsl.styleList({
               color: dsl.adaptive(p, 500),
@@ -235,7 +236,7 @@ describe("themeable = TRUE WITH DEFAULT / variants = NONE", () => {
         ),
       ),
 
-      dsl.atRule("utility", "btn", dsl.layer.components("btn/primary")),
+      dsl.atRule("utility", "btn", "btn/primary"),
     ];
 
     expect(result).toEqual(expected);
@@ -263,7 +264,7 @@ describe("themeable = FALSE / variants - NO DEFAULT", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({ color: dsl.match.variable("--btn-color") }),
         ),
       ),
@@ -289,7 +290,7 @@ describe("themeable = FALSE / variants - NO DEFAULT", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             "--btn-hover-bg": dsl.match.variable("--btn-hover-bg"),
           }),
@@ -299,7 +300,9 @@ describe("themeable = FALSE / variants - NO DEFAULT", () => {
       dsl.atRule(
         "utility",
         "btn-hover",
-        dsl.styleList({ "background-color": dsl.cssvar("--btn-hover-bg") }),
+        dsl.layer.components(
+          dsl.styleList({ "background-color": dsl.cssvar("--btn-hover-bg") }),
+        ),
       ),
     ]);
   });
@@ -327,7 +330,7 @@ describe("themeable = FALSE / variants - WITH DEFAULT", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.match.variable("--btn-color"),
             "background-color": dsl.match.variable("--btn-bg"),
@@ -335,7 +338,7 @@ describe("themeable = FALSE / variants - WITH DEFAULT", () => {
         ),
       ),
 
-      dsl.atRule("utility", "btn", dsl.layer.components("btn-solid")),
+      dsl.atRule("utility", "btn", "btn-solid"),
     ];
 
     expect(result).toEqual(expected);
@@ -369,7 +372,7 @@ describe("themeable = FALSE / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.match.variable("--btn-color"),
             "background-color": dsl.match.variable("--btn-bg"),
@@ -381,7 +384,7 @@ describe("themeable = FALSE / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({ color: "black", padding: dsl.spacing("4") }),
         ),
       ),
@@ -412,7 +415,7 @@ describe("themeable = FALSE / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.match.variable("--btn-color"),
             "background-color": dsl.match.variable("--btn-bg"),
@@ -424,11 +427,111 @@ describe("themeable = FALSE / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn",
-        dsl.layer.components(dsl.styleList({ padding: dsl.spacing("4") })),
+        componentBody(dsl.styleList({ padding: dsl.spacing("4") })),
       ),
     ];
 
     expect(result).toEqual(expected);
+  });
+
+  it("renders a named default variant as the bare component", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("solid", { "--color": "blue" })
+        .variant("outline", { "--bg": "red" })
+        .optionalVariants("solid")
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+          padding: dsl.spacing("4"),
+        }),
+    );
+
+    expect(utilityNamed(result, "btn")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn",
+        componentBody(
+          dsl.styleList({ color: "blue", padding: dsl.spacing("4") }),
+        ),
+      ),
+    );
+  });
+
+  it("prefers the default variant's value over .vars(), which fills the rest", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--color": "black", "--bg": "white" })
+        .variant("solid", { "--color": "blue" })
+        .variant("outline", { "--bg": "red" })
+        .optionalVariants("solid")
+        .body({
+          color: dsl.cssvar("--color"),
+          "background-color": dsl.cssvar("--bg"),
+        }),
+    );
+
+    expect(utilityNamed(result, "btn")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn",
+        componentBody(
+          dsl.styleList({ color: "blue", "background-color": "white" }),
+        ),
+      ),
+    );
+  });
+
+  it("only accepts a defined variant as the default", () => {
+    const builder = component("btn").variant("solid", { "--color": "blue" });
+
+    // @ts-expect-error "ghost" is not a defined variant
+    expect(() => builder.optionalVariants("ghost")).toThrow(
+      'Component "btn" has no variant "ghost"',
+    );
+  });
+
+  it("resolves a default variant inherited from the parent", () => {
+    const parent = component("btn")
+      .variant("red", { "--color": "red" })
+      .variant("blue", { "--color": "blue" })
+      .optionalVariants("red");
+    const result = componentBuilderToDsl(
+      parent.derive("child", (c) =>
+        c.optionalVariants("blue").body({ color: dsl.cssvar("--color") }),
+      ),
+    );
+
+    expect(utilityNamed(result, "btn-child")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn-child",
+        componentBody(dsl.styleList({ color: "blue" })),
+      ),
+    );
+  });
+
+  it("gives utilities the default variant's values on the bare class", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--color": "black" })
+        .variant("solid", { "--color": "blue" })
+        .variant("outline", { "--color": "red" })
+        .optionalVariants("solid")
+        .body({ color: dsl.cssvar("--color") })
+        .utility("fill", { "background-color": dsl.cssvar("--color") }),
+    );
+
+    expect(utilityNamed(result, "btn")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn",
+        componentBody(
+          dsl.styleList({ "--btn-color": "blue" }),
+          dsl.styleList({ color: "blue" }),
+        ),
+      ),
+    );
   });
 });
 
@@ -452,7 +555,7 @@ describe("themeable = TRUE NO DEFAULT / variants - NO DEFAULT", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           renderPalette((color) =>
             dsl.match.asModifier(
               dsl.match.variable(
@@ -498,7 +601,7 @@ describe("themeable = TRUE NO DEFAULT / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           renderPalette((color) =>
             dsl.match.asModifier(
               dsl.match.variable(
@@ -518,7 +621,7 @@ describe("themeable = TRUE NO DEFAULT / variants - OPTIONAL", () => {
         dsl.atRule(
           "utility",
           `btn/${p}`,
-          dsl.layer.components(
+          componentBody(
             `palette-${p}`,
             dsl.styleList({
               color: dsl.adaptiveText(p as (typeof PALETTE)[number], 500),
@@ -531,7 +634,7 @@ describe("themeable = TRUE NO DEFAULT / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.currentText(500),
             padding: dsl.spacing("4"),
@@ -564,7 +667,7 @@ describe("themeable = TRUE NO DEFAULT / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           renderPalette((color) =>
             dsl.match.asModifier(
               dsl.match.variable(
@@ -584,7 +687,7 @@ describe("themeable = TRUE NO DEFAULT / variants - OPTIONAL", () => {
         dsl.atRule(
           "utility",
           `btn/${p}`,
-          dsl.layer.components(
+          componentBody(
             `palette-${p}`,
             dsl.styleList({ padding: dsl.spacing("4") }),
           ),
@@ -594,11 +697,62 @@ describe("themeable = TRUE NO DEFAULT / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn",
-        dsl.layer.components(dsl.styleList({ padding: dsl.spacing("4") })),
+        componentBody(dsl.styleList({ padding: dsl.spacing("4") })),
       ),
     ];
 
     expect(result).toEqual(expected);
+  });
+
+  it("applies each palette to the named default variant", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("solid", { "--color": dsl.currentText(700) })
+        .variant("outline", { "--color": dsl.currentText(500) })
+        .optionalVariants("solid")
+        .body({ color: dsl.cssvar("--color") }),
+    );
+
+    expect(utilityNamed(result, "btn/primary")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn/primary",
+        componentBody(
+          "palette-primary",
+          dsl.styleList({ color: dsl.adaptiveText("primary", 700) }),
+        ),
+      ),
+    );
+    expect(utilityNamed(result, "btn")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn",
+        componentBody(dsl.styleList({ color: dsl.currentText(700) })),
+      ),
+    );
+  });
+
+  it("gives utilities the palette default variant's values on each palette class", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .variant("solid", { "--color": dsl.current(700) })
+        .variant("outline", { "--color": dsl.current(500) })
+        .optionalVariants("solid")
+        .body({ color: dsl.cssvar("--color") })
+        .utility("fill", { "background-color": dsl.cssvar("--color") }),
+    );
+
+    expect(utilityNamed(result, "btn/primary")).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn/primary",
+        componentBody(
+          "palette-primary",
+          dsl.styleList({ "--btn-color": dsl.adaptive("primary", 700) }),
+          dsl.styleList({ color: dsl.adaptive("primary", 700) }),
+        ),
+      ),
+    );
   });
 });
 
@@ -623,7 +777,7 @@ describe("themeable = TRUE NO DEFAULT / variants - WITH DEFAULT", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           renderPalette((color) =>
             dsl.match.asModifier(
               dsl.match.variable(
@@ -639,11 +793,7 @@ describe("themeable = TRUE NO DEFAULT / variants - WITH DEFAULT", () => {
       ),
 
       ...PALETTE.map((p) =>
-        dsl.atRule(
-          "utility",
-          `btn/${p}`,
-          dsl.layer.components(`btn-outline/${p}`),
-        ),
+        dsl.atRule("utility", `btn/${p}`, `btn-outline/${p}`),
       ),
     ];
 
@@ -674,7 +824,7 @@ describe("themeable = TRUE WITH DEFAULT / variants - OPTIONAL", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           renderPalette((color) =>
             dsl.match.asModifier(
               dsl.match.variable(
@@ -694,14 +844,14 @@ describe("themeable = TRUE WITH DEFAULT / variants - OPTIONAL", () => {
         dsl.atRule(
           "utility",
           `btn/${p}`,
-          dsl.layer.components(
+          componentBody(
             `palette-${p}`,
             dsl.styleList({ padding: dsl.spacing("4") }),
           ),
         ),
       ),
 
-      dsl.atRule("utility", "btn", dsl.layer.components("btn/secondary")),
+      dsl.atRule("utility", "btn", "btn/secondary"),
     ];
 
     expect(result).toEqual(expected);
@@ -730,7 +880,7 @@ describe("themeable = TRUE WITH DEFAULT / variants - WITH DEFAULT", () => {
       dsl.atRule(
         "utility",
         "btn-*",
-        dsl.layer.components(
+        componentBody(
           renderPalette((color) =>
             dsl.match.asModifier(
               dsl.match.variable(
@@ -746,18 +896,10 @@ describe("themeable = TRUE WITH DEFAULT / variants - WITH DEFAULT", () => {
       ),
 
       ...PALETTE.map((p) =>
-        dsl.atRule(
-          "utility",
-          `btn/${p}`,
-          dsl.layer.components(`btn-outline/${p}`),
-        ),
+        dsl.atRule("utility", `btn/${p}`, `btn-outline/${p}`),
       ),
 
-      dsl.atRule(
-        "utility",
-        "btn",
-        dsl.layer.components(`btn-outline/secondary`),
-      ),
+      dsl.atRule("utility", "btn", `btn-outline/secondary`),
     ];
 
     expect(result).toEqual(expected);
@@ -816,7 +958,7 @@ describe("derive", () => {
       const expected = dsl.atRule(
         "utility",
         "btn-group",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.cssvar("--btn-color"),
             background: dsl.cssvar("--btn-group-bg"),
@@ -855,7 +997,7 @@ describe("derive", () => {
       const expected = dsl.atRule(
         "utility",
         "btn-group",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.cssvar("--btn-group-color"),
           }),
@@ -891,7 +1033,7 @@ describe("derive", () => {
       const parentExpected = dsl.atRule(
         "utility",
         "btn",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.cssvar("--btn-color"),
           }),
@@ -957,7 +1099,7 @@ describe("derive", () => {
       const expected = dsl.atRule(
         "utility",
         "btn-group-*",
-        dsl.layer.components(
+        componentBody(
           dsl.styleList({
             color: dsl.match.variable("--btn-color"),
           }),
@@ -988,11 +1130,7 @@ describe("derive", () => {
           x.prelude === "btn-group",
       );
 
-      const expected = dsl.atRule(
-        "utility",
-        "btn-group",
-        dsl.layer.components("btn-group-solid"),
-      );
+      const expected = dsl.atRule("utility", "btn-group", "btn-group-solid");
 
       expect(actual).toEqual(expected);
     });
@@ -1042,7 +1180,7 @@ describe("controlled vars", () => {
           dsl.atRule(
             "utility",
             "btn",
-            dsl.layer.components(
+            componentBody(
               dsl.styleRule("& > .icon", {
                 color: "red",
               }),
@@ -1075,7 +1213,7 @@ describe("controlled vars", () => {
           dsl.atRule(
             "utility",
             "btn",
-            dsl.layer.components(
+            componentBody(
               dsl.styleRule('&:has([data-slot="icon"])', {
                 color: "red",
               }),
@@ -1110,7 +1248,7 @@ describe("controlled vars", () => {
           dsl.atRule(
             "utility",
             "btn-group",
-            dsl.layer.components(
+            componentBody(
               dsl.styleRule("& > .icon", {
                 color: "red",
               }),
@@ -1183,9 +1321,11 @@ describe("controlled vars", () => {
     const expected = dsl.atRule(
       "utility",
       "btn-size-*",
-      dsl.styleList({
-        "--btn-size": dsl.match.variable("--btn-size"),
-      }),
+      dsl.layer.components(
+        dsl.styleList({
+          "--btn-size": dsl.match.variable("--btn-size"),
+        }),
+      ),
     );
 
     expect(actual).toEqual(expected);
@@ -1210,9 +1350,11 @@ describe("controlled vars", () => {
       dsl.atRule(
         "utility",
         "btn-size-*",
-        dsl.styleList({
-          "--btn-size": dsl.match.oneOf(dsl.match.variable("--btn-size")),
-        }),
+        dsl.layer.components(
+          dsl.styleList({
+            "--btn-size": dsl.match.oneOf(dsl.match.variable("--btn-size")),
+          }),
+        ),
       ),
     );
   });
@@ -1236,9 +1378,11 @@ describe("controlled vars", () => {
       dsl.atRule(
         "utility",
         "btn-size-*",
-        dsl.styleList({
-          "--btn-size": dsl.match.oneOf(dsl.match.arbitrary.length()),
-        }),
+        dsl.layer.components(
+          dsl.styleList({
+            "--btn-size": dsl.match.oneOf(dsl.match.arbitrary.length()),
+          }),
+        ),
       ),
     );
   });
@@ -1262,9 +1406,79 @@ describe("controlled vars", () => {
       dsl.atRule(
         "utility",
         "btn-size-*",
-        dsl.styleList({
-          "--btn-size": dsl.match.oneOf(dsl.match.bare.integer()),
-        }),
+        dsl.layer.components(
+          dsl.styleList({
+            "--btn-size": dsl.match.oneOf(dsl.match.bare.integer()),
+          }),
+        ),
+      ),
+    );
+  });
+
+  it("a calc around a matcher is a lookup, declared before the other matchers", () => {
+    const percent = dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.percentage(1)}`;
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--size": "1rem" })
+        .controlled(
+          "--size",
+          { sm: "0.875rem" },
+          percent,
+          dsl.match.arbitrary.length(),
+        )
+        .body({ padding: dsl.cssvar("--size") }),
+    );
+
+    expect(
+      result.find(
+        (x) =>
+          x.$ast === "at-rule" &&
+          x.name === "utility" &&
+          x.prelude === "btn-size-*",
+      ),
+    ).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn-size-*",
+        dsl.layer.components(
+          dsl.styleList({
+            "--btn-size": [
+              percent,
+              dsl.match.oneOf(
+                dsl.match.variable("--btn-size"),
+                dsl.match.arbitrary.length(),
+              ),
+            ],
+          }),
+        ),
+      ),
+    );
+    expect(
+      result.find((x) => x.$ast === "at-rule" && x.name === "theme"),
+    ).not.toHaveProperty("body.--btn-size-$function");
+  });
+
+  it("only a calc lookup is a single declaration", () => {
+    const percent = dsl.calc`${dsl.match.bare.integer()} * ${dsl.primitive.percentage(1)}`;
+    const result = componentBuilderToDsl(
+      component("btn")
+        .vars({ "--size": "1rem" })
+        .controlled("--size", percent)
+        .body({ padding: dsl.cssvar("--size") }),
+    );
+
+    expect(
+      result.find(
+        (x) =>
+          x.$ast === "at-rule" &&
+          x.name === "utility" &&
+          x.prelude === "btn-size-*",
+      ),
+    ).toEqual(
+      dsl.atRule(
+        "utility",
+        "btn-size-*",
+        dsl.layer.components(dsl.styleList({ "--btn-size": percent })),
       ),
     );
   });
@@ -1293,13 +1507,15 @@ describe("controlled vars", () => {
       dsl.atRule(
         "utility",
         "btn-size-*",
-        dsl.styleList({
-          "--btn-size": dsl.match.oneOf(
-            dsl.match.variable("--btn-size"),
-            dsl.match.arbitrary.length(),
-            dsl.match.bare.number(),
-          ),
-        }),
+        dsl.layer.components(
+          dsl.styleList({
+            "--btn-size": dsl.match.oneOf(
+              dsl.match.variable("--btn-size"),
+              dsl.match.arbitrary.length(),
+              dsl.match.bare.number(),
+            ),
+          }),
+        ),
       ),
     );
   });
@@ -1320,7 +1536,7 @@ describe("controlled vars", () => {
     const expected = dsl.atRule(
       "utility",
       "btn",
-      dsl.layer.components(
+      componentBody(
         dsl.styleList({
           padding: dsl.cssvar("--btn-size"),
         }),
@@ -1446,11 +1662,415 @@ describe("utility", () => {
         x.prelude === "btn-icon",
     );
 
-    const expected = dsl.atRule("utility", "btn-icon", {
-      "--btn-px": "8px",
-      "--btn-py": "8px",
-    });
+    const expected = dsl.atRule(
+      "utility",
+      "btn-icon",
+      dsl.layer.components({
+        "--btn-px": "8px",
+        "--btn-py": "8px",
+      }),
+    );
 
     expect(actual).toEqual(expected);
+  });
+});
+
+describe("cascade layers", () => {
+  // Inside Tailwind's `utilities` layer, styles directly in `components` beat
+  // styles in its nested `base` layer, and plain utilities beat both.
+  it.each([
+    ["static body", component("box").body({ margin: "0" }), "box"],
+    [
+      "dynamic body",
+      component("box")
+        .variant("sm", { "--size": "1rem" })
+        .body({ "font-size": dsl.cssvar("--size") }),
+      "box-*",
+    ],
+    [
+      "themeable body",
+      component("box").body({ color: dsl.current(500) }),
+      "box/primary",
+    ],
+    [
+      "derived body",
+      component("box")
+        .body({ margin: "0" })
+        .derive("group", (child) => child.body({ display: "flex" })),
+      "box-group",
+    ],
+  ])("nests the %s in components > base", (_, builder, name) => {
+    expect(
+      layerPath(utilityNamed(componentBuilderToDsl(builder), name)),
+    ).toEqual(["components", "base"]);
+  });
+
+  it("puts .utility() output in components, above the body", () => {
+    const result = componentBuilderToDsl(
+      component("box")
+        .body({ margin: "0" })
+        .utility("flush", { margin: "-1rem" }),
+    );
+
+    expect(layerPath(utilityNamed(result, "box-flush"))).toEqual([
+      "components",
+    ]);
+  });
+
+  it("puts controlled var utilities in components, above the body", () => {
+    const result = componentBuilderToDsl(
+      component("box")
+        .vars({ "--size": "1rem" })
+        .controlled("--size", dsl.match.arbitrary.length())
+        .body({ padding: dsl.cssvar("--size") }),
+    );
+
+    expect(layerPath(utilityNamed(result, "box-size-*"))).toEqual([
+      "components",
+    ]);
+  });
+
+  it.each([
+    [
+      "default variant",
+      component("box")
+        .variant("sm", { "--size": "1rem" })
+        .defaultVariant("sm")
+        .body({ "font-size": dsl.cssvar("--size") }),
+      "box",
+      "box-sm",
+    ],
+    [
+      "default theme",
+      component("box")
+        .defaultTheme("primary")
+        .body({ color: dsl.current(500) }),
+      "box",
+      "box/primary",
+    ],
+    [
+      "palette of a default variant",
+      component("box")
+        .variant("sm", { "--size": "1rem" })
+        .defaultVariant("sm")
+        .body({
+          "font-size": dsl.cssvar("--size"),
+          color: dsl.current(500),
+        }),
+      "box/accent",
+      "box-sm/accent",
+    ],
+  ])(
+    "leaves a %s alias unwrapped so it keeps the applied class's layer",
+    (_, builder, name, applied) => {
+      expect(utilityNamed(componentBuilderToDsl(builder), name)).toEqual(
+        dsl.atRule("utility", name, applied),
+      );
+    },
+  );
+});
+
+describe("applyTo", () => {
+  it("styles a selector with the component class", () => {
+    const result = componentBuilderToDsl(
+      component("article")
+        .body({ margin: "0" })
+        .applyTo(dsl.select.element("article")),
+    );
+
+    expect(result.filter((x) => x.$ast === "style-rule")).toEqual([
+      dsl.styleRule(dsl.select.element("article"), "article"),
+    ]);
+  });
+
+  it("styles a selector with a variant class", () => {
+    const result = componentBuilderToDsl(
+      component("heading")
+        .variant("1", { "--size": "3rem" })
+        .variant("2", { "--size": "2rem" })
+        .body({ "font-size": dsl.cssvar("--size") })
+        .applyTo(dsl.select.element("h1"), "1")
+        .applyTo(dsl.select.element("h2"), "2"),
+    );
+
+    expect(result.filter((x) => x.$ast === "style-rule")).toEqual([
+      dsl.styleRule(dsl.select.element("h1"), "heading-1"),
+      dsl.styleRule(dsl.select.element("h2"), "heading-2"),
+    ]);
+  });
+
+  it("emits the selector rules after the component's utilities", () => {
+    const result = componentBuilderToDsl(
+      component("heading")
+        .variant("1", { "--size": "3rem" })
+        .body({ "font-size": dsl.cssvar("--size") })
+        .applyTo(dsl.select.element("h1"), "1"),
+    );
+
+    const lastUtility = result.findLastIndex(
+      (x) => x.$ast === "at-rule" && x.name === "utility",
+    );
+    const rule = result.findIndex((x) => x.$ast === "style-rule");
+
+    expect(lastUtility).toBeGreaterThanOrEqual(0);
+    expect(rule).toBeGreaterThan(lastUtility);
+  });
+
+  it("uses the scoped name for derived components", () => {
+    const result = componentBuilderToDsl(
+      component("btn")
+        .body({ margin: "0" })
+        .derive("group", (child) =>
+          child.body({ display: "flex" }).applyTo(dsl.select.element("menu")),
+        ),
+    );
+
+    expect(result.filter((x) => x.$ast === "style-rule")).toEqual([
+      dsl.styleRule(dsl.select.element("menu"), "btn-group"),
+    ]);
+  });
+
+  it("rejects a variant the component doesn't define", () => {
+    expect(() =>
+      component("heading")
+        .variant("1", { "--size": "3rem" })
+        .body({ "font-size": dsl.cssvar("--size") })
+        // @ts-expect-error "7" is not a defined variant
+        .applyTo(dsl.select.element("h1"), "7"),
+    ).toThrow(/heading.*"7"/);
+  });
+
+  it("rejects applying the bare class when variants are required", () => {
+    const builder = component("heading")
+      .variant("1", { "--size": "3rem" })
+      .body({ "font-size": dsl.cssvar("--size") })
+      .applyTo(dsl.select.element("h1"));
+
+    expect(() => componentBuilderToDsl(builder)).toThrow(
+      /heading.*requires a variant.*h1/,
+    );
+  });
+
+  it("allows the bare class when variants are optional", () => {
+    const result = componentBuilderToDsl(
+      component("heading")
+        .vars({ "--size": "1rem" })
+        .variant("1", { "--size": "3rem" })
+        .optionalVariants()
+        .body({ "font-size": dsl.cssvar("--size") })
+        .applyTo(dsl.select.element("h1")),
+    );
+
+    expect(result.filter((x) => x.$ast === "style-rule")).toEqual([
+      dsl.styleRule(dsl.select.element("h1"), "heading"),
+    ]);
+  });
+
+  it("rejects a variant whose class isn't generated because the body doesn't use it", () => {
+    const builder = component("box")
+      .variant("1", { "--size": "3rem" })
+      .body({ margin: "0" })
+      .applyTo(dsl.select.element("h1"), "1");
+
+    expect(() => componentBuilderToDsl(builder)).toThrow(
+      /box-1.*isn't generated.*h1/,
+    );
+  });
+
+  it("rejects a variant whose vars the body never reads", () => {
+    // Tailwind only generates box-2 from box-* if variant 2 sets a var the
+    // body reads, so `@apply box-2` would fail the build.
+    const builder = component("box")
+      .variant("1", { "--size": "3rem" })
+      .variant("2", { "--unused": "1px" })
+      .body({ "font-size": dsl.cssvar("--size") })
+      .applyTo(dsl.select.element("h2"), "2");
+
+    expect(() => componentBuilderToDsl(builder)).toThrow(
+      /box-2.*isn't generated.*h2/,
+    );
+  });
+});
+
+/** Expected wrapper for a component body: `@layer components { @layer base { … } }`. */
+function componentBody(...styles: dsl.AtRuleBodyBuilder[]) {
+  return dsl.layer.components(dsl.layer.base(...styles));
+}
+
+function utilityNamed(
+  result: ReturnType<typeof componentBuilderToDsl>,
+  name: string,
+) {
+  return result.find(
+    (x) => x.$ast === "at-rule" && x.name === "utility" && x.prelude === name,
+  );
+}
+
+/** Names of the `@layer`s that wrap a utility's whole body, outermost first. */
+function layerPath(node: ReturnType<typeof utilityNamed>) {
+  const path: (string | null)[] = [];
+  let rules = node?.$ast === "at-rule" ? node.rules : [];
+  while (rules.length === 1 && rules[0]!.$ast === "at-rule") {
+    const [only] = rules as [dsl.AtRuleAst];
+    if (only.name !== "layer") break;
+    path.push(only.prelude);
+    rules = only.rules;
+  }
+  return path;
+}
+
+describe("property", () => {
+  it("emits a top-level @property, scoped to the component", () => {
+    const result = componentBuilderToDsl(
+      component("tip").property("--delay", {
+        syntax: "<time>",
+        inherits: false,
+        initialValue: "500ms",
+      }),
+    );
+
+    expect(result).toEqual([
+      dsl.atRule("property", "--tip-delay", {
+        syntax: '"<time>"',
+        inherits: "false",
+        "initial-value": "500ms",
+      }),
+    ]);
+  });
+
+  it("renders inherits: true", () => {
+    const result = componentBuilderToDsl(
+      component("tip").property("--color", {
+        syntax: "<color>",
+        inherits: true,
+        initialValue: "black",
+      }),
+    );
+
+    expect(result).toEqual([
+      dsl.atRule("property", "--tip-color", {
+        syntax: '"<color>"',
+        inherits: "true",
+        "initial-value": "black",
+      }),
+    ]);
+  });
+
+  it("emits one @property per registered property, in order", () => {
+    const result = componentBuilderToDsl(
+      component("tip")
+        .property("--open", {
+          syntax: "<time>",
+          inherits: false,
+          initialValue: "500ms",
+        })
+        .property("--close", {
+          syntax: "<time>",
+          inherits: false,
+          initialValue: "250ms",
+        }),
+    );
+
+    expect(
+      result
+        .filter((x) => x.$ast === "at-rule" && x.name === "property")
+        .map((x) => (x as { prelude: string }).prelude),
+    ).toEqual(["--tip-open", "--tip-close"]);
+  });
+
+  it("scopes references and assignments in the body and utilities", () => {
+    const result = componentBuilderToDsl(
+      component("tip")
+        .property("--delay", {
+          syntax: "<time>",
+          inherits: false,
+          initialValue: "500ms",
+        })
+        .body({ "transition-delay": dsl.cssvar("--delay") })
+        .utility("slow", { "--delay": "1s" }),
+    );
+    const utility = (name: string) =>
+      result.find(
+        (x) =>
+          x.$ast === "at-rule" && x.name === "utility" && x.prelude === name,
+      );
+
+    expect(utility("tip")).toEqual(
+      dsl.atRule(
+        "utility",
+        "tip",
+        dsl.layer.components(
+          dsl.layer.base({ "transition-delay": dsl.cssvar("--tip-delay") }),
+        ),
+      ),
+    );
+    expect(utility("tip-slow")).toEqual(
+      dsl.atRule(
+        "utility",
+        "tip-slow",
+        dsl.layer.components({ "--tip-delay": "1s" }),
+      ),
+    );
+  });
+
+  it("joins several syntax components with |", () => {
+    const result = componentBuilderToDsl(
+      component("tip").property("--size", {
+        syntax: ["<length>", "<percentage>"],
+        inherits: false,
+        initialValue: "0px",
+      }),
+    );
+
+    expect(result).toEqual([
+      dsl.atRule("property", "--tip-size", {
+        syntax: '"<length> | <percentage>"',
+        inherits: "false",
+        "initial-value": "0px",
+      }),
+    ]);
+  });
+
+  it("types syntax as the @property data types and their list forms", () => {
+    const valid: RegisteredProperty["syntax"][] = [
+      "*",
+      "<time>",
+      "<length-percentage>",
+      "<custom-ident>+",
+      "<color>#",
+      ["<length>", "<percentage>"],
+    ];
+    expect(valid).toHaveLength(6);
+
+    // @ts-expect-error - not a data type
+    const typo: RegisteredProperty["syntax"] = "<tme>";
+    // @ts-expect-error - data types are written in angle brackets
+    const bare: RegisteredProperty["syntax"] = "time";
+    // @ts-expect-error - <transform-list> is already a list
+    const list: RegisteredProperty["syntax"] = "<transform-list>+";
+    expect([typo, bare, list]).toHaveLength(3);
+  });
+
+  it("keeps the @property out of the component's utilities", () => {
+    const result = componentBuilderToDsl(
+      component("tip")
+        .property("--delay", {
+          syntax: "<time>",
+          inherits: false,
+          initialValue: "500ms",
+        })
+        .body({ "transition-delay": dsl.cssvar("--delay") }),
+    );
+    const nestedProperty = result.some(
+      (x) =>
+        x.$ast === "at-rule" &&
+        x.name === "utility" &&
+        JSON.stringify(x).includes('"name":"property"'),
+    );
+
+    expect(nestedProperty).toBe(false);
+    expect(
+      result.some((x) => x.$ast === "at-rule" && x.name === "property"),
+    ).toBe(true);
   });
 });

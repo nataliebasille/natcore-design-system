@@ -59,7 +59,7 @@ jobs:
           const packageName = "@nataliebasille/natcore-design-system";
           const requestedReleaseType = process.env.REQUESTED_RELEASE_TYPE || "auto";
           const packageJson = JSON.parse(
-            fs.readFileSync("packages/core/package.json", "utf8"),
+            fs.readFileSync("packages/core-v2/package.json", "utf8"),
           );
 
           if (packageJson.name !== packageName) {
@@ -67,7 +67,7 @@ jobs:
           }
 
           if (packageJson.private) {
-            throw new Error("packages/core must not be private before publish.");
+            throw new Error("packages/core-v2 must not be private before publish.");
           }
 
           const setOutput = (key, value) => {
@@ -236,7 +236,7 @@ jobs:
 
       - name: Apply version bump
         if: ${{ steps.release.outputs.should_release == 'true' && steps.release.outputs.release_type != 'initial' }}
-        working-directory: packages/core
+        working-directory: packages/core-v2
         run: pnpm version ${{ steps.release.outputs.release_type }} --no-git-tag-version
 
       - name: Validate initial version
@@ -246,7 +246,7 @@ jobs:
           import fs from "node:fs";
 
           const packageJson = JSON.parse(
-            fs.readFileSync("packages/core/package.json", "utf8"),
+            fs.readFileSync("packages/core-v2/package.json", "utf8"),
           );
 
           if (packageJson.version !== "2.0.0") {
@@ -268,7 +268,7 @@ jobs:
         if: ${{ steps.release.outputs.should_release == 'true' }}
         id: package
         run: |
-          VERSION=$(node -p "require('./packages/core/package.json').version")
+          VERSION=$(node -p "require('./packages/core-v2/package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check release version availability
@@ -289,7 +289,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add packages/core/package.json pnpm-lock.yaml
+          git add packages/core-v2/package.json pnpm-lock.yaml
           git diff --cached --quiet && echo "No release files changed; continuing without a release commit." || git commit -m "chore: release core v${{ steps.package.outputs.version }} [skip ci]"
           git push
 
@@ -303,7 +303,7 @@ jobs:
 
       - name: Publish to GitHub Packages
         if: ${{ steps.version_check.outputs.can_publish == 'true' }}
-        working-directory: packages/core
+        working-directory: packages/core-v2
         run: pnpm publish --no-git-checks --access restricted --tag latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

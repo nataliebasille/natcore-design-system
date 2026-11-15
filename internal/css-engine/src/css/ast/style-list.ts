@@ -23,6 +23,16 @@ export type StyleProperties = PropertiesHyphen &
   ThemeProperties &
   PropertyAtRuleDescriptors;
 
+// csstype (3.2.3, the latest release) predates these properties; MDN's data already has them.
+// Remove each entry once csstype ships it.
+declare module "csstype" {
+  interface PropertiesHyphen<TLength, TTime> {
+    "interest-delay"?: string;
+    "interest-delay-start"?: TTime | "normal";
+    "interest-delay-end"?: TTime | "normal";
+  }
+}
+
 export type StyleListAst = {
   $css: "style-list";
   styles: (StyleProperties | AtRuleAst)[];

@@ -4,8 +4,8 @@ This repository now treats `@nataliebasille/natcore-design-system` as the single
 
 ## Source of truth
 
-- `packages/core` is the package that gets published.
-- `packages/core-v2` remains in the repo as internal source during migration and is marked `private`.
+- `packages/core-v2` is the package that gets published as `@nataliebasille/natcore-design-system`.
+- The legacy v1 source (`packages/core`) has been removed from the mainline branch; it only lives on the `release/1.x` branch.
 
 ## Publishing behavior
 
@@ -14,7 +14,7 @@ This repository now treats `@nataliebasille/natcore-design-system` as the single
 
 ## Package contract by release line
 
-The npm package name stays the same, but the public contract of `packages/core/package.json` must differ by release line.
+The npm package name stays the same, but the public contract of the published `package.json` differs by release line.
 
 ### `1.x` contract
 
@@ -58,7 +58,7 @@ Historical v1 shape:
 - `module`: `./dist/natcore.css`
 - `exports["."]`: stylesheet entrypoint (`style` and `default` point at `natcore.css`)
 - `./css` exists and also points at `natcore.css`
-- JS remains on explicit subpaths like `./plugin` and `./utils`
+- JS remains on explicit subpaths: `./utils`, `./postcss`, and `./vite`
 
 Current v2 shape:
 
@@ -76,17 +76,23 @@ Current v2 shape:
 			"style": "./dist/natcore.css",
 			"default": "./dist/natcore.css"
 		},
-		"./plugin": {
-			"types": "./dist/plugin.d.ts",
-			"import": "./dist/plugin.js",
-			"require": "./dist/plugin.cjs",
-			"default": "./dist/plugin.js"
-		},
 		"./utils": {
 			"types": "./dist/utils.d.ts",
 			"import": "./dist/utils.js",
 			"require": "./dist/utils.cjs",
 			"default": "./dist/utils.js"
+		},
+		"./postcss": {
+			"types": "./dist/postcss.d.ts",
+			"import": "./dist/postcss.js",
+			"require": "./dist/postcss.cjs",
+			"default": "./dist/postcss.js"
+		},
+		"./vite": {
+			"types": "./dist/vite.d.ts",
+			"import": "./dist/vite.js",
+			"require": "./dist/vite.cjs",
+			"default": "./dist/vite.js"
 		}
 	}
 }
@@ -96,8 +102,7 @@ Root scripts:
 
 - `pnpm release:2x` publishes with `latest` tag.
 - `pnpm release:1x` publishes with `v1` tag.
-- `pnpm check:release:2x` validates that the current `packages/core/package.json` matches the 2.x contract.
-- `pnpm check:release:1x` validates that the current `packages/core/package.json` matches the 1.x contract.
+- `pnpm check:release:2x` validates that `packages/core-v2/package.json` matches the 2.x contract.
 
 ## Consumer install guidance
 

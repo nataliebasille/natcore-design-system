@@ -24,7 +24,7 @@ export default function Home() {
     <article className="p-4 desktop:p-6">
       <section className="grid gap-4 desktop:grid-cols-[minmax(0,1fr)_18rem]">
         <div>
-          <h1 className="mt-0!">
+          <h1 className="mt-0">
             <span>Natcore</span>
             <br />
             <span className="text-(--tone-current-fg)/70">Design System</span>
