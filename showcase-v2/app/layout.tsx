@@ -58,17 +58,6 @@ export default async function RootLayout({
           <SidebarProvider>
             <Header className="col-span-2 border-b border-b-surface-600/30 bg-surface-50" />
             <Sidebar className="min-h-0 overflow-y-auto border-r border-r-surface-600/30 bg-surface-100 max-tablet:mt-[50px] max-tablet:w-full max-tablet:border-r-0">
-              <SidebarGroup header="Getting Started">
-                <SidebarLink href="/">Introduction</SidebarLink>
-                <SidebarLink href="/installation">Installation</SidebarLink>
-              </SidebarGroup>
-
-              <SidebarGroup header="Core">
-                <SidebarLink href="/core/tokens">Tokens</SidebarLink>
-                <SidebarLink href="/core/theming">Theming</SidebarLink>
-                <SidebarLink href="/core/palette">Palette</SidebarLink>
-              </SidebarGroup>
-
               {renderSidebarNav(nav)}
             </Sidebar>
             <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-surface-50 max-tablet:col-span-2">

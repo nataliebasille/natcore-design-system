@@ -13,9 +13,9 @@ export async function generateStaticParams() {
 export default async function DesignItemPage({
   params,
 }: {
-  params: Promise<{ designItem: string[] }>
+  params: Promise<{ designItem?: string[] }>
 }) {
-  const { designItem } = await params
+  const { designItem = [] } = await params
   const entry = await findDocsEntry(designItem)
 
   if (!entry) {
