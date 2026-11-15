@@ -21,7 +21,7 @@ export type PageResult = {
  * - `idle`: nothing typed.
  * - `loading`: results for the current query haven't arrived yet.
  * - `missing`: no index, because `pnpm build` hasn't run.
- * - `error`: the search or a result failed to load, e.g. on a dropped connection.
+ * - `error`: the index, the search, or a result failed to load, e.g. on a dropped connection.
  */
 export type DocsSearchStatus = 'idle' | 'loading' | 'ready' | 'missing' | 'error'
 
@@ -54,7 +54,8 @@ type Pagefind = {
   ) => Promise<{ results: { data: () => Promise<PagefindResultData> }[] } | null>
 }
 
-let pagefindPromise: Promise<Pagefind | null> | undefined
+let pagefindPromise: Promise<Pagefind | 'missing'> | undefined
+let failedLoads = 0
 
 /**
  * Searches the Pagefind index for `query`, debounced. Excerpts are HTML with
@@ -79,10 +80,10 @@ export function useDocsSearch(query: string) {
     }
 
     void (async () => {
-      const pagefind = await loadPagefind()
-      if (!pagefind) return settle('missing')
-
       try {
+        const pagefind = await loadPagefind()
+        if (pagefind === 'missing') return settle('missing')
+
         const search = await pagefind.debouncedSearch(term, {}, 150)
         // `null` means a newer search superseded this one.
         if (cancelled || !search) return
@@ -114,17 +115,33 @@ export function useDocsSearch(query: string) {
 
 /** Loads the index ahead of the first keystroke. */
 export function preloadDocsSearch() {
-  void loadPagefind()
+  loadPagefind().catch(() => {})
 }
 
+/**
+ * Only a successful load is kept. A 404 means the index hasn't been built;
+ * any other failure (e.g. a dropped connection) rejects, and the next search
+ * tries again. Browsers remember a failed `import()` of a URL, so a retry
+ * adds a query string (Pagefind still finds its files next to the script).
+ */
 function loadPagefind() {
-  pagefindPromise ??= import(/* webpackIgnore: true */ /* turbopackIgnore: true */ PAGEFIND_URL)
-    .then(async (pagefind: Pagefind) => {
+  pagefindPromise ??= (async () => {
+    const url = failedLoads ? `${PAGEFIND_URL}?retry=${failedLoads}` : PAGEFIND_URL
+    try {
+      const pagefind: Pagefind = await import(
+        /* webpackIgnore: true */ /* turbopackIgnore: true */ url
+      )
       await pagefind.options({ excerptLength: 20 })
       await pagefind.init()
       return pagefind
-    })
-    .catch(() => null)
+    } catch (error) {
+      pagefindPromise = undefined
+      failedLoads++
+      const response = await fetch(url, { method: 'HEAD' })
+      if (response.status === 404) return 'missing'
+      throw error
+    }
+  })()
 
   return pagefindPromise
 }
