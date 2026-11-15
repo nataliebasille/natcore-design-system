@@ -18,12 +18,25 @@ export type PaletteSeed = {
 export type PaletteConfig = Map<string, PaletteSeed>;
 
 /**
+ * Convenience: parse raw declarations and compile to CSS in one step. Emits the
+ * declared custom palettes as their own `@theme` blocks (appended alongside the
+ * built-in color theme), reusing the exact same generation the built-ins use so
+ * `palette-{name}`, `bg-{name}-{shade}`, the full anchor model, and components
+ * all work identically.
+ */
+export function compilePaletteDeclarations(
+  declarations: Iterable<{ prop: string; value: string }>,
+): string {
+  return compilePaletteConfig(parsePaletteDeclarations(declarations));
+}
+
+/**
  * Parse flat `{name}` / `{name}-{shade}` -> value declarations into a grouped
  * palette config. Declaration order is irrelevant.
  *
  * @throws when a key has an unknown trailing shade or an empty name.
  */
-export function parsePaletteDeclarations(
+function parsePaletteDeclarations(
   declarations: Iterable<{ prop: string; value: string }>,
 ): PaletteConfig {
   const config: PaletteConfig = new Map();
@@ -77,7 +90,7 @@ export function parsePaletteDeclarations(
  * identical to the built-in `color.css.ts` output, so Tailwind tree-shakes
  * unused shades/palettes exactly the same way.
  */
-export function buildPaletteThemeConstructs(config: PaletteConfig) {
+function buildPaletteThemeConstructs(config: PaletteConfig) {
   const seedEntries: [string, string][] = [];
   const rootEntries: [string, unknown][] = [];
   const inlineEntries: [string, unknown][] = [];
@@ -113,7 +126,7 @@ export function buildPaletteThemeConstructs(config: PaletteConfig) {
  * Compile a parsed palette config to CSS text (one or more `@theme` blocks),
  * reusing the same ts-to-css pipeline the built-in palettes use.
  */
-export function compilePaletteConfig(config: PaletteConfig): string {
+function compilePaletteConfig(config: PaletteConfig): string {
   if (config.size === 0) return "";
 
   const constructs = buildPaletteThemeConstructs(config);
@@ -121,17 +134,4 @@ export function compilePaletteConfig(config: PaletteConfig): string {
     dslToCss([themeConstructToDsl(construct)]),
   );
   return compile(cssAst);
-}
-
-/**
- * Convenience: parse raw declarations and compile to CSS in one step. Emits the
- * declared custom palettes as their own `@theme` blocks (appended alongside the
- * built-in color theme), reusing the exact same generation the built-ins use so
- * `palette-{name}`, `bg-{name}-{shade}`, the full anchor model, and components
- * all work identically.
- */
-export function compilePaletteDeclarations(
-  declarations: Iterable<{ prop: string; value: string }>,
-): string {
-  return compilePaletteConfig(parsePaletteDeclarations(declarations));
 }

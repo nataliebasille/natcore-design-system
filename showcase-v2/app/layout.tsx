@@ -52,10 +52,6 @@ export default async function RootLayout({
             __html: `(${initTheme.toString()})(${JSON.stringify(THEME_STORAGE_KEY)});`,
           }}
         />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"
-        />
       </head>
       <body className="grid h-screen w-screen grid-cols-[minmax(16rem,20rem)_minmax(32rem,1fr)] grid-rows-[auto_1fr] overflow-hidden bg-surface-50 palette-surface max-tablet:grid-cols-1 max-tablet:grid-rows-[auto_auto_1fr]">
         <ThemeProvider>
