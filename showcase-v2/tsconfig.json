@@ -6,7 +6,6 @@
         "name": "next"
       }
     ],
-    "allowArbitraryExtensions": true,
     "paths": {
       "@/ui/*": ["./app/_ui/*"],
       "@/*": ["./*"]

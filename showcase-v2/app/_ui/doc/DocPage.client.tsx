@@ -113,7 +113,7 @@ export function DocOutlineProvider({ children }: PropsWithChildren) {
   );
 }
 
-export function useNextLevel(title: string) {
+function useNextLevel(title: string) {
   const context = useContext(OutlineContext);
 
   if (!context) {

@@ -8,66 +8,6 @@ import { CONTRAST_CHANNEL } from "./palette-formula.ts";
 type Entry = [string, dsl.StylePropertyValue];
 
 /**
- * CSS-variable anchor for a single shade:
- * `--{palette}-anchor-{shade}: var(--theme-{palette}-{shade}, <computed-fallback>)`.
- * The consumer can override any shade via `--theme-{palette}-{shade}`.
- */
-export function anchorEntry(
-  palette: string,
-  shade: number,
-  value: Parameters<typeof dsl.cssvar>[1],
-): Entry {
-  return [
-    `--${palette}-anchor-${shade}`,
-    dsl.cssvar(`--theme-${palette}-${shade}`, value),
-  ];
-}
-
-/**
- * Computed fallback for an anchor when no `--theme-{palette}-{shade}` seed is
- * provided. 50/500/950 derive from the palette base `--theme-{palette}`;
- * intermediate shades interpolate between the two bracketing 50/500/950 anchors
- * (independent pin semantics: pinning an intermediate shade does not re-bracket
- * its neighbors).
- */
-export function anchorFallback(
-  palette: string,
-  shade: number,
-  index: number,
-): Parameters<typeof dsl.cssvar>[1] {
-  if (shade === 50) {
-    return dsl.lch(dsl.calc`min(l + 40, 98)`, dsl.calc`c * .55`, "h", {
-      from: dsl.cssvar(`--theme-${palette}`),
-    });
-  }
-
-  if (shade === 500) {
-    return dsl.cssvar(`--theme-${palette}`);
-  }
-
-  if (shade === 950) {
-    return dsl.lch(dsl.calc`max(l - 45, 8)`, dsl.calc`c * .65`, "h", {
-      from: dsl.cssvar(`--theme-${palette}`),
-    });
-  }
-
-  return dsl.colorMix(
-    "oklch",
-    {
-      color: dsl.cssvar(
-        `--${palette}-anchor-${SHADES[5 * Math.floor(index / 5)]}`,
-      ),
-      percentage: dsl.primitive.percentage(100 - (index % 5) * 20),
-    },
-    {
-      color: dsl.cssvar(
-        `--${palette}-anchor-${SHADES[5 * Math.ceil(index / 5)]}`,
-      ),
-    },
-  );
-}
-
-/**
  * Full `@theme` (root) derivation chain for one palette: anchors, light/dark
  * base colors, contrast foregrounds, and the adaptive `light-dark()` pair for
  * both base and foreground across every shade.
@@ -187,4 +127,64 @@ export function currentToneEntries(): Entry[] {
       ),
     ],
   ]);
+}
+
+/**
+ * CSS-variable anchor for a single shade:
+ * `--{palette}-anchor-{shade}: var(--theme-{palette}-{shade}, <computed-fallback>)`.
+ * The consumer can override any shade via `--theme-{palette}-{shade}`.
+ */
+function anchorEntry(
+  palette: string,
+  shade: number,
+  value: Parameters<typeof dsl.cssvar>[1],
+): Entry {
+  return [
+    `--${palette}-anchor-${shade}`,
+    dsl.cssvar(`--theme-${palette}-${shade}`, value),
+  ];
+}
+
+/**
+ * Computed fallback for an anchor when no `--theme-{palette}-{shade}` seed is
+ * provided. 50/500/950 derive from the palette base `--theme-{palette}`;
+ * intermediate shades interpolate between the two bracketing 50/500/950 anchors
+ * (independent pin semantics: pinning an intermediate shade does not re-bracket
+ * its neighbors).
+ */
+function anchorFallback(
+  palette: string,
+  shade: number,
+  index: number,
+): Parameters<typeof dsl.cssvar>[1] {
+  if (shade === 50) {
+    return dsl.lch(dsl.calc`min(l + 40, 98)`, dsl.calc`c * .55`, "h", {
+      from: dsl.cssvar(`--theme-${palette}`),
+    });
+  }
+
+  if (shade === 500) {
+    return dsl.cssvar(`--theme-${palette}`);
+  }
+
+  if (shade === 950) {
+    return dsl.lch(dsl.calc`max(l - 45, 8)`, dsl.calc`c * .65`, "h", {
+      from: dsl.cssvar(`--theme-${palette}`),
+    });
+  }
+
+  return dsl.colorMix(
+    "oklch",
+    {
+      color: dsl.cssvar(
+        `--${palette}-anchor-${SHADES[5 * Math.floor(index / 5)]}`,
+      ),
+      percentage: dsl.primitive.percentage(100 - (index % 5) * 20),
+    },
+    {
+      color: dsl.cssvar(
+        `--${palette}-anchor-${SHADES[5 * Math.ceil(index / 5)]}`,
+      ),
+    },
+  );
 }

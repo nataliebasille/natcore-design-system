@@ -50,7 +50,7 @@ export async function getNatcoreDefaultTheme(): Promise<ThemeDefinition | null> 
   return parseDefaultThemeFromCss(css);
 }
 
-export function parseDefaultThemeFromCss(css: string): ThemeDefinition | null {
+function parseDefaultThemeFromCss(css: string): ThemeDefinition | null {
   const match = css.match(THEME_STATIC_BLOCK_RE);
 
   if (!match) return null;
@@ -88,7 +88,7 @@ export function parseDefaultThemeFromCss(css: string): ThemeDefinition | null {
   } as ThemeDefinition;
 }
 
-export function parseThemesFromCss(css: string): ThemeDefinition[] {
+function parseThemesFromCss(css: string): ThemeDefinition[] {
   const themes: ThemeDefinition[] = [];
 
   for (const match of css.matchAll(THEME_BLOCK_RE)) {

@@ -9,7 +9,7 @@ import {
   type PropsWithChildren,
 } from "react";
 
-export const PlaygroundContext = createContext({
+const PlaygroundContext = createContext({
   values: {} as Record<string, unknown>,
   setValue: (name: string, value: unknown) => {},
 });
