@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePlayground } from './playground-provider'
 import { MarkupSpotlight } from '../doc/code-spotlight'
-import { highlightPlaygroundMarkup } from './highlight-playground-markup'
 
 export function PlaygroundCodeSnippet<T extends Record<string, unknown>>({
   ui,
@@ -20,10 +19,16 @@ export function PlaygroundCodeSnippet<T extends Record<string, unknown>>({
   })
 
   const { values } = usePlayground<T>()
+  const defaultValues = useRef(values)
 
   useEffect(() => {
+    // `initialHtml` is the server-highlighted default markup, so Shiki and
+    // Prettier are only downloaded once a control changes.
+    if (values === defaultValues.current) return
+
     let mounted = true
     const updateCode = async () => {
+      const { highlightPlaygroundMarkup } = await import('./highlight-playground-markup')
       const html = await highlightPlaygroundMarkup(rendererRef.current(values))
 
       if (mounted) setCode(html)
