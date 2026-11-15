@@ -21,8 +21,16 @@ export type PageResult = {
  * - `idle`: nothing typed.
  * - `loading`: results for the current query haven't arrived yet.
  * - `missing`: no index, because `pnpm build` hasn't run.
+ * - `error`: the search or a result failed to load, e.g. on a dropped connection.
  */
-export type DocsSearchStatus = 'idle' | 'loading' | 'ready' | 'missing'
+export type DocsSearchStatus = 'idle' | 'loading' | 'ready' | 'missing' | 'error'
+
+type SearchOutcome = {
+  term: string
+  attempt: number
+  status: 'ready' | 'missing' | 'error'
+  pages: PageResult[]
+}
 
 type PagefindResultData = {
   url: string
@@ -48,50 +56,60 @@ type Pagefind = {
 
 let pagefindPromise: Promise<Pagefind | null> | undefined
 
-/** Searches the Pagefind index for `query`, debounced. Excerpts are HTML with `<mark>`ed matches. */
+/**
+ * Searches the Pagefind index for `query`, debounced. Excerpts are HTML with
+ * `<mark>`ed matches. `retry` runs the current query again after an `error`.
+ */
 export function useDocsSearch(query: string) {
   const term = query.trim()
-  const [found, setFound] = useState<{ term: string; pages: PageResult[]; missing: boolean }>({
+  const [attempt, setAttempt] = useState(0)
+  const [outcome, setOutcome] = useState<SearchOutcome>({
     term: '',
+    attempt: 0,
+    status: 'ready',
     pages: [],
-    missing: false,
   })
 
   useEffect(() => {
     if (!term) return
 
     let cancelled = false
+    const settle = (status: SearchOutcome['status'], pages: PageResult[] = []) => {
+      if (!cancelled) setOutcome({ term, attempt, status, pages })
+    }
+
     void (async () => {
       const pagefind = await loadPagefind()
-      if (cancelled) return
-      if (!pagefind) {
-        setFound({ term, pages: [], missing: true })
-        return
+      if (!pagefind) return settle('missing')
+
+      try {
+        const search = await pagefind.debouncedSearch(term, {}, 150)
+        // `null` means a newer search superseded this one.
+        if (cancelled || !search) return
+
+        const pages = await Promise.all(
+          search.results.slice(0, MAX_PAGES).map((result) => result.data())
+        )
+        settle('ready', pages.map(toPageResult))
+      } catch {
+        settle('error')
       }
-
-      const search = await pagefind.debouncedSearch(term, {}, 150)
-      if (cancelled || !search) return
-
-      const pages = await Promise.all(
-        search.results.slice(0, MAX_PAGES).map((result) => result.data())
-      )
-      if (!cancelled) setFound({ term, pages: pages.map(toPageResult), missing: false })
     })()
 
     return () => {
       cancelled = true
     }
-  }, [term])
+  }, [term, attempt])
 
-  const status: DocsSearchStatus = !term
-    ? 'idle'
-    : found.missing
-      ? 'missing'
-      : found.term === term
-        ? 'ready'
-        : 'loading'
+  const settled = outcome.term === term && outcome.attempt === attempt
+  const status: DocsSearchStatus = !term ? 'idle' : settled ? outcome.status : 'loading'
 
-  return { term, status, pages: status === 'ready' ? found.pages : [] }
+  return {
+    term,
+    status,
+    pages: status === 'ready' ? outcome.pages : [],
+    retry: () => setAttempt((count) => count + 1),
+  }
 }
 
 /** Loads the index ahead of the first keystroke. */

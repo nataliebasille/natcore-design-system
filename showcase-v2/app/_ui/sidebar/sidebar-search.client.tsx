@@ -45,7 +45,7 @@ export function SidebarSearch({ children }: { children: ReactNode }) {
   const tablet = useBreakpoint('>= tablet')
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
-  const { term, status, pages } = useDocsSearch(query)
+  const { term, status, pages, retry } = useDocsSearch(query)
   const results = pages.flatMap((page) => [page, ...page.sections])
   const active = results[activeIndex]
 
@@ -140,7 +140,21 @@ export function SidebarSearch({ children }: { children: ReactNode }) {
                 ? `No results for “${term}”.`
                 : status === 'ready'
                   ? `${pages.length} ${pages.length === 1 ? 'page' : 'pages'}`
-                  : null}
+                  : status === 'error'
+                    ? 'Search failed.'
+                    : null}
+          {status === 'error' && (
+            <button
+              type="button"
+              className="ml-1 underline hover:text-surface-950"
+              onClick={() => {
+                retry()
+                inputRef.current?.focus()
+              }}
+            >
+              Try again
+            </button>
+          )}
         </p>
         <div id={listboxId} role="listbox" aria-label="Search results">
           {pages.map((page) => (
@@ -242,13 +256,18 @@ function Excerpt({ html }: { html: string }) {
 
 /**
  * Closes the tray on small screens. A section on the current page scrolls the
- * same way the nav's heading links do.
+ * same way the nav's heading links do. Modified and non-primary clicks (open
+ * in a new tab or window) are left to the browser.
  */
 function useResultNavigation() {
   const pathname = usePathname()
   const { close } = useSidebar()
 
   return (url: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return
+    }
+
     close()
     const [path, hash] = url.split('#')
     if (hash && path === pathname) scrollToHeading(hash)(event)
