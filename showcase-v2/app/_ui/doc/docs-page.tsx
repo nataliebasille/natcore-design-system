@@ -7,6 +7,7 @@ import {
   toReferenceRows,
 } from '@/ui/doc/design-item'
 import { DocPage } from '@/ui/doc/DocPage'
+import { AT_A_GLANCE_TITLE, PLAYGROUND_TITLE } from '@/ui/doc/doc-outline'
 import { Spotlight } from '@/ui/doc/spotlight'
 import { UtilityReference } from '@/ui/doc/utility-reference'
 import { DocsPlayground } from '@/ui/playground/docs-playground'
@@ -26,7 +27,7 @@ export function DocsModelPage({
       {model.issues.length > 0 && <DocIssues issues={model.issues} />}
 
       {model.atAGlance !== undefined && (
-        <DesignItemPageSection title="At a glance">
+        <DesignItemPageSection title={AT_A_GLANCE_TITLE}>
           <Spotlight>{renderToUi(model.atAGlance)}</Spotlight>
         </DesignItemPageSection>
       )}
@@ -38,7 +39,7 @@ export function DocsModelPage({
           case 'playground':
             return (
               <div key={index}>
-                <DesignItemPageSection title="Playground">
+                <DesignItemPageSection title={PLAYGROUND_TITLE}>
                   <DocsPlayground block={block} docsModulePath={docsModulePath} />
                 </DesignItemPageSection>
                 <div className="divider"></div>

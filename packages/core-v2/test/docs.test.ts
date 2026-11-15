@@ -28,10 +28,20 @@ import {
   type ResolvedControl,
 } from "@nataliebasille/css-engine";
 import type { ShowcaseJsxChild } from "@nataliebasille/preview-jsx-runtime";
+import { expandNatcorePalettesInCss } from "../src/custom-palettes/expand.ts";
 import { buildNatcoreCss } from "./helpers/build-natcore-css.ts";
 
 /** Classes that intentionally generate no CSS on their own. */
 const NO_CSS_BY_DESIGN = new Set(["group", "peer"]);
+
+/**
+ * Custom palettes the showcase declares (showcase-v2/app/globals.css) that
+ * docs pages demo, e.g. the palette guide's `btn-solid/pumpkin`. Only the
+ * names matter here.
+ */
+const SHOWCASE_PALETTES_CSS = expandNatcorePalettesInCss(
+  "@natcore-palettes { pumpkin: #dd5f10; }",
+);
 
 const srcDir = fileURLToPath(new URL("../src/", import.meta.url));
 const docsFiles = findDocsFiles(srcDir);
@@ -88,7 +98,9 @@ describe("docs files", () => {
 
       it("only uses classes that produce CSS", async () => {
         const uses = collectPageClasses(await loadModel(file));
-        const css = (await buildNatcoreCss([...uses.keys()])).toString();
+        const css = (
+          await buildNatcoreCss([...uses.keys()], SHOWCASE_PALETTES_CSS)
+        ).toString();
 
         const missing = [...uses]
           .filter(

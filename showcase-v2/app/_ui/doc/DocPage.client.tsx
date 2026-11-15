@@ -3,25 +3,20 @@
 import { twMerge } from "tailwind-merge";
 import {
   createContext,
-  useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
   type JSX,
   type PropsWithChildren,
   type ReactNode,
 } from "react";
 import { CopySectionUrl } from "./CopySectionUrl";
-import { OnThisPage, type RegisteredSection } from "./OnThisPage";
+import { sectionId } from "./doc-outline";
 
 type HeadingLevel = 2 | 3 | 4 | 5 | 6;
 
 type OutlineContextValue = {
   level: HeadingLevel;
   titlePath: string[];
-  registerSection: (section: RegisteredSection) => void;
-  unregisterSection: (id: string) => void;
 };
 
 type DocSectionProps = PropsWithChildren<{
@@ -55,60 +50,13 @@ function nextLevel(level: HeadingLevel): HeadingLevel {
   return level === 6 ? 6 : ((level + 1) as HeadingLevel);
 }
 
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-");
-}
+const ROOT_OUTLINE: OutlineContextValue = { level: 2, titlePath: [] };
 
-function createSectionId(titlePath: string[]) {
-  const slugs = titlePath
-    .map((title) => slugify(title) || "section")
-    .filter(Boolean);
-
-  return slugs.join("--");
-}
-
+/** Starts a page's heading levels at h2. */
 export function DocOutlineProvider({ children }: PropsWithChildren) {
-  const [sections, setSections] = useState<RegisteredSection[]>([]);
-
-  const registerSection = useCallback((section: RegisteredSection) => {
-    setSections((current) => {
-      const existingIndex = current.findIndex((item) => item.id === section.id);
-
-      if (existingIndex === -1) {
-        return [...current, section];
-      }
-
-      const next = current.slice();
-      next[existingIndex] = section;
-      return next;
-    });
-  }, []);
-
-  const unregisterSection = useCallback((id: string) => {
-    setSections((current) => current.filter((item) => item.id !== id));
-  }, []);
-
-  const contextValue = useMemo<OutlineContextValue>(
-    () => ({
-      level: 2,
-      titlePath: [],
-      registerSection,
-      unregisterSection,
-    }),
-    [registerSection, unregisterSection],
-  );
-
   return (
-    <OutlineContext.Provider value={contextValue}>
+    <OutlineContext.Provider value={ROOT_OUTLINE}>
       {children}
-
-      <div className="sticky top-6 mt-6 min-w-fit flex-initial max-desktop:hidden desktop:w-[280px]">
-        <OnThisPage sections={sections} />
-      </div>
     </OutlineContext.Provider>
   );
 }
@@ -124,26 +72,13 @@ function useNextLevel(title: string) {
     () => [...context.titlePath, title],
     [context.titlePath, title],
   );
-  const id = createSectionId(titlePath);
+  const id = sectionId(titlePath);
   const level = context.level;
   const Header = `h${level}` as keyof JSX.IntrinsicElements;
 
-  useEffect(() => {
-    context.registerSection({ id, title, level });
-
-    return () => {
-      context.unregisterSection(id);
-    };
-  }, [context, id, level, title]);
-
   const childContext = useMemo<OutlineContextValue>(
-    () => ({
-      level: nextLevel(level),
-      titlePath,
-      registerSection: context.registerSection,
-      unregisterSection: context.unregisterSection,
-    }),
-    [context.registerSection, context.unregisterSection, level, titlePath],
+    () => ({ level: nextLevel(level), titlePath }),
+    [level, titlePath],
   );
 
   return {

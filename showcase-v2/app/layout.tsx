@@ -1,17 +1,14 @@
 import { Header } from "./_ui/header/header";
-import {
-  Sidebar,
-  SidebarGroup,
-  SidebarLink,
-} from "./_ui/sidebar/sidebar-content";
+import { Sidebar } from "./_ui/sidebar/sidebar-content";
 import "./globals.css";
 import { Roboto } from "next/font/google";
 import { ThemeProvider } from "./_ui/theme-provider";
 import { SidebarProvider } from "./_ui/sidebar/sidebar-provider";
+import { buildSidebarSections } from "./_ui/sidebar/sidebar-sections";
 import {
   buildDocsNav,
+  buildDocsOutlines,
   listDocsEntries,
-  type DocsNavNode,
 } from "@/server/docs-index";
 import { THEME_STORAGE_KEY } from "@/utlls/constants";
 
@@ -43,7 +40,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const nav = buildDocsNav(await listDocsEntries());
+  const entries = await listDocsEntries();
+  const sections = buildSidebarSections(buildDocsNav(entries));
+  const outlines = buildDocsOutlines(entries);
   return (
     <html lang="en" className={roboto.className} suppressHydrationWarning>
       <head>
@@ -57,20 +56,11 @@ export default async function RootLayout({
         <ThemeProvider>
           <SidebarProvider>
             <Header className="col-span-2 border-b border-b-surface-600/30 bg-surface-50" />
-            <Sidebar className="min-h-0 overflow-y-auto border-r border-r-surface-600/30 bg-surface-100 max-tablet:mt-[50px] max-tablet:w-full max-tablet:border-r-0">
-              <SidebarGroup header="Getting Started">
-                <SidebarLink href="/">Introduction</SidebarLink>
-                <SidebarLink href="/installation">Installation</SidebarLink>
-              </SidebarGroup>
-
-              <SidebarGroup header="Core">
-                <SidebarLink href="/core/tokens">Tokens</SidebarLink>
-                <SidebarLink href="/core/theming">Theming</SidebarLink>
-                <SidebarLink href="/core/palette">Palette</SidebarLink>
-              </SidebarGroup>
-
-              {renderSidebarNav(nav)}
-            </Sidebar>
+            <Sidebar
+              sections={sections}
+              outlines={outlines}
+              className="min-h-0 overflow-y-auto border-r border-r-surface-600/30 bg-surface-100 max-tablet:mt-[50px] max-tablet:w-full max-tablet:border-r-0"
+            />
             <main className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-surface-50 max-tablet:col-span-2">
               {children}
             </main>
@@ -78,17 +68,5 @@ export default async function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
-}
-
-function renderSidebarNav(nodes: DocsNavNode[], nested = false) {
-  return nodes.map((node) =>
-    node.kind === "link" ?
-      <SidebarLink key={node.href} href={node.href}>
-        {node.label}
-      </SidebarLink>
-    : <SidebarGroup key={node.label} header={node.label} nested={nested}>
-        {renderSidebarNav(node.children, true)}
-      </SidebarGroup>,
   );
 }

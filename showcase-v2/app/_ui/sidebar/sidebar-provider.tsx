@@ -12,9 +12,11 @@ import {
 const SidebarContext = createContext<{
   isOpen: boolean;
   toggle: () => void;
+  close: () => void;
 }>({
   isOpen: false,
   toggle: () => {},
+  close: () => {},
 });
 
 export function SidebarProvider({ children }: PropsWithChildren<{}>) {
@@ -22,7 +24,11 @@ export function SidebarProvider({ children }: PropsWithChildren<{}>) {
   const toggle = useCallback(() => {
     setIsOpen((prev) => !prev);
   }, []);
-  const value = useMemo(() => ({ isOpen, toggle }), [isOpen, toggle]);
+  const close = useCallback(() => setIsOpen(false), []);
+  const value = useMemo(
+    () => ({ isOpen, toggle, close }),
+    [isOpen, toggle, close],
+  );
   return (
     <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
   );

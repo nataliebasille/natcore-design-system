@@ -1,4 +1,5 @@
 import { DisplayPattern } from '@/ui/doc/display-pattern'
+import { API_REFERENCE_TITLE } from '@/ui/doc/doc-outline'
 import { DocSection } from '@/ui/doc/DocPage.client'
 import {
   ApiGroup,
@@ -163,7 +164,7 @@ export function ApiReference({ doc }: { doc: ComponentDoc }) {
   const entities = [...Object.entries(doc.components), ...Object.entries(doc.utilities)]
 
   return (
-    <DesignItemPageSection title="API Reference">
+    <DesignItemPageSection title={API_REFERENCE_TITLE}>
       <div className="space-y-8">
         {entities.length > 0 && (
           <ApiGroup label="Classes">
