@@ -26,7 +26,9 @@ export function MarkupSpotlight({
             {description}
           </div>
         )}
-        <div className="w-full px-4">{preview}</div>
+        <div data-pagefind-ignore className="w-full px-4">
+          {preview}
+        </div>
         <CodeSnippet
           language="html"
           code={markup}

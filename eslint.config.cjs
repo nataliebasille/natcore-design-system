@@ -8,6 +8,7 @@ module.exports = [
       "**/node_modules/**",
       "**/dist/**",
       "**/.next/**",
+      "showcase-v2/public/pagefind/**",
       "**/coverage/**",
       "**/*.d.ts",
     ],

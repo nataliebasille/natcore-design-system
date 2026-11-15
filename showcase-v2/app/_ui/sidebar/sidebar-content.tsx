@@ -2,7 +2,8 @@ import type { DocsNavNode } from '@/server/docs-index'
 import { twMerge } from 'tailwind-merge'
 import type { OutlineHeading } from '../doc/doc-outline'
 import { Overline } from '../layout/overline'
-import { NavGroup, PageLink, SidebarNavProvider, SidebarSearch } from './sidebar-content.client'
+import { NavGroup, PageLink, SidebarNavProvider } from './sidebar-content.client'
+import { SidebarSearch } from './sidebar-search.client'
 import {
   groupKey,
   indexSidebarSections,
@@ -34,30 +35,31 @@ export function Sidebar({
   return (
     <aside className={twMerge('max-tablet:tray-left', className)}>
       <SidebarToggle />
-      <SidebarSearch />
 
-      <SidebarNavProvider groupKeysByHref={groupKeysByHref}>
-        <nav aria-label="Docs" className="px-2 pb-6 text-sm">
-          {sections.map((section, index) => (
-            <div key={section.label}>
-              <Overline
-                className={twMerge(
-                  'mb-1 px-2 text-[0.65rem] text-surface-950/45',
-                  index === 0 ? 'mt-1' : 'mt-5'
-                )}
-              >
-                {section.label}
-              </Overline>
-              <NavItems
-                items={section.items}
-                trail={[section.label]}
-                pageCounts={pageCounts}
-                outlines={outlines}
-              />
-            </div>
-          ))}
-        </nav>
-      </SidebarNavProvider>
+      <SidebarSearch>
+        <SidebarNavProvider groupKeysByHref={groupKeysByHref}>
+          <nav aria-label="Docs" className="px-2 pb-6 text-sm">
+            {sections.map((section, index) => (
+              <div key={section.label}>
+                <Overline
+                  className={twMerge(
+                    'mb-1 px-2 text-[0.65rem] text-surface-950/45',
+                    index === 0 ? 'mt-1' : 'mt-5'
+                  )}
+                >
+                  {section.label}
+                </Overline>
+                <NavItems
+                  items={section.items}
+                  trail={[section.label]}
+                  pageCounts={pageCounts}
+                  outlines={outlines}
+                />
+              </div>
+            ))}
+          </nav>
+        </SidebarNavProvider>
+      </SidebarSearch>
     </aside>
   )
 }
