@@ -1,4 +1,5 @@
 import 'server-only'
+import { docOutline, type OutlineHeading } from '@/ui/doc/doc-outline'
 import { docsModuleDefault } from '@/utlls/docs-module'
 import {
   resolveDocLocation,
@@ -13,6 +14,8 @@ import { cache } from 'react'
 export type DocsEntry = DocLocation & {
   /** Path under core-v2's `src/`, without `.docs.tsx`. */
   module: string
+  /** The page's top-level headings. */
+  outline: OutlineHeading[]
 }
 
 export type DocsNavNode =
@@ -30,7 +33,7 @@ export const listDocsEntries = cache(
     Promise.all(
       (await findDocsModules()).map(async (module) => {
         const model = await loadDocsModule(module)
-        return { ...resolveDocLocation(module, model), module }
+        return { ...resolveDocLocation(module, model), module, outline: docOutline(model) }
       })
     )
 )
@@ -71,12 +74,21 @@ export function buildDocsNav(entries: DocsEntry[]): DocsNavNode[] {
     level.push({
       kind: 'link',
       label: entry.label,
-      href: `/${entry.path.join('/')}`,
+      href: docsHref(entry),
       ...(entry.order !== undefined ? { order: entry.order } : {}),
     })
   }
 
   return sortNav(root)
+}
+
+/** Each page's top-level headings, by the page's URL. */
+export function buildDocsOutlines(entries: DocsEntry[]): Record<string, OutlineHeading[]> {
+  return Object.fromEntries(entries.map((entry) => [docsHref(entry), entry.outline]))
+}
+
+function docsHref(entry: DocsEntry) {
+  return `/${entry.path.join('/')}`
 }
 
 function sortNav(nodes: DocsNavNode[]): DocsNavNode[] {

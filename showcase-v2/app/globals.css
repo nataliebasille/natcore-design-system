@@ -33,7 +33,9 @@
   pumpkin-950: #5a230a;
 }
 
-@theme {
+/* static: always emit the --breakpoint-* variables, so code can read them
+   (see app/_ui/hooks/use-breakpoint.ts). */
+@theme static {
   --breakpoint-*: initial;
   --breakpoint-tablet: 48rem;
   --breakpoint-desktop: 80rem;

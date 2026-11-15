@@ -70,7 +70,7 @@ Run `pnpm type-check` before opening a PR.
 
 ### Core Styles
 
-Styles live in `packages/core-v2/src/tailwind/` (`components/`, `typography/`, `utilities/`, `themes/`, `variants/`) as `*.css.ts` files authored with the `@nataliebasille/css-engine` DSL and compiled to CSS by `packages/core-v2/src/compile/`. `natcore.css` is the stylesheet entry point. Each component lives in its own folder (`components/<name>/<name>.css.ts`, `typography/<name>/<name>.css.ts`) alongside its docs page (`<name>.docs.tsx`) and tests (`<name>.test.ts`, `<name>.e2e.spec.ts`, `<name>.e2e.html`). Element defaults (e.g. `h1`, `article`) come from the builder's `.applyTo(selector, variant?)`, which puts them in the `components.base` layer so Tailwind utilities override them. Inside `@layer utilities`, component bodies compile to `components.base` and a component's `.utility()`/`.controlled()` utilities to `components`, so plain Tailwind utilities beat component utilities, which beat bodies.
+Styles live in `packages/core-v2/src/tailwind/` (`components/`, `typography/`, `utilities/`, `themes/`, `variants/`) as `*.css.ts` files authored with the `@nataliebasille/css-engine` DSL and compiled to CSS by `packages/core-v2/src/compile/`. `natcore.css` is the stylesheet entry point. Each component lives in its own folder inside a category folder (`components/<category>/<name>/<name>.css.ts`, where `<category>` is `actions`, `display`, `inputs`, `layout`, `navigation`, or `overlays`; `typography/<name>/<name>.css.ts`) alongside its docs page (`<name>.docs.tsx`) and tests (`<name>.test.ts`, `<name>.e2e.spec.ts`, `<name>.e2e.html`). Element defaults (e.g. `h1`, `article`) come from the builder's `.applyTo(selector, variant?)`, which puts them in the `components.base` layer so Tailwind utilities override them. Inside `@layer utilities`, component bodies compile to `components.base` and a component's `.utility()`/`.controlled()` utilities to `components`, so plain Tailwind utilities beat component utilities, which beat bodies.
 
 ### React Component Pattern
 
@@ -83,13 +83,14 @@ React components in `packages/react/src/` follow:
 
 ### Documentation Pattern
 
-A component's docs page is `<name>.docs.tsx` next to its `<name>.css.ts` (e.g. `packages/core-v2/src/tailwind/components/button/button.docs.tsx`). It default-exports a page built from `docsFor(builder)` (`Page`, `Section`, `Example`, `Playground` from `@nataliebasille/css-engine`):
+A component's docs page is `<name>.docs.tsx` next to its `<name>.css.ts` (e.g. `packages/core-v2/src/tailwind/components/actions/button/button.docs.tsx`). It default-exports a page built from `docsFor(builder)` (`Page`, `Section`, `Example`, `Playground` from `@nataliebasille/css-engine`):
 
 - `<Section of="key">` documents a builder entity (component, utility, `@slots`, `@custom-variants`); `of` and `vars` only accept the builder's keys. A `<Section title="…">` without `of` is free-form.
 - `<Example>` children are both the live preview and the copyable HTML.
 - `<Playground render={(v) => …}>` derives its controls (variant, controlled-value presets) from the builder; add others with `control.palette/select/text/boolean`. Each helper takes its default or a config object with `label` (plus `optionLabels` for select/palette, `offLabel`/`onLabel` for boolean); derived-control overrides also accept `optionLabels`.
 - The API reference is generated from the builder; descriptions come from the sections.
-- Every `*.docs.tsx` under `packages/core-v2/src/` is a page, not just components (guides too). Its URL and sidebar group come from its folders (the leading `tailwind/` is dropped, and `button/button.docs.tsx` is `/components/button`), and its sidebar label from `<Page title>`. `<Page nav={{ label, group, order, path }}>` overrides any of them.
+- Every `*.docs.tsx` under `packages/core-v2/src/` is a page, not just components (guides too). Its URL and sidebar group come from its folders (the leading `tailwind/` is dropped, and `components/actions/button/button.docs.tsx` is `/components/actions/button`, under Components › Actions), and its sidebar label from `<Page title>`. `<Page nav={{ label, group, order, path }}>` overrides any of them.
+- The showcase sidebar (`showcase-v2/app/_ui/sidebar/`) shows one section per top-level docs group, in the order set in `sidebar-sections.ts`: Getting Started, Foundations, Typography, Components. The guide pages place themselves with `<Page nav={{ group }}>`. A section's sub-groups are collapsible.
 
 Docs files use the preview JSX runtime with no per-file pragma (core-v2 `tsconfig.json`/`vitest.config.ts`, and a Turbopack rule in `showcase-v2/next.config.js`). They never ship: core-v2 publishes only `dist/`. `packages/core-v2/test/docs.test.ts` checks every docs file. `showcase-v2` is the site shell that renders them.
 

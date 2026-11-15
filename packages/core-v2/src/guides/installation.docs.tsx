@@ -64,7 +64,7 @@ export default (
 
     <Section title="Next steps">
       <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
-        <a href="/components/button" className="card-hover card-soft/surface">
+        <a href="/components/actions/button" className="card-hover card-soft/surface">
           <InfoPanel
             title="Components →"
             description="Browse the component docs for live examples, copyable markup, and the full class reference."

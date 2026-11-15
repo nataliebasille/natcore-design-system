@@ -26,8 +26,8 @@
  * - #swatch-<palette>-<shade>  bg-<palette>-<shade> squares for primary/success 500/200
  */
 import { type Page } from "@playwright/test";
-import { expect, test } from "../../../../test/helpers/browser-test.ts";
-import { loadFixture } from "../../../../test/helpers/fixture-page.ts";
+import { expect, test } from "../../../../../test/helpers/browser-test.ts";
+import { loadFixture } from "../../../../../test/helpers/fixture-page.ts";
 
 type Rgb = [number, number, number];
 

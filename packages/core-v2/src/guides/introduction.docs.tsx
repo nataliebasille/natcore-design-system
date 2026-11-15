@@ -75,7 +75,7 @@ export default (
             linked
           />
         </a>
-        <a href="/components/button" className="card-hover card-soft/surface">
+        <a href="/components/actions/button" className="card-hover card-soft/surface">
           <ExploreCard
             title="Components"
             description="Everything you need to build consistent interfaces"
