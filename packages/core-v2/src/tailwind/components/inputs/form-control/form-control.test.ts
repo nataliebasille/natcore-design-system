@@ -13,7 +13,7 @@ import {
   flatten,
   resolveVars,
   winsByLayer,
-} from "../../../../test/helpers/build-natcore-css.ts";
+} from "../../../../../test/helpers/build-natcore-css.ts";
 
 const VARIANTS = ["outline", "soft", "solid", "underline"] as const;
 

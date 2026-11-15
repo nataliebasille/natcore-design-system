@@ -1,5 +1,5 @@
 import { component, dsl } from "@nataliebasille/css-engine";
-import { paddingBlock, paddingInline } from "../../../shared/inputs.ts";
+import { paddingBlock, paddingInline } from "../../../../shared/inputs.ts";
 
 const { select } = dsl;
 

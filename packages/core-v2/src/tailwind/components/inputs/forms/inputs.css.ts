@@ -1,5 +1,5 @@
 import { dsl, currentOrDefaultColor } from "@nataliebasille/css-engine";
-import { paddingBlock, paddingInline } from "../../../shared/inputs.ts";
+import { paddingBlock, paddingInline } from "../../../../shared/inputs.ts";
 
 export default dsl.layer.base(
   dsl.styleRule(dsl.select.element("label"), "flex", "flex-col", {

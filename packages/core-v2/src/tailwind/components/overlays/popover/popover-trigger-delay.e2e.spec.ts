@@ -32,8 +32,8 @@ import {
   browsers,
   expect,
   test,
-} from "../../../../test/helpers/browser-test.ts";
-import { loadFixture } from "../../../../test/helpers/fixture-page.ts";
+} from "../../../../../test/helpers/browser-test.ts";
+import { loadFixture } from "../../../../../test/helpers/fixture-page.ts";
 
 const POLYFILL = createRequire(import.meta.url).resolve("interestfor");
 

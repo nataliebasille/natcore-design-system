@@ -28,7 +28,7 @@ export default (
   <Page
     title="Core Tokens"
     description="Tokens are the CSS custom properties Natcore provides. Components and utilities read them, themes set their values, and palettes expand them into full shade ramps."
-    nav={{ label: "Tokens", group: "Core", order: 1, path: "/core/tokens" }}
+    nav={{ label: "Tokens", group: "Foundations", order: 1, path: "/core/tokens" }}
   >
     <Section
       title="Anatomy of a token"
@@ -113,7 +113,7 @@ export default (
           description="See how a single color becomes a full ramp, and the classes you type to use these tokens."
         />
         <NextStep
-          href="/components/button"
+          href="/components/actions/button"
           title="Components"
           description="See how component classes consume these tokens."
         />

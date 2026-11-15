@@ -13,7 +13,7 @@ import {
   declarations,
   findDecls,
   winsByLayer,
-} from "../../../../test/helpers/build-natcore-css.ts";
+} from "../../../../../test/helpers/build-natcore-css.ts";
 
 type Root = Awaited<ReturnType<typeof buildNatcoreCss>>;
 

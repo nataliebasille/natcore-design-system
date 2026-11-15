@@ -57,8 +57,8 @@ import {
   browsers,
   expect,
   test,
-} from "../../../../test/helpers/browser-test.ts";
-import { loadFixture } from "../../../../test/helpers/fixture-page.ts";
+} from "../../../../../test/helpers/browser-test.ts";
+import { loadFixture } from "../../../../../test/helpers/fixture-page.ts";
 
 type Box = { x: number; y: number; width: number; height: number };
 

@@ -34,7 +34,7 @@ import {
   flatten,
   resolveVars,
   winsByLayer,
-} from "../../../../test/helpers/build-natcore-css.ts";
+} from "../../../../../test/helpers/build-natcore-css.ts";
 
 type Root = Awaited<ReturnType<typeof buildNatcoreCss>>;
 type Side = "top" | "right" | "bottom" | "left";

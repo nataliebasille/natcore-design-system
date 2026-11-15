@@ -1,63 +1,123 @@
-import type React from "react";
-import type { PropsWithChildren } from "react";
-import NavLink from "../nav-link";
-import { twMerge } from "tailwind-merge";
-import { SidebarToggle } from "./sidebar-toggle";
-import { Overline } from "../layout/overline";
+import type { DocsNavNode } from '@/server/docs-index'
+import { twMerge } from 'tailwind-merge'
+import type { OutlineHeading } from '../doc/doc-outline'
+import { Overline } from '../layout/overline'
+import { NavGroup, PageLink, SidebarNavProvider, SidebarSearch } from './sidebar-content.client'
+import {
+  groupKey,
+  indexSidebarSections,
+  type SidebarIndex,
+  type SidebarSection,
+} from './sidebar-sections'
+import { SidebarToggle } from './sidebar-toggle'
 
-export type SidebarProps = PropsWithChildren<{
-  className?: string;
-}>;
+type NavLinkNode = Extract<DocsNavNode, { kind: 'link' }>
+type NavGroupNode = Extract<DocsNavNode, { kind: 'group' }>
 
-export function Sidebar({ className, children }: SidebarProps) {
+/**
+ * Docs navigation: a search box, then the sections with their pages. Rendered
+ * on the server; only the parts that depend on the current page or the
+ * reader's clicks are client components.
+ */
+export function Sidebar({
+  sections,
+  outlines,
+  className,
+}: {
+  sections: SidebarSection[]
+  /** Each page's top-level headings, by URL. */
+  outlines: Record<string, OutlineHeading[]>
+  className?: string
+}) {
+  const { groupKeysByHref, pageCounts } = indexSidebarSections(sections)
+
   return (
-    <aside className={twMerge("p-2 px-3 max-tablet:tray-left", className)}>
+    <aside className={twMerge('max-tablet:tray-left', className)}>
       <SidebarToggle />
-      {children}
+      <SidebarSearch />
+
+      <SidebarNavProvider groupKeysByHref={groupKeysByHref}>
+        <nav aria-label="Docs" className="px-2 pb-6 text-sm">
+          {sections.map((section, index) => (
+            <div key={section.label}>
+              <Overline
+                className={twMerge(
+                  'mb-1 px-2 text-[0.65rem] text-surface-950/45',
+                  index === 0 ? 'mt-1' : 'mt-5'
+                )}
+              >
+                {section.label}
+              </Overline>
+              <NavItems
+                items={section.items}
+                trail={[section.label]}
+                pageCounts={pageCounts}
+                outlines={outlines}
+              />
+            </div>
+          ))}
+        </nav>
+      </SidebarNavProvider>
     </aside>
-  );
+  )
 }
 
-export type SidebarGroupProps = PropsWithChildren<{
-  header: React.ReactNode;
-  className?: string;
-  /** Renders as an indented item inside a parent group's list. */
-  nested?: boolean;
-}>;
+/** Links render as one bordered list per run; groups collapse. */
+function NavItems({
+  items,
+  trail,
+  pageCounts,
+  outlines,
+}: {
+  items: DocsNavNode[]
+  trail: string[]
+  pageCounts: SidebarIndex['pageCounts']
+  outlines: Record<string, OutlineHeading[]>
+}) {
+  return runsOf(items).map((run) => {
+    if (Array.isArray(run)) {
+      return (
+        <ul key={run[0]!.href} className="mb-1 ml-4 border-l border-surface-600/25">
+          {run.map((link) => (
+            <PageLink
+              key={link.href}
+              href={link.href}
+              label={link.label}
+              headings={outlines[link.href] ?? []}
+            />
+          ))}
+        </ul>
+      )
+    }
 
-export function SidebarGroup({ header, children, nested }: SidebarGroupProps) {
-  const Root = nested ? "li" : "div";
-
-  return (
-    <Root
-      className={twMerge(
-        "flex flex-col",
-        nested && "ml-2 border-l border-surface-600/30 pl-2",
-      )}
-    >
-      <Overline className={twMerge("mb-2 pt-4 pb-0", nested && "mb-1 pt-2")}>
-        {header}
-      </Overline>
-
-      <ul className="flex flex-col gap-1 text-primary-500 dark:text-primary-900">
-        {children}
-      </ul>
-    </Root>
-  );
+    const groupTrail = [...trail, run.label]
+    const key = groupKey(groupTrail)
+    return (
+      <NavGroup
+        key={key}
+        groupKey={key}
+        label={run.label}
+        count={pageCounts[key] ?? 0}
+        nested={trail.length > 1}
+      >
+        <NavItems
+          items={run.children}
+          trail={groupTrail}
+          pageCounts={pageCounts}
+          outlines={outlines}
+        />
+      </NavGroup>
+    )
+  })
 }
 
-export type SidebarLinkProps = PropsWithChildren<{
-  href: string;
-}>;
-
-export function SidebarLink({ href, children }: SidebarLinkProps) {
-  return (
-    <NavLink
-      href={href}
-      component="li"
-      className="cursor-pointer rounded-lg border-l-2 border-transparent p-2 pl-2 text-sm tracking-wider text-(--tone-current-fg)/65 hover:bg-surface-200 hover:text-on-surface-200 active:rounded-l-none active:border-l-accent-500 active:bg-surface-200 active:text-on-surface-200"
-    >
-      {children}
-    </NavLink>
-  );
+function runsOf(items: DocsNavNode[]) {
+  const runs: (NavLinkNode[] | NavGroupNode)[] = []
+  for (const item of items) {
+    const last = runs.at(-1)
+    if (item.kind === 'group') runs.push(item)
+    else if (Array.isArray(last)) last.push(item)
+    else runs.push([item])
+  }
+  return runs
 }

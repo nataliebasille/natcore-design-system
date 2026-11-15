@@ -97,7 +97,7 @@ export default (
   <Page
     title="Palette"
     description="A palette is a single color expanded into a full 50-950 shade ramp. Every palette comes from a theme: a theme assigns a color to each role, and Natcore builds the ramp, mirrors it for dark mode, and exposes adaptive tokens. You can also define your own palettes."
-    nav={{ group: "Core", order: 3, path: "/core/palette" }}
+    nav={{ group: "Foundations", order: 3, path: "/core/palette" }}
   >
     <Section
       title="Palettes come from themes"
@@ -382,7 +382,7 @@ export default (
           description="See how a theme assembles palettes into a whole color scheme and switches schemes."
         />
         <NextStep
-          href="/components/button"
+          href="/components/actions/button"
           title="Components"
           description="See palette modifiers applied through component classes."
         />

@@ -53,7 +53,7 @@ export default (
   <Page
     title="Theming"
     description="A theme is a named set of role colors you select with data-theme. Components keep using the same token classes while the active theme changes the values underneath; light and dark are a separate scheme axis."
-    nav={{ group: "Core", order: 2, path: "/core/theming" }}
+    nav={{ group: "Foundations", order: 2, path: "/core/theming" }}
   >
     <Section
       title="How themes work"
@@ -164,7 +164,7 @@ export default (
           description="See how each role becomes a full shade ramp — and define your own palettes."
         />
         <NextStep
-          href="/components/button"
+          href="/components/actions/button"
           title="Components"
           description="See adaptive theme tokens applied through component modifiers."
         />

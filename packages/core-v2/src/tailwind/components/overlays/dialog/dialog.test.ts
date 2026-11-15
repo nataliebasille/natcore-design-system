@@ -11,7 +11,7 @@ import {
   findDecls,
   flatten,
   resolveVars,
-} from "../../../../test/helpers/build-natcore-css.ts";
+} from "../../../../../test/helpers/build-natcore-css.ts";
 
 const SURFACE_PROPS = /^(background(-color|-image)?|color|border(-.*)?)$/;
 
