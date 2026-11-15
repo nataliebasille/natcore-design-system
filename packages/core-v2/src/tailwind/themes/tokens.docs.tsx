@@ -57,7 +57,7 @@ export default (
       title="Color token families"
       description="These are the CSS variables Natcore exposes. Reference them directly, or reach them through utilities and component classes (see Palette)."
     >
-      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-3">
+      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3">
         <TokenFamilyCard
           token="--color-{role}-{shade}"
           description="The adaptive base color for a role and shade. Resolves to the light or dark value for the active scheme via light-dark()."

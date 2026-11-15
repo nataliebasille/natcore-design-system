@@ -82,7 +82,7 @@ export default (
       title="Semantic roles"
       description="A theme assigns a color to each of these roles. Markup references the role by intent — not a specific hex — so the same components work across every theme. These roles are the stable API; a theme changes the values underneath them."
     >
-      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-3">
+      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3">
         {PALETTE.map((role) => (
           <RolePanel role={role} />
         ))}
@@ -93,7 +93,7 @@ export default (
       title="Theme identity"
       description="Use data-theme to select a named palette. The selector defines role values Natcore uses to build the rest of the token system."
     >
-      <div className="grid w-full gap-4">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)] gap-4">
         <code>{THEME_DEFINITION}</code>
 
         <div className="card-soft/surface">
@@ -121,7 +121,7 @@ export default (
       title="Light and dark"
       description="Natcore treats theme choice and light/dark choice as separate concerns. data-theme selects the palette; the scheme class controls which side of each adaptive token is used."
     >
-      <div className="grid w-full gap-4">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)] gap-4">
         <code>{LIGHT_DARK}</code>
 
         <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">

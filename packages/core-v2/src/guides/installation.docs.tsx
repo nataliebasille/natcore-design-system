@@ -19,7 +19,7 @@ export default (
     nav={{ group: "Getting Started", order: 1, path: "/installation" }}
   >
     <Section title="Quick start">
-      <div className="grid w-full gap-6">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)] gap-6">
         <Step
           number={1}
           title="Install package"
@@ -105,12 +105,12 @@ function Step({
           {number}
         </span>
         <div>
-          <div className="mb-1 text-2xl tracking-tight">{title}</div>
+          <h3 className="mt-0 mb-1 text-2xl tracking-tight">{title}</h3>
           <p className="text-surface-950/65 text-sm/7">{description}</p>
         </div>
       </div>
 
-      <div className="grid gap-4">{children}</div>
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4">{children}</div>
     </section>
   );
 }

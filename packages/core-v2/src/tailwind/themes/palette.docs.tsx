@@ -136,7 +136,7 @@ export default (
       title="Light and dark"
       description="A palette is built once on the light side, then mirrored for dark: dark-{shade} points at the light ramp's opposite end — 50↔950, 100↔900, and so on, with 500 unchanged. A shade number keeps its semantic role but resolves to the other end of the ramp, so bg-surface-50 is a light surface in light mode and a dark surface in dark mode, with no markup change. The on-colors mirror the same way, so contrast flips automatically. Which side is active is the separate scheme axis — see Theming."
     >
-      <div className="grid w-full gap-4">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)] gap-4">
         <div className="card-soft/surface">
           <div data-slot="content" className="gap-4">
             <SchemeRamp
@@ -162,7 +162,7 @@ export default (
       title="Theme role palettes"
       description="Natcore ships two families of ready-made palettes: the semantic theme-role palettes and every built-in Tailwind color. Both expand through the same anchor model, flip in dark mode, and auto-contrast their text. A theme defines six semantic roles. Markup references the role, not a hex, so the same components work across every theme — see Theming for what each role is for. Each ramp below is live, rendered from this site's active theme."
     >
-      <div className="grid w-full gap-3">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)] gap-3">
         {BUILTIN_PALETTES.map((palette) => (
           <BuiltinPalette
             name={palette.name}
@@ -182,7 +182,7 @@ export default (
       title="Tailwind color palettes"
       description="Every built-in Tailwind color is available as a palette-{color} class out of the box. Like role palettes, they flip in dark mode (50 <-> 950), auto-contrast their text, and expose a per-shade --theme-{color}-{shade} override."
     >
-      <div className="grid w-full gap-4">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)] gap-4">
         <BuiltinColorGrid />
 
         <div className="card-soft/surface">
@@ -260,7 +260,7 @@ export default (
       title="Custom palettes"
       description="Beyond the six built-in roles, you can declare your own named palettes with the @natcore-palettes at-rule. They use the exact same anchor model, utilities, component modifiers, and per-shade tree-shaking — they are palettes in every way. The at-rule is expanded by a Natcore plugin that must run BEFORE Tailwind: add the PostCSS plugin, or the Vite variant for Vite-based setups. This step is required before the at-rule will do anything."
     >
-      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4">
+      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-4">
         <CodeBlock
           title="PostCSS"
           description="Add it to postcss.config.js ahead of @tailwindcss/postcss."
@@ -278,7 +278,7 @@ export default (
       title="Declaring palettes"
       description="With the plugin installed, declare each palette with the flat {name} / {name}-{shade} syntax. It is the same anchor model a theme uses for its roles: a single color, 50/500/950 anchors, intermediate nudges, or a fully explicit ramp. Order does not matter."
     >
-      <div className="grid w-full gap-4">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)] gap-4">
         <code>{DECLARE_PALETTES}</code>
 
         <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
@@ -302,7 +302,7 @@ export default (
       title="Example: pumpkin"
       description="A fully explicit eleven-shade ramp. Every swatch below is live — rendered from the generated light-side --color-light-pumpkin-{shade} tokens (the canonical 50→950 ramp) in this site's own theme."
     >
-      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4">
+      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-4">
         <code>{PUMPKIN_PALETTE}</code>
 
         <div className="card-soft/surface">
@@ -403,7 +403,7 @@ function SchemeRamp({
   hint: string;
 }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3">
         <div className="text-sm font-semibold">{label}</div>
         <code className="code text-[0.65rem]">{hint}</code>
@@ -545,7 +545,7 @@ function CodeBlock({
   code: string;
 }) {
   return (
-    <div className="grid h-full grid-rows-[auto_1fr] gap-2">
+    <div className="grid h-full grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr] gap-2">
       <div>
         <div className="text-sm font-semibold">{title}</div>
         <p className="text-surface-950/65 text-xs/6">{description}</p>
