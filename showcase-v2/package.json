@@ -5,6 +5,7 @@
   "scripts": {
     "prebuild": "pnpm --filter @nataliebasille/css-engine build && pnpm --filter ./packages/core-v2 build:css",
     "build": "pnpm --filter @nataliebasille/natcore-* build && next build",
+    "postbuild": "pagefind --site .next/server/app --output-path public/pagefind",
     "predev": "pnpm --filter @nataliebasille/css-engine build && pnpm --filter ./packages/core-v2 build:css && node -e \"require('node:fs').rmSync('.next', { recursive: true, force: true })\"",
     "dev": "next dev -p 3001",
     "start": "next start",
@@ -46,6 +47,7 @@
   "devDependencies": {
     "@iconify-icon/react": "^3.0.3",
     "@iconify-icons/mdi": "^1.2.45",
+    "pagefind": "^1.6.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1"
   }

@@ -29,7 +29,7 @@ const Description = ({
 export const DocPage = ({ children, title, description }: DocPageProps) => {
   return (
     <DocOutlineProvider>
-      <article className="h-full w-full px-4 desktop:p-6">
+      <article data-pagefind-body className="h-full w-full px-4 desktop:p-6">
         <h1 id={title}>{title}</h1>
 
         {description && (
