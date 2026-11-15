@@ -71,9 +71,11 @@ function isApplePlatform() {
 }
 
 function isTypingIn(target: EventTarget | null) {
+  // isContentEditable covers every editable value and inherited editing, and
+  // respects contenteditable="false".
   return (
-    target instanceof Element &&
-    target.closest("input, textarea, select, [contenteditable='true']") !== null
+    target instanceof HTMLElement &&
+    (target.isContentEditable || target.closest('input, textarea, select') !== null)
   )
 }
 

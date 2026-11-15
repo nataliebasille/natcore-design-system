@@ -245,8 +245,10 @@ function useCurrentHeading(ids: string[]) {
 }
 
 /**
- * Scrolls only the heading's scroll container. `scrollIntoView` would also
- * scroll the page itself when a docs example overflows it, hiding the header.
+ * Scrolls only the heading's scroll container, then moves focus to the heading
+ * so keyboard users continue from the section (the link may be in a now-closed
+ * tray). `scrollIntoView` would also scroll the page itself when a docs example
+ * overflows it, hiding the header.
  */
 function scrollToHeading(id: string) {
   return (event: MouseEvent<HTMLAnchorElement>) => {
@@ -264,6 +266,8 @@ function scrollToHeading(id: string) {
       top: scroller.scrollTop + offset,
       behavior: reduceMotion ? 'auto' : 'smooth',
     })
+    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
+    target.focus({ preventScroll: true })
     window.history.pushState(null, '', `#${id}`)
   }
 }
