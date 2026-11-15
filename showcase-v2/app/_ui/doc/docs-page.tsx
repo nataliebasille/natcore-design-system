@@ -28,7 +28,9 @@ export function DocsModelPage({
 
       {model.atAGlance !== undefined && (
         <DesignItemPageSection title={AT_A_GLANCE_TITLE}>
-          <Spotlight>{renderToUi(model.atAGlance)}</Spotlight>
+          <Spotlight>
+            <div data-pagefind-ignore>{renderToUi(model.atAGlance)}</div>
+          </Spotlight>
         </DesignItemPageSection>
       )}
 
@@ -40,7 +42,9 @@ export function DocsModelPage({
             return (
               <div key={index}>
                 <DesignItemPageSection title={PLAYGROUND_TITLE}>
-                  <DocsPlayground block={block} docsModulePath={docsModulePath} />
+                  <div data-pagefind-ignore>
+                    <DocsPlayground block={block} docsModulePath={docsModulePath} />
+                  </div>
                 </DesignItemPageSection>
                 <div className="divider"></div>
               </div>

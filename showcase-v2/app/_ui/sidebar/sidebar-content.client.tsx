@@ -7,24 +7,14 @@ import {
   useContext,
   useEffect,
   useId,
-  useRef,
   useState,
   type MouseEvent,
   type ReactNode,
 } from 'react'
 import { twMerge } from 'tailwind-merge'
 import type { OutlineHeading } from '../doc/doc-outline'
-import { ChevronDownIcon, SearchIcon } from '../icons'
-import {
-  useKeyboardShortcut,
-  useShortcutLabel,
-  type KeyboardShortcut,
-} from '@/ui/hooks/use-keyboard-shortcut'
-import { useBreakpoint } from '@/ui/hooks/use-breakpoint'
+import { ChevronDownIcon } from '../icons'
 import { useSidebar } from './sidebar-provider'
-
-const SEARCH_SHORTCUT: KeyboardShortcut = { key: 'k', mod: true }
-const noop = () => {}
 
 const ExpandedGroupsContext = createContext<{
   expanded: ReadonlySet<string>
@@ -65,43 +55,6 @@ export function SidebarNavProvider({
     <ExpandedGroupsContext.Provider value={{ expanded, toggle }}>
       {children}
     </ExpandedGroupsContext.Provider>
-  )
-}
-
-/** The search box. Search isn't wired up yet; the shortcut only focuses it. */
-export function SidebarSearch() {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const shortcutLabel = useShortcutLabel(SEARCH_SHORTCUT)
-  // Below tablet the sidebar is a closed tray and there's rarely a keyboard,
-  // so the shortcut does nothing and the browser's own Ctrl/⌘K runs.
-  const tablet = useBreakpoint('>= tablet')
-  useKeyboardShortcut(SEARCH_SHORTCUT, tablet ? focusInput : noop)
-
-  function focusInput(event: KeyboardEvent) {
-    event.preventDefault()
-    inputRef.current?.focus()
-  }
-
-  return (
-    <div className="sticky top-0 z-10 bg-inherit p-3">
-      <div className="form-control text-sm">
-        <span data-slot="prefix">
-          <SearchIcon className="size-4 text-surface-950/50" />
-        </span>
-        <input
-          ref={inputRef}
-          type="search"
-          placeholder="Search docs"
-          aria-label="Search docs"
-          className="[&::-webkit-search-cancel-button]:hidden"
-        />
-        <span data-slot="suffix">
-          <kbd className="rounded border border-surface-600/30 px-1.5 text-xs whitespace-nowrap text-surface-950/50 max-tablet:hidden">
-            {shortcutLabel}
-          </kbd>
-        </span>
-      </div>
-    </div>
   )
 }
 
@@ -250,7 +203,7 @@ function useCurrentHeading(ids: string[]) {
  * tray). `scrollIntoView` would also scroll the page itself when a docs example
  * overflows it, hiding the header.
  */
-function scrollToHeading(id: string) {
+export function scrollToHeading(id: string) {
   return (event: MouseEvent<HTMLAnchorElement>) => {
     const target = document.getElementById(id)
     const scroller = target?.closest('main')
